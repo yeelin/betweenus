@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@color/colorAccent"
+        android:gravity="bottom"
+        android:paddingLeft="16dp"
+        android:paddingBottom="16dp"
+        android:textColor="@android:color/white"
+        android:text="Find the best places to meet between you and your friend"
+        android:textSize="24sp"/>
+
+    <EditText
+        android:id="@+id/user_location"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:imeOptions="actionNext"
+        android:inputType="textPostalAddress"
+        android:hint="Enter your address" />
+
+    <EditText
+        android:id="@+id/friend_location"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:imeOptions="actionGo"
+        android:inputType="textPostalAddress"
+        android:hint="Enter your friend's address" />
+
+    <RelativeLayout
+        android:id="@+id/card_buttons"
+        android:layout_below="@id/friend_location"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp">
+
+        <Button
+            android:id="@+id/search_button"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="end|center_vertical"
+            android:paddingRight="24dp"
+            android:text="Search"/>
+    </RelativeLayout>
+</LinearLayout>

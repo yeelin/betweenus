@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".fragment.PlaceFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/detail_txt_place_name"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@color/colorAccent"
+            android:gravity="bottom"
+            android:paddingLeft="@dimen/card_content_padding"
+            android:paddingBottom="32dp"
+            android:paddingRight="@dimen/card_content_padding"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/medium_textSize"
+            tools:text="@string/place_name"/>
+
+        <TextView
+            android:id="@+id/detail_txt_place_tag"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:gravity="bottom"
+            android:textColor="@android:color/white"
+            android:paddingLeft="@dimen/card_content_padding"
+            android:paddingBottom="@dimen/card_content_padding"
+            android:textSize="@dimen/small_textSize"
+            tools:text="@string/place_tag"/>
+
+        <TextView
+            android:id="@+id/detail_txt_place_price"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:gravity="bottom"
+            android:layout_alignBaseline="@id/detail_txt_place_tag"
+            android:layout_toRightOf="@id/detail_txt_place_tag"
+            android:textColor="@android:color/white"
+            android:paddingLeft="@dimen/card_content_padding"
+            android:paddingBottom="@dimen/card_content_padding"
+            android:textSize="@dimen/small_textSize"
+            android:text="@string/place_price"/>
+
+        <TextView
+            android:id="@+id/detail_txt_place_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="200dp"
+            android:gravity="bottom"
+            android:layout_alignBaseline="@id/detail_txt_place_price"
+            android:layout_toRightOf="@id/detail_txt_place_price"
+            android:textColor="@android:color/white"
+            android:paddingLeft="@dimen/card_content_padding"
+            android:paddingBottom="@dimen/card_content_padding"
+            android:textSize="@dimen/small_textSize"
+            tools:text="@string/place_distance"/>
+
+        <LinearLayout
+            android:id="@+id/quick_actions"
+            android:layout_below="@id/detail_txt_place_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/quick_action_web"
+                style="@style/QuickActionButtonStyle"
+                android:text="Website"/>
+            <Button
+                android:id="@+id/quick_action_menu"
+                style="@style/QuickActionButtonStyle"
+                android:text="Menu"/>
+            <Button
+                android:id="@+id/quick_action_phone"
+                style="@style/QuickActionButtonStyle"
+                android:text="Call"/>
+            <Button
+                android:id="@+id/quick_action_map"
+                style="@style/QuickActionButtonStyle"
+                android:text="Map"/>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/detail_card_rule1"
+            android:layout_below="@id/quick_actions"
+            style="@style/HorizontalRuleStyle"/>
+
+        <RelativeLayout
+            android:id="@+id/detail_card_content"
+            android:layout_below="@id/quick_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/card_content_padding">
+
+            <!-- START:Address and Phone group -->
+            <TextView
+                android:id="@+id/detail_txt_place_address"
+                style="@style/Medium_PrimaryTextViewStyle"
+                tools:text="@string/place_address"/>
+            <TextView
+                android:id="@+id/detail_txt_place_crossstreet"
+                android:layout_below="@id/detail_txt_place_address"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_crossstreet"/>
+            <TextView
+                android:id="@+id/detail_txt_place_phone"
+                android:layout_below="@id/detail_txt_place_crossstreet"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_phone"/>
+            <!-- END:Address and Phone group -->
+
+            <!-- START:Website group-->
+            <TextView
+                android:id="@+id/detail_txt_website_header"
+                android:layout_below="@id/detail_txt_place_phone"
+                android:layout_marginTop="8dp"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="Website"/>
+            <TextView
+                android:id="@+id/detail_txt_place_website"
+                android:layout_below="@id/detail_txt_website_header"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_website"/>
+            <!-- END:Website group-->
+
+            <!-- START:Reviews group-->
+            <TextView
+                android:id="@+id/detail_txt_reviews_header"
+                android:layout_below="@id/detail_txt_place_website"
+                android:layout_marginTop="8dp"
+                style="@style/Medium_PrimaryTextViewStyle"
+                tools:text="Reviews"/>
+            <TextView
+                android:id="@+id/detail_txt_place_rating"
+                android:layout_below="@id/detail_txt_reviews_header"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_rating"/>
+            <TextView
+                android:id="@+id/detail_txt_place_review_count"
+                android:layout_toRightOf="@id/detail_txt_place_rating"
+                android:layout_alignBaseline="@id/detail_txt_place_rating"
+                android:layout_marginLeft="4dp"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_review_count"/>
+            <!-- END:Reviews group-->
+
+            <!-- START:Hours group-->
+            <TextView
+                android:id="@+id/detail_txt_hours_header"
+                android:layout_below="@id/detail_txt_place_rating"
+                android:layout_marginTop="8dp"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="Hours"/>
+            <TextView
+                android:id="@+id/detail_txt_place_hours"
+                android:layout_below="@id/detail_txt_hours_header"
+                android:layout_marginTop="2dp"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_hours"/>
+            <!-- END:Hours group-->
+
+            <!-- START:More Details group-->
+            <TextView
+                android:id="@+id/detail_txt_more_detail_header"
+                android:layout_below="@id/detail_txt_place_hours"
+                android:layout_marginTop="10dp"
+                style="@style/Medium_PrimaryTextViewStyle"
+                tools:text="More Details"/>
+            <TextView
+                android:id="@+id/detail_txt_place_cc"
+                android:layout_below="@id/detail_txt_more_detail_header"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_accepts_cc"/>
+            <TextView
+                android:id="@+id/detail_txt_place_parking"
+                android:layout_below="@id/detail_txt_place_cc"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_parking"/>
+            <TextView
+                android:id="@+id/detail_txt_place_accessibility"
+                android:layout_below="@id/detail_txt_place_parking"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_accessible"/>
+            <TextView
+                android:id="@+id/detail_txt_place_seating"
+                android:layout_below="@id/detail_txt_place_accessibility"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_outdoor_seating"/>
+            <TextView
+                android:id="@+id/detail_txt_place_wifi"
+                android:layout_below="@id/detail_txt_place_seating"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/place_wifi"/>
+            <!-- END:More Details group-->
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/detail_card_buttons"
+            android:layout_below="@id/detail_card_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/detail_card_rule"
+                style="@style/HorizontalRuleStyle"/>
+
+            <Button
+                android:id="@+id/detail_card_button_like"
+                android:layout_below="@id/detail_card_rule"
+                style="@style/Small_SecondaryButtonStyle"
+                android:layout_alignParentLeft="true"
+                android:gravity="start|center_vertical"
+                android:paddingLeft="@dimen/card_content_padding"
+                android:text="@string/like_button_text"/>
+
+            <Button
+                android:id="@+id/detail_card_button_select"
+                android:layout_below="@id/detail_card_rule"
+                style="@style/Small_AccentButtonStyle"
+                android:layout_alignParentRight="true"
+                android:gravity="end|center_vertical"
+                android:paddingRight="@dimen/card_content_padding"
+                android:text="@string/select_button_text"/>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</ScrollView>

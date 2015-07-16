@@ -1,8 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <!-- Medium Text View Styles -->
+    <style name="Medium_PrimaryTextViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textIsSelectable">true</item>
+    </style>
+    <style name="Medium_SecondaryTextViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
+        <item name="android:textIsSelectable">true</item>
+    </style>
+    <style name="Medium_AccentTextViewStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textIsSelectable">true</item>
     </style>
 
+    <!-- Edit Text Style -->
+    <style name="EditTextStyle">
+        <item name="android:layout_marginLeft">@dimen/card_content_padding</item>
+        <item name="android:layout_marginRight">@dimen/card_content_padding</item>
+        <item name="android:layout_marginTop">@dimen/card_content_padding</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
+        <item name="android:textColorHint">@color/textColorTertiary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+
+    <style name="HorizontalRuleStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/gray_200</item>
+    </style>
+
+    <!-- Medium Button styles-->
+    <style name="Medium_PrimaryButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+    <style name="Medium_AccentButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+    <style name="Medium_SecondaryButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+
+    <!-- Small button styles -->
+    <style name="Small_PrimaryButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+    <style name="Small_AccentButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+    <style name="Small_SecondaryButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/textColorSecondary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+
+    <!-- Quick action button styles -->
+    <style name="QuickActionButtonStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
 </resources>
