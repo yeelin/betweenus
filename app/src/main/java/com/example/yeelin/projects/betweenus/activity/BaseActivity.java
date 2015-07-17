@@ -10,7 +10,8 @@ import com.example.yeelin.projects.betweenus.R;
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public abstract class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity
+        extends AppCompatActivity {
     /**
      * Helper method to setup toolbar
      */

@@ -16,21 +16,21 @@
         android:text="Find the best places to meet between you and your friend"
         android:textSize="24sp"/>
 
-    <EditText
+    <TextView
         android:id="@+id/user_location"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:imeOptions="actionNext"
-        android:inputType="textPostalAddress"
-        android:hint="Enter your address" />
+        android:paddingLeft="16dp"
+        android:gravity="left|center_vertical"
+        android:text="Enter your address" />
 
-    <EditText
+    <TextView
         android:id="@+id/friend_location"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:imeOptions="actionGo"
-        android:inputType="textPostalAddress"
-        android:hint="Enter your friend's address" />
+        android:paddingLeft="16dp"
+        android:gravity="left|center_vertical"
+        android:text="Enter your friend's address" />
 
     <RelativeLayout
         android:id="@+id/card_buttons"

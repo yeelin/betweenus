@@ -5,12 +5,22 @@
     <string name="title_launcher">Betweenus</string>
     <string name="title_suggested_places">Suggested Places</string>
     <string name="title_place">Place</string>
+    <string name="title_search">Search</string>
+    <string name="title_dummy_search">Dummy Search</string>
 
     <!-- Toolbar strings -->
     <string name="toolbar_title_main">Between Us - Search</string>
     <string name="toolbar_title_results">Results</string>
     <string name="toolbar_title_details">Details</string>
     <string name="toolbar_title_invite">Invite friend</string>
+
+    <!-- Search strings -->
+    <string name="search_query_hint">Enter address, city, or neighborhood</string>
+    <string name="search_attribution_contentDescription">Search powered by Google</string>
+    <string name="search_no_results">Location not found</string>
+
+    <!-- menu actions -->
+    <string name="action_search">Search</string>
 
     <!-- Main activity strings -->
     <string name="cover_image_overlay_text">Find the best places to meet between you and your friend</string>
@@ -51,4 +61,8 @@
     <string name="invite_image_overlay_text">Text or email to invite your friend</string>
     <string name="enter_phone_number">"Enter friend's phone"</string>
     <string name="enter_email_address">"Enter friend's email"</string>
+
+    <!-- Google play services -->
+    <string name="google_play_services_error">Failed to resolve Google Play Services error. Restart app to try again</string>
+
 </resources>

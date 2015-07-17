@@ -4,13 +4,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatEditText;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 
@@ -24,12 +23,16 @@ public class LocationEntryFragment
     private static final String TAG = LocationEntryFragment.class.getCanonicalName();
 
     //member variables
+    private Location userLocation;
+    private Location friendLocation;
     private LocationEntryFragmentListener listener;
 
     /**
      * Listener interface. To be implemented by activity/fragment that is interested in events from this fragment
      */
     public interface LocationEntryFragmentListener {
+        public void inputUserLocation();
+        public void inputFriendLocation();
         public void onSearch(String userLocation, String friendLocation);
     }
 
@@ -49,6 +52,24 @@ public class LocationEntryFragment
      * Required empty constructor
      */
     public LocationEntryFragment() {}
+
+    public void setUserLocation(String name, double latitude, double longitude) {
+        userLocation = new Location(name, latitude, longitude);
+
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder != null) {
+            viewHolder.userLocation.setText(name);
+        }
+    }
+
+    public void setFriendLocation(String name, double latitude, double longitude) {
+        friendLocation = new Location(name, latitude, longitude);
+
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder != null) {
+            viewHolder.friendLocation.setText(name);
+        }
+    }
 
     /**
      * Make sure either the activity or the parent fragment implements the listener interface.
@@ -102,6 +123,8 @@ public class LocationEntryFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
+        viewHolder.userLocation.setOnClickListener(this);
+        viewHolder.friendLocation.setOnClickListener(this);
         viewHolder.searchButton.setOnClickListener(this);
     }
 
@@ -123,13 +146,18 @@ public class LocationEntryFragment
     public void onClick(View v) {
         Log.d(TAG, "onClick: Search button was clicked");
 
-        ViewHolder viewHolder = getViewHolder();
-        if (viewHolder != null) {
-            String location1 = viewHolder.userLocation.getText().toString().trim();
-            String location2 = viewHolder.friendLocation.getText().toString().trim();
-            Log.d(TAG, String.format("onClick: Location 1:%s, Location 2:%s", location1, location2));
-
-            listener.onSearch(location1, location2);
+        switch (v.getId()) {
+            case R.id.user_location:
+                listener.inputUserLocation();
+                break;
+            case R.id.friend_location:
+                listener.inputFriendLocation();
+                break;
+            case R.id.search_button:
+                if (userLocation != null && friendLocation != null) {
+                    listener.onSearch(userLocation.name, friendLocation.name);
+                }
+                break;
         }
     }
 
@@ -147,15 +175,26 @@ public class LocationEntryFragment
      * View holder
      */
     private class ViewHolder {
-        final EditText userLocation;
-        final EditText friendLocation;
+        final TextView userLocation;
+        final TextView friendLocation;
         final Button searchButton;
 
         ViewHolder(View view) {
-            userLocation = (EditText) view.findViewById(R.id.user_location);
-            friendLocation = (EditText) view.findViewById(R.id.friend_location);
+            userLocation = (TextView) view.findViewById(R.id.user_location);
+            friendLocation = (TextView) view.findViewById(R.id.friend_location);
             searchButton = (Button) view.findViewById(R.id.search_button);
         }
     }
 
+    private class Location {
+        final String name;
+        final double latitude;
+        final double longitude;
+
+        Location(String name, double latitude, double longitude) {
+            this.name = name;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+    }
 }

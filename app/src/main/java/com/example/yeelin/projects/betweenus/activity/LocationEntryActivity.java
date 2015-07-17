@@ -1,5 +1,7 @@
 package com.example.yeelin.projects.betweenus.activity;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -16,6 +18,9 @@ public class LocationEntryActivity
     //logcat
     private static final String TAG = LocationEntryActivity.class.getCanonicalName();
 
+    //request codes
+    private static final int REQUEST_CODE_USER_LOCATION = 100;
+    private static final int REQUEST_CODE_FRIEND_LOCATION = 110;
     /**
      * Creates the activity
      * @param savedInstanceState
@@ -50,6 +55,51 @@ public class LocationEntryActivity
         }
     }
 
+    @Override
+    public void inputUserLocation() {
+        Log.d(TAG, "inputUserLocation");
+        startActivityForResult(
+                SearchActivity.buildIntent(this, SearchActivity.USER),
+                REQUEST_CODE_USER_LOCATION);
+
+    }
+
+    @Override
+    public void inputFriendLocation() {
+        Log.d(TAG, "inputFriendLocation");
+        startActivityForResult(
+                SearchActivity.buildIntent(this, SearchActivity.FRIEND),
+                REQUEST_CODE_FRIEND_LOCATION);
+    }
+
+    /**
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode != REQUEST_CODE_USER_LOCATION && requestCode != REQUEST_CODE_FRIEND_LOCATION) {
+            super.onActivityResult(requestCode, resultCode, data);
+            return;
+        }
+
+        if (resultCode == Activity.RESULT_OK && data != null) {
+            String locationName = data.getStringExtra(SearchActivity.EXTRA_LOCATION_NAME);
+            double latitude = data.getDoubleExtra(SearchActivity.EXTRA_LOCATION_LATITUDE, 0);
+            double longitude = data.getDoubleExtra(SearchActivity.EXTRA_LOCATION_LONGITUDE, 0);
+
+            LocationEntryFragment locationEntryFragment = (LocationEntryFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry_fragmentContainer);
+            if (requestCode == REQUEST_CODE_USER_LOCATION) {
+                locationEntryFragment.setUserLocation(locationName, latitude, longitude);
+            }
+            else {
+                locationEntryFragment.setFriendLocation(locationName, latitude, longitude);
+            }
+        }
+    }
+
     /**
      * LocationEntryFragment.LocationEntryFragmentListener callback
      *
@@ -58,7 +108,7 @@ public class LocationEntryActivity
      */
     @Override
     public void onSearch(String userLocation, String friendLocation) {
-        Log.d(TAG, String.format("onSearch: Location 1: %s, Location 2: %s", userLocation, friendLocation));
+        Log.d(TAG, String.format("onSearch: User location:%s, Friend location:%s", userLocation, friendLocation));
 
         //start the place suggestion activity
         startActivity(PlaceActivity.buildIntent(this, 0, "Place name"));
