@@ -12,25 +12,23 @@ import com.example.yeelin.projects.betweenus.R;
 import java.util.List;
 
 /**
- * Created by ninjakiki on 7/16/15.
- * Adapter for the search list view
+ * Created by ninjakiki on 7/21/15.
  */
-public class SearchAdapter extends ArrayAdapter<SearchResultItem> {
+public class SuggestionsAdapter extends ArrayAdapter<SuggestionsItem> {
     //logcat
-    private static final String TAG = SearchAdapter.class.getCanonicalName();
+    private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
 
     /**
      * Constructor
      * @param context
-     * @param objects
+     * @param items
      */
-    public SearchAdapter(Context context, List<SearchResultItem> objects) {
-        super(context, 0, objects);
+    public SuggestionsAdapter(Context context, List<SuggestionsItem> items) {
+        super(context, 0, items);
     }
 
     /**
-     * Recycles a listview item.  If the view is null, then this method inflates a new view and then
-     * sets the text on view.
+     * Creates a new view or recycles the view
      * @param position
      * @param convertView
      * @param parent
@@ -40,19 +38,19 @@ public class SearchAdapter extends ArrayAdapter<SearchResultItem> {
     public View getView(int position, View convertView, ViewGroup parent) {
         View view = convertView;
         if (view == null) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_search, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_suggestion, parent, false);
         }
 
-        TextView searchTextView = (TextView) view.findViewById(R.id.search_result_item);
-        searchTextView.setText(getItem(position).getDescription());
+        TextView suggestionTextView = (TextView) view.findViewById(R.id.suggestion_item);
+        suggestionTextView.setText(getItem(position).getName());
         return view;
     }
 
     /**
-     *
+     * Updates the adapter with a new list of items
      * @param newItems
      */
-    public void updateAllItems(List<SearchResultItem> newItems) {
+    public void updateAllItems(List<SuggestionsItem> newItems) {
         //remove all items from the list
         clear();
         //add all items to the end of the array

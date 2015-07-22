@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,9 +23,9 @@ import android.widget.Toast;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.activity.DummySearchActivity;
-import com.example.yeelin.projects.betweenus.activity.PlaceActivity;
-import com.example.yeelin.projects.betweenus.adapter.SearchAdapter;
-import com.example.yeelin.projects.betweenus.adapter.SearchResultItem;
+import com.example.yeelin.projects.betweenus.adapter.LocationSearchAdapter;
+import com.example.yeelin.projects.betweenus.adapter.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -36,22 +37,20 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public class SearchFragment
+public class LocationSearchFragment
         extends BasePlayServicesFragment
         implements AdapterView.OnItemClickListener,
         SearchView.OnQueryTextListener {
     //logcat
-    private static final String TAG = SearchFragment.class.getCanonicalName();
+    private static final String TAG = LocationSearchFragment.class.getCanonicalName();
     //saved instance state
-    private static final String STATE_LAST_QUERY = SearchFragment.class.getSimpleName() + ".lastQuery";
+    private static final String STATE_LAST_QUERY = LocationSearchFragment.class.getSimpleName() + ".lastQuery";
     //other constants
     private static final int MINIMUM_QUERY_TEXT_LENGTH = 2;
     private static final int PENDING_RESULT_TIME_SECONDS = 30; //amount of time to wait for Places api = 30 seconds
@@ -70,20 +69,19 @@ public class SearchFragment
     private PlaceResultCallback placeResultCallback;
 
     //listener
-    private SearchFragmentListener searchListener;
+    private LocationSearchFragmentListener locationSearchListener;
 
     /**
      * Listener interface to be implemented by whoever is interested in events from this fragment.
      */
-    public interface SearchFragmentListener {
-        public void onPlaceSelected(String name, double latitude, double longitude, List<Integer> placeTypes);
-
+    public interface LocationSearchFragmentListener {
+        public void onLocationSelected(Location location);
     }
 
     /**
      * Required empty constructor
      */
-    public SearchFragment() {}
+    public LocationSearchFragment() {}
 
     /**
      * Creates a new google api client builder that does places search
@@ -108,7 +106,7 @@ public class SearchFragment
 
         try {
             Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
-            searchListener = (SearchFragmentListener) objectToCast;
+            locationSearchListener = (LocationSearchFragmentListener) objectToCast;
         }
         catch (ClassCastException e) {
             throw new ClassCastException(activity.getClass().getSimpleName() + " must implement SearchFragmentListener");
@@ -146,7 +144,7 @@ public class SearchFragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_search, container, false);
+        return inflater.inflate(R.layout.fragment_location_search, container, false);
     }
 
     /**
@@ -227,7 +225,7 @@ public class SearchFragment
      */
     @Override
     public void onDetach() {
-        searchListener = null;
+        locationSearchListener = null;
         super.onDetach();
     }
 
@@ -307,9 +305,9 @@ public class SearchFragment
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        SearchResultItem searchResultItem = (SearchResultItem) parent.getItemAtPosition(position);
+        LocationSearchItem locationSearchItem = (LocationSearchItem) parent.getItemAtPosition(position);
         Log.d(TAG, String.format("onItemClick: Position:%d, Description:%s, PlaceId:%s",
-                position, searchResultItem.getDescription(), searchResultItem.getPlaceId()));
+                position, locationSearchItem.getDescription(), locationSearchItem.getPlaceId()));
 
         //clear out any old pending results first
         if (placePendingResult != null) {
@@ -320,7 +318,7 @@ public class SearchFragment
         //send the placeId to the getPlaceById API to get the place's name and lat/lng so that we can query Yelp
         placePendingResult = Places.GeoDataApi.getPlaceById(
                 googleApiClient,
-                searchResultItem.getPlaceId());
+                locationSearchItem.getPlaceId());
         //set the callback
         placePendingResult.setResultCallback(placeResultCallback, PENDING_RESULT_TIME_SECONDS, TimeUnit.SECONDS);
     }
@@ -386,21 +384,21 @@ public class SearchFragment
 
             //good, we still have a view
             //read the search results from the buffer and then release the buffer
-            ArrayList<SearchResultItem> searchResultItems = buildSearchResultItems(autocompletePredictions);
+            ArrayList<LocationSearchItem> locationSearchItems = buildSearchResultItems(autocompletePredictions);
             autocompletePredictions.release();
 
             //check if listview adapter exists
-            SearchAdapter searchAdapter = (SearchAdapter) viewHolder.searchListView.getAdapter();
-            if (searchAdapter == null) {
+            LocationSearchAdapter locationSearchAdapter = (LocationSearchAdapter) viewHolder.searchListView.getAdapter();
+            if (locationSearchAdapter == null) {
                 //create and set the adapter with the search resul items
                 Log.d(TAG, "AutocompleteResultCallback.onResult: Search adapter is null, so creating a new one");
-                searchAdapter = new SearchAdapter(viewHolder.searchListView.getContext(), searchResultItems);
-                viewHolder.searchListView.setAdapter(searchAdapter);
+                locationSearchAdapter = new LocationSearchAdapter(viewHolder.searchListView.getContext(), locationSearchItems);
+                viewHolder.searchListView.setAdapter(locationSearchAdapter);
             }
             else {
                 //update the adapter
                 Log.d(TAG, "AutocompleteResultCallback.onResult: Search adapter is not null, so updating");
-                searchAdapter.updateAllItems(searchResultItems);
+                locationSearchAdapter.updateAllItems(locationSearchItems);
             }
         }
 
@@ -411,12 +409,12 @@ public class SearchFragment
          * @return
          */
         @NonNull
-        private ArrayList<SearchResultItem> buildSearchResultItems (@NonNull AutocompletePredictionBuffer autocompletePredictions) {
-            ArrayList<SearchResultItem> searchResultItems = new ArrayList<>(autocompletePredictions.getCount());
+        private ArrayList<LocationSearchItem> buildSearchResultItems (@NonNull AutocompletePredictionBuffer autocompletePredictions) {
+            ArrayList<LocationSearchItem> locationSearchItems = new ArrayList<>(autocompletePredictions.getCount());
             for (int i=0; i<autocompletePredictions.getCount(); i++) {
-                searchResultItems.add(new SearchResultItem(autocompletePredictions.get(i).getDescription(), autocompletePredictions.get(i).getPlaceId()));
+                locationSearchItems.add(new LocationSearchItem(autocompletePredictions.get(i).getDescription(), autocompletePredictions.get(i).getPlaceId()));
             }
-            return searchResultItems;
+            return locationSearchItems;
         }
     }
 
@@ -449,12 +447,17 @@ public class SearchFragment
             Log.d(TAG, String.format("PlaceResultCallback.onResult: Found place. Name:%s LatLng:%f, %f PlaceTypes:%s",
                     foundPlace.getName().toString(), foundPlace.getLatLng().latitude, foundPlace.getLatLng().longitude, foundPlace.getPlaceTypes().toString()));
 
-            //notify the listener
-            searchListener.onPlaceSelected(
-                    foundPlace.getName().toString(),
-                    foundPlace.getLatLng().latitude,
-                    foundPlace.getLatLng().longitude,
-                    foundPlace.getPlaceTypes());
+            //create a location and notify the listener
+            Location location = new Location("Google Play Services");
+            location.setLatitude(foundPlace.getLatLng().latitude);
+            location.setLongitude(foundPlace.getLatLng().longitude);
+
+            Bundle bundle = new Bundle();
+            bundle.putString(LocationUtils.EXTRA_NAME, foundPlace.getName().toString());
+            bundle.putString(LocationUtils.EXTRA_ADDRESS, foundPlace.getAddress().toString());
+            location.setExtras(bundle);
+
+            locationSearchListener.onLocationSelected(location);
 
             //release the places buffer, foundPlace should not be used after this call
             places.release();

@@ -3,33 +3,30 @@ package com.example.yeelin.projects.betweenus.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.fragment.SearchFragment;
+import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;
 
 import java.util.List;
 
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public class SearchActivity
+public class LocationSearchActivity
         extends BasePlayServicesActivity
-        implements SearchFragment.SearchFragmentListener {
+        implements LocationSearchFragment.LocationSearchFragmentListener {
     //logcat
-    private static final String TAG = SearchActivity.class.getCanonicalName();
+    private static final String TAG = LocationSearchActivity.class.getCanonicalName();
     //intent extras
-    private static final String EXTRA_USER_ID = SearchActivity.class.getSimpleName() + ".userId";
-    public static final int USER = 0;
-    public static final int FRIEND = 1;
+    private static final String EXTRA_USER_ID = LocationSearchActivity.class.getSimpleName() + ".userId";
 
     //result intent extras
-    public static final String EXTRA_LOCATION_NAME = SearchActivity.class.getSimpleName() + ".locationName";
-    public static final String EXTRA_LOCATION_LATITUDE = SearchActivity.class.getSimpleName() + ".locationLatitude";
-    public static final String EXTRA_LOCATION_LONGITUDE = SearchActivity.class.getSimpleName() + ".locationLongitude";
+    public static final String EXTRA_LOCATION = LocationSearchActivity.class.getSimpleName() + ".location";
 
     /**
      * Builds the intent to start this activity
@@ -38,7 +35,7 @@ public class SearchActivity
      * @return
      */
     public static Intent buildIntent(Context context, int userId) {
-        Intent intent = new Intent(context, SearchActivity.class);
+        Intent intent = new Intent(context, LocationSearchActivity.class);
         intent.putExtra(EXTRA_USER_ID, userId);
         return intent;
     }
@@ -50,7 +47,7 @@ public class SearchActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search);
+        setContentView(R.layout.activity_location_search);
 
         //setup toolbar
         setupToolbar(R.id.search_toolbar, true);
@@ -98,29 +95,23 @@ public class SearchActivity
     protected void onPlayServicesAvailable() {
         Log.d(TAG, "onPlayServicesAvailable");
 
-        SearchFragment searchFragment = (SearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment);
-        if (searchFragment != null) {
-            searchFragment.onPlayServicesAvailable();
+        LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment);
+        if (locationSearchFragment != null) {
+            locationSearchFragment.onPlayServicesAvailable();
         }
     }
 
     /**
-     * SearchFragmentListener implementation
-     * This callback happens when the user selects a place in the places search listview
-     * @param name
-     * @param latitude
-     * @param longitude
-     * @param placeTypes
+     * LocationSearchFragmentListener implementation
+     * This callback happens when the user selects a suggestion in the location search listview
+     * @param location
      */
     @Override
-    public void onPlaceSelected(String name, double latitude, double longitude, List<Integer> placeTypes) {
-        Log.d(TAG, "onPlaceSelected:");
-        //navigateUpToParentActivity(this);
+    public void onLocationSelected(Location location) {
+        Log.d(TAG, "onLocationSelected");
 
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_LOCATION_NAME, name);
-        intent.putExtra(EXTRA_LOCATION_LATITUDE, latitude);
-        intent.putExtra(EXTRA_LOCATION_LONGITUDE, longitude);
+        intent.putExtra(EXTRA_LOCATION, location);
 
         setResult(Activity.RESULT_OK, intent);
         finish();

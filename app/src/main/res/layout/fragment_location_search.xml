@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.yeelin.projects.betweenus.fragment.SearchFragment">
+    tools:context="com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment">
 
     <ImageView
         android:id="@+id/search_attribution"

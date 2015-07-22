@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.SuggestedPlacesActivity"
+        <activity android:name=".activity.SuggestionsActivity"
             android:label="@string/title_suggested_places"
             android:parentActivityName=".activity.LocationEntryActivity">
             <meta-data
@@ -37,7 +37,7 @@
                 android:value=".activity.LocationEntryActivity"/>
         </activity>
 
-        <activity android:name=".activity.SearchActivity"
+        <activity android:name=".activity.LocationSearchActivity"
             android:label="@string/title_search"
             android:parentActivityName=".activity.LocationEntryActivity">
             <meta-data
@@ -47,7 +47,7 @@
 
         <activity android:name=".activity.DummySearchActivity"
             android:label="@string/title_dummy_search"
-            android:parentActivityName=".activity.SearchActivity">
+            android:parentActivityName=".activity.LocationSearchActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH"/>
             </intent-filter>
@@ -56,7 +56,7 @@
                 android:resource="@xml/searchable"/>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.SearchActivity"/>
+                android:value=".activity.LocationSearchActivity"/>
         </activity>
 
         <!--  Google Play Services -->

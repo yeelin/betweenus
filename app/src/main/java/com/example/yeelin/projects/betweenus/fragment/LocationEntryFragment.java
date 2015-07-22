@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.activity.LocationEntryActivity;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
 /**
  * Created by ninjakiki on 7/13/15.
@@ -31,9 +34,8 @@ public class LocationEntryFragment
      * Listener interface. To be implemented by activity/fragment that is interested in events from this fragment
      */
     public interface LocationEntryFragmentListener {
-        public void inputUserLocation();
-        public void inputFriendLocation();
-        public void onSearch(String userLocation, String friendLocation);
+        public void onInputLocation(int locationType);
+        public void onSearch(String searchTerm, Location userLocation, Location friendLocation);
     }
 
     /**
@@ -53,21 +55,33 @@ public class LocationEntryFragment
      */
     public LocationEntryFragment() {}
 
-    public void setUserLocation(String name, double latitude, double longitude) {
-        userLocation = new Location(name, latitude, longitude);
-
+    /**
+     * Sets the user location
+     * @param locationType
+     * @param location
+     */
+    public void setUserLocation(int locationType, Location location) {
         ViewHolder viewHolder = getViewHolder();
-        if (viewHolder != null) {
-            viewHolder.userLocation.setText(name);
+        if (viewHolder == null) {
+            Log.d(TAG, "setUserLocation: View holder is null, so nothing to do");
+            return;
         }
-    }
 
-    public void setFriendLocation(String name, double latitude, double longitude) {
-        friendLocation = new Location(name, latitude, longitude);
+        Bundle bundle = location.getExtras();
+        String name = bundle.getString(LocationUtils.EXTRA_NAME);
+        String address = bundle.getString(LocationUtils.EXTRA_ADDRESS);
+        Log.d(TAG, String.format("setUserLocation: Location name:%s, Location address:%s", name, address));
 
-        ViewHolder viewHolder = getViewHolder();
-        if (viewHolder != null) {
-            viewHolder.friendLocation.setText(name);
+        switch (locationType) {
+            case LocationUtils.USER_LOCATION:
+                userLocation = location;
+                viewHolder.userLocation.setText(address);
+                break;
+
+            case LocationUtils.FRIEND_LOCATION:
+                friendLocation = location;
+                viewHolder.friendLocation.setText(address);
+                break;
         }
     }
 
@@ -148,14 +162,14 @@ public class LocationEntryFragment
 
         switch (v.getId()) {
             case R.id.user_location:
-                listener.inputUserLocation();
+                listener.onInputLocation(LocationUtils.USER_LOCATION);
                 break;
             case R.id.friend_location:
-                listener.inputFriendLocation();
+                listener.onInputLocation(LocationUtils.FRIEND_LOCATION);
                 break;
             case R.id.search_button:
                 if (userLocation != null && friendLocation != null) {
-                    listener.onSearch(userLocation.name, friendLocation.name);
+                    listener.onSearch(LocationEntryActivity.DEFAULT_SEARCH_TERM, userLocation, friendLocation);
                 }
                 break;
         }
@@ -183,18 +197,6 @@ public class LocationEntryFragment
             userLocation = (TextView) view.findViewById(R.id.user_location);
             friendLocation = (TextView) view.findViewById(R.id.friend_location);
             searchButton = (Button) view.findViewById(R.id.search_button);
-        }
-    }
-
-    private class Location {
-        final String name;
-        final double latitude;
-        final double longitude;
-
-        Location(String name, double latitude, double longitude) {
-            this.name = name;
-            this.latitude = latitude;
-            this.longitude = longitude;
         }
     }
 }

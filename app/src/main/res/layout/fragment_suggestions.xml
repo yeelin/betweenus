@@ -6,15 +6,15 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.SuggestedPlacesFragment">
+    tools:context=".fragment.SuggestionsFragment">
 
     <FrameLayout
-        android:id="@+id/suggestedPlaces_listContainer"
+        android:id="@+id/suggestions_listContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ListView
-            android:id="@+id/suggestedPlaces_listView"
+            android:id="@+id/suggestions_listView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
@@ -23,18 +23,18 @@
             android:padding="8dp"/>
 
         <TextView
-            android:id="@+id/suggestedPlaces_empty"
+            android:id="@+id/suggestions_empty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="No suggestsions"
+            android:text="No suggestions"
             android:visibility="gone"/>
 
     </FrameLayout>
 
     <ProgressBar
-        android:id="@+id/suggestedPlaces_progressBar"
+        android:id="@+id/suggestions_progressBar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

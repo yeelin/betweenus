@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.BuildConfig;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
 public class LocationEntryActivity
         extends BaseActivity
@@ -21,6 +23,10 @@ public class LocationEntryActivity
     //request codes
     private static final int REQUEST_CODE_USER_LOCATION = 100;
     private static final int REQUEST_CODE_FRIEND_LOCATION = 110;
+
+    //TODO: remove hardcoded search term
+    public static final String DEFAULT_SEARCH_TERM = "restaurants";
+
     /**
      * Creates the activity
      * @param savedInstanceState
@@ -55,25 +61,35 @@ public class LocationEntryActivity
         }
     }
 
+    /**
+     * Starts the Search activity to acquire either the user or friend's location
+     * @param locationType
+     */
     @Override
-    public void inputUserLocation() {
-        Log.d(TAG, "inputUserLocation");
-        startActivityForResult(
-                SearchActivity.buildIntent(this, SearchActivity.USER),
-                REQUEST_CODE_USER_LOCATION);
+    public void onInputLocation(int locationType) {
+        Log.d(TAG, "onInputLocation: Location type: " + locationType);
 
+        switch (locationType) {
+            case LocationUtils.USER_LOCATION:
+                startActivityForResult(
+                        LocationSearchActivity.buildIntent(this, LocationUtils.USER_LOCATION),
+                        REQUEST_CODE_USER_LOCATION);
+                break;
+
+            case LocationUtils.FRIEND_LOCATION:
+                startActivityForResult(
+                        LocationSearchActivity.buildIntent(this, LocationUtils.FRIEND_LOCATION),
+                        REQUEST_CODE_FRIEND_LOCATION);
+                break;
+
+            default:
+                Log.d(TAG, "onInputLocation: Unknown location type: " + locationType);
+        }
     }
 
-    @Override
-    public void inputFriendLocation() {
-        Log.d(TAG, "inputFriendLocation");
-        startActivityForResult(
-                SearchActivity.buildIntent(this, SearchActivity.FRIEND),
-                REQUEST_CODE_FRIEND_LOCATION);
-    }
 
     /**
-     *
+     * Inspect the result from SearchActivity and set the location for user or friend.
      * @param requestCode
      * @param resultCode
      * @param data
@@ -86,31 +102,31 @@ public class LocationEntryActivity
         }
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            String locationName = data.getStringExtra(SearchActivity.EXTRA_LOCATION_NAME);
-            double latitude = data.getDoubleExtra(SearchActivity.EXTRA_LOCATION_LATITUDE, 0);
-            double longitude = data.getDoubleExtra(SearchActivity.EXTRA_LOCATION_LONGITUDE, 0);
+            Location location = data.getParcelableExtra(LocationSearchActivity.EXTRA_LOCATION);
 
             LocationEntryFragment locationEntryFragment = (LocationEntryFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry_fragmentContainer);
             if (requestCode == REQUEST_CODE_USER_LOCATION) {
-                locationEntryFragment.setUserLocation(locationName, latitude, longitude);
+                locationEntryFragment.setUserLocation(LocationUtils.USER_LOCATION, location);
             }
             else {
-                locationEntryFragment.setFriendLocation(locationName, latitude, longitude);
+                locationEntryFragment.setUserLocation(LocationUtils.FRIEND_LOCATION, location);
             }
         }
     }
 
     /**
      * LocationEntryFragment.LocationEntryFragmentListener callback
+     * Start the suggested places activity
      *
+     * @param searchTerm
      * @param userLocation
      * @param friendLocation
      */
     @Override
-    public void onSearch(String userLocation, String friendLocation) {
-        Log.d(TAG, String.format("onSearch: User location:%s, Friend location:%s", userLocation, friendLocation));
+    public void onSearch(String searchTerm, Location userLocation, Location friendLocation) {
+        Log.d(TAG, String.format("onSearch: User location:%s, Friend location:%s", userLocation.toString(), friendLocation.toString()));
 
-        //start the place suggestion activity
-        startActivity(PlaceActivity.buildIntent(this, 0, "Place name"));
+        //start the suggestions list activity
+        startActivity(SuggestionsActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userLocation, friendLocation));
     }
 }

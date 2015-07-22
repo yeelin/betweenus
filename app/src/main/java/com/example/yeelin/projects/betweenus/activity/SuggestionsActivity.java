@@ -2,27 +2,27 @@ package com.example.yeelin.projects.betweenus.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NavUtils;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.fragment.SuggestedPlacesFragment;
+import com.example.yeelin.projects.betweenus.fragment.SuggestionsFragment;
 
 /**
  * Created by ninjakiki on 7/13/15.
  */
-public class SuggestedPlacesActivity
+public class SuggestionsActivity
         extends BaseActivity {
     //logcat
-    private static final String TAG = SuggestedPlacesActivity.class.getCanonicalName();
+    private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
     //intent extras
-    private static final String EXTRA_USER_LOCATION = SuggestedPlacesActivity.class.getSimpleName() + ".userLocation";
-    private static final String EXTRA_FRIEND_LOCATION = SuggestedPlacesActivity.class.getSimpleName() + ".friendLocation";
+    private static final String EXTRA_SEARCH_TERM = SuggestionsActivity.class.getSimpleName() + ".searchTerm";
+    private static final String EXTRA_USER_LOCATION = SuggestionsActivity.class.getSimpleName() + ".userLocation";
+    private static final String EXTRA_FRIEND_LOCATION = SuggestionsActivity.class.getSimpleName() + ".friendLocation";
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -31,10 +31,12 @@ public class SuggestedPlacesActivity
      * @param friendLocation
      * @return
      */
-    public static Intent buildIntent(Context context, String userLocation, String friendLocation) {
-        Intent intent = new Intent(context, SuggestedPlacesActivity.class);
+    public static Intent buildIntent(Context context, String searchTerm,
+                                     Location userLocation, Location friendLocation) {
+        Intent intent = new Intent(context, SuggestionsActivity.class);
 
         //put extras
+        intent.putExtra(EXTRA_SEARCH_TERM, searchTerm);
         intent.putExtra(EXTRA_USER_LOCATION, userLocation);
         intent.putExtra(EXTRA_FRIEND_LOCATION, friendLocation);
 
@@ -48,22 +50,23 @@ public class SuggestedPlacesActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_suggested_places);
+        setContentView(R.layout.activity_suggestions);
         //setup toolbar
-        setupToolbar(R.id.suggestedPlaces_toolbar, true);
+        setupToolbar(R.id.suggestions_toolbar, true);
 
         //read extras from intent
         Intent intent = getIntent();
-        String userLocation = intent.getStringExtra(EXTRA_USER_LOCATION);
-        String friendLocation = intent.getStringExtra(EXTRA_FRIEND_LOCATION);
+        String searchTerm = intent.getStringExtra(EXTRA_SEARCH_TERM);
+        Location userLocation = intent.getParcelableExtra(EXTRA_USER_LOCATION);
+        Location friendLocation = intent.getParcelableExtra(EXTRA_FRIEND_LOCATION);
 
         //check if the fragment exists, otherwise create it
         if (savedInstanceState == null) {
-            Fragment suggestedPlacesFragment = getSupportFragmentManager().findFragmentById(R.id.suggestedPlaces_fragmentContainer);
+            Fragment suggestedPlacesFragment = getSupportFragmentManager().findFragmentById(R.id.suggestions_fragmentContainer);
             if (suggestedPlacesFragment == null) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestedPlaces_fragmentContainer, SuggestedPlacesFragment.newInstance())
+                        .add(R.id.suggestions_fragmentContainer, SuggestionsFragment.newInstance(searchTerm, userLocation, friendLocation))
                         .commit();
             }
         }
@@ -89,5 +92,4 @@ public class SuggestedPlacesActivity
         }
 
     }
-
 }
