@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.json;
+package com.example.yeelin.projects.betweenus.model;
 
 import java.util.Arrays;
 

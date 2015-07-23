@@ -1,4 +1,6 @@
-package com.example.yeelin.projects.betweenus.json;
+package com.example.yeelin.projects.betweenus.model;
+
+import java.util.Arrays;
 
 /**
  * Created by ninjakiki on 7/22/15.
@@ -27,6 +29,11 @@ public class YelpBusiness {
 
     //Number of reviews for this business
     private int review_count;
+
+    //Provides a list of category name, alias pairs that this business is associated with.
+    // For example, [["Local Flavor", "localflavor"], ["Active Life", "active"], ["Mass Media", "massmedia"]]
+    //The alias is provided so you can search with the category_filter.
+    private String[][] categories;
 
     //Rating for this business (value ranges from 1, 1.5, ... 4.5, 5)
     private double rating;
@@ -69,6 +76,10 @@ public class YelpBusiness {
         return review_count;
     }
 
+    public String[][] getCategories() {
+        return categories;
+    }
+
     public double getRating() {
         return rating;
     }
@@ -87,7 +98,7 @@ public class YelpBusiness {
      */
     @Override
     public String toString() {
-        return String.format("Id:%s, IsClosed:%s, Name:%s, ImageURL:%s, MobileURL:%s, Phone:%s, DisplayPhone:%s, ReviewCount:%d, Rating:%f, RatingImgUrlSmall:%s, Location:%s",
-                id, is_closed, name, image_url, mobile_url, phone, display_phone, review_count, rating, rating_img_url_small, location);
+        return String.format("Id:%s, IsClosed:%s, Name:%s, ImageURL:%s, MobileURL:%s, Phone:%s, DisplayPhone:%s, ReviewCount:%d, Categories:%s, Rating:%f, RatingImgUrlSmall:%s, Location:%s",
+                id, is_closed, name, image_url, mobile_url, phone, display_phone, review_count, Arrays.deepToString(categories), rating, rating_img_url_small, location);
     }
 }

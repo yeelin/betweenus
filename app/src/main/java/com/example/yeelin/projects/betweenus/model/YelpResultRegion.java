@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.json;
+package com.example.yeelin.projects.betweenus.model;
 
 /**
  * Created by ninjakiki on 7/23/15.

@@ -6,9 +6,8 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
-import com.example.yeelin.projects.betweenus.json.YelpBusiness;
-import com.example.yeelin.projects.betweenus.json.YelpResult;
-import com.example.yeelin.projects.betweenus.json.YelpResultRegion;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.gson.YelpResultDeserializer;
 import com.example.yeelin.projects.betweenus.utils.CacheUtils;
 import com.example.yeelin.projects.betweenus.utils.FetchDataUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
@@ -98,18 +97,23 @@ public class SuggestionsLoaderHelper {
     private static void deserializeYelpResponseJson(InputStream yelpResponseJSON)
             throws IOException {
 
-        final Gson gson = new GsonBuilder().create();
+        //create a gson object
+//        final Gson gson = new GsonBuilder().create();
+        final GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(YelpResult.class, new YelpResultDeserializer());
+        final Gson gson = gsonBuilder.create();
+
         InputStreamReader yelpResponseInputStreamReader = null;
         try {
+            //create an input stream reader from the json input stream
             yelpResponseInputStreamReader = new InputStreamReader(yelpResponseJSON, "UTF-8");
-            YelpResult yelpResult = gson.fromJson(yelpResponseInputStreamReader, YelpResult.class);
-            Log.d(TAG, "deserializeYelpResponseJson: YelpResult: " + yelpResult);
 
-//            Log.d(TAG, "deserializeYelpResponseJson: Region: " + yelpResult.getRegion());
-//            Log.d(TAG, "deserializeYelpResponseJson: Total: " + yelpResult.getTotal());
-//            for (YelpBusiness yelpBusiness : yelpResult.getBusinesses()) {
-//                Log.d(TAG, "deserializeYelpResponseJson: Business: " + yelpBusiness);
-//            }
+            //deserialize json into java
+            YelpResult yelpResult = gson.fromJson(yelpResponseInputStreamReader, YelpResult.class);
+            Log.d(TAG, "deserializeYelpResponseJson: Size of arraylist: " + yelpResult.getBusinesses().size());
+
+            //log for debugging purposes
+            Log.d(TAG, "deserializeYelpResponseJson: YelpResult: " + yelpResult);
         }
         finally {
             if (yelpResponseInputStreamReader != null)
