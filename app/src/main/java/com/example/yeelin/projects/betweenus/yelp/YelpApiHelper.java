@@ -9,6 +9,8 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.oauth.OAuthService;
 
+import java.io.InputStream;
+
 /**
  * Created by ninjakiki on 7/20/15.
  */
@@ -68,7 +70,7 @@ public class YelpApiHelper {
      * @param location <tt>String</tt> of the location
      * @return <tt>String</tt> JSON Response
      */
-    public String searchForBusinessesByLocation(String term,
+    public InputStream searchForBusinessesByLocation(String term,
                                                 String location, double latitude, double longitude) {
         OAuthRequest request = createOAuthRequest(SEARCH_PATH);
 
@@ -90,7 +92,7 @@ public class YelpApiHelper {
      * @param longitudeNE
      * @return
      */
-    public String searchForBusinessesByBoundingBox(String searchTerm,
+    public InputStream searchForBusinessesByBoundingBox(String searchTerm,
                                                    double latitudeSW, double longitudeSW, double latitudeNE, double longitudeNE) {
         OAuthRequest request = createOAuthRequest(SEARCH_PATH);
 
@@ -109,7 +111,7 @@ public class YelpApiHelper {
      * @param longitude
      * @return
      */
-    public String searchForBusinessesByGeoCoords(String searchTerm,
+    public InputStream searchForBusinessesByGeoCoords(String searchTerm,
                                                  double latitude, double longitude) {
         OAuthRequest request = createOAuthRequest(SEARCH_PATH);
 
@@ -127,7 +129,7 @@ public class YelpApiHelper {
      * @param businessID <tt>String</tt> business ID of the requested business
      * @return <tt>String</tt> JSON Response
      */
-    public String searchByBusinessId(String businessID) {
+    public InputStream searchByBusinessId(String businessID) {
         OAuthRequest request = createOAuthRequest(BUSINESS_PATH + "/" + businessID);
 
         return sendRequestAndGetResponse(request);
@@ -150,12 +152,15 @@ public class YelpApiHelper {
      * @param request {@link OAuthRequest} corresponding to the API request
      * @return <tt>String</tt> body of API response
      */
-    private String sendRequestAndGetResponse(OAuthRequest request) {
-        Log.d(TAG, "Querying " + request.getCompleteUrl() + " ...");
+    private InputStream sendRequestAndGetResponse(OAuthRequest request) {
         this.service.signRequest(this.accessToken, request);
 
+        Log.d(TAG, "sendRequestAndGetResponse: Complete URL:" + request.getCompleteUrl());
+        Log.d(TAG, "sendRequestAndGetResponse: Header: " + request.getHeaders());
+
         Response response = request.send();
-        return response.getBody();
+        return response.getStream();
+        //return response.getBody();
     }
 
     /**
