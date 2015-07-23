@@ -7,7 +7,8 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
 import com.example.yeelin.projects.betweenus.json.YelpBusiness;
-import com.example.yeelin.projects.betweenus.json.YelpSearchData;
+import com.example.yeelin.projects.betweenus.json.YelpResult;
+import com.example.yeelin.projects.betweenus.json.YelpResultRegion;
 import com.example.yeelin.projects.betweenus.utils.CacheUtils;
 import com.example.yeelin.projects.betweenus.utils.FetchDataUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
@@ -18,7 +19,6 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 /**
@@ -83,13 +83,18 @@ public class SuggestionsLoaderHelper {
         Location midPoint = LocationUtils.computeMidPoint(userLocation, friendLocation);
         InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, midPoint.getLatitude(), midPoint.getLongitude());
 
-        //TODO:parse the json
+        //deserialize the json response
         deserializeYelpResponseJson(yelpResponseJSON);
 
         //return arraylist of place items
         return new ArrayList<>();
     }
 
+    /**
+     * Deserialize the yelp JSON response using GSON
+     * @param yelpResponseJSON
+     * @throws IOException
+     */
     private static void deserializeYelpResponseJson(InputStream yelpResponseJSON)
             throws IOException {
 
@@ -97,15 +102,14 @@ public class SuggestionsLoaderHelper {
         InputStreamReader yelpResponseInputStreamReader = null;
         try {
             yelpResponseInputStreamReader = new InputStreamReader(yelpResponseJSON, "UTF-8");
+            YelpResult yelpResult = gson.fromJson(yelpResponseInputStreamReader, YelpResult.class);
+            Log.d(TAG, "deserializeYelpResponseJson: YelpResult: " + yelpResult);
 
-            YelpSearchData yelpSearchData = gson.fromJson(yelpResponseInputStreamReader, YelpSearchData.class);
-            YelpBusiness[] yelpBusinesses = yelpSearchData.getBusinesses();
-            int total = yelpSearchData.getTotal();
-            Log.d(TAG, "deserializeYelpResponseJson: Total: " + total);
-
-            for (YelpBusiness yelpBusiness : yelpBusinesses) {
-                Log.d(TAG, "deserializeYelpResponseJson: Business: " + yelpBusiness);
-            }
+//            Log.d(TAG, "deserializeYelpResponseJson: Region: " + yelpResult.getRegion());
+//            Log.d(TAG, "deserializeYelpResponseJson: Total: " + yelpResult.getTotal());
+//            for (YelpBusiness yelpBusiness : yelpResult.getBusinesses()) {
+//                Log.d(TAG, "deserializeYelpResponseJson: Business: " + yelpBusiness);
+//            }
         }
         finally {
             if (yelpResponseInputStreamReader != null)

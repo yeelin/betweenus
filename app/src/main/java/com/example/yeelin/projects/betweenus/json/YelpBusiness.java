@@ -7,6 +7,9 @@ public class YelpBusiness {
     //Yelp ID for this business
     private String id;
 
+    //Whether business has been (permanently) closed
+    private boolean is_closed;
+
     //Name of this business
     private String name;
 
@@ -31,8 +34,60 @@ public class YelpBusiness {
     //URL to small version of rating image for this business (size = 50x10)
     private String rating_img_url_small;
 
+    //Location data for this business
+    private YelpBusinessLocation location;
+
+    public String getId() {
+        return id;
+    }
+
+    public boolean is_closed() {
+        return is_closed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getImage_url() {
+        return image_url;
+    }
+
+    public String getMobile_url() {
+        return mobile_url;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getDisplay_phone() {
+        return display_phone;
+    }
+
+    public int getReview_count() {
+        return review_count;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public String getRating_img_url_small() {
+        return rating_img_url_small;
+    }
+
+    public YelpBusinessLocation getLocation() {
+        return location;
+    }
+
+    /**
+     * For debugging
+     * @return
+     */
+    @Override
     public String toString() {
-        return String.format("Id:%s, Name:%s, ImageURL:%s, MobileURL:%s, Phone:%s, DisplayPhone:%s, ReviewCount:%d, Rating:%f, RatingImgUrlSmall:%s",
-                id, name, image_url, mobile_url, phone, display_phone, review_count, rating, rating_img_url_small);
+        return String.format("Id:%s, IsClosed:%s, Name:%s, ImageURL:%s, MobileURL:%s, Phone:%s, DisplayPhone:%s, ReviewCount:%d, Rating:%f, RatingImgUrlSmall:%s, Location:%s",
+                id, is_closed, name, image_url, mobile_url, phone, display_phone, review_count, rating, rating_img_url_small, location);
     }
 }
