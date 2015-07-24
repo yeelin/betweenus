@@ -83,7 +83,8 @@ public class SuggestionsLoaderHelper {
         InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, midPoint.getLatitude(), midPoint.getLongitude());
 
         //deserialize the json response
-        deserializeYelpResponseJson(yelpResponseJSON);
+        YelpResult yelpResult = deserializeYelpResponseJson(yelpResponseJSON);
+        Log.d(TAG, "fetchFromYelp: YelpResult: " + yelpResult);
 
         //return arraylist of place items
         return new ArrayList<>();
@@ -94,7 +95,7 @@ public class SuggestionsLoaderHelper {
      * @param yelpResponseJSON
      * @throws IOException
      */
-    private static void deserializeYelpResponseJson(InputStream yelpResponseJSON)
+    private static YelpResult deserializeYelpResponseJson(InputStream yelpResponseJSON)
             throws IOException {
 
         //create a gson object
@@ -114,10 +115,13 @@ public class SuggestionsLoaderHelper {
 
             //log for debugging purposes
             Log.d(TAG, "deserializeYelpResponseJson: YelpResult: " + yelpResult);
+            return yelpResult;
         }
         finally {
-            if (yelpResponseInputStreamReader != null)
+            if (yelpResponseInputStreamReader != null) {
                 yelpResponseInputStreamReader.close();
+                Log.d(TAG, "deserializeYelpResponseJson: Closed yelpResponseInputStreamReader");
+            }
         }
     }
 }
