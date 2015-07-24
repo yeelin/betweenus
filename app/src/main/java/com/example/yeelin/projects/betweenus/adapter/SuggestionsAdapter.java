@@ -8,13 +8,14 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 
 import java.util.List;
 
 /**
  * Created by ninjakiki on 7/21/15.
  */
-public class SuggestionsAdapter extends ArrayAdapter<SuggestionsItem> {
+public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
 
@@ -23,7 +24,7 @@ public class SuggestionsAdapter extends ArrayAdapter<SuggestionsItem> {
      * @param context
      * @param items
      */
-    public SuggestionsAdapter(Context context, List<SuggestionsItem> items) {
+    public SuggestionsAdapter(Context context, List<YelpBusiness> items) {
         super(context, 0, items);
     }
 
@@ -50,7 +51,7 @@ public class SuggestionsAdapter extends ArrayAdapter<SuggestionsItem> {
      * Updates the adapter with a new list of items
      * @param newItems
      */
-    public void updateAllItems(List<SuggestionsItem> newItems) {
+    public void updateAllItems(List<YelpBusiness> newItems) {
         //remove all items from the list
         clear();
         //add all items to the end of the array

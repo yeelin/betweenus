@@ -8,7 +8,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
 
-import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 /**
  * Created by ninjakiki on 7/20/15.
  */
-public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<SuggestionsItem>> {
+public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<YelpBusiness>> {
     //logcat
     private static final String TAG = SuggestionsLoaderCallbacks.class.getCanonicalName();
 
@@ -33,7 +33,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * Listener interface. The loader's listener is usually the ui.
      */
     public interface SuggestionsLoaderListener {
-        void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<SuggestionsItem> suggestedItems);
+        void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<YelpBusiness> suggestedItems);
     }
 
     /**
@@ -122,7 +122,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param suggestedItems
      */
     @Override
-    public void onLoadFinished(Loader<ArrayList<SuggestionsItem>> loader, ArrayList<SuggestionsItem> suggestedItems) {
+    public void onLoadFinished(Loader<ArrayList<YelpBusiness>> loader, ArrayList<YelpBusiness> suggestedItems) {
         SuggestionsLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
             loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), suggestedItems);
@@ -135,7 +135,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loader
      */
     @Override
-    public void onLoaderReset(Loader<ArrayList<SuggestionsItem>> loader) {
+    public void onLoaderReset(Loader<ArrayList<YelpBusiness>> loader) {
         //let the listener know
         onLoadFinished(loader, null);
     }

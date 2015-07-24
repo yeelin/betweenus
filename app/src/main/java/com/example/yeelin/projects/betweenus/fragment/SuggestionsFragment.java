@@ -13,9 +13,9 @@ import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
-import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 
 import java.util.ArrayList;
@@ -129,7 +129,7 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
         view.setTag(viewHolder);
 
         //set up the listview adapter
-        viewHolder.suggestionsListView.setAdapter(new SuggestionsAdapter(view.getContext(), new ArrayList<SuggestionsItem>()));
+        viewHolder.suggestionsListView.setAdapter(new SuggestionsAdapter(view.getContext(), new ArrayList<YelpBusiness>()));
 
         //initially make the listcontainer invisible and show the progress bar
         viewHolder.suggestionsListContainer.setVisibility(View.GONE);
@@ -178,7 +178,7 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
      * @param suggestedItems
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<SuggestionsItem> suggestedItems) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<YelpBusiness> suggestedItems) {
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet

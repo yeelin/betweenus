@@ -4,14 +4,14 @@ import android.content.Context;
 import android.location.Location;
 import android.support.v4.content.AsyncTaskLoader;
 
-import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 
 import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/20/15.
  */
-public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<SuggestionsItem>> {
+public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBusiness>> {
     //logcat
     private static final String TAG = SuggestionsAsyncTaskLoader.class.getCanonicalName();
 
@@ -19,7 +19,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
     private final String searchTerm;
     private final Location userLocation;
     private final Location friendLocation;
-    private ArrayList<SuggestionsItem> suggestedItems;
+    private ArrayList<YelpBusiness> suggestedItems;
 
     /**
      *
@@ -39,8 +39,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
      * @return
      */
     @Override
-    public ArrayList<SuggestionsItem> loadInBackground() {
-        ArrayList<SuggestionsItem> suggestedItems = SuggestionsLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
+    public ArrayList<YelpBusiness> loadInBackground() {
+        ArrayList<YelpBusiness> suggestedItems = SuggestionsLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
         return suggestedItems;
     }
 
@@ -51,7 +51,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
      * @param suggestedItems
      */
     @Override
-    public void deliverResult(ArrayList<SuggestionsItem> suggestedItems) {
+    public void deliverResult(ArrayList<YelpBusiness> suggestedItems) {
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
@@ -61,7 +61,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
         }
 
         //reassign old data reference
-        ArrayList<SuggestionsItem> oldItems = this.suggestedItems;
+        ArrayList<YelpBusiness> oldItems = this.suggestedItems;
         this.suggestedItems = suggestedItems;
 
         if (isStarted()) {
@@ -111,7 +111,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
      * @param suggestedItems
      */
     @Override
-    public void onCanceled(ArrayList<SuggestionsItem> suggestedItems) {
+    public void onCanceled(ArrayList<YelpBusiness> suggestedItems) {
         super.onCanceled(suggestedItems);
 
         //release resources
@@ -139,7 +139,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<Sugges
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    private void onReleaseResources(ArrayList<SuggestionsItem> suggestedItems) {
+    private void onReleaseResources(ArrayList<YelpBusiness> suggestedItems) {
         suggestedItems.clear();
         suggestedItems = null;
     }

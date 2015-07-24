@@ -92,6 +92,8 @@ public class YelpBusiness {
         return location;
     }
 
+    public YelpBusiness() {}
+
     /**
      * For debugging
      * @return

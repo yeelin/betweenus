@@ -5,7 +5,7 @@ import android.location.Location;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.adapter.SuggestionsItem;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.gson.YelpResultDeserializer;
 import com.example.yeelin.projects.betweenus.utils.CacheUtils;
@@ -31,7 +31,7 @@ public class SuggestionsLoaderHelper {
      * 1. Makes sure we passed pre-network checks
      * 2. initialize the cache
      * 3. makes the call to the Yelp API
-     * 4. returns an arraylist of SuggestionsItem
+     * 4. returns an arraylist of YelpBusiness
      *
      * @param context
      * @param searchTerm
@@ -39,7 +39,7 @@ public class SuggestionsLoaderHelper {
      * @param friendLocation
      */
     @Nullable
-    public static ArrayList<SuggestionsItem> fetchFromNetwork(Context context, String searchTerm, Location userLocation, Location friendLocation) {
+    public static ArrayList<YelpBusiness> fetchFromNetwork(Context context, String searchTerm, Location userLocation, Location friendLocation) {
         Log.d(TAG, "fetchFromNetwork");
 
         //make sure we have network connection and latest SSL
@@ -49,7 +49,7 @@ public class SuggestionsLoaderHelper {
 
         try {
             //fetch data from Yelp
-            ArrayList<SuggestionsItem> suggestedItems = fetchFromYelp(searchTerm, userLocation, friendLocation);
+            ArrayList<YelpBusiness> suggestedItems = fetchFromYelp(searchTerm, userLocation, friendLocation);
             CacheUtils.logCache();
             return suggestedItems;
         }
@@ -65,13 +65,13 @@ public class SuggestionsLoaderHelper {
      * 1. finds the midpoint between the user and friend
      * 2. creates the Yelp API helper to query the api
      * 3. parses the JSON response
-     * 4. returns an arraylist of SuggestionsItem
+     * 4. returns an arraylist of YelpBusiness
      *
      * @param searchTerm
      * @param userLocation
      * @param friendLocation
      */
-    private static ArrayList<SuggestionsItem> fetchFromYelp(String searchTerm, Location userLocation, Location friendLocation)
+    private static ArrayList<YelpBusiness> fetchFromYelp(String searchTerm, Location userLocation, Location friendLocation)
             throws IOException {
         Log.d(TAG, "fetchFromYelp");
 
@@ -86,8 +86,8 @@ public class SuggestionsLoaderHelper {
         YelpResult yelpResult = deserializeYelpResponseJson(yelpResponseJSON);
         Log.d(TAG, "fetchFromYelp: YelpResult: " + yelpResult);
 
-        //return arraylist of place items
-        return new ArrayList<>();
+        //return arraylist businesses
+        return yelpResult.getBusinesses();
     }
 
     /**
