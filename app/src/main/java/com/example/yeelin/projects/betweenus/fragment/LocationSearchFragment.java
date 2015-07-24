@@ -172,7 +172,7 @@ public class LocationSearchFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         //inflate the menu from xml
-        inflater.inflate(R.menu.menu_search, menu);
+        inflater.inflate(R.menu.menu_location_search, menu);
 
         //get the search view and set the searchable configuration
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);

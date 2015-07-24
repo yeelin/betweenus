@@ -23,8 +23,8 @@ import java.util.ArrayList;
 /**
  * Created by ninjakiki on 7/20/15.
  */
-public class SuggestionsLoaderHelper {
-    private static final String TAG = SuggestionsLoaderHelper.class.getCanonicalName();
+public class YelpLoaderHelper {
+    private static final String TAG = YelpLoaderHelper.class.getCanonicalName();
 
     /**
      * Called from a bg thread. This method does the following:

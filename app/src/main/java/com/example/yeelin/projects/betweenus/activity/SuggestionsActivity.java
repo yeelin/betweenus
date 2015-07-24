@@ -11,11 +11,14 @@ import android.view.MenuItem;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsFragment;
 
+import java.util.ArrayList;
+
 /**
  * Created by ninjakiki on 7/13/15.
  */
 public class SuggestionsActivity
-        extends BaseActivity {
+        extends BaseActivity
+        implements SuggestionsFragment.SuggestionsFragmentListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -91,5 +94,16 @@ public class SuggestionsActivity
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    /**
+     * SuggestionsFragment.SuggestionsFragmentListener
+     * @param selectedItemIds
+     */
+    @Override
+    public void onSelectionComplete(ArrayList<String> selectedItemIds) {
+        Log.d(TAG, "onSelectionComplete: Selected Item Ids:" + selectedItemIds);
+
+        //TODO: Start the invite activity
     }
 }

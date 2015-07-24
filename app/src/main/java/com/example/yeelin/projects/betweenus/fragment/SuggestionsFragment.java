@@ -6,9 +6,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -23,7 +28,10 @@ import java.util.ArrayList;
 /**
  * Created by ninjakiki on 7/13/15.
  */
-public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener {
+public class SuggestionsFragment
+        extends Fragment
+        implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
+        AdapterView.OnItemClickListener {
     //logcat
     private static final String TAG = SuggestionsFragment.class.getCanonicalName();
 
@@ -43,7 +51,7 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
      * Listener interface
      */
     public interface SuggestionsFragmentListener {
-        public void onSelectionComplete();
+        public void onSelectionComplete(ArrayList<String> selectedItemIds);
     }
 
     /**
@@ -77,7 +85,7 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        Object objectToCast = getParentFragment() != null ? getParentFragment() : null;
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
         try {
             listener = (SuggestionsFragmentListener) objectToCast;
         }
@@ -100,10 +108,13 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
             userLocation = args.getParcelable(ARG_USER_LOCATION);
             friendLocation = args.getParcelable(ARG_FRIEND_LOCATION);
         }
+
+        //notify that we have an options menu so that we will get a callback to create one later
+        setHasOptionsMenu(true);
     }
 
     /**
-     * Inflate the layout
+     * Inflate the fragment's view
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -130,6 +141,8 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
 
         //set up the listview adapter
         viewHolder.suggestionsListView.setAdapter(new SuggestionsAdapter(view.getContext(), new ArrayList<YelpBusiness>()));
+        viewHolder.suggestionsListView.setOnItemClickListener(this);
+        viewHolder.suggestionsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
         //initially make the listcontainer invisible and show the progress bar
         viewHolder.suggestionsListContainer.setVisibility(View.GONE);
@@ -155,6 +168,71 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
     }
 
     /**
+     * Configure the select button in the options menu
+     * @param menu
+     * @param inflater
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_suggestions, menu);
+    }
+
+    /**
+     * Handle the select and invite action
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_select:
+                //get all selected items
+                ViewHolder viewHolder = getViewHolder();
+                SparseBooleanArray sparseBooleanArray = viewHolder.suggestionsListView.getCheckedItemPositions();
+                if (sparseBooleanArray.size() == 0) {
+                    Log.d(TAG, "onOptionsItemSelected: Sparse boolean array is empty so nothing to do");
+                    return true;
+                }
+                Log.d(TAG, "onOptionsItemSelected: Sparse boolean array size:" + sparseBooleanArray.size()); //note: //size != number of currently selected rows
+
+                SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+                ArrayList<String> businessIds = new ArrayList<>(sparseBooleanArray.size());
+                //sparse boolean array is map of key-value pairs
+                //key = row in the listview, value = true/false to indicate whether row is selected
+                //value would be false if the row was checked then unchecked
+                for (int i=0; i<sparseBooleanArray.size(); i++) {
+                    int key = sparseBooleanArray.keyAt(i);
+                    boolean value = sparseBooleanArray.valueAt(i);
+
+                    Log.d(TAG, String.format("onOptionsItemSelected: Index:%d, Key:%d, Value:%s", i, key, String.valueOf(value)));
+                    //check if value is true (true means row is currently selected)
+                    if (value) {
+                        String id = suggestionsAdapter.getItem(key).getId();
+                        String name = suggestionsAdapter.getItem(key).getName();
+                        businessIds.add(id);
+                        Log.d(TAG, String.format("onOptionsItemSelected: Index:%d, Key:%d, Value:%s, Id:%s, Name:%s",
+                                i, key, String.valueOf(value), id, name));
+                    }
+                }
+
+                if (businessIds.size() == 0) {
+                    Log.d(TAG, "onOptionsItemSelected: BusinessIds size is 0 so nothing is currently selected");
+                    return true;
+                }
+
+                Log.d(TAG, "onOptionsItemSelected: BusinessIds selected:" + businessIds);
+
+                //pass it to the listener
+                listener.onSelectionComplete(businessIds);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
      * Nullify the listener
      */
     @Override
@@ -173,6 +251,7 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
     }
 
     /**
+     * SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
      * Loader callback with an updated arraylist. Update the view
      * @param loaderId
      * @param suggestedItems
@@ -205,6 +284,22 @@ public class SuggestionsFragment extends Fragment implements SuggestionsLoaderCa
         else {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
         }
+    }
+
+    /**
+     * AdapterView.OnItemClickListener
+     * Item click callback when an item in the listview is clicked.  All we do here is toggle the checked textview
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(TAG, "onItemClick: Position clicked:" + position);
+
+        SuggestionsAdapter.ViewHolder viewHolder = (SuggestionsAdapter.ViewHolder) view.getTag();
+        viewHolder.suggestedItem.toggle();
     }
 
     /**

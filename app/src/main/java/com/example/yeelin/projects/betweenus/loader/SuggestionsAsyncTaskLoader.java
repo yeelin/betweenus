@@ -40,7 +40,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     public ArrayList<YelpBusiness> loadInBackground() {
-        ArrayList<YelpBusiness> suggestedItems = SuggestionsLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
+        ArrayList<YelpBusiness> suggestedItems = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
         return suggestedItems;
     }
 

@@ -21,6 +21,7 @@
 
     <!-- menu actions -->
     <string name="action_search">Search</string>
+    <string name="action_select">Select</string>
 
     <!-- Main activity strings -->
     <string name="cover_image_overlay_text">Find the best places to meet between you and your friend</string>

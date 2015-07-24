@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -40,10 +42,17 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
         View view = convertView;
         if (view == null) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_item_suggestion, parent, false);
+            view.setTag(new ViewHolder(view));
         }
 
-        TextView suggestionTextView = (TextView) view.findViewById(R.id.suggestion_item);
-        suggestionTextView.setText(getItem(position).getName());
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        //set the text
+        viewHolder.suggestedItem.setText(getItem(position).getName());
+        //set the checked state
+        ListView listView = (ListView) parent;
+        viewHolder.suggestedItem.setChecked(listView.isItemChecked(position));
+//        TextView suggestionTextView = (TextView) view.findViewById(R.id.suggestion_item);
+//        suggestionTextView.setText(getItem(position).getName());
         return view;
     }
 
@@ -56,5 +65,16 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
         clear();
         //add all items to the end of the array
         addAll(newItems);
+    }
+
+    /**
+     * ViewHolder class
+     */
+    public class ViewHolder {
+        public final CheckedTextView suggestedItem;
+
+        ViewHolder(View view) {
+            suggestedItem = (CheckedTextView) view.findViewById(R.id.suggestion_item);
+        }
     }
 }
