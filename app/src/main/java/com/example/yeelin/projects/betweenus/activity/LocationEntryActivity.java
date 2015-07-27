@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.StrictMode;
@@ -26,6 +27,16 @@ public class LocationEntryActivity
 
     //TODO: remove hardcoded search term
     public static final String DEFAULT_SEARCH_TERM = "restaurants";
+
+    /**
+     * Builds the appropriate intent to start this activity.
+     * @param context
+     * @return
+     */
+    public static Intent buildIntent(Context context) {
+        Intent intent = new Intent(context, LocationEntryActivity.class);
+        return intent;
+    }
 
     /**
      * Creates the activity

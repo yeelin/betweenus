@@ -21,22 +21,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.SuggestionsActivity"
-            android:label="@string/title_suggested_places"
-            android:parentActivityName=".activity.LocationEntryActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.LocationEntryActivity"/>
-        </activity>
-
-        <activity android:name=".activity.PlaceActivity"
-            android:label="@string/title_place"
-            android:parentActivityName=".activity.LocationEntryActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activity.LocationEntryActivity"/>
-        </activity>
-
         <activity android:name=".activity.LocationSearchActivity"
             android:label="@string/title_search"
             android:parentActivityName=".activity.LocationEntryActivity">
@@ -59,6 +43,30 @@
                 android:value=".activity.LocationSearchActivity"/>
         </activity>
 
+        <activity android:name=".activity.SuggestionsActivity"
+            android:label="@string/title_suggested_places"
+            android:parentActivityName=".activity.LocationEntryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.LocationEntryActivity"/>
+        </activity>
+
+        <activity android:name=".activity.PlaceActivity"
+            android:label="@string/title_place"
+            android:parentActivityName=".activity.LocationEntryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.LocationEntryActivity"/>
+        </activity>
+
+        <activity android:name=".activity.InvitationActivity"
+            android:label="@string/title_invitation"
+            android:parentActivityName=".activity.SuggestionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.SuggestionsActivity"/>
+        </activity>
+
         <!--  Google Play Services -->
         <meta-data
             android:name="com.google.android.gms.version"
@@ -67,7 +75,5 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME"/>
-
     </application>
-
 </manifest>

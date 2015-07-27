@@ -6,10 +6,17 @@
     tools:context=".activity.SuggestionsActivity">
 
     <item
-        android:id="@+id/action_select"
+        android:id="@+id/action_map"
         android:orderInCategory="101"
-        android:title="@string/action_select"
-        android:icon="@drawable/ic_action_select_and_mail"
-        app:showAsAction="ifRoom|collapseActionView"/>
+        android:title="@string/action_view_as_map"
+        android:icon="@drawable/ic_action_maps_map"
+        app:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/action_select"
+        android:orderInCategory="102"
+        android:title="@string/action_send"
+        android:icon="@drawable/ic_action_content_send"
+        app:showAsAction="ifRoom"/>
 
 </menu>

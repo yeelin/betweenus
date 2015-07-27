@@ -104,6 +104,7 @@ public class SuggestionsActivity
     public void onSelectionComplete(ArrayList<String> selectedItemIds) {
         Log.d(TAG, "onSelectionComplete: Selected Item Ids:" + selectedItemIds);
 
-        //TODO: Start the invite activity
+        //start the invite activity and pass it the selected ids
+        startActivity(InvitationActivity.buildIntent(this, selectedItemIds));
     }
 }

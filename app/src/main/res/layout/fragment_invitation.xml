@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="@color/colorAccent"
+                android:gravity="bottom"
+                android:paddingLeft="@dimen/card_content_padding"
+                android:paddingRight="@dimen/card_content_padding"
+                android:paddingBottom="@dimen/card_content_padding"
+                android:textColor="@android:color/white"
+                android:text="@string/invite_image_overlay_text"
+                android:textSize="24sp"/>
+
+            <EditText
+                android:id="@+id/friend_phone"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                style="@style/EditTextStyle"
+                android:imeOptions="actionSend"
+                android:inputType="phone"
+                android:hint="@string/enter_phone_number" />
+
+            <EditText
+                android:id="@+id/friend_email"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                style="@style/EditTextStyle"
+                android:imeOptions="actionSend"
+                android:inputType="textEmailAddress"
+                android:hint="@string/enter_email_address" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="Selected Places:"/>
+
+            <TextView
+                android:id="@+id/selected_items"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginEnd="24dp"
+                style="@style/Medium_SecondaryTextViewStyle"
+                android:text="Nothing selected."/>
+
+            <RelativeLayout
+                android:layout_below="@id/selected_items"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp">
+
+                <Button
+                    android:id="@+id/invite_cancel_button"
+                    style="@style/Medium_SecondaryButtonStyle"
+                    android:layout_alignParentLeft="true"
+                    android:gravity="start|center_vertical"
+                    android:paddingLeft="24dp"
+                    android:text="@string/cancel_button_text"/>
+
+                <Button
+                    android:id="@+id/invite_send_button"
+                    style="@style/Medium_AccentButtonStyle"
+                    android:layout_alignParentRight="true"
+                    android:gravity="end|center_vertical"
+                    android:paddingRight="24dp"
+                    android:text="@string/invite_button_text"/>
+            </RelativeLayout>
+        </LinearLayout>
+</ScrollView>

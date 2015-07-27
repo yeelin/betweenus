@@ -33,7 +33,7 @@
         <item name="android:layout_marginTop">@dimen/card_content_padding</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:textColor">@color/textColorPrimary</item>
-        <item name="android:textColorHint">@color/textColorTertiary</item>
+        <item name="android:textColorHint">@color/textColorSecondary</item>
         <item name="android:textSize">@dimen/small_textSize</item>
     </style>
 

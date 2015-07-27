@@ -7,6 +7,7 @@
     <string name="title_place">Place</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
+    <string name="title_invitation">Invite friend</string>
 
     <!-- Toolbar strings -->
     <string name="toolbar_title_main">Between Us - Search</string>
@@ -21,7 +22,9 @@
 
     <!-- menu actions -->
     <string name="action_search">Search</string>
-    <string name="action_select">Select</string>
+    <string name="action_send">Send to friend</string>
+    <string name="action_view_as_map">View as map</string>
+    <string name="action_view_as_list">View as list</string>
 
     <!-- Main activity strings -->
     <string name="cover_image_overlay_text">Find the best places to meet between you and your friend</string>
@@ -35,7 +38,7 @@
     <string name="selected_button_text">Selected</string>
     <string name="like_button_text">Like</string>
     <string name="liked_button_text">Liked</string>
-    <string name="cancel_button_text">Repick</string>
+    <string name="cancel_button_text">Cancel</string>
     <string name="invite_button_text">Send Invite</string>
 
     <!-- Results card view strings -->
@@ -62,6 +65,13 @@
     <string name="invite_image_overlay_text">Text or email to invite your friend</string>
     <string name="enter_phone_number">"Enter friend's phone"</string>
     <string name="enter_email_address">"Enter friend's email"</string>
+
+    <!-- Text message strings -->
+    <string name="sms_body">I found these places on Between: %1$s. What do you think?</string>
+
+    <!-- Email strings -->
+    <string name="email_subject">Invitation from Between</string>
+    <string name="email_body">I found these places on Between: %1$s. What do you think?</string>
 
     <!-- Google play services -->
     <string name="google_play_services_error">Failed to resolve Google Play Services error. Restart app to try again</string>
