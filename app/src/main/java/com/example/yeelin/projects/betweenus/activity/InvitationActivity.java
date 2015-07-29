@@ -86,7 +86,8 @@ public class InvitationActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.home:
+            case android.R.id.home:
+                Log.d(TAG, "onOptionsItemSelected: Navigating up to parent activity");
                 navigateUpToParentActivity(this);
                 return true;
             default:
