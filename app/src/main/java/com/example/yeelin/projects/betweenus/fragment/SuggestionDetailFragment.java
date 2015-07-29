@@ -12,26 +12,23 @@ import com.example.yeelin.projects.betweenus.R;
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public class PlaceFragment extends Fragment {
+public class SuggestionDetailFragment extends Fragment {
     //logcat
-    private static final String TAG = PlaceFragment.class.getCanonicalName();
+    private static final String TAG = SuggestionDetailFragment.class.getCanonicalName();
 
     //bundle args
-    private static final String ARG_ID = PlaceFragment.class.getSimpleName() + ".placeId";
-    private static final String ARG_NAME = PlaceFragment.class.getSimpleName() + ".placeName";
+    private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
 
     /**
-     *
-     * @param placeId
-     * @param name
+     * Creates a new instance of this fragment
+     * @param id
      * @return
      */
-    public static PlaceFragment newInstance(long placeId, String name) {
+    public static SuggestionDetailFragment newInstance(String id) {
         Bundle args = new Bundle();
-        args.putLong(ARG_ID, placeId);
-        args.putString(ARG_NAME, name);
+        args.putString(ARG_ID, id);
 
-        PlaceFragment fragment = new PlaceFragment();
+        SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -39,7 +36,7 @@ public class PlaceFragment extends Fragment {
     /**
      * Required empty constructor
      */
-    public PlaceFragment() {}
+    public SuggestionDetailFragment() {}
 
     /**
      * Configure the fragment
@@ -60,7 +57,7 @@ public class PlaceFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_place, container, false);
+        return inflater.inflate(R.layout.fragment_suggestion_detail, container, false);
     }
 
     /**

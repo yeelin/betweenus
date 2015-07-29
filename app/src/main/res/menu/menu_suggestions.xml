@@ -6,7 +6,7 @@
     tools:context=".activity.SuggestionsActivity">
 
     <item
-        android:id="@+id/action_map"
+        android:id="@+id/action_toggle"
         android:orderInCategory="101"
         android:title="@string/action_view_as_map"
         android:icon="@drawable/ic_action_maps_map"

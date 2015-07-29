@@ -5,6 +5,8 @@
 
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -51,7 +53,7 @@
                 android:value=".activity.LocationEntryActivity"/>
         </activity>
 
-        <activity android:name=".activity.PlaceActivity"
+        <activity android:name=".activity.SuggestionDetailActivity"
             android:label="@string/title_place"
             android:parentActivityName=".activity.LocationEntryActivity">
             <meta-data

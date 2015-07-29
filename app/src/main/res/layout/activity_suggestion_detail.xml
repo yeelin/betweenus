@@ -17,7 +17,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <FrameLayout
-        android:id="@+id/place_fragmentContainer"
+        android:id="@+id/suggestionDetail_fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

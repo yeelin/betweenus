@@ -8,33 +8,28 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.fragment.PlaceFragment;
+import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
 
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public class PlaceActivity extends BaseActivity {
+public class SuggestionDetailActivity extends BaseActivity {
     //logcat
-    private static final String TAG = PlaceActivity.class.getCanonicalName();
+    private static final String TAG = SuggestionDetailActivity.class.getCanonicalName();
 
     //intent extras
-    private static final String EXTRA_ID = PlaceActivity.class.getSimpleName() + ".placeId";
-    private static final String EXTRA_NAME = PlaceActivity.class.getSimpleName() + ".placeName";
+    private static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
 
     /**
      * Builds the appropriate intent to start this activity
      * @param context
-     * @param placeId
-     * @param name
+     * @param id
      * @return
      */
-    public static Intent buildIntent(Context context, long placeId, String name) {
-        Intent intent = new Intent(context, PlaceActivity.class);
-
+    public static Intent buildIntent(Context context, String id) {
+        Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
-        intent.putExtra(EXTRA_ID, placeId);
-        intent.putExtra(EXTRA_NAME, name);
-
+        intent.putExtra(EXTRA_ID, id);
         return intent;
     }
 
@@ -45,23 +40,22 @@ public class PlaceActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_place);
+        setContentView(R.layout.activity_suggestion_detail);
         //setup toolbar
         setupToolbar(R.id.place_toolbar, true);
 
         //read intent extras
         Intent intent = getIntent();
-        long placeId = intent.getLongExtra(EXTRA_ID, 0);
-        String placeName = intent.getStringExtra(EXTRA_NAME);
+        String id = intent.getStringExtra(EXTRA_ID);
 
         //check if fragment exists, otherwise create it
         if (savedInstanceState == null) {
-            Fragment placeFragment = getSupportFragmentManager().findFragmentById(R.id.place_fragmentContainer);
-            if (placeFragment == null) {
+            Fragment suggestionDetailFragment = getSupportFragmentManager().findFragmentById(R.id.suggestionDetail_fragmentContainer);
+            if (suggestionDetailFragment == null) {
                 Log.d(TAG, "onCreate: Creating a new Place Fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.place_fragmentContainer, PlaceFragment.newInstance(placeId, placeName))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id))
                         .commit();
             }
         }
@@ -78,7 +72,7 @@ public class PlaceActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.home:
+            case android.R.id.home:
                 Log.d(TAG, "onOptionsItemSelected: Up button clicked");
                 navigateUpToParentActivity(this);
                 return true;
