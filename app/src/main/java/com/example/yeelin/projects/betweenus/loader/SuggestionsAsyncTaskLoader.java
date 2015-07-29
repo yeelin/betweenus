@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.loader;
 import android.content.Context;
 import android.location.Location;
 import android.support.v4.content.AsyncTaskLoader;
+import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 
@@ -22,7 +23,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
     private ArrayList<YelpBusiness> suggestedItems;
 
     /**
-     *
+     * Constructor. Creates a fully specified async task loader
      * @param context
      */
     public SuggestionsAsyncTaskLoader(Context context, String searchTerm, Location userLocation, Location friendLocation) {
@@ -40,6 +41,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     public ArrayList<YelpBusiness> loadInBackground() {
+        Log.d(TAG, "loadInBackground");
         ArrayList<YelpBusiness> suggestedItems = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
         return suggestedItems;
     }
@@ -48,16 +50,20 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * Called when there is new data to deliver to the client. The super class will take care of
      * delivering it, the implementation here just adds a little logic.  After this, onLoadFinished
      * in LoaderCallbacks is called.
+     * Runs on UI thread.
      * @param suggestedItems
      */
     @Override
     public void deliverResult(ArrayList<YelpBusiness> suggestedItems) {
+        Log.d(TAG, "deliverResult");
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
             if (suggestedItems != null) {
                 onReleaseResources(suggestedItems);
             }
+            Log.d(TAG, "deliverResult: isReset");
+            return;
         }
 
         //reassign old data reference
@@ -67,11 +73,13 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
+            Log.d(TAG, "deliverResult: isStarted");
             super.deliverResult(suggestedItems);
         }
 
         //release old data
-        if (oldItems != null) {
+        //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
+        if (oldItems != null && oldItems != suggestedItems) {
             onReleaseResources(oldItems);
         }
     }
@@ -83,14 +91,17 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     protected void onStartLoading() {
+        Log.d(TAG, "onStartLoading");
         if (suggestedItems != null) {
             //we currently have a result available so deliver it immediately
+            Log.d(TAG, "onStartLoading: Suggested items not null, so delivering results immediately");
             deliverResult(suggestedItems);
         }
 
-        if (suggestedItems == null || takeContentChanged()) {
+        if (takeContentChanged() || suggestedItems == null) {
             //data is not currently available, or the data has changed since the last time it was loaded
             //start a load
+            Log.d(TAG, "onStartLoading: Force load");
             forceLoad();
         }
     }
@@ -101,7 +112,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     protected void onStopLoading() {
-        super.onStopLoading();
+        Log.d(TAG, "onStopLoading");
         // Attempt to cancel the current load task if possible.
         cancelLoad();
     }
@@ -112,10 +123,12 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     public void onCanceled(ArrayList<YelpBusiness> suggestedItems) {
-        super.onCanceled(suggestedItems);
+        Log.d(TAG, "onCanceled");
 
-        //release resources
-        onReleaseResources(suggestedItems);
+        if (suggestedItems != null) {
+            //release resources
+            onReleaseResources(suggestedItems);
+        }
     }
 
     /**
@@ -124,6 +137,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      */
     @Override
     protected void onReset() {
+        Log.d(TAG, "onReset");
         super.onReset();
 
         //ensure the loader is stopped
@@ -140,7 +154,9 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * with an actively loaded data set.
      */
     private void onReleaseResources(ArrayList<YelpBusiness> suggestedItems) {
-        suggestedItems.clear();
-        suggestedItems = null;
+        if (suggestedItems != null) {
+            suggestedItems.clear();
+            suggestedItems = null;
+        }
     }
 }
