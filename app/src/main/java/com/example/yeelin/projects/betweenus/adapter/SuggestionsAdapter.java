@@ -51,8 +51,7 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
         //set the checked state
         ListView listView = (ListView) parent;
         viewHolder.suggestedItem.setChecked(listView.isItemChecked(position));
-//        TextView suggestionTextView = (TextView) view.findViewById(R.id.suggestion_item);
-//        suggestionTextView.setText(getItem(position).getName());
+
         return view;
     }
 
@@ -63,8 +62,11 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
     public void updateAllItems(List<YelpBusiness> newItems) {
         //remove all items from the list
         clear();
+
         //add all items to the end of the array
-        addAll(newItems);
+        if (newItems != null) {
+            addAll(newItems);
+        }
     }
 
     /**
