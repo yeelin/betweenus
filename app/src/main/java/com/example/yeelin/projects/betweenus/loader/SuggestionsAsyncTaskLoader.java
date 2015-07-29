@@ -10,7 +10,10 @@ import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import java.util.ArrayList;
 
 /**
+ * Loads data in a bg thread. Caches the loaded data, so that it isn't reloaded on orientation change, or when
+ * navigating up to parent.
  * Created by ninjakiki on 7/20/15.
+ * http://chalup.github.io/blog/2014/06/12/android-loaders/
  */
 public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBusiness>> {
     //logcat
@@ -60,7 +63,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
             // An async query came in while the loader is stopped.  We
             // don't need the result.
             if (suggestedItems != null) {
-                onReleaseResources(suggestedItems);
+                releaseResources(suggestedItems);
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
@@ -80,14 +83,16 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
         if (oldItems != null && oldItems != suggestedItems) {
-            onReleaseResources(oldItems);
+            releaseResources(oldItems);
         }
     }
 
     /**
      * Started state
-     * Handles a request to start the loader.  Start loading the data. After this, loadInBackground
-     * will be called
+     * The loader has been created.  This method handles a request to start the loader.
+     * It will either:
+     * 1. return cached data (via deliverResult) OR
+     * 2. start loading the data. After this, loadInBackground will be called
      */
     @Override
     protected void onStartLoading() {
@@ -118,7 +123,10 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
     }
 
     /**
-     * Handles a request to cancel a load
+     * Callback from AsyncTaskLoader
+     * Handles a request to cancel a load. Called after data loading when it turns out that the data is no
+     * longer needed.  For example, when the async task executing the loadInBackground is cancelled. Clean up and
+     * release resources
      * @param suggestedItems
      */
     @Override
@@ -127,13 +135,14 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
 
         if (suggestedItems != null) {
             //release resources
-            onReleaseResources(suggestedItems);
+            releaseResources(suggestedItems);
         }
     }
 
     /**
      * Reset state
-     * Handles a request to completely reset the loader. Free up resources here.
+     * The data previously loaded by the loader is no longer used.  This method handles a request
+     * to completely reset the loader. Clean up and free up resources.
      */
     @Override
     protected void onReset() {
@@ -145,7 +154,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
 
         //release resources
         if (suggestedItems != null) {
-            onReleaseResources(suggestedItems);
+            releaseResources(suggestedItems);
         }
     }
 
@@ -153,7 +162,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    private void onReleaseResources(ArrayList<YelpBusiness> suggestedItems) {
+    private void releaseResources(ArrayList<YelpBusiness> suggestedItems) {
         if (suggestedItems != null) {
             suggestedItems.clear();
             suggestedItems = null;
