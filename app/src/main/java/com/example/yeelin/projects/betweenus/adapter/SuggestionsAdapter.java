@@ -1,13 +1,13 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
@@ -20,6 +20,8 @@ import java.util.List;
 public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
+    //member variables
+    private List<YelpBusiness> items;
 
     /**
      * Constructor
@@ -28,6 +30,7 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
      */
     public SuggestionsAdapter(Context context, List<YelpBusiness> items) {
         super(context, 0, items);
+        this.items = items;
     }
 
     /**
@@ -60,11 +63,20 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
      * @param newItems
      */
     public void updateAllItems(List<YelpBusiness> newItems) {
-        //remove all items from the list
+        //if it's the same items, do nothing. Otherwise, you end up clearing out newItems
+        if (items == newItems) {
+            Log.d(TAG, "updateAllItems: items == newItems. Nothing to do");
+            return;
+        }
+
+        Log.d(TAG, "updateAllItems: Before clear. Item count:" + newItems.size());
+        //remove all items from the current list
         clear();
 
-        //add all items to the end of the array
+        Log.d(TAG, "updateAllItems: After clear. Item count:" + newItems.size());
+        //add all new items to the end of the array
         if (newItems != null) {
+            this.items = newItems;
             addAll(newItems);
         }
     }

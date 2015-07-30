@@ -31,7 +31,7 @@
                 style="@style/EditTextStyle"
                 android:imeOptions="actionSend"
                 android:inputType="phone"
-                android:hint="@string/enter_phone_number" />
+                android:hint="@string/friend_phone" />
 
             <EditText
                 android:id="@+id/friend_email"
@@ -40,7 +40,7 @@
                 style="@style/EditTextStyle"
                 android:imeOptions="actionSend"
                 android:inputType="textEmailAddress"
-                android:hint="@string/enter_email_address" />
+                android:hint="@string/friend_email" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -72,7 +72,7 @@
                     android:layout_alignParentLeft="true"
                     android:gravity="start|center_vertical"
                     android:paddingLeft="24dp"
-                    android:text="@string/cancel_button_text"/>
+                    android:text="@string/cancel_button"/>
 
                 <Button
                     android:id="@+id/invite_send_button"
@@ -80,7 +80,7 @@
                     android:layout_alignParentRight="true"
                     android:gravity="end|center_vertical"
                     android:paddingRight="24dp"
-                    android:text="@string/invite_button_text"/>
+                    android:text="@string/invite_button"/>
             </RelativeLayout>
         </LinearLayout>
 </ScrollView>

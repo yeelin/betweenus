@@ -163,6 +163,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * with an actively loaded data set.
      */
     private void releaseResources(ArrayList<YelpBusiness> suggestedItems) {
+        Log.d(TAG, "releaseResources");
         if (suggestedItems != null) {
             suggestedItems.clear();
             suggestedItems = null;

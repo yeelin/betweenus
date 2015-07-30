@@ -24,7 +24,8 @@ import java.util.ArrayList;
  */
 public class SuggestionsListFragment
         extends Fragment
-        implements AdapterView.OnItemClickListener {
+        implements SuggestionsCallbacks,
+        AdapterView.OnItemClickListener {
     //logcat
     private static final String TAG = SuggestionsListFragment.class.getCanonicalName();
 
@@ -106,6 +107,14 @@ public class SuggestionsListFragment
      * @param suggestedItems
      */
     public void onLoadComplete(@Nullable ArrayList<YelpBusiness> suggestedItems) {
+        //debugging purposes
+        if (suggestedItems == null) {
+            Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
+        }
+        else {
+            Log.d(TAG, "onLoadComplete: Item count:" + suggestedItems.size());
+        }
+
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet
@@ -116,12 +125,12 @@ public class SuggestionsListFragment
         //update the adapter
         SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         if (suggestionsAdapter == null) {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is null, so creating a new one");
+            Log.d(TAG, "onLoadComplete: Suggestions adapter is null, so creating a new one. Item count:" + suggestedItems.size());
             suggestionsAdapter = new SuggestionsAdapter(viewHolder.suggestionsListView.getContext(), suggestedItems);
             viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
         }
         else {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is not null, so updating");
+            Log.d(TAG, "onLoadComplete: Suggestions adapter is not null, so updating. Item count:" + suggestedItems.size());
             suggestionsAdapter.updateAllItems(suggestedItems);
         }
 

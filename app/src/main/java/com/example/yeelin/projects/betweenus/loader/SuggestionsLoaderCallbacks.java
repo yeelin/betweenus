@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 
 
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
@@ -107,6 +108,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      */
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader");
         //read bundle args
         String searchTerm = args.getString(ARG_SEARCH_TERM, "");
         Location userLocation = args.getParcelable(ARG_USER_LOCATION);
@@ -123,6 +125,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      */
     @Override
     public void onLoadFinished(Loader<ArrayList<YelpBusiness>> loader, ArrayList<YelpBusiness> suggestedItems) {
+        Log.d(TAG, "onLoadFinished");
         SuggestionsLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
             loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), suggestedItems);
@@ -136,6 +139,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      */
     @Override
     public void onLoaderReset(Loader<ArrayList<YelpBusiness>> loader) {
+        Log.d(TAG, "onLoaderReset");
         //let the listener know
         onLoadFinished(loader, null);
     }

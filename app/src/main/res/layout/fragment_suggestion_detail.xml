@@ -218,7 +218,7 @@
                 android:layout_alignParentLeft="true"
                 android:gravity="start|center_vertical"
                 android:paddingLeft="@dimen/card_content_padding"
-                android:text="@string/like_button_text"/>
+                android:text="@string/like_button"/>
 
             <Button
                 android:id="@+id/detail_card_button_select"
@@ -227,7 +227,7 @@
                 android:layout_alignParentRight="true"
                 android:gravity="end|center_vertical"
                 android:paddingRight="@dimen/card_content_padding"
-                android:text="@string/select_button_text"/>
+                android:text="@string/select_button"/>
         </RelativeLayout>
 
     </RelativeLayout>

@@ -58,7 +58,7 @@ public class YelpBusinessLocation {
     /**
      * Location coordinates for a business
      */
-    static class Coordinate {
+    public static class Coordinate {
         //Latitude for this business
         private double latitude;
         //Longitude for this business

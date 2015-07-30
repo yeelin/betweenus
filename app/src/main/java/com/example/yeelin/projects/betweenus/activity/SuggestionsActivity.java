@@ -42,6 +42,7 @@ public class SuggestionsActivity
 
     //member variables
     private boolean showingMap = false;
+    private ArrayList<YelpBusiness> suggestedItems;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -63,7 +64,9 @@ public class SuggestionsActivity
     }
 
     /**
-     * Creates the activity
+     * Creates the activity and does the following:
+     * 1. Creates the list and map fragments
+     * 2. Show/hide the list and map fragments
      * @param savedInstanceState
      */
     @Override
@@ -94,8 +97,10 @@ public class SuggestionsActivity
                     .commit();
         }
         else {
-            showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
+            //restore the state when we last left the activity (either showing map or list)
             Log.d(TAG, "onCreate: Saved instance state is not null");
+            showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
+
             toggleListAndMapFragments();
         }
 
@@ -172,6 +177,7 @@ public class SuggestionsActivity
                 return true;
 
             case R.id.action_toggle:
+                Log.d(TAG, String.format("onOptionsItemSelected: Toggle clicked. Current:%s, Next:%s", showingMap ? "map" : "list", !showingMap ? "map" : "list"));
                 showingMap = !showingMap;
                 toggleMenuItemIcon(item);
                 toggleMenuItemTitle(item);
@@ -213,29 +219,34 @@ public class SuggestionsActivity
      * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments
      */
     private void toggleListAndMapFragments() {
-        Fragment listFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-        Fragment mapFragment = getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+        Log.d(TAG, "toggleListAndMapFragments: Item count:" + this.suggestedItems.size());
+        SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
+        SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
         if (listFragment == null) {
             Log.w(TAG, "toggleListAndMapFragments: List fragment is null");
             return;
         }
         if (mapFragment == null) {
-            Log.w(TAG, "toggleListAndMapFragments: map fragment is null");
+            Log.w(TAG, "toggleListAndMapFragments: Map fragment is null");
             return;
         }
         if (showingMap) {
+            Log.d(TAG, "toggleListAndMapFragments: Showing map fragment");
             getSupportFragmentManager()
                     .beginTransaction()
                     .hide(listFragment)
                     .show(mapFragment)
                     .commit();
+            mapFragment.onLoadComplete(this.suggestedItems);
         }
         else {
+            Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
             getSupportFragmentManager()
                     .beginTransaction()
                     .hide(mapFragment)
                     .show(listFragment)
                     .commit();
+            listFragment.onLoadComplete(this.suggestedItems);
         }
     }
 
@@ -253,9 +264,21 @@ public class SuggestionsActivity
             return;
         }
 
+        //debugging purposes
+        if (suggestedItems == null) {
+            Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
+        }
+        else {
+            Log.d(TAG, "onLoadComplete: Item count:" + suggestedItems.size());
+        }
+
+        this.suggestedItems = suggestedItems;
         if (showingMap) {
-            //TODO: Notify map fragment
-            Log.d(TAG, "onLoadComplete: Need to implement onLoadComplete in Map fragment");
+            Log.d(TAG, "onLoadComplete: Notifying List fragment");
+            SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+            if (mapFragment != null) {
+                mapFragment.onLoadComplete(suggestedItems);
+            }
         }
         else {
             Log.d(TAG, "onLoadComplete: Notifying List fragment");

@@ -1,24 +1,18 @@
 <resources>
-    <string name="app_name">Betweenus</string>
+    <string name="app_name">Between</string>
 
     <!-- activity titles -->
-    <string name="title_launcher">Betweenus</string>
+    <string name="title_launcher">Between</string>
     <string name="title_suggested_places">Suggested Places</string>
     <string name="title_place">Place</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
     <string name="title_invitation">Invite friend</string>
 
-    <!-- Toolbar strings -->
-    <string name="toolbar_title_main">Between Us - Search</string>
-    <string name="toolbar_title_results">Results</string>
-    <string name="toolbar_title_details">Details</string>
-    <string name="toolbar_title_invite">Invite friend</string>
-
     <!-- Search strings -->
-    <string name="search_query_hint">Enter address, city, or neighborhood</string>
+    <string name="search_query_hint">Search address or city</string>
     <string name="search_attribution_contentDescription">Search powered by Google</string>
-    <string name="search_no_results">Location not found</string>
+    <string name="search_no_results">No locations</string>
 
     <!-- menu actions -->
     <string name="action_search">Search</string>
@@ -27,19 +21,19 @@
     <string name="action_view_as_list">View as list</string>
 
     <!-- Main activity strings -->
-    <string name="cover_image_overlay_text">Find the best places to meet between you and your friend</string>
-    <string name="enter_first_address">Enter your address</string>
-    <string name="enter_second_address">"Enter friend's address"</string>
+    <string name="location_entry_header">Find places to meet between you and your friend</string>
+    <string name="user_location">Where are you coming from?</string>
+    <string name="friend_location">Where is your friend coming from?</string>
 
     <!-- Button text -->
-    <string name="clear_button_text">Clear</string>
-    <string name="find_button_text">Meet Between Us</string>
-    <string name="select_button_text">Select</string>
-    <string name="selected_button_text">Selected</string>
-    <string name="like_button_text">Like</string>
-    <string name="liked_button_text">Liked</string>
-    <string name="cancel_button_text">Cancel</string>
-    <string name="invite_button_text">Send Invite</string>
+    <string name="clear_button">Clear</string>
+    <string name="search_button">Search</string>
+    <string name="select_button">Select</string>
+    <string name="selected_button">Selected</string>
+    <string name="like_button">Like</string>
+    <string name="liked_button">Liked</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="invite_button">Send Invite</string>
 
     <!-- Results card view strings -->
     <string name="place_name">Espresso Vivace Roasteria</string>
@@ -61,10 +55,14 @@
     <string name="place_outdoor_seating">Outdoor Seating:Yes</string>
     <string name="place_wifi">Wifi:Free</string>
 
+    <!-- Map strings -->
+    <string name="map_contentDescription">Map view of search results</string>
+    <string name="map_marker_snippet">Rating:%1$s, Reviews:%2$s </string>
+
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Text or email to invite your friend</string>
-    <string name="enter_phone_number">"Enter friend's phone"</string>
-    <string name="enter_email_address">"Enter friend's email"</string>
+    <string name="friend_phone">"Enter friend's phone"</string>
+    <string name="friend_email">"Enter friend's email"</string>
 
     <!-- Text message strings -->
     <string name="sms_body">I found these places on Between: %1$s. What do you think?</string>
