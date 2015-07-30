@@ -1,11 +1,8 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.location.Location;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
-import android.view.ViewTreeObserver;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
@@ -27,11 +24,13 @@ import java.util.List;
 public class SuggestionsMapFragment
         extends BaseMapFragment
         implements SuggestionsCallbacks,
-        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMapLoadedCallback {
+        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener {
     //logcat
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
     private static final int DEFAULT_ZOOM = 13;
+    private static final float HUE_PRIMARY = 231f;
+    private static final float HUE_ACCENT = 174f;
 
     //member variables
     private List<YelpBusiness> items;
@@ -58,22 +57,14 @@ public class SuggestionsMapFragment
         Log.d(TAG, "onMapReady");
         super.onMapReady(googleMap);
 
+        //set the click listener for the marker
+        googleMap.setOnMarkerClickListener(this);
+
         //set the click listener for the info window that is displayed when marker is tapped
         googleMap.setOnInfoWindowClickListener(this);
 
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
-    }
-
-    /**
-     * GoogleMap.OnInfoWindowClickListener callback
-     * Handles what happens when the info window is tapped
-     * @param marker
-     */
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        Log.d(TAG, "onInfoWindowClick: Marker title:" + marker.getTitle());
-        //TODO: call listener to start the detail activity
     }
 
     /**
@@ -133,7 +124,7 @@ public class SuggestionsMapFragment
                             .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
                             .title(business.getName())
                             .snippet(getString(R.string.map_marker_snippet, business.getRating(), business.getReview_count()))
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                            .icon(BitmapDescriptorFactory.defaultMarker(HUE_PRIMARY));
                     map.addMarker(markerOptions);
 
                     //boundsBuilder.include(markerOptions.getPosition());
@@ -184,5 +175,25 @@ public class SuggestionsMapFragment
             //animate the camera over to the region specified by bounds
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 0));
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(HUE_ACCENT));
+        // We return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // marker is centered and for the marker's info window to open, if it has one).
+        return false;
+    }
+
+    /**
+     * GoogleMap.OnInfoWindowClickListener callback
+     * Handles what happens when the info window is tapped
+     * @param marker
+     */
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        Log.d(TAG, "onInfoWindowClick: Marker title:" + marker.getTitle());
+        //TODO: call listener to start the detail activity
     }
 }
