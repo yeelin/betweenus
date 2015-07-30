@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.BuildConfig;
@@ -65,10 +66,12 @@ public abstract class BaseMapFragment
      */
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
 
         //restore the map to the previous camera position if any
         if (cameraPosition != null) {
+            Log.d(TAG, "onResume: cameraPosition != null");
             map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
@@ -110,6 +113,7 @@ public abstract class BaseMapFragment
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "onMapReady");
         map = googleMap;
 
         UiSettings mapUiSettings = map.getUiSettings();
@@ -127,6 +131,4 @@ public abstract class BaseMapFragment
         //for accessibility
         map.setContentDescription(getString(R.string.map_contentDescription));
     }
-
-
 }
