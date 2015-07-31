@@ -52,7 +52,7 @@ public class SuggestionDetailActivity extends BaseActivity {
         if (savedInstanceState == null) {
             Fragment suggestionDetailFragment = getSupportFragmentManager().findFragmentById(R.id.suggestionDetail_fragmentContainer);
             if (suggestionDetailFragment == null) {
-                Log.d(TAG, "onCreate: Creating a new Place Fragment");
+                Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id))

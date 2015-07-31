@@ -1,5 +1,6 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,10 +25,11 @@ import java.util.ArrayList;
  */
 public class SuggestionsListFragment
         extends Fragment
-        implements SuggestionsCallbacks,
+        implements OnSuggestionsLoadedCallback, //tells fragment when data is loaded
         AdapterView.OnItemClickListener {
     //logcat
     private static final String TAG = SuggestionsListFragment.class.getCanonicalName();
+    private OnSuggestionItemClickListener itemClickListener;
 
     /**
      * Creates a new instance of the list fragment
@@ -41,6 +43,23 @@ public class SuggestionsListFragment
      * Required empty constructor
      */
     public SuggestionsListFragment() {}
+
+    /**
+     * Make sure the parent fragment or activity implements the suggestion click listener
+     * @param activity
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+        try {
+            itemClickListener = (OnSuggestionItemClickListener) objectToCast;
+        }
+        catch (ClassCastException e) {
+            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionItemClickListener");
+        }
+    }
 
     /**
      * Configure the fragment
@@ -87,6 +106,15 @@ public class SuggestionsListFragment
     }
 
     /**
+     * Nullify the click listener
+     */
+    @Override
+    public void onDetach() {
+        itemClickListener = null;
+        super.onDetach();
+    }
+
+    /**
      * AdapterView.OnItemClickListener
      * Item click callback when an item in the listview is clicked.  All we do here is toggle the checked textview
      * @param parent
@@ -103,34 +131,35 @@ public class SuggestionsListFragment
     }
 
     /**
+     * OnSuggestionsLoadedCallback implementation
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * @param yelpResult
      */
-    public void onLoadComplete(@Nullable YelpResult yelpResult) {
+    public void onSuggestionsLoaded(@Nullable YelpResult yelpResult) {
         //debugging purposes
         if (yelpResult == null) {
-            Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
+            Log.d(TAG, "onSuggestionsLoaded: SuggestedItems is null. Loader must be resetting");
         }
         else {
-            Log.d(TAG, "onLoadComplete: Item count:" + yelpResult.getBusinesses().size());
+            Log.d(TAG, "onSuggestionsLoaded: Item count:" + yelpResult.getBusinesses().size());
         }
 
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet
-            Log.d(TAG, "onLoadComplete: View holder is null, so nothing to do");
+            Log.d(TAG, "onSuggestionsLoaded: View holder is null, so nothing to do");
             return;
         }
 
         //update the adapter
         SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         if (suggestionsAdapter == null) {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is null, so creating a new one. Item count:" + yelpResult.getBusinesses().size());
+            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is null, so creating a new one. Item count:" + yelpResult.getBusinesses().size());
             suggestionsAdapter = new SuggestionsAdapter(viewHolder.suggestionsListView.getContext(), yelpResult.getBusinesses());
             viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
         }
         else {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is not null, so updating. Item count:" + yelpResult.getBusinesses().size());
+            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating. Item count:" + yelpResult.getBusinesses().size());
             suggestionsAdapter.updateAllItems(yelpResult.getBusinesses());
         }
 

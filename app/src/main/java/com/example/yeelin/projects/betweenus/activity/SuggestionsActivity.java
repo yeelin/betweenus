@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.fragment.OnSuggestionItemClickListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
@@ -24,7 +25,8 @@ import java.util.ArrayList;
  */
 public class SuggestionsActivity
         extends BaseActivity
-        implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener {
+        implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
+        OnSuggestionItemClickListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -131,18 +133,6 @@ public class SuggestionsActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    protected void onStart() {
-        Log.d(TAG, "onStart");
-        super.onStart();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-        super.onResume();
-    }
-
     /**
      * Handles user selection of menu options:
      * 1. Home - navigates up to parent activity
@@ -237,7 +227,7 @@ public class SuggestionsActivity
                     .hide(listFragment)
                     .show(mapFragment)
                     .commit();
-            mapFragment.onLoadComplete(this.yelpResult);
+            mapFragment.onSuggestionsLoaded(this.yelpResult);
         }
         else {
             Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
@@ -246,7 +236,7 @@ public class SuggestionsActivity
                     .hide(mapFragment)
                     .show(listFragment)
                     .commit();
-            listFragment.onLoadComplete(this.yelpResult);
+            listFragment.onSuggestionsLoaded(this.yelpResult);
         }
     }
 
@@ -277,15 +267,25 @@ public class SuggestionsActivity
             Log.d(TAG, "onLoadComplete: Notifying List fragment");
             SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
-                mapFragment.onLoadComplete(yelpResult);
+                mapFragment.onSuggestionsLoaded(yelpResult);
             }
         }
         else {
             Log.d(TAG, "onLoadComplete: Notifying List fragment");
             SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
             if (listFragment != null) {
-                listFragment.onLoadComplete(yelpResult);
+                listFragment.onSuggestionsLoaded(yelpResult);
             }
         }
+    }
+
+    /**
+     * SuggestionClickListener implementation
+     * @param id
+     */
+    @Override
+    public void onSuggestionClick(String id) {
+        Log.d(TAG, "onSuggestionClick: BusinessId:" + id);
+        startActivity(SuggestionDetailActivity.buildIntent(this, id));
     }
 }
