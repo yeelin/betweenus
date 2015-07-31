@@ -9,15 +9,14 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/20/15.
  */
-public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<ArrayList<YelpBusiness>> {
+public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<YelpResult> {
     //logcat
     private static final String TAG = SuggestionsLoaderCallbacks.class.getCanonicalName();
 
@@ -34,7 +33,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * Listener interface. The loader's listener is usually the ui.
      */
     public interface SuggestionsLoaderListener {
-        void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<YelpBusiness> suggestedItems);
+        void onLoadComplete(LoaderId loaderId, @Nullable YelpResult yelpResult);
     }
 
     /**
@@ -121,14 +120,14 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     /**
      * Loader has finished. Called when a previously created loader has finished its load. Notify listeners.
      * @param loader
-     * @param suggestedItems
+     * @param yelpResult
      */
     @Override
-    public void onLoadFinished(Loader<ArrayList<YelpBusiness>> loader, ArrayList<YelpBusiness> suggestedItems) {
+    public void onLoadFinished(Loader<YelpResult> loader, YelpResult yelpResult) {
         Log.d(TAG, "onLoadFinished");
         SuggestionsLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), suggestedItems);
+            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), yelpResult);
         }
     }
 
@@ -138,7 +137,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loader
      */
     @Override
-    public void onLoaderReset(Loader<ArrayList<YelpBusiness>> loader) {
+    public void onLoaderReset(Loader<YelpResult> loader) {
         Log.d(TAG, "onLoaderReset");
         //let the listener know
         onLoadFinished(loader, null);

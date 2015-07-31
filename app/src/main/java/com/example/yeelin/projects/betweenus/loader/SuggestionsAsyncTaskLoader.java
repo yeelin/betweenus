@@ -5,9 +5,7 @@ import android.location.Location;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-
-import java.util.ArrayList;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
 
 /**
  * Loads data in a bg thread. Caches the loaded data, so that it isn't reloaded on orientation change, or when
@@ -15,7 +13,7 @@ import java.util.ArrayList;
  * Created by ninjakiki on 7/20/15.
  * http://chalup.github.io/blog/2014/06/12/android-loaders/
  */
-public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBusiness>> {
+public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     //logcat
     private static final String TAG = SuggestionsAsyncTaskLoader.class.getCanonicalName();
 
@@ -23,7 +21,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
     private final String searchTerm;
     private final Location userLocation;
     private final Location friendLocation;
-    private ArrayList<YelpBusiness> suggestedItems;
+    private YelpResult yelpResult;
 
     /**
      * Constructor. Creates a fully specified async task loader
@@ -43,10 +41,10 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * @return
      */
     @Override
-    public ArrayList<YelpBusiness> loadInBackground() {
+    public YelpResult loadInBackground() {
         Log.d(TAG, "loadInBackground");
-        ArrayList<YelpBusiness> suggestedItems = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
-        return suggestedItems;
+        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
+        return yelpResult;
     }
 
     /**
@@ -54,36 +52,36 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * delivering it, the implementation here just adds a little logic.  After this, onLoadFinished
      * in LoaderCallbacks is called.
      * Runs on UI thread.
-     * @param suggestedItems
+     * @param yelpResult
      */
     @Override
-    public void deliverResult(ArrayList<YelpBusiness> suggestedItems) {
+    public void deliverResult(YelpResult yelpResult) {
         Log.d(TAG, "deliverResult");
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (suggestedItems != null) {
-                releaseResources(suggestedItems);
+            if (yelpResult != null) {
+                releaseResources(yelpResult);
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
         }
 
         //reassign old data reference
-        ArrayList<YelpBusiness> oldItems = this.suggestedItems;
-        this.suggestedItems = suggestedItems;
+        YelpResult oldResult = this.yelpResult;
+        this.yelpResult = yelpResult;
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
             Log.d(TAG, "deliverResult: isStarted");
-            super.deliverResult(suggestedItems);
+            super.deliverResult(yelpResult);
         }
 
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
-        if (oldItems != null && oldItems != suggestedItems) {
-            releaseResources(oldItems);
+        if (oldResult != null && oldResult != yelpResult) {
+            releaseResources(oldResult);
         }
     }
 
@@ -97,13 +95,13 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
     @Override
     protected void onStartLoading() {
         Log.d(TAG, "onStartLoading");
-        if (suggestedItems != null) {
+        if (yelpResult != null) {
             //we currently have a result available so deliver it immediately
             Log.d(TAG, "onStartLoading: Suggested items not null, so delivering results immediately");
-            deliverResult(suggestedItems);
+            deliverResult(yelpResult);
         }
 
-        if (takeContentChanged() || suggestedItems == null) {
+        if (takeContentChanged() || yelpResult == null) {
             //data is not currently available, or the data has changed since the last time it was loaded
             //start a load
             Log.d(TAG, "onStartLoading: Force load");
@@ -127,15 +125,15 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * Handles a request to cancel a load. Called after data loading when it turns out that the data is no
      * longer needed.  For example, when the async task executing the loadInBackground is cancelled. Clean up and
      * release resources
-     * @param suggestedItems
+     * @param yelpResult
      */
     @Override
-    public void onCanceled(ArrayList<YelpBusiness> suggestedItems) {
+    public void onCanceled(YelpResult yelpResult) {
         Log.d(TAG, "onCanceled");
 
-        if (suggestedItems != null) {
+        if (yelpResult != null) {
             //release resources
-            releaseResources(suggestedItems);
+            releaseResources(yelpResult);
         }
     }
 
@@ -153,8 +151,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
         onStopLoading();
 
         //release resources
-        if (suggestedItems != null) {
-            releaseResources(suggestedItems);
+        if (yelpResult != null) {
+            releaseResources(yelpResult);
         }
     }
 
@@ -162,11 +160,11 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<ArrayList<YelpBu
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    private void releaseResources(ArrayList<YelpBusiness> suggestedItems) {
+    private void releaseResources(YelpResult yelpResult) {
         Log.d(TAG, "releaseResources");
-        if (suggestedItems != null) {
-            suggestedItems.clear();
-            suggestedItems = null;
+        if (yelpResult != null) {
+            yelpResult.release();
+            yelpResult = null;
         }
     }
 }

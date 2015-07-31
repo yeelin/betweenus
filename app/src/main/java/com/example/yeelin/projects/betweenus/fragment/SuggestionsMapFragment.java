@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,16 +17,15 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by ninjakiki on 7/28/15.
  */
 public class SuggestionsMapFragment
         extends BaseMapFragment
         implements SuggestionsCallbacks,
-        GoogleMap.OnInfoWindowClickListener, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnMapLoadedCallback,
+        GoogleMap.OnMarkerClickListener {
     //logcat
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
@@ -33,7 +34,7 @@ public class SuggestionsMapFragment
     private static final float HUE_ACCENT = 174f;
 
     //member variables
-    private List<YelpBusiness> items;
+    private YelpResult yelpResult;
 
     /**
      * Creates a new instance of the map fragment
@@ -69,14 +70,14 @@ public class SuggestionsMapFragment
 
     /**
      * The loader has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
-     * @param suggestedItems
+     * @param yelpResult
      */
-    public void onLoadComplete(@Nullable ArrayList<YelpBusiness> suggestedItems) {
+    public void onLoadComplete(@Nullable YelpResult yelpResult) {
         //debugging purposes
-        if (suggestedItems == null) {
+        if (yelpResult == null) {
             Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
         } else {
-            Log.d(TAG, "onLoadComplete: Item count:" + suggestedItems.size());
+            Log.d(TAG, "onLoadComplete: Item count:" + yelpResult.getBusinesses().size());
         }
 
         //check if map is null
@@ -86,19 +87,19 @@ public class SuggestionsMapFragment
         }
 
         //map is not null so update it
-        updateMap(suggestedItems);
+        updateMap(yelpResult);
     }
 
     /**
      * Updates the map with a new list of items
      * This is similar to what the SuggestionsAdapter does in updateAllItems().
-     * @param newItems
+     * @param newYelpResult
      */
-    private void updateMap(@Nullable ArrayList<YelpBusiness> newItems) {
+    private void updateMap(@Nullable YelpResult newYelpResult) {
         //if it's the same items, do nothing. Otherwise, you end up clearing the map only to add
         //the same markers back
-        if (items == newItems) {
-            Log.d(TAG, "updateMap: items == suggestedItems. Nothing to do");
+        if (yelpResult == newYelpResult) {
+            Log.d(TAG, "updateMap: yelpResult == newYelpResult. Nothing to do");
             return;
         }
 
@@ -108,17 +109,17 @@ public class SuggestionsMapFragment
         cameraPosition = null;
 
         //check if new suggestions are null
-        if (newItems != null) {
-            this.items = newItems;
+        if (newYelpResult != null) {
+            this.yelpResult = newYelpResult;
 
             //check if new items > 0 so that we don't create the builder unnecessarily
-            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + newItems.size());
-            if (newItems.size() > 0) {
+            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + newYelpResult.getBusinesses().size());
+            if (newYelpResult.getBusinesses().size() > 0) {
                 //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
                 //loop through suggested items and add markers to map
-                for (int i = 0; i < newItems.size(); i++) {
-                    YelpBusiness business = newItems.get(i);
+                for (int i = 0; i < newYelpResult.getBusinesses().size(); i++) {
+                    YelpBusiness business = newYelpResult.getBusinesses().get(i);
 
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
@@ -154,11 +155,14 @@ public class SuggestionsMapFragment
 //            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
 //        }
 
-        if (cameraPosition == null) {
-            //TODO: remove hard coded values after we plumb the yelp result region all the way through
-            LatLng center = new LatLng(47.726622, -122.269217);
-            double latDelta = 0.024100;
-            double longDelta = 0.056876;
+        if (cameraPosition == null && yelpResult != null) {
+            //read the yelp result region
+            YelpResultRegion yelpResultRegion = yelpResult.getRegion();
+            LatLng center = new LatLng(
+                    yelpResultRegion.getCenter().getLatitude(),
+                    yelpResultRegion.getCenter().getLongitude());
+            double latDelta = yelpResultRegion.getSpan().getLatitude_delta();
+            double longDelta = yelpResultRegion.getSpan().getLongitude_delta();
 
             //compute north, south, east, west from center
             LatLng north = new LatLng(center.latitude + latDelta/2, center.longitude);

@@ -39,7 +39,7 @@ public class YelpLoaderHelper {
      * @param friendLocation
      */
     @Nullable
-    public static ArrayList<YelpBusiness> fetchFromNetwork(Context context, String searchTerm, Location userLocation, Location friendLocation) {
+    public static YelpResult fetchFromNetwork(Context context, String searchTerm, Location userLocation, Location friendLocation) {
         Log.d(TAG, "fetchFromNetwork");
 
         //make sure we have network connection and latest SSL
@@ -49,9 +49,9 @@ public class YelpLoaderHelper {
 
         try {
             //fetch data from Yelp
-            ArrayList<YelpBusiness> suggestedItems = fetchFromYelp(searchTerm, userLocation, friendLocation);
+            YelpResult yelpResult = fetchFromYelp(context, searchTerm, userLocation, friendLocation);
             CacheUtils.logCache();
-            return suggestedItems;
+            return yelpResult;
         }
         catch (Exception e) {
             Log.e(TAG, "fetchFromNetwork: Unexpected error", e);
@@ -71,7 +71,7 @@ public class YelpLoaderHelper {
      * @param userLocation
      * @param friendLocation
      */
-    private static ArrayList<YelpBusiness> fetchFromYelp(String searchTerm, Location userLocation, Location friendLocation)
+    private static YelpResult fetchFromYelp(Context context, String searchTerm, Location userLocation, Location friendLocation)
             throws IOException {
         Log.d(TAG, "fetchFromYelp");
 
@@ -86,8 +86,8 @@ public class YelpLoaderHelper {
         YelpResult yelpResult = deserializeYelpResponseJson(yelpResponseJSON);
         Log.d(TAG, "fetchFromYelp: YelpResult: " + yelpResult);
 
-        //return arraylist businesses
-        return yelpResult.getBusinesses();
+        //return yelp result whole
+        return yelpResult;
     }
 
     /**

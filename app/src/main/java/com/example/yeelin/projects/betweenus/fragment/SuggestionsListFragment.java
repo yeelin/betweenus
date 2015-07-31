@@ -14,7 +14,7 @@ import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 
 import java.util.ArrayList;
@@ -104,15 +104,15 @@ public class SuggestionsListFragment
 
     /**
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
-     * @param suggestedItems
+     * @param yelpResult
      */
-    public void onLoadComplete(@Nullable ArrayList<YelpBusiness> suggestedItems) {
+    public void onLoadComplete(@Nullable YelpResult yelpResult) {
         //debugging purposes
-        if (suggestedItems == null) {
+        if (yelpResult == null) {
             Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
         }
         else {
-            Log.d(TAG, "onLoadComplete: Item count:" + suggestedItems.size());
+            Log.d(TAG, "onLoadComplete: Item count:" + yelpResult.getBusinesses().size());
         }
 
         ViewHolder viewHolder = getViewHolder();
@@ -125,13 +125,13 @@ public class SuggestionsListFragment
         //update the adapter
         SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         if (suggestionsAdapter == null) {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is null, so creating a new one. Item count:" + suggestedItems.size());
-            suggestionsAdapter = new SuggestionsAdapter(viewHolder.suggestionsListView.getContext(), suggestedItems);
+            Log.d(TAG, "onLoadComplete: Suggestions adapter is null, so creating a new one. Item count:" + yelpResult.getBusinesses().size());
+            suggestionsAdapter = new SuggestionsAdapter(viewHolder.suggestionsListView.getContext(), yelpResult.getBusinesses());
             viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
         }
         else {
-            Log.d(TAG, "onLoadComplete: Suggestions adapter is not null, so updating. Item count:" + suggestedItems.size());
-            suggestionsAdapter.updateAllItems(suggestedItems);
+            Log.d(TAG, "onLoadComplete: Suggestions adapter is not null, so updating. Item count:" + yelpResult.getBusinesses().size());
+            suggestionsAdapter.updateAllItems(yelpResult.getBusinesses());
         }
 
         //animate in the list, and animate out the progress bar

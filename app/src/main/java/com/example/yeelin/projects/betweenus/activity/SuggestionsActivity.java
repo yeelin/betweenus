@@ -15,7 +15,7 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.model.YelpResult;
 
 import java.util.ArrayList;
 
@@ -42,7 +42,7 @@ public class SuggestionsActivity
 
     //member variables
     private boolean showingMap = false;
-    private ArrayList<YelpBusiness> suggestedItems;
+    private YelpResult yelpResult;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -219,7 +219,7 @@ public class SuggestionsActivity
      * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments
      */
     private void toggleListAndMapFragments() {
-        Log.d(TAG, "toggleListAndMapFragments: Item count:" + this.suggestedItems.size());
+        Log.d(TAG, "toggleListAndMapFragments: Item count:" + this.yelpResult.getBusinesses().size());
         SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
         SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
         if (listFragment == null) {
@@ -237,7 +237,7 @@ public class SuggestionsActivity
                     .hide(listFragment)
                     .show(mapFragment)
                     .commit();
-            mapFragment.onLoadComplete(this.suggestedItems);
+            mapFragment.onLoadComplete(this.yelpResult);
         }
         else {
             Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
@@ -246,7 +246,7 @@ public class SuggestionsActivity
                     .hide(mapFragment)
                     .show(listFragment)
                     .commit();
-            listFragment.onLoadComplete(this.suggestedItems);
+            listFragment.onLoadComplete(this.yelpResult);
         }
     }
 
@@ -255,36 +255,36 @@ public class SuggestionsActivity
      * When the loader delivers the results, this method would be called.  Depending on which fragment is in view,
      * the data would be passed to the appropriate fragment.
      * @param loaderId
-     * @param suggestedItems
+     * @param yelpResult
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable ArrayList<YelpBusiness> suggestedItems) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable YelpResult yelpResult) {
         if (loaderId != LoaderId.MULTI_PLACES) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
         }
 
         //debugging purposes
-        if (suggestedItems == null) {
+        if (yelpResult == null) {
             Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
         }
         else {
-            Log.d(TAG, "onLoadComplete: Item count:" + suggestedItems.size());
+            Log.d(TAG, "onLoadComplete: Item count:" + yelpResult.getBusinesses().size());
         }
 
-        this.suggestedItems = suggestedItems;
+        this.yelpResult = yelpResult;
         if (showingMap) {
             Log.d(TAG, "onLoadComplete: Notifying List fragment");
             SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
-                mapFragment.onLoadComplete(suggestedItems);
+                mapFragment.onLoadComplete(yelpResult);
             }
         }
         else {
             Log.d(TAG, "onLoadComplete: Notifying List fragment");
             SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
             if (listFragment != null) {
-                listFragment.onLoadComplete(suggestedItems);
+                listFragment.onLoadComplete(yelpResult);
             }
         }
     }
