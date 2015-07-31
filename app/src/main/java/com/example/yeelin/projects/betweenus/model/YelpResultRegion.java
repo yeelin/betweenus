@@ -25,7 +25,7 @@ public class YelpResultRegion {
     /**
      * Span of suggested map bounds
      */
-    static class Span {
+    public static class Span {
         //Latitude width of map bounds
         private double latitude_delta;
         //Longitude height of map bounds
@@ -48,7 +48,7 @@ public class YelpResultRegion {
     /**
      * Center position of map bounds
      */
-    static class Center {
+    public static class Center {
         //Latitude position of map bounds center
         private double latitude;
         //Longitude position of map bounds center

@@ -46,6 +46,11 @@ public class YelpResult {
     public String toString() {
 //        return String.format("Region:%s, Total:%d, Businesses:%s", region, total, Arrays.toString(businesses));
         return String.format("Region:%s, Total:%d, Businesses:%s", region, total, businesses);
+    }
 
+    public void release() {
+        region = null;
+        businesses.clear();
+        businesses = null;
     }
 }
