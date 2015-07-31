@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <TextView
-            android:id="@+id/detail_txt_place_name"
+            android:id="@+id/detail_name"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:background="@color/colorAccent"
@@ -23,10 +23,10 @@
             android:paddingRight="@dimen/card_content_padding"
             android:textColor="@android:color/white"
             android:textSize="@dimen/medium_textSize"
-            tools:text="@string/place_name"/>
+            tools:text="@string/detail_name"/>
 
         <TextView
-            android:id="@+id/detail_txt_place_tag"
+            android:id="@+id/detail_categories"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
             android:gravity="bottom"
@@ -34,55 +34,55 @@
             android:paddingLeft="@dimen/card_content_padding"
             android:paddingBottom="@dimen/card_content_padding"
             android:textSize="@dimen/small_textSize"
-            tools:text="@string/place_tag"/>
+            tools:text="@string/detail_categories"/>
 
         <TextView
-            android:id="@+id/detail_txt_place_price"
+            android:id="@+id/detail_price"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
             android:gravity="bottom"
-            android:layout_alignBaseline="@id/detail_txt_place_tag"
-            android:layout_toRightOf="@id/detail_txt_place_tag"
+            android:layout_alignBaseline="@id/detail_categories"
+            android:layout_toRightOf="@id/detail_categories"
             android:textColor="@android:color/white"
             android:paddingLeft="@dimen/card_content_padding"
             android:paddingBottom="@dimen/card_content_padding"
             android:textSize="@dimen/small_textSize"
-            android:text="@string/place_price"/>
+            android:text="@string/detail_price"/>
 
         <TextView
-            android:id="@+id/detail_txt_place_distance"
+            android:id="@+id/detail_distance_from_user"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
             android:gravity="bottom"
-            android:layout_alignBaseline="@id/detail_txt_place_price"
-            android:layout_toRightOf="@id/detail_txt_place_price"
+            android:layout_alignBaseline="@id/detail_price"
+            android:layout_toRightOf="@id/detail_price"
             android:textColor="@android:color/white"
             android:paddingLeft="@dimen/card_content_padding"
             android:paddingBottom="@dimen/card_content_padding"
             android:textSize="@dimen/small_textSize"
-            tools:text="@string/place_distance"/>
+            tools:text="@string/detail_distance"/>
 
         <LinearLayout
             android:id="@+id/quick_actions"
-            android:layout_below="@id/detail_txt_place_name"
+            android:layout_below="@id/detail_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
-                android:id="@+id/quick_action_web"
+                android:id="@+id/detail_website_button"
                 style="@style/QuickActionButtonStyle"
-                android:text="Website"/>
+                android:text="@string/detail_website_button"/>
             <Button
-                android:id="@+id/quick_action_menu"
+                android:id="@+id/detail_menu_button"
                 style="@style/QuickActionButtonStyle"
-                android:text="Menu"/>
+                android:text="@string/detail_menu_button"/>
             <Button
-                android:id="@+id/quick_action_phone"
+                android:id="@+id/detail_phone_button"
                 style="@style/QuickActionButtonStyle"
-                android:text="Call"/>
+                android:text="@string/detail_phone_button"/>
             <Button
-                android:id="@+id/quick_action_map"
+                android:id="@+id/detail_map_button"
                 style="@style/QuickActionButtonStyle"
-                android:text="Map"/>
+                android:text="@string/detail_map_button"/>
         </LinearLayout>
 
         <View
@@ -90,119 +90,96 @@
             android:layout_below="@id/quick_actions"
             style="@style/HorizontalRuleStyle"/>
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/detail_card_content"
             android:layout_below="@id/quick_actions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:padding="@dimen/card_content_padding">
 
             <!-- START:Address and Phone group -->
             <TextView
-                android:id="@+id/detail_txt_place_address"
+                android:id="@+id/detail_address"
                 style="@style/Medium_PrimaryTextViewStyle"
-                tools:text="@string/place_address"/>
+                tools:text="@string/detail_address"/>
             <TextView
-                android:id="@+id/detail_txt_place_crossstreet"
-                android:layout_below="@id/detail_txt_place_address"
+                android:id="@+id/detail_crossStreets"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_crossstreet"/>
+                tools:text="@string/detail_crossStreets"/>
             <TextView
-                android:id="@+id/detail_txt_place_phone"
-                android:layout_below="@id/detail_txt_place_crossstreet"
+                android:id="@+id/detail_phone"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_phone"/>
+                tools:text="@string/detail_phone"/>
             <!-- END:Address and Phone group -->
 
             <!-- START:Website group-->
             <TextView
-                android:id="@+id/detail_txt_website_header"
-                android:layout_below="@id/detail_txt_place_phone"
                 android:layout_marginTop="8dp"
                 style="@style/Medium_PrimaryTextViewStyle"
-                android:text="Website"/>
+                android:text="@string/detail_website"/>
             <TextView
-                android:id="@+id/detail_txt_place_website"
-                android:layout_below="@id/detail_txt_website_header"
+                android:id="@+id/detail_webAddress"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_website"/>
+                tools:text="@string/detail_webAddress"/>
             <!-- END:Website group-->
 
             <!-- START:Reviews group-->
             <TextView
-                android:id="@+id/detail_txt_reviews_header"
-                android:layout_below="@id/detail_txt_place_website"
                 android:layout_marginTop="8dp"
                 style="@style/Medium_PrimaryTextViewStyle"
-                tools:text="Reviews"/>
+                tools:text="@string/detail_reviews"/>
             <TextView
-                android:id="@+id/detail_txt_place_rating"
-                android:layout_below="@id/detail_txt_reviews_header"
+                android:id="@+id/detail_rating"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_rating"/>
+                tools:text="@string/detail_rating"/>
             <TextView
-                android:id="@+id/detail_txt_place_review_count"
-                android:layout_toRightOf="@id/detail_txt_place_rating"
-                android:layout_alignBaseline="@id/detail_txt_place_rating"
-                android:layout_marginLeft="4dp"
+                android:id="@+id/detail_review_count"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_review_count"/>
+                tools:text="@string/detail_review_count"/>
             <!-- END:Reviews group-->
 
             <!-- START:Hours group-->
             <TextView
-                android:id="@+id/detail_txt_hours_header"
-                android:layout_below="@id/detail_txt_place_rating"
                 android:layout_marginTop="8dp"
                 style="@style/Medium_PrimaryTextViewStyle"
-                android:text="Hours"/>
+                android:text="@string/detail_hours"/>
             <TextView
-                android:id="@+id/detail_txt_place_hours"
-                android:layout_below="@id/detail_txt_hours_header"
+                android:id="@+id/detail_hours_range"
                 android:layout_marginTop="2dp"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_hours"/>
+                tools:text="@string/detail_hours_range"/>
             <!-- END:Hours group-->
 
             <!-- START:More Details group-->
             <TextView
-                android:id="@+id/detail_txt_more_detail_header"
-                android:layout_below="@id/detail_txt_place_hours"
                 android:layout_marginTop="10dp"
                 style="@style/Medium_PrimaryTextViewStyle"
-                tools:text="More Details"/>
+                tools:text="@string/detail_more_details"/>
             <TextView
-                android:id="@+id/detail_txt_place_cc"
-                android:layout_below="@id/detail_txt_more_detail_header"
+                android:id="@+id/detail_accepts_credit"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_accepts_cc"/>
+                tools:text="@string/detail_accepts_credit"/>
             <TextView
-                android:id="@+id/detail_txt_place_parking"
-                android:layout_below="@id/detail_txt_place_cc"
+                android:id="@+id/detail_parking"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_parking"/>
+                tools:text="@string/detail_parking"/>
             <TextView
-                android:id="@+id/detail_txt_place_accessibility"
-                android:layout_below="@id/detail_txt_place_parking"
+                android:id="@+id/detail_accessible"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_accessible"/>
+                tools:text="@string/detail_accessible"/>
             <TextView
-                android:id="@+id/detail_txt_place_seating"
-                android:layout_below="@id/detail_txt_place_accessibility"
+                android:id="@+id/detail_outdoor_seating"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_outdoor_seating"/>
+                tools:text="@string/detail_outdoor_seating"/>
             <TextView
-                android:id="@+id/detail_txt_place_wifi"
-                android:layout_below="@id/detail_txt_place_seating"
+                android:id="@+id/detail_wifi"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:text="@string/place_wifi"/>
+                tools:text="@string/detail_wifi"/>
             <!-- END:More Details group-->
-
-
-        </RelativeLayout>
+        </LinearLayout>
 
         <RelativeLayout
-            android:id="@+id/detail_card_buttons"
             android:layout_below="@id/detail_card_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">

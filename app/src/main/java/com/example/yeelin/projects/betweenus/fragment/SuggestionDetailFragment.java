@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 
@@ -70,6 +72,8 @@ public class SuggestionDetailFragment extends Fragment {
         //set view holder
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
+
+        //TODO: set click listeners on buttons
     }
 
     /**
@@ -85,9 +89,52 @@ public class SuggestionDetailFragment extends Fragment {
      * View holder class
      */
     private class ViewHolder {
+        final TextView name;
+        final TextView categories;
+        final TextView price;
+        final TextView distanceFromUser;
+        final TextView address;
+        final TextView crossStreets;
+        final TextView phone;
+        final TextView webAddress;
+        final TextView rating;
+        final TextView reviewCount;
+        final TextView hoursRange;
+        final TextView acceptsCredit;
+        final TextView parking;
+        final TextView accessible;
+        final TextView outdoorSeating;
+        final TextView wifi;
+
+        final Button websiteButton;
+        final Button menuButton;
+        final Button phoneButton;
+        final Button mapButton;
 
         ViewHolder(View view) {
+            //text views
+            name = (TextView) view.findViewById(R.id.detail_name);
+            categories = (TextView) view.findViewById(R.id.detail_categories);
+            price = (TextView) view.findViewById(R.id.detail_price);
+            distanceFromUser = (TextView) view.findViewById(R.id.detail_distance_from_user);
+            address = (TextView) view.findViewById(R.id.detail_address);
+            crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
+            phone = (TextView) view.findViewById(R.id.detail_phone);
+            webAddress = (TextView) view.findViewById(R.id.detail_webAddress);
+            rating = (TextView) view.findViewById(R.id.detail_rating);
+            reviewCount = (TextView) view.findViewById(R.id.detail_review_count);
+            hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
+            acceptsCredit = (TextView) view.findViewById(R.id.detail_accepts_credit);
+            parking = (TextView) view.findViewById(R.id.detail_parking);
+            accessible = (TextView) view.findViewById(R.id.detail_accessible);
+            outdoorSeating = (TextView) view.findViewById(R.id.detail_outdoor_seating);
+            wifi = (TextView) view.findViewById(R.id.detail_wifi);
 
+            //buttons
+            websiteButton = (Button) view.findViewById(R.id.detail_website_button);
+            menuButton = (Button) view.findViewById(R.id.detail_menu_button);
+            phoneButton = (Button) view.findViewById(R.id.detail_phone_button);
+            mapButton = (Button) view.findViewById(R.id.detail_map_button);
         }
     }
 }

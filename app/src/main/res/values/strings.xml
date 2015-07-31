@@ -36,24 +36,34 @@
     <string name="invite_button">Send Invite</string>
 
     <!-- Results card view strings -->
-    <string name="place_name">Espresso Vivace Roasteria</string>
-    <string name="place_rating">4.5 stars</string>
-    <string name="place_review_count">445 reviews</string>
-    <string name="place_address">532 Broadway E, Seattle</string>
-    <string name="place_tag">Coffee and Tea</string>
-    <string name="place_price">$</string>
-    <string name="place_distance">0.1 mi</string>
+    <string name="detail_name">Espresso Vivace Roasteria</string>
+    <string name="detail_rating">4.5 stars</string>
+    <string name="detail_reviews">Reviews</string>
+    <string name="detail_review_count">445 reviews</string>
+    <string name="detail_address">532 Broadway E, Seattle</string>
+    <string name="detail_categories">Coffee and Tea</string>
+    <string name="detail_price">$</string>
+    <string name="detail_distance">0.1 mi</string>
 
     <!-- Detailed card strings -->
-    <string name="place_crossstreet">"between Mercer St and Republican St in Capitol Hill"</string>
-    <string name="place_phone">"(206)8602722"</string>
-    <string name="place_website">"espressovivace.com"</string>
-    <string name="place_hours">"Mon-Sun:6:00am-11:00pm"</string>
-    <string name="place_accepts_cc">Accepts Credit Cards:Yes</string>
-    <string name="place_parking">Parking:Street</string>
-    <string name="place_accessible">Wheelchair Accessible:Yes</string>
-    <string name="place_outdoor_seating">Outdoor Seating:Yes</string>
-    <string name="place_wifi">Wifi:Free</string>
+    <string name="detail_crossStreets">"between Mercer St and Republican St in Capitol Hill"</string>
+    <string name="detail_phone">"(206)8602722"</string>
+    <string name="detail_website">Website</string>
+    <string name="detail_webAddress">"espressovivace.com"</string>
+    <string name="detail_hours">Hours</string>
+    <string name="detail_hours_range">"Mon-Sun:6:00am-11:00pm"</string>
+    <string name="detail_more_details">More Details</string>
+    <string name="detail_accepts_credit">Accepts Credit Cards:Yes</string>
+    <string name="detail_parking">Parking:Street</string>
+    <string name="detail_accessible">Wheelchair Accessible:Yes</string>
+    <string name="detail_outdoor_seating">Outdoor Seating:Yes</string>
+    <string name="detail_wifi">Wifi:Free</string>
+
+    <!-- Detail view buttons -->
+    <string name="detail_website_button">Website</string>
+    <string name="detail_menu_button">Menu</string>
+    <string name="detail_phone_button">Call</string>
+    <string name="detail_map_button">Map</string>
 
     <!-- Map strings -->
     <string name="map_contentDescription">Map view of search results</string>
