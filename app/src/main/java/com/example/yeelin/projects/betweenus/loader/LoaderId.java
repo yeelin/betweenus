@@ -5,7 +5,7 @@ package com.example.yeelin.projects.betweenus.loader;
  */
 public enum LoaderId {
     MULTI_PLACES(100),
-    SELECTED_PLACES(200);
+    SINGLE_PLACE(200);
 
     private int value;
     LoaderId (int value) {
