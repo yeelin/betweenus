@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
@@ -49,8 +51,8 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
         }
 
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-        //set the text
-        viewHolder.suggestedItem.setText(getItem(position).getName());
+        //set the views
+        viewHolder.name.setText(getItem(position).getName());
         //set the checked state
         ListView listView = (ListView) parent;
         viewHolder.suggestedItem.setChecked(listView.isItemChecked(position));
@@ -86,9 +88,14 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
      */
     public class ViewHolder {
         public final CheckedTextView suggestedItem;
+        final TextView name;
+        final ImageView image;
 
         ViewHolder(View view) {
             suggestedItem = (CheckedTextView) view.findViewById(R.id.suggestion_item);
+
+            name = (TextView) view.findViewById(R.id.suggestion_name);
+            image = (ImageView) view.findViewById(R.id.suggestion_image);
         }
     }
 }
