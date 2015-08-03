@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".fragment.PlaceFragment">
+    tools:context=".fragment.SuggestionDetailFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -50,7 +50,7 @@
             android:text="@string/detail_price"/>
 
         <TextView
-            android:id="@+id/detail_distance_from_user"
+            android:id="@+id/detail_distance_from_center"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
             android:gravity="bottom"

@@ -35,6 +35,9 @@ public class YelpBusiness {
     //The alias is provided so you can search with the category_filter.
     private String[][] categories;
 
+    //Distance that business is from search location in meters, if a latitude/longitude is specified.
+    private double distance;
+
     //Rating for this business (value ranges from 1, 1.5, ... 4.5, 5)
     private double rating;
 
@@ -78,6 +81,10 @@ public class YelpBusiness {
 
     public String[][] getCategories() {
         return categories;
+    }
+
+    public double getDistance() {
+        return distance;
     }
 
     public double getRating() {

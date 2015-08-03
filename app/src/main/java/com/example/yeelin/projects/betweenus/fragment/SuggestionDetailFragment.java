@@ -14,6 +14,7 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.model.YelpBusinessLocation;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -146,17 +147,45 @@ public class SuggestionDetailFragment
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
 
-        //assign the values from the yelp values object
+        //name
         viewHolder.name.setText(yelpBusiness.getName());
-        viewHolder.categories.setText("None");
+
+        //categories
+        StringBuilder builder = new StringBuilder();
+        String[][] categories = yelpBusiness.getCategories();
+        for (int i=0; i<categories.length; i++) {
+            builder.append(categories[i][0]);
+            if (i < categories.length -1) {
+                builder.append(", ");
+            }
+        }
+        viewHolder.categories.setText(builder.toString());
+
+        //price
         viewHolder.price.setText("None");
-        viewHolder.distanceFromUser.setText("None");
+
+        //distance from user
+        //TODO: // FIXME: 7/31/15
+        viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(yelpBusiness.getDistance())));
+
+        //address
         viewHolder.address.setText(yelpBusiness.getLocation().getAddress()[0]);
+
+        //cross streets
         viewHolder.crossStreets.setText(yelpBusiness.getLocation().getCross_streets());
+
+        //phone
         viewHolder.phone.setText(yelpBusiness.getDisplay_phone());
+
+        //web address
         viewHolder.webAddress.setText(yelpBusiness.getMobile_url());
+
+        //rating
         viewHolder.rating.setText(String.valueOf(yelpBusiness.getRating()));
+
+        //review count
         viewHolder.reviewCount.setText(String.valueOf(yelpBusiness.getReview_count()));
+
         viewHolder.hoursRange.setText("None");
         viewHolder.acceptsCredit.setText("None");
         viewHolder.parking.setText("None");
@@ -204,7 +233,7 @@ public class SuggestionDetailFragment
         final TextView name;
         final TextView categories;
         final TextView price;
-        final TextView distanceFromUser;
+        final TextView distanceFromCenter;
         final TextView address;
         final TextView crossStreets;
         final TextView phone;
@@ -228,7 +257,7 @@ public class SuggestionDetailFragment
             name = (TextView) view.findViewById(R.id.detail_name);
             categories = (TextView) view.findViewById(R.id.detail_categories);
             price = (TextView) view.findViewById(R.id.detail_price);
-            distanceFromUser = (TextView) view.findViewById(R.id.detail_distance_from_user);
+            distanceFromCenter = (TextView) view.findViewById(R.id.detail_distance_from_center);
             address = (TextView) view.findViewById(R.id.detail_address);
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);

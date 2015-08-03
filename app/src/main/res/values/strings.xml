@@ -42,6 +42,7 @@
     <string name="detail_review_count">445 reviews</string>
     <string name="detail_address">532 Broadway E, Seattle</string>
     <string name="detail_categories">Coffee and Tea</string>
+    <string name="detail_distance_from_center">Distance from center: %1$s</string>
     <string name="detail_price">$</string>
     <string name="detail_distance">0.1 mi</string>
 
