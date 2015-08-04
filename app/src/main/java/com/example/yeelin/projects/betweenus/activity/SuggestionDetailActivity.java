@@ -2,7 +2,9 @@ package com.example.yeelin.projects.betweenus.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.MenuItem;
@@ -13,7 +15,9 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
 /**
  * Created by ninjakiki on 7/15/15.
  */
-public class SuggestionDetailActivity extends BaseActivity {
+public class SuggestionDetailActivity
+        extends BaseActivity
+        implements SuggestionDetailFragment.SuggestionDetailFragmentListener {
     //logcat
     private static final String TAG = SuggestionDetailActivity.class.getCanonicalName();
 
@@ -78,6 +82,40 @@ public class SuggestionDetailActivity extends BaseActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
+     * Starts an activity to open the given url
+     * @param url
+     */
+    @Override
+    public void onOpenWebsite(@Nullable String url) {
+        if (url == null) return;
+        Log.d(TAG, "onOpenWebsite: Url:" + url);
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
+     * Starts an activity to open the dialer to the given phone number
+     * @param phone
+     */
+    @Override
+    public void onDialPhone(@Nullable String phone) {
+        if (phone == null) return;
+        Log.d(TAG, "onDialPhone: Phone:" + phone);
+
+        //ACTION_DIAL does not call directly
+        //ACTION_CALL will call directly and app has to declare permission in manifest
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
         }
     }
 }

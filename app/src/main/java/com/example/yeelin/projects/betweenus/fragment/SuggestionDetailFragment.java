@@ -1,5 +1,6 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -31,6 +32,7 @@ public class SuggestionDetailFragment
     //member variables
     private String searchId;
     private YelpBusiness yelpBusiness;
+    private SuggestionDetailFragmentListener listener;
 
     /**
      * Creates a new instance of this fragment
@@ -47,9 +49,33 @@ public class SuggestionDetailFragment
     }
 
     /**
+     * Interface for activities or parent fragments interested in events from this fragment
+     */
+    public interface SuggestionDetailFragmentListener {
+        public void onOpenWebsite(String url);
+        public void onDialPhone(String phone);
+    }
+
+    /**
      * Required empty constructor
      */
     public SuggestionDetailFragment() {}
+
+    /**
+     * Make sure activity or parent fragment is a listener
+     * @param activity
+     */
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+        try {
+            listener = (SuggestionDetailFragmentListener) objectToCast;
+        }
+        catch (ClassCastException e) {
+            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement SuggestionDetailFragmentListener");
+        }
+    }
 
     /**
      * Configure the fragment
@@ -180,17 +206,17 @@ public class SuggestionDetailFragment
     }
 
     /**
-     * TODO:Handle the different button clicks
+     * Handles the different button clicks
      * @param v
      */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.detail_website_button:
-                Log.d(TAG, "onClick: Website button needs to be implemented");
+                listener.onOpenWebsite(yelpBusiness.getMobile_url());
                 break;
             case R.id.detail_phone_button:
-                Log.d(TAG, "onClick: Phone button needs to be implemented");
+                listener.onDialPhone(yelpBusiness.getPhone());
                 break;
         }
     }
