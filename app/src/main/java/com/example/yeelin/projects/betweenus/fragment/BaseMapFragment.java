@@ -117,12 +117,13 @@ public abstract class BaseMapFragment
         map = googleMap;
 
         UiSettings mapUiSettings = map.getUiSettings();
-
-        //allow user to access maps and navigation app from the map
-        mapUiSettings.setMapToolbarEnabled(true);
-        //add this only because we need to test on emulator
-        if (BuildConfig.DEBUG) {
-            mapUiSettings.setZoomControlsEnabled(true);
+        if (mapUiSettings != null) {
+            //allow user to access maps and navigation app from the map
+            mapUiSettings.setMapToolbarEnabled(true);
+            //add this only because we need to test on emulator
+            if (BuildConfig.DEBUG) {
+                mapUiSettings.setZoomControlsEnabled(true);
+            }
         }
 
         //show user's current location on the map
