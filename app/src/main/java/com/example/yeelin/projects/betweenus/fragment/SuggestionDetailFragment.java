@@ -14,7 +14,8 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpBusinessLocation;
+import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.squareup.picasso.Target;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -91,9 +92,7 @@ public class SuggestionDetailFragment
 
         //TODO: set click listeners on buttons
         viewHolder.websiteButton.setOnClickListener(this);
-        viewHolder.menuButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
-        viewHolder.mapButton.setOnClickListener(this);
     }
 
     /**
@@ -153,9 +152,6 @@ public class SuggestionDetailFragment
         //categories
         viewHolder.categories.setText(yelpBusiness.getDisplayCategories());
 
-        //price
-        viewHolder.price.setText("None");
-
         //distance from user
         //TODO: // FIXME: 7/31/15
         viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(yelpBusiness.getDistance())));
@@ -164,7 +160,7 @@ public class SuggestionDetailFragment
         viewHolder.address.setText(yelpBusiness.getLocation().getAddress()[0]);
 
         //cross streets
-        viewHolder.crossStreets.setText(yelpBusiness.getLocation().getCross_streets());
+        viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, yelpBusiness.getLocation().getCross_streets()));
 
         //phone
         viewHolder.phone.setText(yelpBusiness.getDisplay_phone());
@@ -172,18 +168,15 @@ public class SuggestionDetailFragment
         //web address
         viewHolder.webAddress.setText(yelpBusiness.getMobile_url());
 
-        //rating
-        viewHolder.rating.setText(String.valueOf(yelpBusiness.getRating()));
-
-        //review count
-        viewHolder.reviewCount.setText(String.valueOf(yelpBusiness.getReview_count()));
+        //ratings and reviews
+        viewHolder.reviews.setText(getString(R.string.review_count, String.valueOf(yelpBusiness.getReview_count())));
+        //note: picasso only keeps a weak ref to the target so it may be gc-ed
+        //use setTag so that target will be alive as long as the view is alive
+        final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
+        viewHolder.reviews.setTag(target);
+        ImageUtils.loadImage(getActivity(), yelpBusiness.getRating_img_url_large(), target);
 
         viewHolder.hoursRange.setText("None");
-        viewHolder.acceptsCredit.setText("None");
-        viewHolder.parking.setText("None");
-        viewHolder.accessible.setText("None");
-        viewHolder.outdoorSeating.setText("None");
-        viewHolder.wifi.setText("None");
     }
 
     /**
@@ -196,14 +189,8 @@ public class SuggestionDetailFragment
             case R.id.detail_website_button:
                 Log.d(TAG, "onClick: Website button needs to be implemented");
                 break;
-            case R.id.detail_menu_button:
-                Log.d(TAG, "onClick: Menu button needs to be implemented");
-                break;
             case R.id.detail_phone_button:
                 Log.d(TAG, "onClick: Phone button needs to be implemented");
-                break;
-            case R.id.detail_map_button:
-                Log.d(TAG, "onClick: Map button needs to be implemented");
                 break;
         }
     }
@@ -223,51 +210,33 @@ public class SuggestionDetailFragment
      */
     private class ViewHolder {
         final TextView name;
-        final TextView categories;
-        final TextView price;
+        final TextView categories;;
         final TextView distanceFromCenter;
         final TextView address;
         final TextView crossStreets;
         final TextView phone;
         final TextView webAddress;
-        final TextView rating;
-        final TextView reviewCount;
+        final TextView reviews;
         final TextView hoursRange;
-        final TextView acceptsCredit;
-        final TextView parking;
-        final TextView accessible;
-        final TextView outdoorSeating;
-        final TextView wifi;
 
         final Button websiteButton;
-        final Button menuButton;
         final Button phoneButton;
-        final Button mapButton;
 
         ViewHolder(View view) {
             //text views
             name = (TextView) view.findViewById(R.id.detail_name);
             categories = (TextView) view.findViewById(R.id.detail_categories);
-            price = (TextView) view.findViewById(R.id.detail_price);
             distanceFromCenter = (TextView) view.findViewById(R.id.detail_distance_from_center);
             address = (TextView) view.findViewById(R.id.detail_address);
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);
             webAddress = (TextView) view.findViewById(R.id.detail_webAddress);
-            rating = (TextView) view.findViewById(R.id.detail_rating);
-            reviewCount = (TextView) view.findViewById(R.id.detail_review_count);
+            reviews = (TextView) view.findViewById(R.id.detail_reviews);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
-            acceptsCredit = (TextView) view.findViewById(R.id.detail_accepts_credit);
-            parking = (TextView) view.findViewById(R.id.detail_parking);
-            accessible = (TextView) view.findViewById(R.id.detail_accessible);
-            outdoorSeating = (TextView) view.findViewById(R.id.detail_outdoor_seating);
-            wifi = (TextView) view.findViewById(R.id.detail_wifi);
 
             //buttons
             websiteButton = (Button) view.findViewById(R.id.detail_website_button);
-            menuButton = (Button) view.findViewById(R.id.detail_menu_button);
             phoneButton = (Button) view.findViewById(R.id.detail_phone_button);
-            mapButton = (Button) view.findViewById(R.id.detail_map_button);
         }
     }
 }

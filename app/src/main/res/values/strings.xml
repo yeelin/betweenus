@@ -36,33 +36,25 @@
     <string name="invite_button">Send Invite</string>
 
     <!-- Results card view strings -->
-    <string name="detail_name">Espresso Vivace Roasteria</string>
-    <string name="detail_rating">4.5 stars</string>
+    <string name="detail_name_fake">Espresso Vivace Roasteria</string>
+    <string name="detail_reviews_fake">445 reviews</string>
+    <string name="detail_address_fake">532 Broadway E, Seattle</string>
+    <string name="detail_categories_fake">Coffee and Tea</string>
+    <string name="detail_distance_fake">0.1 mi</string>
+    <string name="detail_crossStreets_fake">"Cross streets: Mercer St and Republican St"</string>
+    <string name="detail_phone_fake">"(206)8602722"</string>
+    <string name="detail_webAddress_fake">"espressovivace.com"</string>
+    <string name="detail_hours_fake">"Mon-Sun:6:00am-11:00pm"</string>
+
+    <!-- Detail headers -->
+    <string name="detail_distance_from_center">%1$s mi</string>
+    <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
-    <string name="detail_review_count">445 reviews</string>
-    <string name="detail_address">532 Broadway E, Seattle</string>
-    <string name="detail_categories">Coffee and Tea</string>
-    <string name="detail_distance_from_center">Distance from center: %1$s</string>
-    <string name="detail_price">$</string>
-    <string name="detail_distance">0.1 mi</string>
-
-    <!-- Detailed card strings -->
-    <string name="detail_crossStreets">"between Mercer St and Republican St in Capitol Hill"</string>
-    <string name="detail_phone">"(206)8602722"</string>
-    <string name="detail_website">Website</string>
-    <string name="detail_webAddress">"espressovivace.com"</string>
-    <string name="detail_hours">Hours</string>
-    <string name="detail_hours_range">"Mon-Sun:6:00am-11:00pm"</string>
-    <string name="detail_more_details">More Details</string>
-    <string name="detail_accepts_credit">Accepts Credit Cards:Yes</string>
-    <string name="detail_parking">Parking:Street</string>
-    <string name="detail_accessible">Wheelchair Accessible:Yes</string>
-    <string name="detail_outdoor_seating">Outdoor Seating:Yes</string>
-    <string name="detail_wifi">Wifi:Free</string>
-
     <string name="review_count">%1$s reviews</string>
+    <string name="detail_website">Website</string>
+    <string name="detail_hours">Hours</string>
 
-    <!-- Detail view buttons -->
+    <!-- Detail buttons-->
     <string name="detail_website_button">Website</string>
     <string name="detail_menu_button">Menu</string>
     <string name="detail_phone_button">Call</string>

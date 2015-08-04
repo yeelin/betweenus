@@ -215,6 +215,7 @@ public class SuggestionsMapFragment
     private LatLngBounds computeMapBoundsFromYelpResult() {
         //read the yelp result region so that we can specify the map bounds
         YelpResultRegion yelpResultRegion = yelpResult.getRegion();
+
         //get region center
         LatLng center = new LatLng(
                 yelpResultRegion.getCenter().getLatitude(),

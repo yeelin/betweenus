@@ -97,9 +97,6 @@
 
     <!-- Quick action button styles -->
     <style name="QuickActionButtonStyle">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">50dp</item>
-        <item name="android:layout_weight">1</item>
         <item name="android:background">@android:color/transparent</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/colorPrimary</item>
