@@ -41,8 +41,14 @@ public class YelpBusiness {
     //Rating for this business (value ranges from 1, 1.5, ... 4.5, 5)
     private double rating;
 
+    //URL to star rating image for this business (size = 84x17)
+    private String rating_img_url;
+
     //URL to small version of rating image for this business (size = 50x10)
     private String rating_img_url_small;
+
+    //URL to large version of rating image for this business (size = 166x30)
+    private String rating_img_url_large;
 
     //Location data for this business
     private YelpBusinessLocation location;
@@ -83,6 +89,17 @@ public class YelpBusiness {
         return categories;
     }
 
+    public String getDisplayCategories() {
+        StringBuilder builder = new StringBuilder();
+        for (int i=0; i<categories.length; i++) {
+            builder.append(categories[i][0]);
+            if (i < categories.length -1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
+    }
+
     public double getDistance() {
         return distance;
     }
@@ -91,8 +108,16 @@ public class YelpBusiness {
         return rating;
     }
 
+    public String getRating_img_url() {
+        return rating_img_url;
+    }
+
     public String getRating_img_url_small() {
         return rating_img_url_small;
+    }
+
+    public String getRating_img_url_large() {
+        return rating_img_url_large;
     }
 
     public YelpBusinessLocation getLocation() {

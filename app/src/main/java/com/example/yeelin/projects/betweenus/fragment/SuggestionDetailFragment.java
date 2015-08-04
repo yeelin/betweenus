@@ -151,15 +151,7 @@ public class SuggestionDetailFragment
         viewHolder.name.setText(yelpBusiness.getName());
 
         //categories
-        StringBuilder builder = new StringBuilder();
-        String[][] categories = yelpBusiness.getCategories();
-        for (int i=0; i<categories.length; i++) {
-            builder.append(categories[i][0]);
-            if (i < categories.length -1) {
-                builder.append(", ");
-            }
-        }
-        viewHolder.categories.setText(builder.toString());
+        viewHolder.categories.setText(yelpBusiness.getDisplayCategories());
 
         //price
         viewHolder.price.setText("None");

@@ -127,7 +127,7 @@ public class SuggestionsListFragment
         Log.d(TAG, "onItemClick: Position clicked:" + position);
 
         SuggestionsAdapter.ViewHolder viewHolder = (SuggestionsAdapter.ViewHolder) view.getTag();
-        viewHolder.suggestedItem.toggle();
+        viewHolder.itemToggle.toggle();
     }
 
     /**

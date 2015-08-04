@@ -60,6 +60,8 @@
     <string name="detail_outdoor_seating">Outdoor Seating:Yes</string>
     <string name="detail_wifi">Wifi:Free</string>
 
+    <string name="review_count">%1$s reviews</string>
+
     <!-- Detail view buttons -->
     <string name="detail_website_button">Website</string>
     <string name="detail_menu_button">Menu</string>

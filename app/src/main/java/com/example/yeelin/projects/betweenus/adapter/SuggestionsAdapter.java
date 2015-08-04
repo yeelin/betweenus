@@ -1,7 +1,10 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +16,10 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,12 +56,26 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
             view.setTag(new ViewHolder(view));
         }
 
+        YelpBusiness item = getItem(position);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
+
         //set the views
-        viewHolder.name.setText(getItem(position).getName());
+        ImageUtils.loadImage(parent.getContext(), item.getImage_url(), viewHolder.image);
+        viewHolder.name.setText(item.getName());
+        viewHolder.address.setText(item.getLocation().getAddress()[0]);
+        viewHolder.categories.setText(item.getDisplayCategories());
+
+        //set the textview and the yelp stars
+        viewHolder.reviews.setText(getContext().getString(R.string.review_count, String.valueOf(item.getReview_count())));
+        //note: picasso only keeps a weak ref to the target so it may be gc-ed
+        //use setTag so that target will be alive as long as the view is alive
+        final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
+        viewHolder.reviews.setTag(target);
+        ImageUtils.loadImage(parent.getContext(), item.getRating_img_url_large(), target);
+
         //set the checked state
         ListView listView = (ListView) parent;
-        viewHolder.suggestedItem.setChecked(listView.isItemChecked(position));
+        viewHolder.itemToggle.setChecked(listView.isItemChecked(position));
 
         return view;
     }
@@ -87,15 +107,22 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
      * ViewHolder class
      */
     public class ViewHolder {
-        public final CheckedTextView suggestedItem;
-        final TextView name;
         final ImageView image;
 
-        ViewHolder(View view) {
-            suggestedItem = (CheckedTextView) view.findViewById(R.id.suggestion_item);
+        final TextView name;
+        final TextView address;
+        final TextView categories;
+        final TextView reviews;
 
-            name = (TextView) view.findViewById(R.id.suggestion_name);
-            image = (ImageView) view.findViewById(R.id.suggestion_image);
+        public final CheckedTextView itemToggle;
+
+        ViewHolder(View view) {
+            image = (ImageView) view.findViewById(R.id.item_image);
+            name = (TextView) view.findViewById(R.id.item_name);
+            address = (TextView) view.findViewById(R.id.item_address);
+            categories = (TextView) view.findViewById(R.id.item_categories);
+            reviews = (TextView) view.findViewById(R.id.item_reviews);
+            itemToggle = (CheckedTextView) view.findViewById(R.id.item_toggle);
         }
     }
 }
