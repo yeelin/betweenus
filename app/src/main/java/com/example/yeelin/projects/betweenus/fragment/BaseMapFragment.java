@@ -95,7 +95,9 @@ public abstract class BaseMapFragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(STATE_CAMERA_POSITION, cameraPosition);
+        if (cameraPosition != null) {
+            outState.putParcelable(STATE_CAMERA_POSITION, cameraPosition);
+        }
     }
 
     /**
