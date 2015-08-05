@@ -79,9 +79,9 @@ public class ImageUtils {
                 if (textView != null) {
                     Log.d(TAG, "onBitmapLoaded: Textview is not null");
                     textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+
                     if (marker != null && marker.isInfoWindowShown()) {
-                        Log.d(TAG, "onBitmapLoaded: Hiding and then showing info window");
-                        marker.hideInfoWindow();
+                        Log.d(TAG, "onBitmapLoaded: Showing info window");
                         marker.showInfoWindow();
                     }
                 }

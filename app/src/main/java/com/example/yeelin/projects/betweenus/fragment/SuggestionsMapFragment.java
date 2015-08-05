@@ -1,10 +1,6 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
@@ -25,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 /**
@@ -293,15 +288,12 @@ public class SuggestionsMapFragment
      */
     private class MapItemInfoWindowAdapter
             implements GoogleMap.InfoWindowAdapter {
-        private View view;
-        private TextView title;
-        private TextView snippet;
+
+        private SimpleArrayMap<Marker, View> markerToViewMap;
 
         public MapItemInfoWindowAdapter() {
             super();
-            view = View.inflate(getActivity(), R.layout.map_info_contents, null);
-            title = (TextView) view.findViewById(R.id.title);
-            snippet = (TextView) view.findViewById(R.id.snippet);
+            markerToViewMap = new SimpleArrayMap<>();
         }
 
         /**
@@ -324,17 +316,36 @@ public class SuggestionsMapFragment
         @Override
         public View getInfoContents(Marker marker) {
             Log.d(TAG, "getInfoContents");
+
+            //check if view for the given marker already exists, and if so return it
+            //there will be one view per marker instead of recycling views
+            if (markerToViewMap.containsKey(marker)) {
+                Log.d(TAG, "getInfoContents: Map contains view for marker so returning");
+                return markerToViewMap.get(marker);
+            }
+
+            //doesn't exist, so inflate a new one
+            Log.d(TAG, "getInfoContents: Map doesn't have view for marker so inflating a new one");
+            View view = View.inflate(getActivity(), R.layout.map_info_contents, null);
+            TextView title = (TextView) view.findViewById(R.id.title);
+            TextView snippet = (TextView) view.findViewById(R.id.snippet);
+            title.setText(marker.getTitle());
+            snippet.setText(marker.getSnippet());
+
             String businessId = markerToIdMap.get(marker);
             String ratingUrl = idToRatingUrlMap.get(businessId);
 
-            title.setText(marker.getTitle());
-            //set the textview and the yelp stars
-            snippet.setText(marker.getSnippet());
+//            //only uncomment this if you want to force a network fetch
+//            Picasso.with(getActivity())
+//                    .invalidate(ratingUrl);
+
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
+            Log.d(TAG, "getInfoContents: Creating callback target");
             final Target target = ImageUtils.newTarget(getActivity(), snippet, marker);
             snippet.setTag(target);
             ImageUtils.loadImage(getActivity(), ratingUrl, target);
+            markerToViewMap.put(marker, view);
 
             return view;
         }
