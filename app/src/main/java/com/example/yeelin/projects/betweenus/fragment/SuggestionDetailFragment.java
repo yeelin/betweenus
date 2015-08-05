@@ -116,7 +116,6 @@ public class SuggestionDetailFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
-        //TODO: set click listeners on buttons
         viewHolder.websiteButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
     }

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.Marker;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -19,7 +20,8 @@ public class ImageUtils {
     public static final String TAG = ImageUtils.class.getCanonicalName();
 
     /**
-     *
+     * Creates a new target so that the downloaded bitmap can be loaded into the custom view.
+     * Picasso api doesn't load into textviews.
      * @param context
      * @param textView
      * @return
@@ -37,6 +39,51 @@ public class ImageUtils {
                 if (textView != null) {
                     Log.d(TAG, "onBitmapLoaded: Textview is not null");
                     textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                }
+                else {
+                    Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
+                }
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                Log.d(TAG, "onBitmapFailed");
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+                Log.d(TAG, "onPrepareLoad");
+            }
+        };
+    }
+
+    /**
+     * Creates a new target so that the downloaded bitmap can be loaded into the custom view.
+     * Picasso api doesn't load into textviews.  This version is for map markers.
+     * @param context
+     * @param textView
+     * @param marker
+     * @return
+     */
+    public static Target newTarget(final Context context, final TextView textView, final Marker marker) {
+        Log.d(TAG, "newTarget");
+        return new Target() {
+            /**
+             * This method will not be called if Target is garbage-collected early. Note
+             * picasso only holds a weak reference to Target.
+             * @param bitmap
+             * @param from
+             */
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                if (textView != null) {
+                    Log.d(TAG, "onBitmapLoaded: Textview is not null");
+                    textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                    if (marker != null && marker.isInfoWindowShown()) {
+                        Log.d(TAG, "onBitmapLoaded: Hiding and then showing info window");
+                        marker.hideInfoWindow();
+                        marker.showInfoWindow();
+                    }
                 }
                 else {
                     Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");

@@ -1,15 +1,22 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.support.annotation.Nullable;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
+import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,6 +25,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 /**
  * Created by ninjakiki on 7/28/15.
@@ -43,6 +52,7 @@ public class SuggestionsMapFragment
     //member variables
     private YelpResult yelpResult;
     private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>();
+    private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>();
     private OnSuggestionItemClickListener itemClickListener;
 
     /**
@@ -99,8 +109,13 @@ public class SuggestionsMapFragment
         //set the click listener for the info window that is displayed when marker is tapped
         googleMap.setOnInfoWindowClickListener(this);
 
+        //set a custom renderer for the contents of info windows.
+        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter());
+
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
+
+
     }
 
     /**
@@ -145,6 +160,7 @@ public class SuggestionsMapFragment
         cameraPosition = null;
         //clear out the markerToId map as well
         markerToIdMap.clear();
+        idToRatingUrlMap.clear();
 
         //check if new suggestions are null
         if (newYelpResult != null) {
@@ -155,6 +171,7 @@ public class SuggestionsMapFragment
             if (newYelpResult.getBusinesses().size() > 0) {
                 //make sure the markerToId map can hold all the markers we are about to add
                 markerToIdMap.ensureCapacity(newYelpResult.getBusinesses().size());
+                idToRatingUrlMap.ensureCapacity(newYelpResult.getBusinesses().size());
                 //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
                 //loop through suggested items and:
@@ -166,10 +183,12 @@ public class SuggestionsMapFragment
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
                             .title(business.getName())
-                            .snippet(getString(R.string.map_marker_snippet, business.getRating(), business.getReview_count()))
+                            //.snippet(getString(R.string.map_marker_snippet, business.getRating(), business.getReview_count()))
+                            .snippet(getString(R.string.review_count, business.getReview_count()))
                             .icon(BitmapDescriptorFactory.defaultMarker(HUE_PRIMARY));
                     Marker marker = map.addMarker(markerOptions);
                     markerToIdMap.put(marker, business.getId());
+                    idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
                     //boundsBuilder.include(markerOptions.getPosition());
                 }
                 //bounds = boundsBuilder.build();
@@ -246,7 +265,8 @@ public class SuggestionsMapFragment
      */
     @Override
     public boolean onMarkerClick(Marker marker) {
-        marker.setIcon(BitmapDescriptorFactory.defaultMarker(HUE_ACCENT));
+        Log.d(TAG, "onMarkerClick");
+        //marker.setIcon(BitmapDescriptorFactory.defaultMarker(HUE_ACCENT));
         // We return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
@@ -266,5 +286,57 @@ public class SuggestionsMapFragment
 
         //notify the activity that a suggestion was clicked
         itemClickListener.onSuggestionClick(businessId);
+    }
+
+    /**
+     *
+     */
+    private class MapItemInfoWindowAdapter
+            implements GoogleMap.InfoWindowAdapter {
+        private View view;
+        private TextView title;
+        private TextView snippet;
+
+        public MapItemInfoWindowAdapter() {
+            super();
+            view = View.inflate(getActivity(), R.layout.map_info_contents, null);
+            title = (TextView) view.findViewById(R.id.title);
+            snippet = (TextView) view.findViewById(R.id.snippet);
+        }
+
+        /**
+         * The API will first call getInfoWindow(Marker) and if null is returned,
+         * it will then call getInfoContents(Marker).
+         * @param marker
+         * @return
+         */
+        @Override
+        public View getInfoWindow(Marker marker) {
+            Log.d(TAG, "getInfoWindow");
+            return null;
+        }
+
+        /**
+         *
+         * @param marker
+         * @return
+         */
+        @Override
+        public View getInfoContents(Marker marker) {
+            Log.d(TAG, "getInfoContents");
+            String businessId = markerToIdMap.get(marker);
+            String ratingUrl = idToRatingUrlMap.get(businessId);
+
+            title.setText(marker.getTitle());
+            //set the textview and the yelp stars
+            snippet.setText(marker.getSnippet());
+            //note: picasso only keeps a weak ref to the target so it may be gc-ed
+            //use setTag so that target will be alive as long as the view is alive
+            final Target target = ImageUtils.newTarget(getActivity(), snippet, marker);
+            snippet.setTag(target);
+            ImageUtils.loadImage(getActivity(), ratingUrl, target);
+
+            return view;
+        }
     }
 }
