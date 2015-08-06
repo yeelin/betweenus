@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.adapter.MapItemInfoWindowAdapter;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
@@ -24,7 +25,6 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
-
 
 /**
  * Created by ninjakiki on 7/28/15.
@@ -49,9 +49,12 @@ public class SuggestionsMapFragment
 
     //member variables
     private YelpResult result;
+    private boolean mapNeedsUpdate = false;
+
     private ArrayMap<String, String> selectedIdsMap;
     private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>();
     private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>();
+
     private OnSuggestionActionListener suggestionActionListener;
 
     /**
@@ -109,10 +112,16 @@ public class SuggestionsMapFragment
         googleMap.setOnInfoWindowClickListener(this);
 
         //set a custom renderer for the contents of info windows.
-        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter());
+        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter(getActivity(), markerToIdMap, idToRatingUrlMap));
 
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
+
+        //if the results had come in first before the map was ready and the map needs updating immediately, then do it.
+        // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
+        if (mapNeedsUpdate) {
+            updateMap();
+        }
     }
 
     /**
@@ -122,71 +131,56 @@ public class SuggestionsMapFragment
      * @param selectedIdsMap
      */
     public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap) {
+        Log.d(TAG, "onSuggestionsLoaded");
         this.selectedIdsMap = selectedIdsMap;
 
-        //check if map is null
-        if (map == null) {
-            Log.d(TAG, "onSuggestionsLoaded: Map is null, so nothing to do");
-            return;
-        }
-
-        //map is not null so update it
-        updateMap(result);
-    }
-
-    /**
-     * Updates the map with a new list of items
-     * This is similar to what the SuggestionsAdapter does in updateAllItems().
-     * @param result
-     */
-    private void updateMap(@Nullable YelpResult result) {
         //if it's the same items, do nothing. Otherwise, you end up clearing the map only to add
         //the same markers back
         if (this.result == result) {
             Log.d(TAG, "updateMap: this.result == result. Nothing to do");
             return;
         }
+        else {
+            //result is different so save a reference to it
+            this.result = result;
+        }
+
+        //check if map is null
+        if (map == null) {
+            Log.d(TAG, "onSuggestionsLoaded: Map is null, so nothing to do now");
+            mapNeedsUpdate = true; //tell ourselves that we need to update the map later when it is ready
+            return;
+        }
+
+        //map is not null and the result is different so update the map
+        updateMap();
+    }
+
+    /**
+     * Updates the map with the result
+     * This is similar to what the SuggestionsAdapter does in updateAllItems().
+     */
+    private void updateMap() {
+        Log.d(TAG, "updateMap");
 
         //clear out the map first before adding new markers
         map.clear();
         //clear out the camera position too
         cameraPosition = null;
-        //clear out the markerToId map as well
+        //clear out the markerToId and idToRatingUrl maps as well
         markerToIdMap.clear();
         idToRatingUrlMap.clear();
-        this.result = result;
 
-        //check if new suggestions are null
-        if (result != null) {
+        //check if result is null
+        if (result != null && result.getBusinesses().size() > 0) {
             Log.d(TAG, "updateMap: Adding markers to map. Item count:" + result.getBusinesses().size());
-            //check if new items > 0 so that we don't create the builder unnecessarily
-            if (result.getBusinesses().size() > 0) {
-                //make sure the markerToId map can hold all the markers we are about to add
-                markerToIdMap.ensureCapacity(result.getBusinesses().size());
-                idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
-                //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
-                //loop through suggested items and:
-                //1. place markers on the map
-                //2. add markers to the markerToId map
-                for (int i=0; i<result.getBusinesses().size(); i++) {
-                    YelpBusiness business = result.getBusinesses().get(i);
+            //make sure the markerToId map can hold all the markers we are about to add
+            markerToIdMap.ensureCapacity(result.getBusinesses().size());
+            idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
+            addMarkersToMap();
 
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
-                            .title(business.getName())
-                            //.snippet(getString(R.string.map_marker_snippet, business.getRating(), business.getReview_count()))
-                            .snippet(getString(R.string.review_count, business.getReview_count()))
-                            .icon(BitmapDescriptorFactory.defaultMarker(HUE_PRIMARY));
-                    Marker marker = map.addMarker(markerOptions);
-                    markerToIdMap.put(marker, business.getId());
-                    idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
-                    //boundsBuilder.include(markerOptions.getPosition());
-                }
-                //bounds = boundsBuilder.build();
-            }
-
-            //set the camera to the user's location first so that we can then animate to result region
+            //set the camera to the user's location first so that we can later animate to result region
             Location userLocation = map.getMyLocation();
             if (userLocation != null) {
                 Log.d(TAG, "updateMap: userLocation != null");
@@ -194,6 +188,36 @@ public class SuggestionsMapFragment
                 map.moveCamera(cameraUpdate);
             }
         }
+
+        //we have updated the map, so set this to false
+        mapNeedsUpdate = false;
+    }
+
+    /**
+     * Adds markers to the map.
+     * Also saves marker to business id mapping, and business id to rating url mapping.
+     */
+    private void addMarkersToMap() {
+        //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+
+        //loop through suggested items and:
+        //1. place markers on the map
+        //2. add markers to the markerToId map
+        for (int i=0; i<result.getBusinesses().size(); i++) {
+            YelpBusiness business = result.getBusinesses().get(i);
+
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
+                    .title(business.getName())
+                    .snippet(getString(R.string.review_count, business.getReview_count()))
+                    .icon(BitmapDescriptorFactory.defaultMarker(HUE_PRIMARY));
+            Marker marker = map.addMarker(markerOptions);
+
+            markerToIdMap.put(marker, business.getId());
+            idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
+            //boundsBuilder.include(markerOptions.getPosition());
+        }
+        //bounds = boundsBuilder.build();
     }
 
     /**
@@ -278,73 +302,5 @@ public class SuggestionsMapFragment
 
         //notify the activity that a suggestion was clicked
         suggestionActionListener.onSuggestionClick(businessId);
-    }
-
-    /**
-     *
-     */
-    private class MapItemInfoWindowAdapter
-            implements GoogleMap.InfoWindowAdapter {
-
-        private SimpleArrayMap<Marker, View> markerToViewMap;
-
-        public MapItemInfoWindowAdapter() {
-            super();
-            markerToViewMap = new SimpleArrayMap<>();
-        }
-
-        /**
-         * The API will first call getInfoWindow(Marker) and if null is returned,
-         * it will then call getInfoContents(Marker).
-         * @param marker
-         * @return
-         */
-        @Override
-        public View getInfoWindow(Marker marker) {
-            Log.d(TAG, "getInfoWindow");
-            return null;
-        }
-
-        /**
-         *
-         * @param marker
-         * @return
-         */
-        @Override
-        public View getInfoContents(Marker marker) {
-            Log.d(TAG, "getInfoContents");
-
-            //check if view for the given marker already exists, and if so return it
-            //there will be one view per marker instead of recycling views
-            if (markerToViewMap.containsKey(marker)) {
-                Log.d(TAG, "getInfoContents: Map contains view for marker so returning");
-                return markerToViewMap.get(marker);
-            }
-
-            //doesn't exist, so inflate a new one
-            Log.d(TAG, "getInfoContents: Map doesn't have view for marker so inflating a new one");
-            View view = View.inflate(getActivity(), R.layout.map_info_contents, null);
-            TextView title = (TextView) view.findViewById(R.id.title);
-            TextView snippet = (TextView) view.findViewById(R.id.snippet);
-            title.setText(marker.getTitle());
-            snippet.setText(marker.getSnippet());
-
-            String businessId = markerToIdMap.get(marker);
-            String ratingUrl = idToRatingUrlMap.get(businessId);
-
-//            //only uncomment this if you want to force a network fetch
-//            Picasso.with(getActivity())
-//                    .invalidate(ratingUrl);
-
-            //note: picasso only keeps a weak ref to the target so it may be gc-ed
-            //use setTag so that target will be alive as long as the view is alive
-            Log.d(TAG, "getInfoContents: Creating callback target");
-            final Target target = ImageUtils.newTarget(getActivity(), snippet, marker);
-            snippet.setTag(target);
-            ImageUtils.loadImage(getActivity(), ratingUrl, target);
-            markerToViewMap.put(marker, view);
-
-            return view;
-        }
     }
 }

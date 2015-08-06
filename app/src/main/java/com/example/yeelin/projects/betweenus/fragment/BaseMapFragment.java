@@ -67,12 +67,11 @@ public abstract class BaseMapFragment
      */
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume");
         super.onResume();
 
         //restore the map to the previous camera position if any
         if (map != null && cameraPosition != null) {
-            Log.d(TAG, "onResume: cameraPosition != null");
+            Log.d(TAG, "onResume: map != null and cameraPosition != null, so restoring map camera");
             map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }
     }
@@ -96,6 +95,7 @@ public abstract class BaseMapFragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         if (cameraPosition != null) {
             outState.putParcelable(STATE_CAMERA_POSITION, cameraPosition);
         }
@@ -111,7 +111,7 @@ public abstract class BaseMapFragment
     }
 
     /**
-     *
+     * OnMapReadyCallback callback
      * @param googleMap
      */
     @Override
