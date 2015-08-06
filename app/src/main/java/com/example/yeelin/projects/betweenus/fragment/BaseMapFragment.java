@@ -29,6 +29,7 @@ public abstract class BaseMapFragment
     //saved instance state
     private static final String STATE_CAMERA_POSITION = BaseMapFragment.class.getSimpleName() + ".cameraPosition";
 
+    //member variables
     protected GoogleMap map;
     protected CameraPosition cameraPosition;
 
@@ -70,7 +71,7 @@ public abstract class BaseMapFragment
         super.onResume();
 
         //restore the map to the previous camera position if any
-        if (cameraPosition != null) {
+        if (map != null && cameraPosition != null) {
             Log.d(TAG, "onResume: cameraPosition != null");
             map.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         }

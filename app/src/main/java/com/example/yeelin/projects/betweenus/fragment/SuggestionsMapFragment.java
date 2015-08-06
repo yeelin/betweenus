@@ -2,7 +2,9 @@ package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 import android.view.View;
@@ -22,6 +24,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
+
 
 /**
  * Created by ninjakiki on 7/28/15.
@@ -45,10 +48,11 @@ public class SuggestionsMapFragment
     private static final float HUE_ACCENT = 174f;
 
     //member variables
-    private YelpResult yelpResult;
+    private YelpResult result;
+    private ArrayMap<String, String> selectedIdsMap;
     private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>();
     private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>();
-    private OnSuggestionItemClickListener itemClickListener;
+    private OnSuggestionActionListener suggestionActionListener;
 
     /**
      * Creates a new instance of the map fragment
@@ -73,10 +77,10 @@ public class SuggestionsMapFragment
 
         Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
         try {
-            itemClickListener = (OnSuggestionItemClickListener) objectToCast;
+            suggestionActionListener = (OnSuggestionActionListener) objectToCast;
         }
         catch (ClassCastException e) {
-            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionItemClickListener");
+            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
     }
 
@@ -85,7 +89,7 @@ public class SuggestionsMapFragment
      */
     @Override
     public void onDetach() {
-        itemClickListener = null;
+        suggestionActionListener = null;
         super.onDetach();
     }
 
@@ -109,22 +113,16 @@ public class SuggestionsMapFragment
 
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
-
-
     }
 
     /**
      * OnSuggestionsLoadedCallback implementation
      * The loader has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
-     * @param yelpResult
+     * @param result
+     * @param selectedIdsMap
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult yelpResult) {
-        //debugging purposes
-        if (yelpResult == null) {
-            Log.d(TAG, "onSuggestionsLoaded: SuggestedItems is null. Loader must be resetting");
-        } else {
-            Log.d(TAG, "onSuggestionsLoaded: Item count:" + yelpResult.getBusinesses().size());
-        }
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap) {
+        this.selectedIdsMap = selectedIdsMap;
 
         //check if map is null
         if (map == null) {
@@ -133,19 +131,19 @@ public class SuggestionsMapFragment
         }
 
         //map is not null so update it
-        updateMap(yelpResult);
+        updateMap(result);
     }
 
     /**
      * Updates the map with a new list of items
      * This is similar to what the SuggestionsAdapter does in updateAllItems().
-     * @param newYelpResult
+     * @param result
      */
-    private void updateMap(@Nullable YelpResult newYelpResult) {
+    private void updateMap(@Nullable YelpResult result) {
         //if it's the same items, do nothing. Otherwise, you end up clearing the map only to add
         //the same markers back
-        if (yelpResult == newYelpResult) {
-            Log.d(TAG, "updateMap: yelpResult == newYelpResult. Nothing to do");
+        if (this.result == result) {
+            Log.d(TAG, "updateMap: this.result == result. Nothing to do");
             return;
         }
 
@@ -156,24 +154,23 @@ public class SuggestionsMapFragment
         //clear out the markerToId map as well
         markerToIdMap.clear();
         idToRatingUrlMap.clear();
+        this.result = result;
 
         //check if new suggestions are null
-        if (newYelpResult != null) {
-            this.yelpResult = newYelpResult;
-
+        if (result != null) {
+            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + result.getBusinesses().size());
             //check if new items > 0 so that we don't create the builder unnecessarily
-            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + newYelpResult.getBusinesses().size());
-            if (newYelpResult.getBusinesses().size() > 0) {
+            if (result.getBusinesses().size() > 0) {
                 //make sure the markerToId map can hold all the markers we are about to add
-                markerToIdMap.ensureCapacity(newYelpResult.getBusinesses().size());
-                idToRatingUrlMap.ensureCapacity(newYelpResult.getBusinesses().size());
+                markerToIdMap.ensureCapacity(result.getBusinesses().size());
+                idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
                 //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
 
                 //loop through suggested items and:
                 //1. place markers on the map
                 //2. add markers to the markerToId map
-                for (int i = 0; i < newYelpResult.getBusinesses().size(); i++) {
-                    YelpBusiness business = newYelpResult.getBusinesses().get(i);
+                for (int i=0; i<result.getBusinesses().size(); i++) {
+                    YelpBusiness business = result.getBusinesses().get(i);
 
                     MarkerOptions markerOptions = new MarkerOptions()
                             .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
@@ -189,7 +186,7 @@ public class SuggestionsMapFragment
                 //bounds = boundsBuilder.build();
             }
 
-            //set the camera to the user's location first so that we can then
+            //set the camera to the user's location first so that we can then animate to result region
             Location userLocation = map.getMyLocation();
             if (userLocation != null) {
                 Log.d(TAG, "updateMap: userLocation != null");
@@ -213,9 +210,9 @@ public class SuggestionsMapFragment
 //            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
 //        }
 
-        if (cameraPosition == null && yelpResult != null) {
+        if (cameraPosition == null && result != null) {
             //read the yelp result region so that we can specify the map bounds
-            LatLngBounds mapBounds = computeMapBoundsFromYelpResult();
+            LatLngBounds mapBounds = computeMapBoundsFromResult();
             //animate the camera over to the region specified by bounds
             map.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, PADDING_BOUNDING_BOX));
         }
@@ -226,17 +223,17 @@ public class SuggestionsMapFragment
      * for the map
      * @return
      */
-    private LatLngBounds computeMapBoundsFromYelpResult() {
+    private LatLngBounds computeMapBoundsFromResult() {
         //read the yelp result region so that we can specify the map bounds
-        YelpResultRegion yelpResultRegion = yelpResult.getRegion();
+        YelpResultRegion resultRegion = result.getRegion();
 
         //get region center
         LatLng center = new LatLng(
-                yelpResultRegion.getCenter().getLatitude(),
-                yelpResultRegion.getCenter().getLongitude());
+                resultRegion.getCenter().getLatitude(),
+                resultRegion.getCenter().getLongitude());
         //get delta of lat/long from the center
-        double latDelta = yelpResultRegion.getSpan().getLatitude_delta();
-        double longDelta = yelpResultRegion.getSpan().getLongitude_delta();
+        double latDelta = resultRegion.getSpan().getLatitude_delta();
+        double longDelta = resultRegion.getSpan().getLongitude_delta();
 
         //compute north, south, east, west from center
         LatLng north = new LatLng(center.latitude + latDelta/2, center.longitude);
@@ -280,7 +277,7 @@ public class SuggestionsMapFragment
         Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessId));
 
         //notify the activity that a suggestion was clicked
-        itemClickListener.onSuggestionClick(businessId);
+        suggestionActionListener.onSuggestionClick(businessId);
     }
 
     /**

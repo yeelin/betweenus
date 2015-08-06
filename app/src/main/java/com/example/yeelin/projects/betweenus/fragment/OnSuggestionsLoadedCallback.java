@@ -1,6 +1,8 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.ArrayMap;
 
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 
@@ -11,7 +13,7 @@ public interface OnSuggestionsLoadedCallback {
     /**
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * To be implemented by fragments interested in the result.
-     * @param yelpResult
+     * @param result
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult yelpResult);
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap);
 }

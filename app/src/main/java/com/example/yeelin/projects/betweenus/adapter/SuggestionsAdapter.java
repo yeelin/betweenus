@@ -1,17 +1,16 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.support.v4.util.SimpleArrayMap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -19,26 +18,40 @@ import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.squareup.picasso.Target;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by ninjakiki on 7/21/15.
  */
-public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
+public class SuggestionsAdapter
+        extends ArrayAdapter<YelpBusiness>
+        implements View.OnClickListener {
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
     //member variables
-    private List<YelpBusiness> items;
+    private List<YelpBusiness> businessList;
+    private ArrayMap<String,String> selectedIdsMap;
+    private OnItemToggleListener listener;
+
+    /**
+     * Interface for listening to toggling of the checked text view
+     */
+    public interface OnItemToggleListener {
+        public void onItemToggle(String id, boolean isChecked);
+    }
 
     /**
      * Constructor
      * @param context
-     * @param items
+     * @param businessList
      */
-    public SuggestionsAdapter(Context context, List<YelpBusiness> items) {
-        super(context, 0, items);
-        this.items = items;
+    public SuggestionsAdapter(Context context, @Nullable List<YelpBusiness> businessList,
+                              ArrayMap<String,String> selectedIdsMap, OnItemToggleListener listener) {
+
+        super(context, 0, businessList);
+        this.businessList = businessList;
+        this.selectedIdsMap = selectedIdsMap;
+        this.listener = listener;
     }
 
     /**
@@ -56,51 +69,67 @@ public class SuggestionsAdapter extends ArrayAdapter<YelpBusiness> {
             view.setTag(new ViewHolder(view));
         }
 
-        YelpBusiness item = getItem(position);
+        YelpBusiness business = getItem(position);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         //set the views
-        ImageUtils.loadImage(parent.getContext(), item.getImage_url(), viewHolder.image);
-        viewHolder.name.setText(item.getName());
-        viewHolder.address.setText(item.getLocation().getAddress()[0]);
-        viewHolder.categories.setText(item.getDisplayCategories());
+        ImageUtils.loadImage(parent.getContext(), business.getImage_url(), viewHolder.image);
+        viewHolder.name.setText(business.getName());
+        viewHolder.address.setText(business.getLocation().getAddress()[0]);
+        viewHolder.categories.setText(business.getDisplayCategories());
 
         //set the textview and the yelp stars
-        viewHolder.reviews.setText(getContext().getString(R.string.review_count, String.valueOf(item.getReview_count())));
+        viewHolder.reviews.setText(getContext().getString(R.string.review_count, String.valueOf(business.getReview_count())));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
         final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
         viewHolder.reviews.setTag(target);
-        ImageUtils.loadImage(parent.getContext(), item.getRating_img_url_large(), target);
+        ImageUtils.loadImage(parent.getContext(), business.getRating_img_url_large(), target);
 
         //set the checked state
-        ListView listView = (ListView) parent;
-        viewHolder.itemToggle.setChecked(listView.isItemChecked(position));
+        viewHolder.itemToggle.setChecked(selectedIdsMap.containsKey(business.getId()));
+        viewHolder.itemToggle.setTag(business.getId());
+        viewHolder.itemToggle.setOnClickListener(this);
 
         return view;
     }
 
     /**
-     * Updates the adapter with a new list of items
-     * @param newItems
+     * Updates the adapter with a new list of businessList
+     * @param businessList
      */
-    public void updateAllItems(List<YelpBusiness> newItems) {
-        //if it's the same items, do nothing. Otherwise, you end up clearing out newItems
-        if (items == newItems) {
-            Log.d(TAG, "updateAllItems: items == newItems. Nothing to do");
+    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,String> newSelectedIdsMap) {
+        //if it's the same businessList, do nothing. Otherwise, you end up clearing out businessList
+        if (this.businessList == businessList) {
+            Log.d(TAG, "updateAllItems: this.businessList == businessList. Nothing to do");
             return;
         }
 
-        Log.d(TAG, "updateAllItems: Before clear. Item count:" + newItems.size());
-        //remove all items from the current list
+        //remove all from the current list
         clear();
+        this.selectedIdsMap = newSelectedIdsMap;
 
-        Log.d(TAG, "updateAllItems: After clear. Item count:" + newItems.size());
-        //add all new items to the end of the array
-        if (newItems != null) {
-            this.items = newItems;
-            addAll(newItems);
+        //add all new businessList to the end of the array
+        if (businessList != null) {
+            this.businessList = businessList;
+            addAll(businessList);
         }
+    }
+
+    /**
+     * Handles the click on the checkedTextView. All we do here is toggle the view
+     * and then call the listener to let it know.
+     * @param v
+     */
+    @Override
+    public void onClick(View v) {
+        Log.d(TAG, "onClick: Toggle");
+
+        CheckedTextView itemToggle = (CheckedTextView) v;
+        itemToggle.toggle();
+
+        String id = (String) itemToggle.getTag();
+        listener.onItemToggle(id, itemToggle.isChecked());
     }
 
     /**

@@ -6,12 +6,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.fragment.OnSuggestionItemClickListener;
+import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 public class SuggestionsActivity
         extends BaseActivity
         implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
-        OnSuggestionItemClickListener {
+        OnSuggestionActionListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -41,10 +42,12 @@ public class SuggestionsActivity
 
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
+    private static final String STATE_SELECTED_IDS = SuggestionsActivity.class.getSimpleName() + ".selectedIds";
 
     //member variables
     private boolean showingMap = false;
-    private YelpResult yelpResult;
+    private YelpResult result;
+    private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -99,11 +102,23 @@ public class SuggestionsActivity
                     .commit();
         }
         else {
-            //restore the state when we last left the activity (either showing map or list)
             Log.d(TAG, "onCreate: Saved instance state is not null");
+            //restore last shown state (either map or list)
             showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
 
-            toggleListAndMapFragments();
+            //restore map of selected ids
+            ArrayList<String> selectedIdsList = savedInstanceState.getStringArrayList(STATE_SELECTED_IDS);
+            if (selectedIdsList != null) {
+                selectedIdsMap.ensureCapacity(selectedIdsList.size());
+                for (int i=0; i < selectedIdsList.size(); i++) {
+                    Log.d(TAG, "onCreate: SelectedId:" + selectedIdsList.get(i));
+                    selectedIdsMap.put(selectedIdsList.get(i), selectedIdsList.get(i));
+                }
+                Log.d(TAG, "onCreate: Restored selected ids: " + selectedIdsList);
+            }
+
+            //restore the state when we last left the activity (either showing map or list)
+            toggleListAndMapFragments(false); //false == don't load data since it's not ready
         }
 
         //initializing the loader to fetch suggestions from the network
@@ -150,19 +165,10 @@ public class SuggestionsActivity
                 return true;
 
             case R.id.action_select:
-                if (showingMap) {
-                    Log.d(TAG, "onOptionsItemSelected: Need to implement onSelectAndSend in map fragment");
-                    //TODO: Handle select in map fragment
-                }
-                else {
-                    SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-                    if (listFragment != null) {
-                        ArrayList<String> selectedItemIds = listFragment.onSelectAndSend();
-                        Log.d(TAG, "onOptionsItemSelected: Selected Item Ids:" + selectedItemIds);
-
-                        //start the invite activity and pass it the selected ids
-                        startActivity(InvitationActivity.buildIntent(this, selectedItemIds));
-                    }
+                if (selectedIdsMap.size() > 0) {
+                    ArrayList<String> selectedIdsList = new ArrayList<>(selectedIdsMap.values());
+                    Log.d(TAG, "onOptionsItemSelected: Selected Item Ids:" + selectedIdsList);
+                    startActivity(InvitationActivity.buildIntent(this, selectedIdsList));
                 }
                 return true;
 
@@ -171,7 +177,7 @@ public class SuggestionsActivity
                 showingMap = !showingMap;
                 toggleMenuItemIcon(item);
                 toggleMenuItemTitle(item);
-                toggleListAndMapFragments();
+                toggleListAndMapFragments(true); //true == load data
                 return true;
 
             default:
@@ -187,6 +193,7 @@ public class SuggestionsActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_MAP, showingMap);
+        outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.values()));
     }
 
     /**
@@ -206,20 +213,15 @@ public class SuggestionsActivity
     }
 
     /**
-     * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments
+     * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments.
+     * If shouldLoadData is true, then the current result along with the selectedIds map is passed
+     * to the fragment
+     * @param shouldLoadData
      */
-    private void toggleListAndMapFragments() {
-        Log.d(TAG, "toggleListAndMapFragments: Item count:" + this.yelpResult.getBusinesses().size());
+    private void toggleListAndMapFragments(boolean shouldLoadData) {
         SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
         SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-        if (listFragment == null) {
-            Log.w(TAG, "toggleListAndMapFragments: List fragment is null");
-            return;
-        }
-        if (mapFragment == null) {
-            Log.w(TAG, "toggleListAndMapFragments: Map fragment is null");
-            return;
-        }
+
         if (showingMap) {
             Log.d(TAG, "toggleListAndMapFragments: Showing map fragment");
             getSupportFragmentManager()
@@ -227,7 +229,9 @@ public class SuggestionsActivity
                     .hide(listFragment)
                     .show(mapFragment)
                     .commit();
-            mapFragment.onSuggestionsLoaded(this.yelpResult);
+            if (shouldLoadData) {
+                mapFragment.onSuggestionsLoaded(result, selectedIdsMap);
+            }
         }
         else {
             Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
@@ -236,7 +240,9 @@ public class SuggestionsActivity
                     .hide(mapFragment)
                     .show(listFragment)
                     .commit();
-            listFragment.onSuggestionsLoaded(this.yelpResult);
+            if (shouldLoadData) {
+                listFragment.onSuggestionsLoaded(result, selectedIdsMap);
+            }
         }
     }
 
@@ -245,47 +251,71 @@ public class SuggestionsActivity
      * When the loader delivers the results, this method would be called.  Depending on which fragment is in view,
      * the data would be passed to the appropriate fragment.
      * @param loaderId
-     * @param yelpResult
+     * @param result
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable YelpResult yelpResult) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable YelpResult result) {
         if (loaderId != LoaderId.MULTI_PLACES) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
         }
 
         //debugging purposes
-        if (yelpResult == null) {
+        if (result == null) {
             Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
         }
         else {
-            Log.d(TAG, "onLoadComplete: Item count:" + yelpResult.getBusinesses().size());
+            Log.d(TAG, "onLoadComplete: Item count:" + result.getBusinesses().size());
         }
 
-        this.yelpResult = yelpResult;
+        //reset the member variables
+        this.result = result;
+
         if (showingMap) {
-            Log.d(TAG, "onLoadComplete: Notifying List fragment");
+            Log.d(TAG, "onLoadComplete: Notifying map fragment");
             SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
-                mapFragment.onSuggestionsLoaded(yelpResult);
+                mapFragment.onSuggestionsLoaded(result, selectedIdsMap);
             }
         }
         else {
-            Log.d(TAG, "onLoadComplete: Notifying List fragment");
+            Log.d(TAG, "onLoadComplete: Notifying list fragment");
             SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
             if (listFragment != null) {
-                listFragment.onSuggestionsLoaded(yelpResult);
+                listFragment.onSuggestionsLoaded(result, selectedIdsMap);
             }
         }
     }
 
     /**
-     * SuggestionClickListener implementation
+     * OnSuggestionActionListener implementation
+     * Start the detail activity
      * @param id
      */
     @Override
     public void onSuggestionClick(String id) {
         Log.d(TAG, "onSuggestionClick: BusinessId:" + id);
         startActivity(SuggestionDetailActivity.buildIntent(this, id));
+    }
+
+    /**
+     * OnSuggestionActionListener implementation
+     * Track the toggle state of the item in the selectedIdsMap
+     * @param id
+     * @param isChecked
+     */
+    @Override
+    public void onSuggestionToggle(String id, boolean isChecked) {
+        if (isChecked) {
+            Log.d(TAG, "onSuggestionToggle: Adding key:" + id);
+            selectedIdsMap.put(id, id);
+        }
+        else if (selectedIdsMap.containsKey(id)) {
+            Log.d(TAG, "onSuggestionToggle: Removing key:" + id);
+            selectedIdsMap.remove(id);
+        }
+        else {
+            Log.d(TAG, "onSuggestionToggle: Could not find key to remove:" + id);
+        }
     }
 }

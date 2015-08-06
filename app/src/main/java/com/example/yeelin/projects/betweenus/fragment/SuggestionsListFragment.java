@@ -5,8 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,10 +15,9 @@ import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
-
-import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/13/15.
@@ -26,10 +25,13 @@ import java.util.ArrayList;
 public class SuggestionsListFragment
         extends Fragment
         implements OnSuggestionsLoadedCallback, //tells fragment when data is loaded
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener, //tells fragment when an item in the list is clicked
+        SuggestionsAdapter.OnItemToggleListener { //tells fragment when an item in the list is toggled
     //logcat
     private static final String TAG = SuggestionsListFragment.class.getCanonicalName();
-    private OnSuggestionItemClickListener itemClickListener;
+
+    //member variables
+    private OnSuggestionActionListener suggestionActionListener;
 
     /**
      * Creates a new instance of the list fragment
@@ -54,10 +56,10 @@ public class SuggestionsListFragment
 
         Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
         try {
-            itemClickListener = (OnSuggestionItemClickListener) objectToCast;
+            suggestionActionListener = (OnSuggestionActionListener) objectToCast;
         }
         catch (ClassCastException e) {
-            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionItemClickListener");
+            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
     }
 
@@ -110,13 +112,13 @@ public class SuggestionsListFragment
      */
     @Override
     public void onDetach() {
-        itemClickListener = null;
+        suggestionActionListener = null;
         super.onDetach();
     }
 
     /**
      * AdapterView.OnItemClickListener
-     * Item click callback when an item in the listview is clicked.  All we do here is toggle the checked textview
+     * Item click callback when an item in the listview is clicked.  Notify listener
      * @param parent
      * @param view
      * @param position
@@ -126,24 +128,29 @@ public class SuggestionsListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "onItemClick: Position clicked:" + position);
 
-        SuggestionsAdapter.ViewHolder viewHolder = (SuggestionsAdapter.ViewHolder) view.getTag();
-        viewHolder.itemToggle.toggle();
+        YelpBusiness business = (YelpBusiness) parent.getAdapter().getItem(position);
+        suggestionActionListener.onSuggestionClick(business.getId());
+    }
+
+    /**
+     * SuggestionsAdapter.OnItemToggleListener
+     * Handles toggling of item in listview. Notify listener
+     * @param id
+     * @param isChecked
+     */
+    @Override
+    public void onItemToggle(String id, boolean isChecked) {
+        suggestionActionListener.onSuggestionToggle(id, isChecked);
     }
 
     /**
      * OnSuggestionsLoadedCallback implementation
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
-     * @param yelpResult
+     * @param result
+     * @param selectedIdsMap
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult yelpResult) {
-        //debugging purposes
-        if (yelpResult == null) {
-            Log.d(TAG, "onSuggestionsLoaded: SuggestedItems is null. Loader must be resetting");
-        }
-        else {
-            Log.d(TAG, "onSuggestionsLoaded: Item count:" + yelpResult.getBusinesses().size());
-        }
-
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap) {
+        //check if views are null
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet
@@ -151,69 +158,29 @@ public class SuggestionsListFragment
             return;
         }
 
-        //update the adapter
+        //views are not null, so update it
+        //first: update the adapter
         SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         if (suggestionsAdapter == null) {
-            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is null, so creating a new one. Item count:" + yelpResult.getBusinesses().size());
-            suggestionsAdapter = new SuggestionsAdapter(viewHolder.suggestionsListView.getContext(), yelpResult.getBusinesses());
+            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is null, so creating a new one.");
+            suggestionsAdapter = new SuggestionsAdapter(
+                    viewHolder.suggestionsListView.getContext(),
+                    result != null ? result.getBusinesses() : null,
+                    selectedIdsMap,
+                    this);
             viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
         }
         else {
-            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating. Item count:" + yelpResult.getBusinesses().size());
-            suggestionsAdapter.updateAllItems(yelpResult.getBusinesses());
+            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating.");
+            suggestionsAdapter.updateAllItems(
+                    result != null ? result.getBusinesses() : null,
+                    selectedIdsMap);
         }
 
-        //animate in the list, and animate out the progress bar
+        //second: animate in the list, and animate out the progress bar
         if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
             AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
         }
-    }
-
-    /**
-     * The user has made his selections and wants to send the selected items off in an invite.
-     * Return the business ids that were selected by the user.  Called by SuggestionActivity which manages
-     * the menu items.
-     * @return
-     */
-    @NonNull
-    public ArrayList<String> onSelectAndSend() {
-        //get all selected items
-        ViewHolder viewHolder = getViewHolder();
-        SparseBooleanArray sparseBooleanArray = viewHolder.suggestionsListView.getCheckedItemPositions();
-        if (sparseBooleanArray.size() == 0) {
-            Log.d(TAG, "onOptionsItemSelected: Sparse boolean array is empty so nothing to do");
-            return new ArrayList<>();
-        }
-        Log.d(TAG, "onOptionsItemSelected: Sparse boolean array size:" + sparseBooleanArray.size()); //note: //size != number of currently selected rows
-
-        SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
-        ArrayList<String> businessIds = new ArrayList<>(sparseBooleanArray.size());
-        //sparse boolean array is map of key-value pairs
-        //key = row in the listview, value = true/false to indicate whether row is selected
-        //value would be false if the row was checked then unchecked
-        for (int i=0; i<sparseBooleanArray.size(); i++) {
-            int key = sparseBooleanArray.keyAt(i);
-            boolean value = sparseBooleanArray.valueAt(i);
-
-            Log.d(TAG, String.format("onOptionsItemSelected: Index:%d, Key:%d, Value:%s", i, key, String.valueOf(value)));
-            //check if value is true (true means row is currently selected)
-            if (value) {
-                String id = suggestionsAdapter.getItem(key).getId();
-                String name = suggestionsAdapter.getItem(key).getName();
-                businessIds.add(id);
-                Log.d(TAG, String.format("onOptionsItemSelected: Index:%d, Key:%d, Value:%s, Id:%s, Name:%s",
-                        i, key, String.valueOf(value), id, name));
-            }
-        }
-
-        if (businessIds.size() == 0) {
-            Log.d(TAG, "onOptionsItemSelected: BusinessIds size is 0 so nothing is currently selected");
-            return new ArrayList<>();
-        }
-
-        Log.d(TAG, "onOptionsItemSelected: BusinessIds selected:" + businessIds);
-        //return businessIds to the caller
-        return businessIds;
     }
 
     /**
