@@ -17,7 +17,7 @@ public interface OnSuggestionActionListener {
      * To be implemented by activities or parent fragments interested in handling
      * this event
      * @param id
-     * @param isChecked
+     * @param isSelected
      */
-    public void onSuggestionToggle(String id, boolean isChecked);
+    public void onSuggestionToggle(String id, boolean isSelected);
 }

@@ -136,11 +136,11 @@ public class SuggestionsListFragment
      * SuggestionsAdapter.OnItemToggleListener
      * Handles toggling of item in listview. Notify listener
      * @param id
-     * @param isChecked
+     * @param isSelected
      */
     @Override
-    public void onItemToggle(String id, boolean isChecked) {
-        suggestionActionListener.onSuggestionToggle(id, isChecked);
+    public void onItemToggle(String id, boolean isSelected) {
+        suggestionActionListener.onSuggestionToggle(id, isSelected);
     }
 
     /**

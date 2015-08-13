@@ -31,21 +31,26 @@ public class SuggestionDetailFragment
     //bundle args
     private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
     private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
+    private static final String ARG_IS_SELECTED = SuggestionDetailFragment.class.getSimpleName() + ".isSelected";
     //member variables
     private String id;
     private String name;
+    private boolean isSelected;
     private YelpBusiness yelpBusiness;
     private SuggestionDetailFragmentListener listener;
 
     /**
      * Creates a new instance of this fragment
      * @param id
+     * @param name
+     * @param isSelected
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id, String name) {
+    public static SuggestionDetailFragment newInstance(String id, String name, boolean isSelected) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
+        args.putBoolean(ARG_IS_SELECTED, isSelected);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
@@ -94,6 +99,7 @@ public class SuggestionDetailFragment
         if (args != null) {
             id = args.getString(ARG_ID);
             name = args.getString(ARG_NAME);
+            isSelected = args.getBoolean(ARG_IS_SELECTED, false);
         }
     }
 
@@ -123,6 +129,10 @@ public class SuggestionDetailFragment
 
         //set the name so that users with slow connections won't see a completely blank screen
         viewHolder.name.setText(name);
+
+        //set up the state of the select button
+        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
+
 
         //set up click listeners
         viewHolder.websiteButton.setOnClickListener(this);
@@ -240,12 +250,13 @@ public class SuggestionDetailFragment
                 listener.onDialPhone(yelpBusiness.getPhone());
                 break;
             case R.id.detail_select_button:
-                //TODO: Implement select button
+                //TODO: Implement select button callback
+                isSelected = !isSelected;
                 ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
-                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_favorite, 0, 0, 0);
+                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
                 }
-                Log.d(TAG, "Implement select");
+                Log.d(TAG, "Implement select callback");
                 break;
         }
     }

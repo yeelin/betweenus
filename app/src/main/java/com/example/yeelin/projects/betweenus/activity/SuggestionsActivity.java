@@ -296,18 +296,18 @@ public class SuggestionsActivity
     @Override
     public void onSuggestionClick(String id, String name) {
         Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
-        startActivity(SuggestionDetailActivity.buildIntent(this, id, name));
+        startActivity(SuggestionDetailActivity.buildIntent(this, id, name, selectedIdsMap.containsKey(id)));
     }
 
     /**
      * OnSuggestionActionListener implementation
      * Track the toggle state of the item in the selectedIdsMap
      * @param id
-     * @param isChecked
+     * @param isSelected
      */
     @Override
-    public void onSuggestionToggle(String id, boolean isChecked) {
-        if (isChecked) {
+    public void onSuggestionToggle(String id, boolean isSelected) {
+        if (isSelected) {
             Log.d(TAG, "onSuggestionToggle: Adding key:" + id);
             selectedIdsMap.put(id, id);
         }
