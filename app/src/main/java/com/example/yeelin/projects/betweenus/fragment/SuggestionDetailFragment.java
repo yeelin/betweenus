@@ -241,6 +241,10 @@ public class SuggestionDetailFragment
                 break;
             case R.id.detail_select_button:
                 //TODO: Implement select button
+                ViewHolder viewHolder = getViewHolder();
+                if (viewHolder != null) {
+                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_action_favorite, 0, 0, 0);
+                }
                 Log.d(TAG, "Implement select");
                 break;
         }

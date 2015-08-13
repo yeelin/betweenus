@@ -45,11 +45,13 @@
 
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:gravity="center_vertical"
 
                 app:layout_gravity="center_vertical"
-                app:layout_columnWeight=".3"
+                app:layout_columnWeight=".35"
                 style="@style/Medium_AccentButtonStyle"
+                android:drawableLeft="@drawable/ic_action_web"
+                android:drawablePadding="5dp"
                 android:text="@string/detail_website_button"/>
 
             <Button
@@ -59,11 +61,13 @@
 
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:gravity="center_vertical"
 
                 app:layout_gravity="center_vertical"
                 app:layout_columnWeight=".3"
                 style="@style/Medium_AccentButtonStyle"
+                android:drawableLeft="@drawable/ic_action_call"
+                android:drawablePadding="5dp"
                 android:text="@string/detail_phone_button"/>
 
             <Button
@@ -73,11 +77,13 @@
 
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:gravity="center"
+                android:gravity="center_vertical"
 
                 app:layout_gravity="center_vertical"
-                app:layout_columnWeight=".3"
+                app:layout_columnWeight=".35"
                 style="@style/Medium_AccentButtonStyle"
+                android:drawableLeft="@drawable/ic_action_favorite_outline"
+                android:drawablePadding="5dp"
                 android:text="@string/select_button"/>
 
         </android.support.v7.widget.GridLayout>
