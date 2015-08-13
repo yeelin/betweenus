@@ -132,7 +132,7 @@ public class SuggestionDetailFragment
 
         //set up the state of the select button
         viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
-
+        viewHolder.selectButton.setText(isSelected ? R.string.selected_button : R.string.select_button);
 
         //set up click listeners
         viewHolder.websiteButton.setOnClickListener(this);
@@ -255,6 +255,7 @@ public class SuggestionDetailFragment
                 ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
                     viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
+                    viewHolder.selectButton.setText(isSelected ? R.string.selected_button : R.string.select_button);
                 }
                 Log.d(TAG, "Implement select callback");
                 break;

@@ -50,7 +50,7 @@
                 app:layout_gravity="center_vertical"
                 app:layout_columnWeight=".35"
                 style="@style/Medium_AccentButtonStyle"
-                android:drawableLeft="@drawable/ic_action_web"
+                android:drawableLeft="@drawable/ic_action_open_in_browser"
                 android:drawablePadding="5dp"
                 android:text="@string/detail_website_button"/>
 

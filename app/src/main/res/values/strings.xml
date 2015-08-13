@@ -28,6 +28,7 @@
     <!-- Button text -->
     <string name="search_button">Search in between</string>
     <string name="select_button">Select</string>
+    <string name="selected_button">Selected</string>
     <string name="invite_button">Send Invite</string>
 
     <!-- Detail strings for layout only -->
