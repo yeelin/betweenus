@@ -37,11 +37,11 @@ public class ImageUtils {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 if (textView != null) {
-                    Log.d(TAG, "onBitmapLoaded: Textview is not null");
+                    //Log.d(TAG, "onBitmapLoaded: Textview is not null");
                     textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
                 }
                 else {
-                    Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
+                    //Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
                 }
             }
 
@@ -52,7 +52,7 @@ public class ImageUtils {
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-                Log.d(TAG, "onPrepareLoad");
+                //Log.d(TAG, "onPrepareLoad");
             }
         };
     }
@@ -66,7 +66,7 @@ public class ImageUtils {
      * @return
      */
     public static Target newTarget(final Context context, final TextView textView, final Marker marker) {
-        Log.d(TAG, "newTarget");
+        //Log.d(TAG, "newTarget");
         return new Target() {
             /**
              * This method will not be called if Target is garbage-collected early. Note
@@ -77,16 +77,16 @@ public class ImageUtils {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 if (textView != null) {
-                    Log.d(TAG, "onBitmapLoaded: Textview is not null");
+                    //Log.d(TAG, "onBitmapLoaded: Textview is not null");
                     textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
 
                     if (marker != null && marker.isInfoWindowShown()) {
-                        Log.d(TAG, "onBitmapLoaded: Showing info window");
+                        //Log.d(TAG, "onBitmapLoaded: Showing info window");
                         marker.showInfoWindow();
                     }
                 }
                 else {
-                    Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
+                    //Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
                 }
             }
 
@@ -97,7 +97,7 @@ public class ImageUtils {
 
             @Override
             public void onPrepareLoad(Drawable placeHolderDrawable) {
-                Log.d(TAG, "onPrepareLoad");
+                //Log.d(TAG, "onPrepareLoad");
             }
         };
     }
@@ -109,7 +109,7 @@ public class ImageUtils {
      * @param imageView
      */
     public static void loadImage(final Context context, final String imageUrl, final ImageView imageView) {
-        Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        //Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
         Picasso.with(context)
                 .load(imageUrl)
                 .into(imageView);
@@ -126,7 +126,7 @@ public class ImageUtils {
      * @param target
      */
     public static void loadImage(final Context context, final String imageUrl, final Target target) {
-        Log.d(TAG, "loadImage with target: Url: " + imageUrl);
+        //Log.d(TAG, "loadImage with target: Url: " + imageUrl);
         Picasso.with(context)
                 .load(imageUrl)
                 .into(target);
