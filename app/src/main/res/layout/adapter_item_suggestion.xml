@@ -37,7 +37,7 @@
         android:gravity="start"
 
         app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".6"
+        app:layout_columnWeight=".55"
 
         android:orientation="vertical">
 
@@ -68,7 +68,7 @@
             android:id="@+id/item_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_action_content_send"
+            android:drawableLeft="@drawable/stars_large_4"
             android:drawablePadding="5dp"
             android:gravity="center_vertical"
             android:textSize="12sp"
@@ -83,12 +83,12 @@
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="start"
 
         app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".1"
+        app:layout_columnWeight=".15"
 
-        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:checkMark="@drawable/checked_item_state"
         tools:checked="true"/>
 
 </android.support.v7.widget.GridLayout>
