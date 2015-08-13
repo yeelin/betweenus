@@ -44,6 +44,9 @@ public class SuggestionsActivity
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
     private static final String STATE_SELECTED_IDS = SuggestionsActivity.class.getSimpleName() + ".selectedIds";
 
+    //request code
+    private static final int REQUEST_CODE_DETAIL_VIEW = 100;
+
     //member variables
     private boolean showingMap = false;
     private YelpResult result;
@@ -296,7 +299,9 @@ public class SuggestionsActivity
     @Override
     public void onSuggestionClick(String id, String name) {
         Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
-        startActivity(SuggestionDetailActivity.buildIntent(this, id, name, selectedIdsMap.containsKey(id)));
+
+        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, selectedIdsMap.containsKey(id));
+        startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
     }
 
     /**
@@ -317,6 +322,33 @@ public class SuggestionsActivity
         }
         else {
             Log.d(TAG, "onSuggestionToggle: Could not find key to remove:" + id);
+        }
+    }
+
+    /**
+     * Handle the activity result from the detail activity
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult: RequestCode:" + requestCode);
+
+        if (requestCode == REQUEST_CODE_DETAIL_VIEW) {
+            if (data != null) {
+                String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
+                boolean isSelected = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_IS_SELECTED, selectedIdsMap.containsKey(id));
+
+                Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, Selected:%s", id, isSelected));
+                onSuggestionToggle(id, isSelected);
+            }
+            else {
+                Log.d(TAG, "onActivityResult: Data is null");
+            }
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 }

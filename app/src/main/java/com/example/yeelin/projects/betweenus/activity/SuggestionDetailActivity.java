@@ -1,5 +1,6 @@
 package com.example.yeelin.projects.betweenus.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -22,9 +23,13 @@ public class SuggestionDetailActivity
     private static final String TAG = SuggestionDetailActivity.class.getCanonicalName();
 
     //intent extras
-    private static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
+    public static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
     private static final String EXTRA_NAME = SuggestionDetailActivity.class.getSimpleName() + ".name";
-    private static final String EXTRA_IS_SELECTED = SuggestionDetailActivity.class.getSimpleName() + ".isSelected";
+    public static final String EXTRA_IS_SELECTED = SuggestionDetailActivity.class.getSimpleName() + ".isSelected";
+
+    //member variables
+    private String id;
+    private boolean isSelected;
 
     /**
      * Builds the appropriate intent to start this activity
@@ -55,9 +60,9 @@ public class SuggestionDetailActivity
 
         //read intent extras
         Intent intent = getIntent();
-        String id = intent.getStringExtra(EXTRA_ID);
+        id = intent.getStringExtra(EXTRA_ID);
+        isSelected = intent.getBooleanExtra(EXTRA_IS_SELECTED, false);
         String name = intent.getStringExtra(EXTRA_NAME);
-        boolean isSelected = intent.getBooleanExtra(EXTRA_IS_SELECTED, false);
 
         //check if fragment exists, otherwise create it
         if (savedInstanceState == null) {
@@ -84,12 +89,44 @@ public class SuggestionDetailActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Log.d(TAG, "onOptionsItemSelected: Up button clicked");
-                navigateUpToParentActivity(this);
+                //handle up navigation by setting a result intent so that onActivityResult in SuggestionsActivity
+                //receives a non-null intent
+                Log.d(TAG, String.format("onOptionsItemSelected: Up button clicked. Id:%s, Selected:%s", id, isSelected));
+
+                //set the result along with the intent, and finish
+                setResult(Activity.RESULT_OK, buildResultIntent());
+                finish();
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Handles back button press by setting a result intent so that onActivityResult in SuggestionsActivity
+     * receives a non-null intent
+     */
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "onBackPressed");
+
+        //set the result along with the intent
+        setResult(Activity.RESULT_OK, buildResultIntent());
+        super.onBackPressed(); //this will call finish
+    }
+
+    /**
+     * Helper method that builds a result intent with the resulting state of the selection
+     * so that it can be returned to the parent activity that started us.
+     * @return
+     */
+    private Intent buildResultIntent() {
+        //create result intent and put extras
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_ID, id);
+        resultIntent.putExtra(EXTRA_IS_SELECTED, isSelected);
+        return resultIntent;
     }
 
     /**
@@ -124,5 +161,14 @@ public class SuggestionDetailActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         }
+    }
+
+    /**
+     * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
+     * Callback from the detail fragment to toggle the selection
+     */
+    @Override
+    public void onSelectionToggle() {
+        isSelected = !isSelected;
     }
 }

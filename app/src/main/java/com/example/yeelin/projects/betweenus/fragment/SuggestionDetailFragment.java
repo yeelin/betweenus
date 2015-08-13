@@ -63,6 +63,7 @@ public class SuggestionDetailFragment
     public interface SuggestionDetailFragmentListener {
         public void onOpenWebsite(String url);
         public void onDialPhone(String phone);
+        public void onSelectionToggle();
     }
 
     /**
@@ -250,14 +251,13 @@ public class SuggestionDetailFragment
                 listener.onDialPhone(yelpBusiness.getPhone());
                 break;
             case R.id.detail_select_button:
-                //TODO: Implement select button callback
                 isSelected = !isSelected;
                 ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
                     viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
                     viewHolder.selectButton.setText(isSelected ? R.string.selected_button : R.string.select_button);
                 }
-                Log.d(TAG, "Implement select callback");
+                listener.onSelectionToggle();
                 break;
         }
     }
