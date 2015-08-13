@@ -23,6 +23,7 @@ public class SuggestionDetailActivity
 
     //intent extras
     private static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
+    private static final String EXTRA_NAME = SuggestionDetailActivity.class.getSimpleName() + ".name";
 
     /**
      * Builds the appropriate intent to start this activity
@@ -30,10 +31,11 @@ public class SuggestionDetailActivity
      * @param id
      * @return
      */
-    public static Intent buildIntent(Context context, String id) {
+    public static Intent buildIntent(Context context, String id, String name) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
         intent.putExtra(EXTRA_ID, id);
+        intent.putExtra(EXTRA_NAME, name);
         return intent;
     }
 
@@ -51,6 +53,7 @@ public class SuggestionDetailActivity
         //read intent extras
         Intent intent = getIntent();
         String id = intent.getStringExtra(EXTRA_ID);
+        String name = intent.getStringExtra(EXTRA_NAME);
 
         //check if fragment exists, otherwise create it
         if (savedInstanceState == null) {
@@ -59,7 +62,7 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name))
                         .commit();
             }
         }

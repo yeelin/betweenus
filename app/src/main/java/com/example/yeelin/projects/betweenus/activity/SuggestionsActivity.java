@@ -291,11 +291,12 @@ public class SuggestionsActivity
      * OnSuggestionActionListener implementation
      * Start the detail activity
      * @param id
+     * @param name
      */
     @Override
-    public void onSuggestionClick(String id) {
-        Log.d(TAG, "onSuggestionClick: BusinessId:" + id);
-        startActivity(SuggestionDetailActivity.buildIntent(this, id));
+    public void onSuggestionClick(String id, String name) {
+        Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
+        startActivity(SuggestionDetailActivity.buildIntent(this, id, name));
     }
 
     /**

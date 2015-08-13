@@ -10,7 +10,7 @@ public interface OnSuggestionActionListener {
      * this event
      * @param id
      */
-    public void onSuggestionClick(String id);
+    public void onSuggestionClick(String id, String name);
 
     /**
      * A suggestion was toggled in either the list or map fragment.

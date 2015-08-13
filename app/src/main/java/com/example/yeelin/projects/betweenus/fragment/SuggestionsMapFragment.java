@@ -301,6 +301,6 @@ public class SuggestionsMapFragment
         Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessId));
 
         //notify the activity that a suggestion was clicked
-        suggestionActionListener.onSuggestionClick(businessId);
+        suggestionActionListener.onSuggestionClick(businessId, marker.getTitle());
     }
 }

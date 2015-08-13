@@ -17,7 +17,6 @@ import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallba
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
-import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 /**
@@ -30,9 +29,11 @@ public class SuggestionDetailFragment
     //logcat
     private static final String TAG = SuggestionDetailFragment.class.getCanonicalName();
     //bundle args
-    private static final String ARG_SEARCH_ID = SuggestionDetailFragment.class.getSimpleName() + ".searchId";
+    private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
+    private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
     //member variables
-    private String searchId;
+    private String id;
+    private String name;
     private YelpBusiness yelpBusiness;
     private SuggestionDetailFragmentListener listener;
 
@@ -41,9 +42,10 @@ public class SuggestionDetailFragment
      * @param id
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id) {
+    public static SuggestionDetailFragment newInstance(String id, String name) {
         Bundle args = new Bundle();
-        args.putString(ARG_SEARCH_ID, id);
+        args.putString(ARG_ID, id);
+        args.putString(ARG_NAME, name);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
@@ -90,7 +92,8 @@ public class SuggestionDetailFragment
         //read bundle args
         Bundle args = getArguments();
         if (args != null) {
-            searchId = args.getString(ARG_SEARCH_ID);
+            id = args.getString(ARG_ID);
+            name = args.getString(ARG_NAME);
         }
     }
 
@@ -118,6 +121,9 @@ public class SuggestionDetailFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
+        //set the name so that users with slow connections won't see a completely blank screen
+        viewHolder.name.setText(name);
+
         //set up click listeners
         viewHolder.websiteButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
@@ -141,7 +147,7 @@ public class SuggestionDetailFragment
                 getActivity(),
                 getLoaderManager(),
                 this,
-                searchId);
+                id);
     }
 
     /**
@@ -199,7 +205,8 @@ public class SuggestionDetailFragment
         viewHolder.address.setText(yelpBusiness.getLocation().getAddress()[0]);
 
         //cross streets
-        viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, yelpBusiness.getLocation().getCross_streets()));
+        String crossStreets = yelpBusiness.getLocation().getCross_streets();
+        viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, crossStreets != null ? crossStreets : getString(R.string.not_available)));
 
         //phone
         viewHolder.phone.setText(yelpBusiness.getDisplay_phone());
@@ -215,7 +222,8 @@ public class SuggestionDetailFragment
         viewHolder.reviews.setTag(target);
         ImageUtils.loadImage(getActivity(), yelpBusiness.getRating_img_url_large(), target);
 
-        viewHolder.hoursRange.setText("None");
+        //hours
+        viewHolder.hoursRange.setText(R.string.not_available);
     }
 
     /**

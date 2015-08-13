@@ -129,7 +129,7 @@ public class SuggestionsListFragment
         Log.d(TAG, "onItemClick: Position clicked:" + position);
 
         YelpBusiness business = (YelpBusiness) parent.getAdapter().getItem(position);
-        suggestionActionListener.onSuggestionClick(business.getId());
+        suggestionActionListener.onSuggestionClick(business.getId(), business.getName());
     }
 
     /**
