@@ -5,60 +5,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     tools:context=".fragment.SuggestionDetailFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="600dp"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/detail_name"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:background="@color/colorAccent"
+            android:background="@color/colorPrimary"
             android:gravity="bottom"
             android:paddingLeft="@dimen/card_content_padding"
-            android:paddingBottom="32dp"
             android:paddingRight="@dimen/card_content_padding"
+            android:paddingBottom="@dimen/card_content_padding"
             android:textColor="@android:color/white"
             android:textSize="@dimen/medium_textSize"
             tools:text="@string/detail_name_fake"/>
 
-        <TextView
-            android:id="@+id/detail_categories"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:gravity="bottom"
-            android:textColor="@android:color/white"
-            android:paddingLeft="@dimen/card_content_padding"
-            android:paddingBottom="@dimen/card_content_padding"
-            android:textSize="@dimen/small_textSize"
-            tools:text="@string/detail_categories_fake"/>
-
-        <TextView
-            android:id="@+id/detail_distance_from_center"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:gravity="bottom"
-            android:layout_alignBaseline="@id/detail_categories"
-            android:layout_toRightOf="@id/detail_categories"
-            android:textColor="@android:color/white"
-            android:paddingLeft="@dimen/card_content_padding"
-            android:paddingBottom="@dimen/card_content_padding"
-            android:textSize="@dimen/small_textSize"
-            tools:text="@string/detail_distance_fake"/>
-
+        <!-- Grid of buttons -->
         <android.support.v7.widget.GridLayout
             android:id="@+id/quick_actions"
-            android:layout_below="@id/detail_name"
             android:layout_width="match_parent"
             android:layout_height="40dp"
 
             app:useDefaultMargins="false"
             app:alignmentMode="alignMargins"
             app:columnOrderPreserved="false"
-            app:columnCount="2"
+            app:columnCount="3"
             app:orientation="horizontal">
 
             <Button
@@ -71,41 +48,73 @@
                 android:gravity="center"
 
                 app:layout_gravity="center_vertical"
-                app:layout_columnWeight=".5"
-                style="@style/QuickActionButtonStyle"
+                app:layout_columnWeight=".3"
+                style="@style/Medium_AccentButtonStyle"
                 android:text="@string/detail_website_button"/>
+
             <Button
                 android:id="@+id/detail_phone_button"
                 app:layout_row="0"
                 app:layout_column="1"
 
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center"
 
                 app:layout_gravity="center_vertical"
-                app:layout_columnWeight=".5"
-                style="@style/QuickActionButtonStyle"
+                app:layout_columnWeight=".3"
+                style="@style/Medium_AccentButtonStyle"
                 android:text="@string/detail_phone_button"/>
+
+            <Button
+                android:id="@+id/detail_select_button"
+                app:layout_row="0"
+                app:layout_column="2"
+
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+
+                app:layout_gravity="center_vertical"
+                app:layout_columnWeight=".3"
+                style="@style/Medium_AccentButtonStyle"
+                android:text="@string/select_button"/>
 
         </android.support.v7.widget.GridLayout>
 
-        <View
-            android:id="@+id/detail_card_rule1"
-            android:layout_below="@id/quick_actions"
-            style="@style/HorizontalRuleStyle"/>
+        <ProgressBar
+            android:id="@+id/detail_progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="@dimen/card_content_padding"
+            style="?android:attr/progressBarStyle"
+            android:visibility="gone"/>
 
         <LinearLayout
-            android:id="@+id/detail_card_content"
-            android:layout_below="@id/quick_actions"
+            android:id="@+id/detail_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/card_content_padding">
+            android:layout_height="360dp"
+            android:paddingTop="@dimen/card_content_padding"
+            android:paddingLeft="@dimen/card_content_padding"
+            android:paddingRight="@dimen/card_content_padding"
+            android:paddingBottom="@dimen/card_content_padding"
+            android:visibility="visible"
+            android:orientation="vertical">
+            <!-- START:Category and distance from center-->
+            <TextView
+                android:id="@+id/detail_categories"
+                style="@style/Medium_PrimaryTextViewStyle"
+                tools:text="@string/detail_categories_fake"/>
+            <TextView
+                android:id="@+id/detail_distance_from_center"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_distance_fake"/>
 
             <!-- START:Address and Phone group -->
             <TextView
                 android:id="@+id/detail_address"
+                android:layout_marginTop="@dimen/card_content_padding"
                 style="@style/Medium_PrimaryTextViewStyle"
                 tools:text="@string/detail_address_fake"/>
             <TextView
@@ -120,7 +129,7 @@
 
             <!-- START:Website group-->
             <TextView
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_content_padding"
                 style="@style/Medium_PrimaryTextViewStyle"
                 android:text="@string/detail_website"/>
             <TextView
@@ -131,59 +140,31 @@
 
             <!-- START:Reviews group-->
             <TextView
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_content_padding"
                 style="@style/Medium_PrimaryTextViewStyle"
                 android:text="@string/detail_reviews"/>
             <TextView
                 android:id="@+id/detail_reviews"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:drawableLeft="@drawable/ic_action_content_send"
+                tools:drawableLeft="@drawable/stars_large_4"
                 android:drawablePadding="5dp"
                 tools:text="@string/detail_reviews_fake"/>
             <!-- END:Reviews group-->
 
             <!-- START:Hours group-->
             <TextView
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/card_content_padding"
                 style="@style/Medium_PrimaryTextViewStyle"
                 android:text="@string/detail_hours"/>
             <TextView
                 android:id="@+id/detail_hours_range"
-                android:layout_marginTop="2dp"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_hours_fake"/>
             <!-- END:Hours group-->
 
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_below="@id/detail_card_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-            <View
-                android:id="@+id/detail_card_rule"
-                style="@style/HorizontalRuleStyle"/>
-
-            <Button
-                android:id="@+id/detail_card_button_like"
-                android:layout_below="@id/detail_card_rule"
-                style="@style/Small_SecondaryButtonStyle"
-                android:layout_alignParentLeft="true"
-                android:gravity="start|center_vertical"
-                android:paddingLeft="@dimen/card_content_padding"
-                android:text="@string/like_button"/>
-
-            <Button
-                android:id="@+id/detail_card_button_select"
-                android:layout_below="@id/detail_card_rule"
-                style="@style/Small_AccentButtonStyle"
-                android:layout_alignParentRight="true"
-                android:gravity="end|center_vertical"
-                android:paddingRight="@dimen/card_content_padding"
-                android:text="@string/select_button"/>
-        </RelativeLayout>
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </ScrollView>

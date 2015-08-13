@@ -46,7 +46,7 @@ public class SuggestionDetailActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suggestion_detail);
         //setup toolbar
-        setupToolbar(R.id.place_toolbar, true);
+        setupToolbar(R.id.detail_toolbar, true);
 
         //read intent extras
         Intent intent = getIntent();

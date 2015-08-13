@@ -4,10 +4,10 @@
     <!-- activity titles -->
     <string name="title_launcher">Between</string>
     <string name="title_suggested_places">Suggested Places</string>
-    <string name="title_place">Place</string>
+    <string name="title_detail">Details</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
-    <string name="title_invitation">Invite friend</string>
+    <string name="title_invitation">Send invite</string>
 
     <!-- Search strings -->
     <string name="search_query_hint">Search address or city</string>
@@ -26,13 +26,8 @@
     <string name="friend_location">Where is your friend coming from?</string>
 
     <!-- Button text -->
-    <string name="clear_button">Clear</string>
-    <string name="search_button">Search</string>
+    <string name="search_button">Search in between</string>
     <string name="select_button">Select</string>
-    <string name="selected_button">Selected</string>
-    <string name="like_button">Like</string>
-    <string name="liked_button">Liked</string>
-    <string name="cancel_button">Cancel</string>
     <string name="invite_button">Send Invite</string>
 
     <!-- Results card view strings -->
@@ -65,7 +60,7 @@
     <string name="map_marker_snippet">Rating:%1$s, Reviews:%2$s </string>
 
     <!-- Send activity strings -->
-    <string name="invite_image_overlay_text">Text or email to invite your friend</string>
+    <string name="invite_image_overlay_text">Invite your friend</string>
     <string name="friend_phone">"Enter friend's phone"</string>
     <string name="friend_email">"Enter friend's email"</string>
 

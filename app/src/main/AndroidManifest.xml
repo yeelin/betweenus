@@ -62,7 +62,7 @@
         </activity>
 
         <activity android:name=".activity.SuggestionDetailActivity"
-            android:label="@string/title_place"
+            android:label="@string/title_detail"
             android:parentActivityName=".activity.SuggestionsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

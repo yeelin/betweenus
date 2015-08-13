@@ -127,7 +127,6 @@ public class InvitationFragment
 
         //set up listener for buttons
         viewHolder.inviteButton.setOnClickListener(this);
-        viewHolder.cancelButton.setOnClickListener(this);
     }
 
     /**
@@ -166,11 +165,6 @@ public class InvitationFragment
         switch (v.getId()) {
             case R.id.invite_send_button:
                 sendInvite();
-                break;
-
-            case R.id.invite_cancel_button:
-                getViewHolder().friendPhone.clearComposingText();
-                getViewHolder().friendEmail.clearComposingText();
                 break;
 
             default:
@@ -213,14 +207,12 @@ public class InvitationFragment
         final EditText friendEmail;
         final TextView selectedItems;
         final Button inviteButton;
-        final Button cancelButton;
 
         ViewHolder(View view) {
             friendPhone = (EditText) view.findViewById(R.id.friend_phone);
             friendEmail = (EditText) view.findViewById(R.id.friend_email);
             selectedItems = (TextView) view.findViewById(R.id.selected_items);
             inviteButton = (Button) view.findViewById(R.id.invite_send_button);
-            cancelButton = (Button) view.findViewById(R.id.invite_cancel_button);
         }
     }
 }

@@ -15,7 +15,9 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 /**
@@ -116,8 +118,14 @@ public class SuggestionDetailFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
+        //set up click listeners
         viewHolder.websiteButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
+        viewHolder.selectButton.setOnClickListener(this);
+
+        //initially make the detail container gone and show the progress bar
+        viewHolder.detailContainer.setVisibility(View.GONE);
+        viewHolder.detailProgressBar.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -158,6 +166,12 @@ public class SuggestionDetailFragment
         else {
             Log.d(TAG, "onLoadComplete: Yelp business is not null. Updating views");
             updateView();
+        }
+
+        //animate in the detail container, and animate out the progress bar
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
+            AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
         }
     }
 
@@ -217,6 +231,10 @@ public class SuggestionDetailFragment
             case R.id.detail_phone_button:
                 listener.onDialPhone(yelpBusiness.getPhone());
                 break;
+            case R.id.detail_select_button:
+                //TODO: Implement select button
+                Log.d(TAG, "Implement select");
+                break;
         }
     }
 
@@ -246,6 +264,10 @@ public class SuggestionDetailFragment
 
         final Button websiteButton;
         final Button phoneButton;
+        final Button selectButton;
+
+        final View detailContainer;
+        final View detailProgressBar;
 
         ViewHolder(View view) {
             //text views
@@ -262,6 +284,11 @@ public class SuggestionDetailFragment
             //buttons
             websiteButton = (Button) view.findViewById(R.id.detail_website_button);
             phoneButton = (Button) view.findViewById(R.id.detail_phone_button);
+            selectButton = (Button) view.findViewById(R.id.detail_select_button);
+
+            //for animation
+            detailContainer = view.findViewById(R.id.detail_container);
+            detailProgressBar = view.findViewById(R.id.detail_progressBar);
         }
     }
 }

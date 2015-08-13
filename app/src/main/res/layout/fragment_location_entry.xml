@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".fragment.LocationEntryFragment">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:background="@color/colorAccent"
+        android:background="@color/colorPrimary"
         android:gravity="bottom"
         android:paddingLeft="16dp"
         android:paddingBottom="16dp"
@@ -26,10 +29,9 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
+        style="@style/HorizontalRuleStyle"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@color/textColorSecondary"/>
+        android:layout_marginRight="16dp"/>
 
     <TextView
         android:id="@+id/friend_location"
@@ -39,21 +41,19 @@
         android:gravity="left|center_vertical"
         android:text="@string/friend_location" />
 
-    <RelativeLayout
-        android:id="@+id/card_buttons"
-        android:layout_below="@id/friend_location"
+    <View
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="12dp">
+        style="@style/HorizontalRuleStyle"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"/>
 
-        <Button
-            android:id="@+id/search_button"
-            style="@style/Medium_AccentButtonStyle"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_alignParentRight="true"
-            android:gravity="end|center_vertical"
-            android:paddingRight="24dp"
-            android:text="@string/search_button"/>
-    </RelativeLayout>
+    <Button
+        android:id="@+id/search_button"
+        style="@style/Medium_AccentButtonStyle"
+        android:layout_gravity="end"
+        android:layout_marginTop="36dp"
+        android:layout_marginRight="16dp"
+        android:gravity="center"
+        android:text= "@string/search_button"/>
+
 </LinearLayout>
