@@ -1,7 +1,9 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -45,8 +47,10 @@ public class SuggestionsMapFragment
     private static final int PADDING_BOUNDING_BOX = 50; //space (in px) to leave between the bounding box edges and the view edges. This value is applied to all four sides of the bounding box.
 
     //marker colors
-    private static final float HUE_PRIMARY = 231f;
-    private static final float HUE_ACCENT = 174f;
+//    private static final float HUE_PRIMARY = 231f;
+//    private static final float HUE_ACCENT = 173f;
+    private float[] hsvPrimaryDark = new float[3];
+    private float[] hsvAccentDark = new float[3];
 
     //member variables
     private YelpResult result;
@@ -86,6 +90,19 @@ public class SuggestionsMapFragment
         catch (ClassCastException e) {
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
+    }
+
+    /**
+     * Read the resources to convert primary and accent colors from HEX to HSV
+     * @param savedInstanceState
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //read the resources to convert primary and accent colors from HEX to HSV
+        Color.colorToHSV(getResources().getColor(R.color.colorPrimaryDark), hsvPrimaryDark);
+        Color.colorToHSV(getResources().getColor(R.color.colorAccentDark), hsvAccentDark);
     }
 
     /**
@@ -211,7 +228,7 @@ public class SuggestionsMapFragment
                     .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
                     .title(business.getName())
                     .snippet(getString(R.string.review_count, business.getReview_count()))
-                    .icon(BitmapDescriptorFactory.defaultMarker(HUE_PRIMARY));
+                    .icon(selectedIdsMap.containsKey(business.getId()) ? BitmapDescriptorFactory.defaultMarker(hsvAccentDark[0]) : BitmapDescriptorFactory.defaultMarker(hsvPrimaryDark[0]));
             Marker marker = map.addMarker(markerOptions);
 
             markerToIdMap.put(marker, business.getId());
@@ -291,7 +308,6 @@ public class SuggestionsMapFragment
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.d(TAG, "onMarkerClick");
-        //marker.setIcon(BitmapDescriptorFactory.defaultMarker(HUE_ACCENT));
         // We return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
