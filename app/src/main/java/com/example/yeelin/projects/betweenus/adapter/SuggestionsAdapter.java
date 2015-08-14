@@ -117,6 +117,16 @@ public class SuggestionsAdapter
     }
 
     /**
+     * Notifies the super class that the underlying data has been changed and any View
+     * reflecting the data set should refresh itself.
+     */
+    @Override
+    public void notifyDataSetChanged() {
+        Log.d(TAG, "notifyDataSetChanged");
+        super.notifyDataSetChanged();
+    }
+
+    /**
      * Handles the click on the checkedTextView. All we do here is toggle the view
      * and then call the listener to let it know.
      * @param v

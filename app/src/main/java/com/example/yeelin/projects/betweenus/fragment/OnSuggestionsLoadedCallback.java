@@ -14,6 +14,7 @@ public interface OnSuggestionsLoadedCallback {
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * To be implemented by fragments interested in the result.
      * @param result
+     * @param selectedIdsMap
      */
     public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap);
 }

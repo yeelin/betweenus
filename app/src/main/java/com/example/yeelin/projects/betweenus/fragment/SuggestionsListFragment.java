@@ -25,6 +25,7 @@ import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 public class SuggestionsListFragment
         extends Fragment
         implements OnSuggestionsLoadedCallback, //tells fragment when data is loaded
+        OnSelectionChangedCallback, //tells fragment when selections have changed
         AdapterView.OnItemClickListener, //tells fragment when an item in the list is clicked
         SuggestionsAdapter.OnItemToggleListener { //tells fragment when an item in the list is toggled
     //logcat
@@ -175,6 +176,36 @@ public class SuggestionsListFragment
             suggestionsAdapter.updateAllItems(
                     result != null ? result.getBusinesses() : null,
                     selectedIdsMap);
+        }
+
+        //second: animate in the list, and animate out the progress bar
+        if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
+            AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
+        }
+    }
+
+    /**
+     * OnSelectionChangedCallback implememtation
+     * The contents of the selections array map has changed (even if the reference itself hasn't).
+     * Ask the adapter to reload the list view.
+     */
+    @Override
+    public void onSelectionChanged() {
+        Log.d(TAG, "onSelectionChanged");
+
+        //check if views are null
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) {
+            //nothing to do since views are not ready yet
+            Log.d(TAG, "onSuggestionsLoaded: View holder is null, so nothing to do");
+            return;
+        }
+
+        //views are not null, so update it
+        //first: ask adapter to reload views
+        SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+        if (suggestionsAdapter != null) {
+            suggestionsAdapter.notifyDataSetChanged();
         }
 
         //second: animate in the list, and animate out the progress bar

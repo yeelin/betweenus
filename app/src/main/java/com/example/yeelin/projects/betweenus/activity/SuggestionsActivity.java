@@ -49,6 +49,7 @@ public class SuggestionsActivity
 
     //member variables
     private boolean showingMap = false;
+    private boolean selectionsChanged = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
 
@@ -189,6 +190,27 @@ public class SuggestionsActivity
     }
 
     /**
+     * Check if the selections have changed in case we came back through Up or Back navigation.
+     */
+    @Override
+    protected void onRestart() {
+        Log.d(TAG, "onRestart: Selection state:" + selectionsChanged);
+        if (selectionsChanged) {
+            if (showingMap) {
+                SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+                mapFragment.onSelectionChanged();
+            }
+            else {
+                SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
+                listFragment.onSelectionChanged();
+            }
+            //reset the value
+            selectionsChanged = false;
+        }
+        super.onRestart();
+    }
+
+    /**
      * Saves out the boolean showingMap so that we know which fragment is being displayed
      * @param outState
      */
@@ -248,6 +270,7 @@ public class SuggestionsActivity
             }
         }
     }
+
 
     /**
      * SuggestionsLoaderCallbacks.SuggestionsLoaderListener callback
@@ -336,15 +359,19 @@ public class SuggestionsActivity
         Log.d(TAG, "onActivityResult: RequestCode:" + requestCode);
 
         if (requestCode == REQUEST_CODE_DETAIL_VIEW) {
-            if (data != null) {
-                String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
-                boolean isSelected = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_IS_SELECTED, selectedIdsMap.containsKey(id));
-
-                Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, Selected:%s", id, isSelected));
-                onSuggestionToggle(id, isSelected);
-            }
-            else {
+            if (data == null) {
                 Log.d(TAG, "onActivityResult: Data is null");
+                return;
+            }
+
+            String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
+            boolean isSelected = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_IS_SELECTED, selectedIdsMap.containsKey(id)); //the default value is the previous value
+
+            Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, New selection state:%s, Old selection state:%s", id, isSelected, selectedIdsMap.containsKey(id)));
+            if (isSelected != selectedIdsMap.containsKey(id)) {
+                selectionsChanged = true;
+                Log.d(TAG, String.format("onActivityResult: SelectionsChanged:%s, so updating the selectedIdsMap", selectionsChanged));
+                onSuggestionToggle(id, isSelected);
             }
         }
         else {

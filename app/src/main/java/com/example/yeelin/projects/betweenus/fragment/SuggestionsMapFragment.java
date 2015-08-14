@@ -32,6 +32,7 @@ import com.squareup.picasso.Target;
 public class SuggestionsMapFragment
         extends BaseMapFragment
         implements OnSuggestionsLoadedCallback, //tells fragment when data is loaded
+        OnSelectionChangedCallback, //tells fragment when selections have changed
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMapLoadedCallback,
         GoogleMap.OnMarkerClickListener {
@@ -218,6 +219,14 @@ public class SuggestionsMapFragment
             //boundsBuilder.include(markerOptions.getPosition());
         }
         //bounds = boundsBuilder.build();
+    }
+
+    /**
+     * TODO: Implement onSelectionChanged
+     */
+    @Override
+    public void onSelectionChanged() {
+        Log.d(TAG, "onSelectionChanged");
     }
 
     /**
