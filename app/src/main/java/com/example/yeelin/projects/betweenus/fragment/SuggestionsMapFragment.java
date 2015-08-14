@@ -9,15 +9,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.MapItemInfoWindowAdapter;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
-import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -26,7 +23,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.picasso.Target;
 
 /**
  * Created by ninjakiki on 7/28/15.
@@ -47,8 +43,6 @@ public class SuggestionsMapFragment
     private static final int PADDING_BOUNDING_BOX = 50; //space (in px) to leave between the bounding box edges and the view edges. This value is applied to all four sides of the bounding box.
 
     //marker colors
-//    private static final float HUE_PRIMARY = 231f;
-//    private static final float HUE_ACCENT = 173f;
     private float[] hsvPrimaryDark = new float[3];
     private float[] hsvAccentDark = new float[3];
 
@@ -57,8 +51,9 @@ public class SuggestionsMapFragment
     private boolean mapNeedsUpdate = false;
 
     private ArrayMap<String, String> selectedIdsMap;
-    private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>();
-    private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>();
+    private SimpleArrayMap<String, Marker> idToMarkerMap = new SimpleArrayMap<>(); //for changing the selection state of the marker when onSelectionChanged event occurs
+    private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>(); //for getting the business id corresponding to the clicked marker
+    private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>(); //for getting the rating image url corresponding to the clicked marker
 
     private OnSuggestionActionListener suggestionActionListener;
 
@@ -187,6 +182,7 @@ public class SuggestionsMapFragment
         cameraPosition = null;
         //clear out the markerToId and idToRatingUrl maps as well
         markerToIdMap.clear();
+        idToMarkerMap.clear();
         idToRatingUrlMap.clear();
 
         //check if result is null
@@ -195,6 +191,7 @@ public class SuggestionsMapFragment
 
             //make sure the markerToId map can hold all the markers we are about to add
             markerToIdMap.ensureCapacity(result.getBusinesses().size());
+            idToMarkerMap.ensureCapacity(result.getBusinesses().size());
             idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
             addMarkersToMap();
 
@@ -232,6 +229,7 @@ public class SuggestionsMapFragment
             Marker marker = map.addMarker(markerOptions);
 
             markerToIdMap.put(marker, business.getId());
+            idToMarkerMap.put(business.getId(), marker);
             idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
             //boundsBuilder.include(markerOptions.getPosition());
         }
@@ -239,11 +237,26 @@ public class SuggestionsMapFragment
     }
 
     /**
-     * TODO: Implement onSelectionChanged
+     * OnSelectionChangedCallback implememtation
+     * The contents of the idToMarkerMap array map has changed (even if the reference itself hasn't).
+     * Change the color of the corresponding marker.
+     * @param id id of the item whose selection has changed.
      */
     @Override
-    public void onSelectionChanged() {
-        Log.d(TAG, "onSelectionChanged");
+    public void onSelectionChanged(String id) {
+        Log.d(TAG, "onSelectionChanged: Id:" + id);
+
+        if(!idToMarkerMap.containsKey(id)) {
+            Log.d(TAG, String.format("onSelectionChanged: Id could not be found in idToMarkerMap, so nothing to do. idToMarkerMap size:%d", idToMarkerMap.size()));
+            return;
+        }
+
+        //find the marker corresponding to the id whose selection has changed
+        Marker marker = idToMarkerMap.get(id);
+        //change the color of the icon based on the current selection state
+        if (marker != null) {
+            marker.setIcon(selectedIdsMap.containsKey(id) ? BitmapDescriptorFactory.defaultMarker(hsvAccentDark[0]) : BitmapDescriptorFactory.defaultMarker(hsvPrimaryDark[0]));
+        }
     }
 
     /**

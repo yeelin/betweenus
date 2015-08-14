@@ -37,7 +37,7 @@ public class SuggestionsAdapter
      * Interface for listening to toggling of the checked text view
      */
     public interface OnItemToggleListener {
-        public void onItemToggle(String id, boolean isSelected);
+        public void onItemToggle(String id);
     }
 
     /**
@@ -139,7 +139,7 @@ public class SuggestionsAdapter
         itemToggle.toggle();
 
         String id = (String) itemToggle.getTag();
-        listener.onItemToggle(id, itemToggle.isChecked());
+        listener.onItemToggle(id);
     }
 
     /**

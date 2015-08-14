@@ -135,13 +135,12 @@ public class SuggestionsListFragment
 
     /**
      * SuggestionsAdapter.OnItemToggleListener
-     * Handles toggling of item in listview. Notify listener
+     * Handles toggling of item in listview. Notify listener i.e. SuggestionsActivity.
      * @param id
-     * @param isSelected
      */
     @Override
-    public void onItemToggle(String id, boolean isSelected) {
-        suggestionActionListener.onSuggestionToggle(id, isSelected);
+    public void onItemToggle(String id) {
+        suggestionActionListener.onSuggestionToggle(id);
     }
 
     /**
@@ -188,10 +187,13 @@ public class SuggestionsListFragment
      * OnSelectionChangedCallback implememtation
      * The contents of the selections array map has changed (even if the reference itself hasn't).
      * Ask the adapter to reload the list view.
+     * TODO: Check if item is curerntly in view.  If it is, only reload that item.
+     *
+     * @param id id of the item whose selection has changed.
      */
     @Override
-    public void onSelectionChanged() {
-        Log.d(TAG, "onSelectionChanged");
+    public void onSelectionChanged(String id) {
+        Log.d(TAG, "onSelectionChanged: Id:" + id);
 
         //check if views are null
         ViewHolder viewHolder = getViewHolder();

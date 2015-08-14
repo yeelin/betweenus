@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
@@ -49,7 +50,6 @@ public class SuggestionsActivity
 
     //member variables
     private boolean showingMap = false;
-    private boolean selectionsChanged = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
 
@@ -163,11 +163,13 @@ public class SuggestionsActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            //Up button was clicked
             case android.R.id.home:
                 Log.d(TAG, "onOptionsItemSelected: Up button clicked");
                 navigateUpToParentActivity(this);
                 return true;
 
+            //select and invite button was clicked
             case R.id.action_select:
                 if (selectedIdsMap.size() > 0) {
                     ArrayList<String> selectedIdsList = new ArrayList<>(selectedIdsMap.values());
@@ -176,38 +178,20 @@ public class SuggestionsActivity
                 }
                 return true;
 
+            //toggle list/map view was clicked
             case R.id.action_toggle:
                 Log.d(TAG, String.format("onOptionsItemSelected: Toggle clicked. Current:%s, Next:%s", showingMap ? "map" : "list", !showingMap ? "map" : "list"));
                 showingMap = !showingMap;
+
                 toggleMenuItemIcon(item);
                 toggleMenuItemTitle(item);
+
                 toggleListAndMapFragments(true); //true == load data
                 return true;
 
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /**
-     * Check if the selections have changed in case we came back through Up or Back navigation.
-     */
-    @Override
-    protected void onRestart() {
-        Log.d(TAG, "onRestart: Selection state:" + selectionsChanged);
-        if (selectionsChanged) {
-            if (showingMap) {
-                SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-                mapFragment.onSelectionChanged();
-            }
-            else {
-                SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-                listFragment.onSelectionChanged();
-            }
-            //reset the value
-            selectionsChanged = false;
-        }
-        super.onRestart();
     }
 
     /**
@@ -239,8 +223,10 @@ public class SuggestionsActivity
 
     /**
      * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments.
-     * If shouldLoadData is true, then the current result along with the selectedIds map is passed
-     * to the fragment
+     * If shouldLoadData is true, then the current result along with the selectedIdsMap is passed
+     * to the fragment.
+     * If selectionsChanged is true, then the id of the changed item is passed to the fragment.
+     *
      * @param shouldLoadData
      */
     private void toggleListAndMapFragments(boolean shouldLoadData) {
@@ -329,22 +315,32 @@ public class SuggestionsActivity
 
     /**
      * OnSuggestionActionListener implementation
-     * Track the toggle state of the item in the selectedIdsMap
+     * Flips the toggle state of the item in the selectedIdsMap.
+     * If the item is in the map, it is removed.
+     * If the item is not in the map, it is added.
      * @param id
-     * @param isSelected
      */
     @Override
-    public void onSuggestionToggle(String id, boolean isSelected) {
-        if (isSelected) {
-            Log.d(TAG, "onSuggestionToggle: Adding key:" + id);
-            selectedIdsMap.put(id, id);
-        }
-        else if (selectedIdsMap.containsKey(id)) {
-            Log.d(TAG, "onSuggestionToggle: Removing key:" + id);
+    public void onSuggestionToggle(String id) {
+        if (selectedIdsMap.containsKey(id)) {
+            Log.d(TAG, "onSuggestionToggle: Item is in the map, so removing:" + id);
             selectedIdsMap.remove(id);
         }
         else {
-            Log.d(TAG, "onSuggestionToggle: Could not find key to remove:" + id);
+            Log.d(TAG, "onSuggestionToggle: Item is not in the map, so adding:" + id);
+            selectedIdsMap.put(id, id);
+        }
+
+        //notify all the fragments that a selection has changed
+        SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+        SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
+        if (mapFragment != null) {
+            Log.d(TAG, "onSuggestionToggle: Notifying map fragment that a selection has changed");
+            mapFragment.onSelectionChanged(id);
+        }
+        if (listFragment != null) {
+            Log.d(TAG, "onSuggestionToggle: Notifying list fragment that a selection has changed");
+            listFragment.onSelectionChanged(id);
         }
     }
 
@@ -360,18 +356,20 @@ public class SuggestionsActivity
 
         if (requestCode == REQUEST_CODE_DETAIL_VIEW) {
             if (data == null) {
-                Log.d(TAG, "onActivityResult: Data is null");
+                Log.d(TAG, "onActivityResult: Data is null, so nothing to do");
                 return;
             }
 
+            //read the intent extras
             String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
             boolean isSelected = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_IS_SELECTED, selectedIdsMap.containsKey(id)); //the default value is the previous value
 
+            //compare the current selection state from the detail view to the original state in selectedIdsMap
+            //if different, then update selectedIdsMap
             Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, New selection state:%s, Old selection state:%s", id, isSelected, selectedIdsMap.containsKey(id)));
             if (isSelected != selectedIdsMap.containsKey(id)) {
-                selectionsChanged = true;
-                Log.d(TAG, String.format("onActivityResult: SelectionsChanged:%s, so updating the selectedIdsMap", selectionsChanged));
-                onSuggestionToggle(id, isSelected);
+                Log.d(TAG, "onActivityResult: Selection has changed, so updating the selectedIdsMap");
+                onSuggestionToggle(id);
             }
         }
         else {
