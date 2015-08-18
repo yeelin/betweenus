@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -202,6 +203,9 @@ public class SuggestionDetailFragment
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
 
+        //image
+        ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image);
+
         //name
         viewHolder.name.setText(business.getName());
 
@@ -276,6 +280,7 @@ public class SuggestionDetailFragment
      * View holder class
      */
     private class ViewHolder {
+        final ImageView image;
         final TextView name;
         final TextView categories;;
         final TextView distanceFromCenter;
@@ -294,6 +299,9 @@ public class SuggestionDetailFragment
         final View detailProgressBar;
 
         ViewHolder(View view) {
+            //image view
+            image = (ImageView) view.findViewById(R.id.detail_image);
+
             //text views
             name = (TextView) view.findViewById(R.id.detail_name);
             categories = (TextView) view.findViewById(R.id.detail_categories);

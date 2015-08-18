@@ -13,18 +13,41 @@
         android:layout_height="600dp"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/detail_name"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@color/colorPrimary"
-            android:gravity="bottom"
-            android:paddingLeft="@dimen/card_content_padding"
-            android:paddingRight="@dimen/card_content_padding"
-            android:paddingBottom="@dimen/card_content_padding"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/medium_textSize"
-            tools:text="@string/detail_name_fake"/>
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/detail_map"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@color/colorPrimary"
+                android:paddingLeft="@dimen/card_content_padding"
+                android:paddingRight="@dimen/card_content_padding"
+                android:paddingBottom="@dimen/card_content_padding" />
+
+            <ImageView
+                android:id="@+id/detail_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_margin="@dimen/card_content_padding"
+                android:layout_alignBottom="@id/detail_map"
+                android:contentDescription="Image"
+                android:src="@color/colorAccent"/>
+
+            <TextView
+                android:id="@+id/detail_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/detail_image"
+                android:layout_toRightOf="@id/detail_image"
+                android:layout_toEndOf="@id/detail_image"
+                android:paddingRight="@dimen/card_content_padding"
+                android:paddingEnd="@dimen/card_content_padding"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_textSize"
+                tools:text="@string/detail_name_fake"/>
+        </RelativeLayout>
 
         <!-- Grid of buttons -->
         <android.support.v7.widget.GridLayout
