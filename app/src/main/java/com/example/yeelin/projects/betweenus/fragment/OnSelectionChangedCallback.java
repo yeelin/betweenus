@@ -10,7 +10,9 @@ public interface OnSelectionChangedCallback {
     /**
      * The selections array map has changed.  Called by SuggestionsActivity.
      * To be implemented by fragments interested in updating their view.
+     * @param id
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
-    public void onSelectionChanged(String id);
+    public void onSelectionChanged(String id, boolean toggleState);
 }
 

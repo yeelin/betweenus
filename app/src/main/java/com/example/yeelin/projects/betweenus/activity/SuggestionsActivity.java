@@ -12,7 +12,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
@@ -319,14 +318,17 @@ public class SuggestionsActivity
      * If the item is in the map, it is removed.
      * If the item is not in the map, it is added.
      * @param id
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onSuggestionToggle(String id) {
-        if (selectedIdsMap.containsKey(id)) {
+    public void onSuggestionToggle(String id, boolean toggleState) {
+        if (selectedIdsMap.containsKey(id) && !toggleState) {
+            //if the item is in the map AND resulting toggle state is false (not selected), we remove it
             Log.d(TAG, "onSuggestionToggle: Item is in the map, so removing:" + id);
             selectedIdsMap.remove(id);
         }
-        else {
+        else if (!selectedIdsMap.containsKey(id) && toggleState) {
+            //if the item is not in the map AND resulting toggle state is true, we add it
             Log.d(TAG, "onSuggestionToggle: Item is not in the map, so adding:" + id);
             selectedIdsMap.put(id, id);
         }
@@ -336,11 +338,11 @@ public class SuggestionsActivity
         SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
         if (mapFragment != null) {
             Log.d(TAG, "onSuggestionToggle: Notifying map fragment that a selection has changed");
-            mapFragment.onSelectionChanged(id);
+            mapFragment.onSelectionChanged(id, toggleState);
         }
         if (listFragment != null) {
             Log.d(TAG, "onSuggestionToggle: Notifying list fragment that a selection has changed");
-            listFragment.onSelectionChanged(id);
+            listFragment.onSelectionChanged(id, toggleState);
         }
     }
 
@@ -362,14 +364,14 @@ public class SuggestionsActivity
 
             //read the intent extras
             String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
-            boolean isSelected = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_IS_SELECTED, selectedIdsMap.containsKey(id)); //the default value is the previous value
+            boolean toggleState = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_TOGGLE_STATE, selectedIdsMap.containsKey(id)); //the default value is the previous value
 
             //compare the current selection state from the detail view to the original state in selectedIdsMap
             //if different, then update selectedIdsMap
-            Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, New selection state:%s, Old selection state:%s", id, isSelected, selectedIdsMap.containsKey(id)));
-            if (isSelected != selectedIdsMap.containsKey(id)) {
+            Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, New selection state:%s, Old selection state:%s", id, toggleState, selectedIdsMap.containsKey(id)));
+            if (toggleState != selectedIdsMap.containsKey(id)) {
                 Log.d(TAG, "onActivityResult: Selection has changed, so updating the selectedIdsMap");
-                onSuggestionToggle(id);
+                onSuggestionToggle(id, toggleState);
             }
         }
         else {

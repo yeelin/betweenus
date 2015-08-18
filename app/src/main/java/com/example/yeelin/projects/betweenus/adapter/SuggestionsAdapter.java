@@ -37,7 +37,12 @@ public class SuggestionsAdapter
      * Interface for listening to toggling of the checked text view
      */
     public interface OnItemToggleListener {
-        public void onItemToggle(String id);
+        /**
+         * Handle the toggling of an item in the listview
+         * @param id business id of item toggled
+         * @param toggleState resulting toggle state
+         */
+        public void onItemToggle(String id, boolean toggleState);
     }
 
     /**
@@ -117,29 +122,41 @@ public class SuggestionsAdapter
     }
 
     /**
-     * Notifies the super class that the underlying data has been changed and any View
-     * reflecting the data set should refresh itself.
-     */
-    @Override
-    public void notifyDataSetChanged() {
-        Log.d(TAG, "notifyDataSetChanged");
-        super.notifyDataSetChanged();
-    }
-
-    /**
      * Handles the click on the checkedTextView. All we do here is toggle the view
      * and then call the listener to let it know.
-     * @param v
+     * @param v CheckedTextView that was clicked
      */
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "onClick: Toggle");
+        Log.d(TAG, "onClick: Toggle was clicked");
 
+        //toggle the view
         CheckedTextView itemToggle = (CheckedTextView) v;
         itemToggle.toggle();
 
-        String id = (String) itemToggle.getTag();
-        listener.onItemToggle(id);
+        //notify the list fragment, providing both business id and resulting toggle state
+        listener.onItemToggle((String)itemToggle.getTag(), itemToggle.isChecked());
+    }
+
+    /**
+     * Given a view (i.e. a row in the listview), this method toggles the CheckedTextView state to
+     * match the given toggleState. If it already matches, there is nothing to do.
+     * @param view row in the listview
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
+     */
+    public void onSelectionChanged(View view, boolean toggleState) {
+        Log.d(TAG, "onSelectionChanged: ToggleState:" + toggleState);
+
+        ViewHolder viewHolder = (ViewHolder) view.getTag();
+        if (viewHolder == null) return;
+
+        if (toggleState != viewHolder.itemToggle.isChecked()) {
+            Log.d(TAG, "onSelectionChanged: ToggleState is different, so toggling now");
+            viewHolder.itemToggle.toggle();
+        }
+        else {
+            Log.d(TAG, "onSelectionChanged: ToggleState is the same, so nothing to do");
+        }
     }
 
     /**

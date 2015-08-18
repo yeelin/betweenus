@@ -137,10 +137,12 @@ public class SuggestionsListFragment
      * SuggestionsAdapter.OnItemToggleListener
      * Handles toggling of item in listview. Notify listener i.e. SuggestionsActivity.
      * @param id
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onItemToggle(String id) {
-        suggestionActionListener.onSuggestionToggle(id);
+    public void onItemToggle(String id, boolean toggleState) {
+        Log.d(TAG, String.format("onItemToggle:Id:%s, ToggleState:%s", id, toggleState));
+        suggestionActionListener.onSuggestionToggle(id, toggleState);
     }
 
     /**
@@ -184,16 +186,17 @@ public class SuggestionsListFragment
     }
 
     /**
-     * OnSelectionChangedCallback implememtation
+     * OnSelectionChangedCallback implementation
      * The contents of the selections array map has changed (even if the reference itself hasn't).
-     * Ask the adapter to reload the list view.
-     * TODO: Check if item is curerntly in view.  If it is, only reload that item.
+     * Check if the changed item is currently visible in the listview.  If it is, only update that item.
+     * Otherwise, do nothing.
      *
      * @param id id of the item whose selection has changed.
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onSelectionChanged(String id) {
-        Log.d(TAG, "onSelectionChanged: Id:" + id);
+    public void onSelectionChanged(String id, boolean toggleState) {
+        Log.d(TAG, String.format("onSelectionChanged: Id:%s, ToggleState:%s", id, toggleState));
 
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
@@ -203,16 +206,30 @@ public class SuggestionsListFragment
             return;
         }
 
-        //views are not null, so update it
-        //first: ask adapter to reload views
+        //views are not null, so update the changed row if necessary
         SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         if (suggestionsAdapter != null) {
-            suggestionsAdapter.notifyDataSetChanged();
-        }
+            //first: check if the changed row is between the first and last visible row
+            //if it is, we will update the row, otherwise, there is no reason to do it now since view recycling will take care of it later
+            int firstVisiblePosition = viewHolder.suggestionsListView.getFirstVisiblePosition();
+            int lastVisiblePosition = viewHolder.suggestionsListView.getLastVisiblePosition();
+            Log.d(TAG, String.format("onSelectionChanged: First visible:%d, Last visible:%d", firstVisiblePosition, lastVisiblePosition));
 
-        //second: animate in the list, and animate out the progress bar
-        if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
-            AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
+            for (int i=firstVisiblePosition; i<=lastVisiblePosition; i++) {
+                //second: check if the business id is the same as the one we are looking for
+                YelpBusiness business = (YelpBusiness) viewHolder.suggestionsListView.getItemAtPosition(i);
+                if (id.equalsIgnoreCase(business.getId())) { //found it
+                    Log.d(TAG, "onSelectionChanged: Found matching business id. Position:" + i);
+                    //get the view corresponding to that row
+                    View view = viewHolder.suggestionsListView.getChildAt(i-firstVisiblePosition);
+                    //third: ask the adapter to update the selection state in the view to match the given toggleState
+                    suggestionsAdapter.onSelectionChanged(view, toggleState);
+                    break;
+                }
+                else {
+                    Log.d(TAG, "onSelectionChanged: Not a match. Position:" + i);
+                }
+            }
         }
     }
 

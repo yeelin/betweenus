@@ -24,6 +24,7 @@ public interface OnSuggestionActionListener {
      * To be implemented by activities or parent fragments interested in handling
      * this event.
      * @param id
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
-    public void onSuggestionToggle(String id);
+    public void onSuggestionToggle(String id, boolean toggleState);
 }

@@ -241,10 +241,11 @@ public class SuggestionsMapFragment
      * The contents of the idToMarkerMap array map has changed (even if the reference itself hasn't).
      * Change the color of the corresponding marker.
      * @param id id of the item whose selection has changed.
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onSelectionChanged(String id) {
-        Log.d(TAG, "onSelectionChanged: Id:" + id);
+    public void onSelectionChanged(String id, boolean toggleState) {
+        Log.d(TAG, String.format("onSelectionChanged: Id:%s, ToggleState:%s", id, toggleState));
 
         if(!idToMarkerMap.containsKey(id)) {
             Log.d(TAG, String.format("onSelectionChanged: Id could not be found in idToMarkerMap, so nothing to do. idToMarkerMap size:%d", idToMarkerMap.size()));

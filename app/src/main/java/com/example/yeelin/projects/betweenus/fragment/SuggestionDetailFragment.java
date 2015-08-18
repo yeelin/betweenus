@@ -31,26 +31,26 @@ public class SuggestionDetailFragment
     //bundle args
     private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
     private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
-    private static final String ARG_IS_SELECTED = SuggestionDetailFragment.class.getSimpleName() + ".isSelected";
+    private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
     //member variables
     private String id;
     private String name;
-    private boolean isSelected;
-    private YelpBusiness yelpBusiness;
+    private boolean toggleState;
+    private YelpBusiness business;
     private SuggestionDetailFragmentListener listener;
 
     /**
      * Creates a new instance of this fragment
      * @param id
      * @param name
-     * @param isSelected
+     * @param toggleState
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id, String name, boolean isSelected) {
+    public static SuggestionDetailFragment newInstance(String id, String name, boolean toggleState) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
-        args.putBoolean(ARG_IS_SELECTED, isSelected);
+        args.putBoolean(ARG_TOGGLE_STATE, toggleState);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
@@ -100,7 +100,7 @@ public class SuggestionDetailFragment
         if (args != null) {
             id = args.getString(ARG_ID);
             name = args.getString(ARG_NAME);
-            isSelected = args.getBoolean(ARG_IS_SELECTED, false);
+            toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
         }
     }
 
@@ -132,8 +132,8 @@ public class SuggestionDetailFragment
         viewHolder.name.setText(name);
 
         //set up the state of the select button
-        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
-        viewHolder.selectButton.setText(isSelected ? R.string.selected_button : R.string.select_button);
+        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
+        viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
 
         //set up click listeners
         viewHolder.websiteButton.setOnClickListener(this);
@@ -174,7 +174,7 @@ public class SuggestionDetailFragment
             return;
         }
 
-        this.yelpBusiness = yelpBusiness;
+        this.business = yelpBusiness;
         //debugging purposes
         if (yelpBusiness == null) {
             Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
@@ -203,35 +203,35 @@ public class SuggestionDetailFragment
         if (viewHolder == null) return;
 
         //name
-        viewHolder.name.setText(yelpBusiness.getName());
+        viewHolder.name.setText(business.getName());
 
         //categories
-        viewHolder.categories.setText(yelpBusiness.getDisplayCategories());
+        viewHolder.categories.setText(business.getDisplayCategories());
 
         //distance from user
         //TODO: // FIXME: 7/31/15
-        viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(yelpBusiness.getDistance())));
+        viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(business.getDistance())));
 
         //address
-        viewHolder.address.setText(yelpBusiness.getLocation().getAddress()[0]);
+        viewHolder.address.setText(business.getLocation().getAddress()[0]);
 
         //cross streets
-        String crossStreets = yelpBusiness.getLocation().getCross_streets();
+        String crossStreets = business.getLocation().getCross_streets();
         viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, crossStreets != null ? crossStreets : getString(R.string.not_available)));
 
         //phone
-        viewHolder.phone.setText(yelpBusiness.getDisplay_phone());
+        viewHolder.phone.setText(business.getDisplay_phone());
 
         //web address
-        viewHolder.webAddress.setText(yelpBusiness.getMobile_url());
+        viewHolder.webAddress.setText(business.getMobile_url());
 
         //ratings and reviews
-        viewHolder.reviews.setText(getString(R.string.review_count, String.valueOf(yelpBusiness.getReview_count())));
+        viewHolder.reviews.setText(getString(R.string.review_count, String.valueOf(business.getReview_count())));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
         final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
         viewHolder.reviews.setTag(target);
-        ImageUtils.loadImage(getActivity(), yelpBusiness.getRating_img_url_large(), target);
+        ImageUtils.loadImage(getActivity(), business.getRating_img_url_large(), target);
 
         //hours
         viewHolder.hoursRange.setText(R.string.not_available);
@@ -245,17 +245,17 @@ public class SuggestionDetailFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.detail_website_button:
-                listener.onOpenWebsite(yelpBusiness.getMobile_url());
+                listener.onOpenWebsite(business.getMobile_url());
                 break;
             case R.id.detail_phone_button:
-                listener.onDialPhone(yelpBusiness.getPhone());
+                listener.onDialPhone(business.getPhone());
                 break;
             case R.id.detail_select_button:
-                isSelected = !isSelected;
+                toggleState = !toggleState;
                 ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
-                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(isSelected ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
-                    viewHolder.selectButton.setText(isSelected ? R.string.selected_button : R.string.select_button);
+                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
+                    viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                 }
                 listener.onSelectionToggle();
                 break;

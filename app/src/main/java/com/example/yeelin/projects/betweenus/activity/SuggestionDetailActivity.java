@@ -25,11 +25,11 @@ public class SuggestionDetailActivity
     //intent extras
     public static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
     private static final String EXTRA_NAME = SuggestionDetailActivity.class.getSimpleName() + ".name";
-    public static final String EXTRA_IS_SELECTED = SuggestionDetailActivity.class.getSimpleName() + ".isSelected";
+    public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
 
     //member variables
     private String id;
-    private boolean isSelected;
+    private boolean toggleState;
 
     /**
      * Builds the appropriate intent to start this activity
@@ -42,7 +42,7 @@ public class SuggestionDetailActivity
         //put extras
         intent.putExtra(EXTRA_ID, id);
         intent.putExtra(EXTRA_NAME, name);
-        intent.putExtra(EXTRA_IS_SELECTED, isSelected);
+        intent.putExtra(EXTRA_TOGGLE_STATE, isSelected);
 
         return intent;
     }
@@ -61,7 +61,7 @@ public class SuggestionDetailActivity
         //read intent extras
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
-        isSelected = intent.getBooleanExtra(EXTRA_IS_SELECTED, false);
+        toggleState = intent.getBooleanExtra(EXTRA_TOGGLE_STATE, false);
         String name = intent.getStringExtra(EXTRA_NAME);
 
         //check if fragment exists, otherwise create it
@@ -71,7 +71,7 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, isSelected))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, toggleState))
                         .commit();
             }
         }
@@ -91,7 +91,7 @@ public class SuggestionDetailActivity
             case android.R.id.home:
                 //handle up navigation by setting a result intent so that onActivityResult in SuggestionsActivity
                 //receives a non-null intent
-                Log.d(TAG, String.format("onOptionsItemSelected: Up button clicked. Id:%s, Selected:%s", id, isSelected));
+                Log.d(TAG, String.format("onOptionsItemSelected: Up button clicked. Id:%s, Selected:%s", id, toggleState));
 
                 //set the result along with the intent, and finish
                 setResult(Activity.RESULT_OK, buildResultIntent());
@@ -125,7 +125,7 @@ public class SuggestionDetailActivity
         //create result intent and put extras
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_ID, id);
-        resultIntent.putExtra(EXTRA_IS_SELECTED, isSelected);
+        resultIntent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
         return resultIntent;
     }
 
@@ -169,6 +169,6 @@ public class SuggestionDetailActivity
      */
     @Override
     public void onSelectionToggle() {
-        isSelected = !isSelected;
+        toggleState = !toggleState;
     }
 }
