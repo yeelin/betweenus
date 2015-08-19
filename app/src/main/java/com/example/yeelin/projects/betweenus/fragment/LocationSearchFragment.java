@@ -104,12 +104,12 @@ public class LocationSearchFragment
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
         try {
-            Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
             locationSearchListener = (LocationSearchFragmentListener) objectToCast;
         }
         catch (ClassCastException e) {
-            throw new ClassCastException(activity.getClass().getSimpleName() + " must implement SearchFragmentListener");
+            throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement LocationSearchFragmentListener");
         }
     }
 
