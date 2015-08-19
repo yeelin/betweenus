@@ -18,6 +18,17 @@ import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallba
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMapOptions;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
 
 /**
@@ -26,17 +37,22 @@ import com.squareup.picasso.Target;
 public class SuggestionDetailFragment
         extends Fragment
         implements SingleSuggestionLoaderCallbacks.SingleSuggestionLoaderListener,
-        View.OnClickListener {
+        View.OnClickListener,
+        OnMapReadyCallback {
     //logcat
     private static final String TAG = SuggestionDetailFragment.class.getCanonicalName();
     //bundle args
     private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
     private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
+    private static final String ARG_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".latLng";
     private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
     //member variables
     private String id;
     private String name;
+    private LatLng latLng;
     private boolean toggleState;
+    private Marker marker;
+
     private YelpBusiness business;
     private SuggestionDetailFragmentListener listener;
 
@@ -47,10 +63,11 @@ public class SuggestionDetailFragment
      * @param toggleState
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id, String name, boolean toggleState) {
+    public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng, boolean toggleState) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
+        args.putParcelable(ARG_LATLNG, latLng);
         args.putBoolean(ARG_TOGGLE_STATE, toggleState);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
@@ -101,6 +118,7 @@ public class SuggestionDetailFragment
         if (args != null) {
             id = args.getString(ARG_ID);
             name = args.getString(ARG_NAME);
+            latLng = args.getParcelable(ARG_LATLNG);
             toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
         }
     }
@@ -144,6 +162,28 @@ public class SuggestionDetailFragment
         //initially make the detail container gone and show the progress bar
         viewHolder.detailContainer.setVisibility(View.GONE);
         viewHolder.detailProgressBar.setVisibility(View.VISIBLE);
+
+        //set up the map
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
+        if (mapFragment == null) {
+            GoogleMapOptions googleMapOptions = new GoogleMapOptions()
+                    .camera(new CameraPosition(latLng, SuggestionsMapFragment.DEFAULT_ZOOM, 0, 0))
+                    .compassEnabled(false)
+                    .liteMode(true)
+                    .mapToolbarEnabled(false)
+                    .mapType(GoogleMap.MAP_TYPE_NORMAL)
+                    .rotateGesturesEnabled(false)
+                    .scrollGesturesEnabled(false)
+                    .tiltGesturesEnabled(false)
+                    .zoomControlsEnabled(false)
+                    .zoomGesturesEnabled(false);
+            mapFragment = SupportMapFragment.newInstance(googleMapOptions);
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.detail_mapContainer, mapFragment)
+                    .commit();
+        }
+        mapFragment.getMapAsync(this);
     }
 
     /**
@@ -258,12 +298,38 @@ public class SuggestionDetailFragment
                 toggleState = !toggleState;
                 ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
+                    //update the select button icon and text
                     viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_favorite : R.drawable.ic_action_favorite_outline, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
+                    //update the marker color
+                    marker.setIcon(determineMarkerIcon());
                 }
                 listener.onSelectionToggle();
                 break;
         }
+    }
+
+    /**
+     * OnMapReadyCallback callback
+     * Add a single marker to the map
+     * @param googleMap
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(latLng)
+                .icon(determineMarkerIcon());
+        marker = googleMap.addMarker(markerOptions);
+    }
+
+    /**
+     * Helper method that returns the correct hue based on the toggle state
+     * @return
+     */
+    private BitmapDescriptor determineMarkerIcon() {
+        return toggleState ?
+                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
+                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
     }
 
     /**

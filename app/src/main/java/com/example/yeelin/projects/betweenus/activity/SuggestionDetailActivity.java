@@ -12,6 +12,7 @@ import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -25,6 +26,7 @@ public class SuggestionDetailActivity
     //intent extras
     public static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
     private static final String EXTRA_NAME = SuggestionDetailActivity.class.getSimpleName() + ".name";
+    private static final String EXTRA_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".latLng";
     public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
 
     //member variables
@@ -35,14 +37,18 @@ public class SuggestionDetailActivity
      * Builds the appropriate intent to start this activity
      * @param context
      * @param id
+     * @param name
+     * @param latLng
+     * @param toggleState
      * @return
      */
-    public static Intent buildIntent(Context context, String id, String name, boolean isSelected) {
+    public static Intent buildIntent(Context context, String id, String name, LatLng latLng, boolean toggleState) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
         intent.putExtra(EXTRA_ID, id);
         intent.putExtra(EXTRA_NAME, name);
-        intent.putExtra(EXTRA_TOGGLE_STATE, isSelected);
+        intent.putExtra(EXTRA_LATLNG, latLng);
+        intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
 
         return intent;
     }
@@ -63,6 +69,7 @@ public class SuggestionDetailActivity
         id = intent.getStringExtra(EXTRA_ID);
         toggleState = intent.getBooleanExtra(EXTRA_TOGGLE_STATE, false);
         String name = intent.getStringExtra(EXTRA_NAME);
+        LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
 
         //check if fragment exists, otherwise create it
         if (savedInstanceState == null) {
@@ -71,7 +78,7 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, toggleState))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng, toggleState))
                         .commit();
             }
         }

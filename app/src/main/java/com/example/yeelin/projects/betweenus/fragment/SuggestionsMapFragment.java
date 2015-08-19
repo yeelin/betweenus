@@ -1,9 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.location.Location;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -15,9 +13,11 @@ import com.example.yeelin.projects.betweenus.adapter.MapItemInfoWindowAdapter;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
+import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -39,12 +39,8 @@ public class SuggestionsMapFragment
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
     //map configurations
-    private static final int DEFAULT_ZOOM = 13; //default zoom when user location is displayed
+    public static final int DEFAULT_ZOOM = 13; //default zoom when user location is displayed
     private static final int PADDING_BOUNDING_BOX = 50; //space (in px) to leave between the bounding box edges and the view edges. This value is applied to all four sides of the bounding box.
-
-    //marker colors
-    private float[] hsvPrimaryDark = new float[3];
-    private float[] hsvAccentDark = new float[3];
 
     //member variables
     private YelpResult result;
@@ -85,19 +81,6 @@ public class SuggestionsMapFragment
         catch (ClassCastException e) {
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
-    }
-
-    /**
-     * Read the resources to convert primary and accent colors from HEX to HSV
-     * @param savedInstanceState
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        //read the resources to convert primary and accent colors from HEX to HSV
-        Color.colorToHSV(getResources().getColor(R.color.colorPrimaryDark), hsvPrimaryDark);
-        Color.colorToHSV(getResources().getColor(R.color.colorAccentDark), hsvAccentDark);
     }
 
     /**
@@ -225,7 +208,7 @@ public class SuggestionsMapFragment
                     .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
                     .title(business.getName())
                     .snippet(getString(R.string.review_count, business.getReview_count()))
-                    .icon(selectedIdsMap.containsKey(business.getId()) ? BitmapDescriptorFactory.defaultMarker(hsvAccentDark[0]) : BitmapDescriptorFactory.defaultMarker(hsvPrimaryDark[0]));
+                    .icon(determineMarkerIcon(selectedIdsMap.containsKey(business.getId())));
             Marker marker = map.addMarker(markerOptions);
 
             markerToIdMap.put(marker, business.getId());
@@ -256,8 +239,19 @@ public class SuggestionsMapFragment
         Marker marker = idToMarkerMap.get(id);
         //change the color of the icon based on the current selection state
         if (marker != null) {
-            marker.setIcon(selectedIdsMap.containsKey(id) ? BitmapDescriptorFactory.defaultMarker(hsvAccentDark[0]) : BitmapDescriptorFactory.defaultMarker(hsvPrimaryDark[0]));
+            marker.setIcon(determineMarkerIcon(toggleState));
         }
+    }
+
+    /**
+     * Helper method that returns the correct hue based on the given toggle state
+     * @param toggleState
+     * @return
+     */
+    private BitmapDescriptor determineMarkerIcon(boolean toggleState) {
+        return toggleState ?
+                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
+                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
     }
 
     /**
@@ -340,6 +334,6 @@ public class SuggestionsMapFragment
         Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessId));
 
         //notify the activity that a suggestion was clicked
-        suggestionActionListener.onSuggestionClick(businessId, marker.getTitle());
+        suggestionActionListener.onSuggestionClick(businessId, marker.getTitle(), marker.getPosition());
     }
 }

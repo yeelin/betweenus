@@ -18,6 +18,7 @@ import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Created by ninjakiki on 7/13/15.
@@ -130,7 +131,10 @@ public class SuggestionsListFragment
         Log.d(TAG, "onItemClick: Position clicked:" + position);
 
         YelpBusiness business = (YelpBusiness) parent.getAdapter().getItem(position);
-        suggestionActionListener.onSuggestionClick(business.getId(), business.getName());
+        suggestionActionListener.onSuggestionClick(
+                business.getId(),
+                business.getName(),
+                new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()));
     }
 
     /**

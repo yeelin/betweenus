@@ -17,23 +17,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/detail_map"
+            <FrameLayout
+                android:id="@+id/detail_mapContainer"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:background="@color/colorPrimary"
-                android:paddingLeft="@dimen/card_content_padding"
-                android:paddingRight="@dimen/card_content_padding"
-                android:paddingBottom="@dimen/card_content_padding" />
+                android:layout_height="200dp" />
 
             <ImageView
                 android:id="@+id/detail_image"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_margin="@dimen/card_content_padding"
-                android:layout_alignBottom="@id/detail_map"
+                android:layout_alignBottom="@id/detail_mapContainer"
                 android:contentDescription="Image"
-                android:src="@color/colorAccent"/>
+                tools:src="@color/colorAccent"/>
 
             <TextView
                 android:id="@+id/detail_name"
@@ -44,8 +40,9 @@
                 android:layout_toEndOf="@id/detail_image"
                 android:paddingRight="@dimen/card_content_padding"
                 android:paddingEnd="@dimen/card_content_padding"
-                android:textColor="@android:color/white"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="@dimen/medium_textSize"
+                android:textStyle="bold"
                 tools:text="@string/detail_name_fake"/>
         </RelativeLayout>
 

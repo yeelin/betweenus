@@ -1,21 +1,17 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.BuildConfig;
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
-
-import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/28/15.

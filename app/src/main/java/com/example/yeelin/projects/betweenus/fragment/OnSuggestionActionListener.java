@@ -1,5 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * OnSuggestionActionListener interface
  * To be implemented by activities or parent fragments interested in handling
@@ -11,11 +13,12 @@ public interface OnSuggestionActionListener {
      * A suggestion was clicked in either the list or map fragment.
      * To be implemented by activities or parent fragments interested in handling
      * this event
-     * @param id
+     * @param id business id
      * @param name Name is passed so that the detail view is able to show the name while the
      *             rest of the business info is loaded from the network
+     * @param latLng latlng of the business
      */
-    public void onSuggestionClick(String id, String name);
+    public void onSuggestionClick(String id, String name, LatLng latLng);
 
     /**
      * A suggestion was toggled in either the list or map fragment.  Since it is a toggle

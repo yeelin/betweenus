@@ -18,6 +18,7 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -303,12 +304,13 @@ public class SuggestionsActivity
      * Start the detail activity
      * @param id
      * @param name
+     * @param latLng
      */
     @Override
-    public void onSuggestionClick(String id, String name) {
+    public void onSuggestionClick(String id, String name, LatLng latLng) {
         Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
 
-        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, selectedIdsMap.containsKey(id));
+        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, latLng, selectedIdsMap.containsKey(id));
         startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
     }
 
