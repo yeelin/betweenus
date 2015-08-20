@@ -24,31 +24,10 @@
                 android:text="@string/invite_image_overlay_text"
                 android:textSize="24sp"/>
 
-            <EditText
-                android:id="@+id/friend_phone"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                style="@style/EditTextStyle"
-                android:imeOptions="actionSend"
-                android:inputType="phone"
-                android:hint="@string/friend_phone" />
-
-            <EditText
-                android:id="@+id/friend_email"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                style="@style/EditTextStyle"
-                android:imeOptions="actionSend"
-                android:inputType="textEmailAddress"
-                android:hint="@string/friend_email" />
-
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:layout_marginLeft="24dp"
-                android:layout_marginStart="24dp"
-                android:layout_marginRight="24dp"
-                android:layout_marginEnd="24dp">
+                android:layout_margin="24dp">
 
                 <ListView
                     android:id="@+id/selected_items_listView"
@@ -63,6 +42,24 @@
                     android:text="You have not selected any places!"
                     android:visibility="gone"/>
             </FrameLayout>
+
+            <EditText
+                android:id="@+id/friend_phone"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                style="@style/EditTextStyle"
+                android:imeOptions="actionSend"
+                android:inputType="phone"
+                android:hint="@string/friend_phone" />
+
+            <EditText
+                android:id="@+id/friend_email"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                style="@style/EditTextStyle"
+                android:imeOptions="actionSend"
+                android:inputType="textEmailAddress"
+                android:hint="@string/friend_email" />
 
             <Button
                 android:id="@+id/invite_send_button"
