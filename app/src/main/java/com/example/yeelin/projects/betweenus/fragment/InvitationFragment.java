@@ -10,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -28,8 +27,7 @@ import java.util.ArrayList;
 public class InvitationFragment
         extends Fragment
         implements View.OnClickListener,
-        TextView.OnEditorActionListener,
-        AdapterView.OnItemClickListener {
+        TextView.OnEditorActionListener {
     //logcat
     private static final String TAG = InvitationFragment.class.getCanonicalName();
 
@@ -126,12 +124,9 @@ public class InvitationFragment
         view.setTag(viewHolder);
 
         //set up the listview
-        SimplifiedBusinessAdapter simplifiedBusinessAdapter = (SimplifiedBusinessAdapter) viewHolder.selectedItemsListView.getAdapter();
-        if (simplifiedBusinessAdapter == null) {
-            simplifiedBusinessAdapter = new SimplifiedBusinessAdapter(viewHolder.selectedItemsListView.getContext(), selectedItems);
-            viewHolder.selectedItemsListView.setAdapter(simplifiedBusinessAdapter);
-        }
-        viewHolder.selectedItemsListView.setOnItemClickListener(this);
+        Log.d(TAG, "onViewCreated: Adapter is null, so creating a new one");
+        SimplifiedBusinessAdapter simplifiedBusinessAdapter = new SimplifiedBusinessAdapter(viewHolder.selectedItemsListView.getContext(), selectedItems);
+        viewHolder.selectedItemsListView.setAdapter(simplifiedBusinessAdapter);
 
         //setup listener for phone and email fields
         viewHolder.friendPhone.setOnEditorActionListener(this);
@@ -148,19 +143,6 @@ public class InvitationFragment
     public void onDetach() {
         listener = null;
         super.onDetach();
-    }
-
-    /**
-     * TODO:
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(TAG, "onItemClick needs to be implemented");
-
     }
 
     /**

@@ -11,7 +11,7 @@
     app:useDefaultMargins="false"
     app:alignmentMode="alignMargins"
     app:columnOrderPreserved="false"
-    app:columnCount="3"
+    app:columnCount="2"
     app:orientation="horizontal">
 
     <ImageView
@@ -37,7 +37,7 @@
         android:gravity="start"
 
         app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".65"
+        app:layout_columnWeight=".8"
 
         android:orientation="vertical">
 
@@ -76,19 +76,5 @@
             android:textColor="@color/textColorSecondary"
             tools:text="123 reviews"/>
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/remove_item_button"
-        app:layout_row="0"
-        app:layout_column="2"
-
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:src="@drawable/ic_action_remove"
-        android:background="@android:color/transparent"
-
-        app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".15" />
 
 </android.support.v7.widget.GridLayout>

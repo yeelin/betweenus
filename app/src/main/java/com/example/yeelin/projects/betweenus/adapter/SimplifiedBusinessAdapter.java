@@ -1,12 +1,12 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,13 +20,17 @@ import java.util.List;
  * Created by ninjakiki on 8/19/15.
  */
 public class SimplifiedBusinessAdapter
-        extends ArrayAdapter<SimplifiedBusiness>
-        implements View.OnClickListener {
+        extends ArrayAdapter<SimplifiedBusiness> {
     //logcat
     private static final String TAG = SimplifiedBusinessAdapter.class.getCanonicalName();
     //member variables
     private List<SimplifiedBusiness> businessList;
 
+    /**
+     * Constructor
+     * @param context
+     * @param businessList
+     */
     public SimplifiedBusinessAdapter(Context context, List<SimplifiedBusiness> businessList) {
         super(context, 0, businessList);
         this.businessList = businessList;
@@ -56,20 +60,7 @@ public class SimplifiedBusinessAdapter
         viewHolder.reviews.setTag(target);
         ImageUtils.loadImage(parent.getContext(), business.getRatingUrl(), target);
 
-        //set up click listener for button
-        viewHolder.removeButton.setOnClickListener(this);
-
         return view;
-    }
-
-    /**
-     * Handles the remove button click.
-     * @param v
-     */
-    @Override
-    public void onClick(View v) {
-        //TODO:
-        Log.d(TAG, "onClick needs to be implemented");
     }
 
     /**
@@ -81,7 +72,6 @@ public class SimplifiedBusinessAdapter
         final TextView address;
         final TextView categories;
         final TextView reviews;
-        final ImageButton removeButton;
 
         ViewHolder(View view) {
             image = (ImageView) view.findViewById(R.id.item_image);
@@ -89,7 +79,6 @@ public class SimplifiedBusinessAdapter
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
             reviews = (TextView) view.findViewById(R.id.item_reviews);
-            removeButton = (ImageButton) view.findViewById(R.id.remove_item_button);
         }
     }
 }

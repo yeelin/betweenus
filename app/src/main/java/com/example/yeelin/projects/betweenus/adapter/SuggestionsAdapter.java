@@ -93,7 +93,8 @@ public class SuggestionsAdapter
 
         //set the checked state
         viewHolder.itemToggle.setChecked(selectedIdsMap.containsKey(business.getId()));
-        viewHolder.itemToggle.setTag(business.getId());
+        viewHolder.itemToggle.setTag(R.id.business_id, business.getId());
+        viewHolder.itemToggle.setTag(R.id.position, position);
         viewHolder.itemToggle.setOnClickListener(this);
 
         return view;
@@ -135,7 +136,7 @@ public class SuggestionsAdapter
         itemToggle.toggle();
 
         //notify the list fragment, providing both business id and resulting toggle state
-        listener.onItemToggle((String)itemToggle.getTag(), itemToggle.isChecked());
+        listener.onItemToggle((String)itemToggle.getTag(R.id.business_id), itemToggle.isChecked());
     }
 
     /**

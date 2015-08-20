@@ -102,7 +102,7 @@
                 app:layout_gravity="center_vertical"
                 app:layout_columnWeight=".35"
                 style="@style/Medium_AccentButtonStyle"
-                android:drawableLeft="@drawable/ic_action_favorite_outline"
+                android:drawableLeft="@drawable/ic_action_detail_unfavorite"
                 android:drawablePadding="5dp"
                 android:text="@string/select_button"/>
 

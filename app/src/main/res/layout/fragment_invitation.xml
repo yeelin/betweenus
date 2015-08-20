@@ -33,6 +33,8 @@
                     android:id="@+id/selected_items_listView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:listSelector="@android:color/transparent"
+                    android:cacheColorHint="@android:color/transparent"
                     tools:listitem="@layout/adapter_item_simplified"/>
 
                 <TextView
