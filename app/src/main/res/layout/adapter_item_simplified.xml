@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+
+    app:useDefaultMargins="false"
+    app:alignmentMode="alignMargins"
+    app:columnOrderPreserved="false"
+    app:columnCount="3"
+    app:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/item_image"
+        app:layout_row="0"
+        app:layout_column="0"
+
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+
+        app:layout_gravity="start"
+        app:layout_columnWeight=".2"
+
+        android:contentDescription="Image"
+        android:src="@color/colorAccent"/>
+
+    <LinearLayout
+        app:layout_row="0"
+        app:layout_column="1"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+
+        app:layout_gravity="center_vertical"
+        app:layout_columnWeight=".65"
+
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textColorPrimary"
+            tools:text="Name"/>
+
+        <TextView
+            android:id="@+id/item_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="Address"/>
+
+        <TextView
+            android:id="@+id/item_categories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="Categories"/>
+
+        <TextView
+            android:id="@+id/item_reviews"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/stars_large_4"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="123 reviews"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/remove_item_button"
+        app:layout_row="0"
+        app:layout_column="2"
+
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="start"
+        android:src="@drawable/ic_action_remove"
+        android:background="@android:color/transparent"
+
+        app:layout_gravity="center_vertical"
+        app:layout_columnWeight=".15" />
+
+</android.support.v7.widget.GridLayout>

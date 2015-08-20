@@ -9,11 +9,10 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
-import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 /**
  * Created by ninjakiki on 7/24/15.
@@ -25,7 +24,7 @@ public class InvitationActivity
     private static final String TAG = InvitationActivity.class.getCanonicalName();
 
     //intent extras
-    private static final String EXTRA_SELECTED_IDS = InvitationActivity.class.getSimpleName() + ".selectedIds";
+    private static final String EXTRA_SELECTED_ITEMS = InvitationActivity.class.getSimpleName() + ".selectedItems";
 
     //sms and email
     private static final String URI_SMSTO = "smsto:";
@@ -37,13 +36,13 @@ public class InvitationActivity
 
     /**
      * Builds the appropriate intent to start this activity
-     * @param selectedItemIds
+     * @param selectedItems
      * @return
      */
-    public static Intent buildIntent(Context context, ArrayList<String> selectedItemIds) {
+    public static Intent buildIntent(Context context, ArrayList<SimplifiedBusiness> selectedItems) {
         Intent intent = new Intent(context, InvitationActivity.class);
         //put extras
-        intent.putStringArrayListExtra(EXTRA_SELECTED_IDS, selectedItemIds);
+        intent.putParcelableArrayListExtra(EXTRA_SELECTED_ITEMS, selectedItems);
         return intent;
     }
 
@@ -61,7 +60,7 @@ public class InvitationActivity
 
         //read intent
         Intent intent = getIntent();
-        ArrayList<String> selectedItemIds = intent.getStringArrayListExtra(EXTRA_SELECTED_IDS);
+        ArrayList<SimplifiedBusiness> selectedItems = intent.getParcelableArrayListExtra(EXTRA_SELECTED_ITEMS);
 
         //check if fragment exists and instantiate if it doesn't
         if (savedInstanceState == null) {
@@ -69,7 +68,7 @@ public class InvitationActivity
             if (invitationFragment == null) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.invitation_fragmentContainer, InvitationFragment.newInstance(selectedItemIds))
+                        .add(R.id.invitation_fragmentContainer, InvitationFragment.newInstance(selectedItems))
                         .commit();
             }
         }
@@ -98,17 +97,17 @@ public class InvitationActivity
     /**
      * Sends an intent out to invite via SMS
      * @param friendPhone
-     * @param selectedItemIds
+     * @param selectedItems
      */
     @Override
-    public void onInviteByTextMessage(String friendPhone, ArrayList<String> selectedItemIds) {
+    public void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems) {
         //create sms intent
         //ACTION_SENDTO and smsto: ensures that intent will be handled only by a text messaging app
         String recipientUri = String.format("%s%s", URI_SMSTO, friendPhone);
         Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(recipientUri));
 
         //put extras
-        intent.putExtra(EXTRA_SMS_BODY, getString(R.string.sms_body, selectedItemIds.toString()));
+        intent.putExtra(EXTRA_SMS_BODY, getString(R.string.sms_body, buildSelectedItemsString(selectedItems)));
 
         //check that there's an app to handle the intent, and start the Activity
         if(intent.resolveActivity(getPackageManager()) != null) {
@@ -123,10 +122,10 @@ public class InvitationActivity
     /**
      * Sends an intent out to invite via email
      * @param friendEmail
-     * @param selectedItemIds
+     * @param selectedItems
      */
     @Override
-    public void onInviteByEmail(String friendEmail, ArrayList<String> selectedItemIds) {
+    public void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems) {
         //create email intent
         //ACTION_SENDTO and mailto: ensures that intent will be handled only by an email app
         Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(URI_MAILTO));
@@ -134,7 +133,7 @@ public class InvitationActivity
         //put extras
         intent.putExtra(Intent.EXTRA_EMAIL, new String[] {friendEmail}); //recipient's email must be in an array
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body, selectedItemIds.toString()));
+        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body, buildSelectedItemsString(selectedItems)));
 
         //check that there's an app to handle the intent, and start the Activity
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -163,5 +162,22 @@ public class InvitationActivity
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    /**
+     * Helper method that builds a string using names from the selectedItems array list
+     * @param selectedItems
+     * @return
+     */
+    private String buildSelectedItemsString(ArrayList<SimplifiedBusiness> selectedItems) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i=0; i<selectedItems.size(); i++) {
+            builder.append(selectedItems.get(i).getName());
+            if (i < selectedItems.size()-1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 }

@@ -12,11 +12,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
+import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -171,10 +173,9 @@ public class SuggestionsActivity
 
             //select and invite button was clicked
             case R.id.action_select:
+                Log.d(TAG, "onOptionsItemSelected: Invite button clicked");
                 if (selectedIdsMap.size() > 0) {
-                    ArrayList<String> selectedIdsList = new ArrayList<>(selectedIdsMap.values());
-                    Log.d(TAG, "onOptionsItemSelected: Selected Item Ids:" + selectedIdsList);
-                    startActivity(InvitationActivity.buildIntent(this, selectedIdsList));
+                    startActivity(InvitationActivity.buildIntent(this, buildSelectedItemsList()));
                 }
                 return true;
 
@@ -192,6 +193,25 @@ public class SuggestionsActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Helper method to build the selected items array list for marshalling across to the
+     * invitation activity.
+     * @return
+     */
+    private ArrayList<SimplifiedBusiness> buildSelectedItemsList() {
+        Log.d(TAG, "buildSelectedItemsList");
+        ArrayList<SimplifiedBusiness> selectedItems = new ArrayList<>(selectedIdsMap.size());
+
+        for (int i=0; i<result.getBusinesses().size(); i++) {
+            YelpBusiness business = result.getBusinesses().get(i);
+            if (selectedIdsMap.containsKey(business.getId())) {
+                selectedItems.add(SimplifiedBusiness.newInstance(business));
+            }
+        }
+
+        return selectedItems;
     }
 
     /**

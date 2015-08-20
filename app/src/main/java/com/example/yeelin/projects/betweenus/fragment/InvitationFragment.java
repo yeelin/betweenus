@@ -4,16 +4,21 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusinessAdapter;
 
 import java.util.ArrayList;
 
@@ -22,33 +27,35 @@ import java.util.ArrayList;
  */
 public class InvitationFragment
         extends Fragment
-        implements View.OnClickListener, TextView.OnEditorActionListener {
+        implements View.OnClickListener,
+        TextView.OnEditorActionListener,
+        AdapterView.OnItemClickListener {
     //logcat
-    public static final String TAG = InvitationFragment.class.getCanonicalName();
+    private static final String TAG = InvitationFragment.class.getCanonicalName();
 
     //bundle args
-    public static final String ARG_SELECTED_IDS = InvitationFragment.class.getSimpleName() + ".selectedIds";
+    private static final String ARG_SELECTED_ITEMS = InvitationFragment.class.getSimpleName() + ".selectedItems";
 
     //member variables
-    private ArrayList<String> selectedItemIds;
+    private ArrayList<SimplifiedBusiness> selectedItems;
     private InvitationFragmentListener listener;
 
     /**
      * Listener interface for fragments or activities interested in events from this fragment
      */
     public interface InvitationFragmentListener {
-        public void onInviteByTextMessage(String friendPhone, ArrayList<String> selectedItemIds);
-        public void onInviteByEmail(String friendEmail, ArrayList<String> selectedItemIds);
+        public void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems);
+        public void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems);
     }
 
     /**
      * Creates a new instance of this fragment
-     * @param selectedItemIds
+     * @param selectedItems
      * @return
      */
-    public static InvitationFragment newInstance(ArrayList<String> selectedItemIds) {
+    public static InvitationFragment newInstance(ArrayList<SimplifiedBusiness> selectedItems) {
         Bundle args = new Bundle();
-        args.putStringArrayList(ARG_SELECTED_IDS, selectedItemIds);
+        args.putParcelableArrayList(ARG_SELECTED_ITEMS, selectedItems);
 
         InvitationFragment fragment = new InvitationFragment();
         fragment.setArguments(args);
@@ -88,7 +95,7 @@ public class InvitationFragment
         //read bungle args
         Bundle args = getArguments();
         if (args != null) {
-            selectedItemIds = args.getStringArrayList(ARG_SELECTED_IDS);
+            selectedItems = args.getParcelableArrayList(ARG_SELECTED_ITEMS);
         }
     }
 
@@ -118,8 +125,13 @@ public class InvitationFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
-        //set up the field to show selected items
-        viewHolder.selectedItems.setText(selectedItemIds.toString());
+        //set up the listview
+        SimplifiedBusinessAdapter simplifiedBusinessAdapter = (SimplifiedBusinessAdapter) viewHolder.selectedItemsListView.getAdapter();
+        if (simplifiedBusinessAdapter == null) {
+            simplifiedBusinessAdapter = new SimplifiedBusinessAdapter(viewHolder.selectedItemsListView.getContext(), selectedItems);
+            viewHolder.selectedItemsListView.setAdapter(simplifiedBusinessAdapter);
+        }
+        viewHolder.selectedItemsListView.setOnItemClickListener(this);
 
         //setup listener for phone and email fields
         viewHolder.friendPhone.setOnEditorActionListener(this);
@@ -136,6 +148,19 @@ public class InvitationFragment
     public void onDetach() {
         listener = null;
         super.onDetach();
+    }
+
+    /**
+     * TODO:
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(TAG, "onItemClick needs to be implemented");
+
     }
 
     /**
@@ -181,11 +206,11 @@ public class InvitationFragment
 
         if (viewHolder.friendPhone.getText().length() > 0) {
             //text friend
-            listener.onInviteByTextMessage(viewHolder.friendPhone.getText().toString(), selectedItemIds);
+            listener.onInviteByTextMessage(viewHolder.friendPhone.getText().toString(), selectedItems);
         }
         else if (viewHolder.friendEmail.getText().length() > 0) {
             //email friend
-            listener.onInviteByEmail(viewHolder.friendEmail.getText().toString(), selectedItemIds);
+            listener.onInviteByEmail(viewHolder.friendEmail.getText().toString(), selectedItems);
         }
     }
 
@@ -203,15 +228,18 @@ public class InvitationFragment
      * ViewHolder class
      */
     private class ViewHolder {
+        final ListView selectedItemsListView;
+
         final EditText friendPhone;
         final EditText friendEmail;
-        final TextView selectedItems;
         final Button inviteButton;
 
         ViewHolder(View view) {
+            selectedItemsListView = (ListView) view.findViewById(R.id.selected_items_listView);
+            selectedItemsListView.setEmptyView(view.findViewById(R.id.selected_items_empty));
+
             friendPhone = (EditText) view.findViewById(R.id.friend_phone);
             friendEmail = (EditText) view.findViewById(R.id.friend_email);
-            selectedItems = (TextView) view.findViewById(R.id.selected_items);
             inviteButton = (Button) view.findViewById(R.id.invite_send_button);
         }
     }

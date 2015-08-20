@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<android.support.v4.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -42,23 +42,27 @@
                 android:inputType="textEmailAddress"
                 android:hint="@string/friend_email" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginLeft="24dp"
                 android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                android:layout_marginTop="@dimen/card_content_padding"
-                style="@style/Medium_PrimaryTextViewStyle"
-                android:text="Selected Places:"/>
+                android:layout_marginRight="24dp"
+                android:layout_marginEnd="24dp">
 
-            <TextView
-                android:id="@+id/selected_items"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:layout_marginEnd="24dp"
-                style="@style/Medium_SecondaryTextViewStyle"
-                android:text="Nothing selected."/>
+                <ListView
+                    android:id="@+id/selected_items_listView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:listitem="@layout/adapter_item_simplified"/>
+
+                <TextView
+                    android:id="@+id/selected_items_empty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="You have not selected any places!"
+                    android:visibility="gone"/>
+            </FrameLayout>
 
             <Button
                 android:id="@+id/invite_send_button"
@@ -70,4 +74,4 @@
                 android:gravity="center"
                 android:text="@string/invite_button"/>
         </LinearLayout>
-</ScrollView>
+</android.support.v4.widget.NestedScrollView>
