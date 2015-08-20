@@ -19,14 +19,14 @@
         app:layout_row="0"
         app:layout_column="0"
 
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
 
         app:layout_gravity="start"
-        app:layout_columnWeight=".3"
+        app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
-        android:src="@color/colorAccent"/>
+        tools:src="@color/colorAccent"/>
 
     <LinearLayout
         app:layout_row="0"
@@ -68,7 +68,7 @@
             android:id="@+id/item_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/stars_large_4"
+            tools:drawableLeft="@drawable/stars_large_4"
             android:drawablePadding="5dp"
             android:gravity="center_vertical"
             android:textSize="12sp"
@@ -86,7 +86,7 @@
         android:gravity="start"
 
         app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".15"
+        app:layout_columnWeight=".25"
 
         android:checkMark="@drawable/checked_item_state"
         tools:checked="true"/>

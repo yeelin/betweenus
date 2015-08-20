@@ -26,7 +26,7 @@
         app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
-        android:src="@color/colorAccent"/>
+        tools:src="@color/colorAccent"/>
 
     <LinearLayout
         app:layout_row="0"
@@ -68,7 +68,7 @@
             android:id="@+id/item_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/stars_large_4"
+            tools:drawableLeft="@drawable/stars_large_4"
             android:drawablePadding="5dp"
             android:gravity="center_vertical"
             android:textSize="12sp"
