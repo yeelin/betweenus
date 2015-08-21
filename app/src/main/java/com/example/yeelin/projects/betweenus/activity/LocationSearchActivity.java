@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
 import java.util.List;
 
@@ -51,6 +52,27 @@ public class LocationSearchActivity
 
         //setup toolbar
         setupToolbar(R.id.search_toolbar, true);
+
+        //read intent extras
+        Intent intent = getIntent();
+        int userId = intent.getIntExtra(EXTRA_USER_ID, LocationUtils.USER_LOCATION);
+
+        //set the title (aka label in the manifest) for this activity
+        setTitle(userId == LocationUtils.USER_LOCATION ? R.string.user_search_title : R.string.friend_search_title);
+
+        //initialize the fragment if necessary
+        if (savedInstanceState == null) {
+            LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragmentContainer);
+            if (locationSearchFragment == null) {
+                Log.d(TAG, "onCreate: Creating a new location search fragment");
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.search_fragmentContainer, LocationSearchFragment.newInstance(userId))
+                        .commit();
+            }
+        }
+        else {
+            Log.d(TAG, "onCreate: Saved instance state is not null");
+        }
     }
 
     /**
@@ -95,7 +117,7 @@ public class LocationSearchActivity
     protected void onPlayServicesAvailable() {
         Log.d(TAG, "onPlayServicesAvailable");
 
-        LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragment);
+        LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragmentContainer);
         if (locationSearchFragment != null) {
             locationSearchFragment.onPlayServicesAvailable();
         }

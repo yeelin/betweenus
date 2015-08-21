@@ -49,6 +49,8 @@ public class LocationSearchFragment
         SearchView.OnQueryTextListener {
     //logcat
     private static final String TAG = LocationSearchFragment.class.getCanonicalName();
+    //intent extras
+    private static final String ARG_USER_ID = LocationSearchFragment.class.getSimpleName() + ".userId";
     //saved instance state
     private static final String STATE_LAST_QUERY = LocationSearchFragment.class.getSimpleName() + ".lastQuery";
     //other constants
@@ -60,6 +62,8 @@ public class LocationSearchFragment
 
     //member variables
     private String lastQuery = "";
+    private int userId = LocationUtils.USER_LOCATION;
+
     //pending results from google play services Places API
     private PendingResult<AutocompletePredictionBuffer> autocompletePendingResult;
     private PendingResult<PlaceBuffer> placePendingResult;
@@ -76,6 +80,16 @@ public class LocationSearchFragment
      */
     public interface LocationSearchFragmentListener {
         public void onLocationSelected(Location location);
+    }
+
+    public static LocationSearchFragment newInstance(int userId) {
+        Bundle args = new Bundle();
+        args.putInt(ARG_USER_ID, userId);
+
+        LocationSearchFragment fragment = new LocationSearchFragment();
+        fragment.setArguments(args);
+
+        return fragment;
     }
 
     /**
@@ -123,6 +137,12 @@ public class LocationSearchFragment
 
         //notify that we have an options menu so that we get the callback to create one later
         setHasOptionsMenu(true);
+
+        //read bundle args
+        Bundle args = getArguments();
+        if (args != null) {
+            userId = args.getInt(ARG_USER_ID, LocationUtils.USER_LOCATION);
+        }
 
         //restore last query if it exists
         if (savedInstanceState != null) {
@@ -174,8 +194,11 @@ public class LocationSearchFragment
         //inflate the menu from xml
         inflater.inflate(R.menu.menu_location_search, menu);
 
-        //get the search view and set the searchable configuration
+        //get the search view
         MenuItem searchMenuItem = menu.findItem(R.id.action_search);
+        //set the title of the menu item
+        searchMenuItem.setTitle(userId == LocationUtils.USER_LOCATION ? getString(R.string.user_search_title) : getString(R.string.friend_search_title));
+        //set the searchable configuration
         SearchView searchView = (SearchView) searchMenuItem.getActionView();
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         //reference the dummy activity that will "handle" the search result
@@ -183,7 +206,7 @@ public class LocationSearchFragment
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName));
 
         //set the query hint
-        searchView.setQueryHint(getString(R.string.search_query_hint));
+        searchView.setQueryHint(userId == LocationUtils.USER_LOCATION ? getString(R.string.user_query_hint) : getString(R.string.friend_query_hint));
         //expand the search view to save user yet another tap
         searchMenuItem.expandActionView();
         //set the query - false means only update the contents of the text field, true submits an intent and results in DummyActivity being instantiated

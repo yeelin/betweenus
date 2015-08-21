@@ -16,10 +16,8 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <fragment
-        android:id="@+id/search_fragment"
-        android:name="com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment"
+    <FrameLayout
+        android:id="@+id/search_fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout="@layout/fragment_location_search" />
+        android:layout_height="match_parent" />
 </LinearLayout>

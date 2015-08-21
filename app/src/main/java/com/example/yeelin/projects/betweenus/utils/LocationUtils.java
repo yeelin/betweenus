@@ -29,7 +29,7 @@ public class LocationUtils {
         LatLng friendLatLng = new LatLng(friendLocation.getLatitude(), friendLocation.getLongitude());
         LatLng middleLatLng = SphericalUtil.interpolate(userLatLng, friendLatLng, 0.5);
 
-        Location location = new Location("Foo");
+        Location location = new Location("Midpoint");
         location.setLatitude(middleLatLng.latitude);
         location.setLongitude(middleLatLng.longitude);
         return location;

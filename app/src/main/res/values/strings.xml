@@ -10,7 +10,10 @@
     <string name="title_invitation">Send invite</string>
 
     <!-- Search strings -->
-    <string name="search_query_hint">Search address or city</string>
+    <string name="user_search_title">Search your location</string>
+    <string name="friend_search_title">"Search friend's location"</string>
+    <string name="user_query_hint">Your address or city</string>
+    <string name="friend_query_hint">"Friend's address or city"</string>
     <string name="search_attribution_contentDescription">Search powered by Google</string>
     <string name="search_no_results">No locations</string>
 
@@ -64,8 +67,8 @@
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>
-    <string name="friend_phone">"Enter friend's phone"</string>
-    <string name="friend_email">"Enter friend's email"</string>
+    <string name="friend_phone">"Enter friend's phone to invite"</string>
+    <string name="friend_email">"Enter friend's email to invite"</string>
 
     <!-- Text message strings -->
     <string name="sms_body">I found these places on Between: %1$s. What do you think?</string>
