@@ -11,7 +11,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
@@ -30,10 +29,9 @@ import java.util.ArrayList;
  * Created by ninjakiki on 7/13/15.
  */
 public class SuggestionsActivity
-        extends BaseActivity
+        extends BasePlayServicesActivity
         implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
-        OnSuggestionActionListener,
-        PlacesBroadcastReceiver.PlacesBroadcastListener {
+        OnSuggestionActionListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -57,7 +55,6 @@ public class SuggestionsActivity
     private boolean showingMap = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
-    private PlacesBroadcastReceiver placesBroadcastReceiver;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -76,7 +73,7 @@ public class SuggestionsActivity
         ArrayList<String> placeIds = new ArrayList<>(2);
         placeIds.add(userPlaceId);
         placeIds.add(friendPlaceId);
-        intent.putStringArrayListExtra(EXTRA_PLACE_IDS, placeIds );
+        intent.putStringArrayListExtra(EXTRA_PLACE_IDS, placeIds);
 
         return intent;
     }
@@ -216,15 +213,6 @@ public class SuggestionsActivity
     }
 
     /**
-     * Create a broadcast receiver and register for broadcasts about place ids (success and failures)
-     */
-    @Override
-    protected void onResume() {
-        super.onResume();
-        placesBroadcastReceiver = new PlacesBroadcastReceiver(this, this);
-    }
-
-    /**
      * Saves out the boolean showingMap so that we know which fragment is being displayed
      * @param outState
      */
@@ -233,15 +221,6 @@ public class SuggestionsActivity
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_MAP, showingMap);
         outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.values()));
-    }
-
-    /**
-     * Unregister for broadcasts about place ids (success and failures)
-     */
-    @Override
-    protected void onPause() {
-        placesBroadcastReceiver.unregister();
-        super.onPause();
     }
 
     /**
@@ -421,7 +400,7 @@ public class SuggestionsActivity
     }
 
     /**
-     * PlacesBroadcastReceiver.PlacesBroadcastListener implementation
+     * PlacesBroadcastReceiver.PlacesBroadcastListener override
      * We had successfully retrieved the latlng for the user and friend, so
      * call the loader to fetch data from Yelp.
      *
@@ -436,7 +415,7 @@ public class SuggestionsActivity
     }
 
     /**
-     * PlacesBroadcastReceiver.PlacesBroadcastListener implementation
+     * PlacesBroadcastReceiver.PlacesBroadcastListener override
      * We failed to retrieve the latlng for the user and friend, so display
      * and toast message to inform the user as there is not much else we can do.
      */

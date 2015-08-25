@@ -15,7 +15,7 @@ import com.example.yeelin.projects.betweenus.service.PlacesFetchService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
 public class LocationEntryActivity
-        extends BaseActivity
+        extends BasePlayServicesActivity
         implements LocationEntryFragment.LocationEntryFragmentListener {
 
     //logcat
@@ -73,17 +73,6 @@ public class LocationEntryActivity
     }
 
     /**
-     * Start the PlacesFetchService. More specifically, we want to call connect on the google api client
-     * to reduce latency later
-     */
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart: Starting PlacesFetchService");
-        startService(PlacesFetchService.buildPlaceApiConnectIntent(this));
-    }
-
-    /**
      * Destroy the PlacesFetchService since we are going away.
      */
     @Override
@@ -118,7 +107,6 @@ public class LocationEntryActivity
                 Log.d(TAG, "onInputLocation: Unknown location type: " + locationType);
         }
     }
-
 
     /**
      * Inspect the result from SearchActivity and set the location for user or friend.

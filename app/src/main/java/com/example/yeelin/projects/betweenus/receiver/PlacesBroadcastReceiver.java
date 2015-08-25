@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.ref.WeakReference;
@@ -21,8 +22,16 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
     //actions for intent
     private static final String ACTION_PLACES_SUCCESS = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.PLACES_SUCCESS";
     private static final String ACTION_PLACES_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.PLACES_FAILURE";
+    private static final String ACTION_CONNECT_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.CONNECT_FAILURE";
+    //extras for intent
     private static final String EXTRA_USER_LATLNG = PlacesBroadcastReceiver.class.getSimpleName() + ".userLatLng";
     private static final String EXTRA_FRIEND_LATLNG = PlacesBroadcastReceiver.class.getSimpleName() + ".friendLatLng";
+    private static final String EXTRA_CONNECTION_RESULT = PlacesBroadcastReceiver.class.getSimpleName() + ".connectionResult";
+    private static final String EXTRA_RESOLUTION_TYPE = PlacesBroadcastReceiver.class.getSimpleName() + ".resolutionType";
+
+    //constants
+    public static final int HAS_RESOLUTION = 0;
+    public static final int NO_RESOLUTION = 1;
 
     //member variables
     private final Context applicationContext;
@@ -34,12 +43,13 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      * in the broadcast
      */
     public interface PlacesBroadcastListener {
-        public void onPlacesSuccess(final LatLng userLatLng, final LatLng friendLatLng);
-        public void onPlacesFailure();
+        void onPlacesSuccess(final LatLng userLatLng, final LatLng friendLatLng);
+        void onPlacesFailure();
+        void onConnectFailure(final ConnectionResult connectionResult, final int resolutionType);
     }
 
     /**
-     * Broadcast success
+     * Broadcast getPlaceById success
      * @param context
      * @param userLatLng
      * @param friendLatLng
@@ -53,11 +63,24 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Broadcast failure
+     * Broadcast getPlaceById failure
      * @param context
      */
     public static void broadcastPlacesFailure(Context context) {
         Intent intent = new Intent(ACTION_PLACES_FAILURE);
+        LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+    }
+
+    /**
+     * Broadcast google api client connect failure
+     * @param context
+     * @param connectionResult
+     */
+    public static void broadcastConnectFailure(Context context, ConnectionResult connectionResult, int resolutionType) {
+        Intent intent = new Intent(ACTION_CONNECT_FAILURE);
+        intent.putExtra(EXTRA_CONNECTION_RESULT, connectionResult);
+        intent.putExtra(EXTRA_RESOLUTION_TYPE, resolutionType);
+
         LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
     }
 
@@ -74,6 +97,7 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ACTION_PLACES_SUCCESS);
         intentFilter.addAction(ACTION_PLACES_FAILURE);
+        intentFilter.addAction(ACTION_CONNECT_FAILURE);
 
         //inform the local broadcast manager that we are interested in this intent filter
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(applicationContext);
@@ -112,6 +136,11 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
         }
         else if (ACTION_PLACES_FAILURE.equalsIgnoreCase(action)) {
             listener.onPlacesFailure();
+        }
+        else if (ACTION_CONNECT_FAILURE.equalsIgnoreCase(action)) {
+            final ConnectionResult connectionResult = intent.getParcelableExtra(EXTRA_CONNECTION_RESULT);
+            final int resolutionType = intent.getIntExtra(EXTRA_RESOLUTION_TYPE, NO_RESOLUTION);
+            listener.onConnectFailure(connectionResult, resolutionType);
         }
         else {
             Log.d(TAG, "onReceive: Unknown action:" + action);

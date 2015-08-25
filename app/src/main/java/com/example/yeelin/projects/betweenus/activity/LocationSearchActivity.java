@@ -91,16 +91,13 @@ public class LocationSearchActivity
     }
 
     /**
-     * BasePlayServicesActivity required override
+     * BasePlayServicesActivity override
      * Helper method. Used when no play services are available. Shows a toast and then navigate back to parent activity
      * since search isn't going to work.
      */
     @Override
     protected void noPlayServicesAvailable() {
-        Log.w(TAG, "noPlayServicesAvailable");
-
-        //notify the user
-        Toast.makeText(this, R.string.google_play_services_error, Toast.LENGTH_LONG).show();
+        super.noPlayServicesAvailable();
 
         //not much else to do here since search won't work, so navigate back to parent seems logical
         navigateUpToParentActivity(this);

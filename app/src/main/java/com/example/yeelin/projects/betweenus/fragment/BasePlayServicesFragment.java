@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.example.yeelin.projects.betweenus.activity.BasePlayServicesActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
@@ -27,8 +28,8 @@ public abstract class BasePlayServicesFragment
     private static final String EXTRA_RESOLVING_ERROR = BasePlayServicesFragment.class.getSimpleName() + ".resolvingError";
 
     //request code constants
-    public static final int REQUEST_CODE_PLAY_SERVICES_RESOLUTION = 100;
-    public static final int REQUEST_CODE_LOCATION_SETTINGS_RESOLUTION = 115;
+    //public static final int REQUEST_CODE_PLAY_SERVICES_RESOLUTION = 100;
+    //public static final int REQUEST_CODE_LOCATION_SETTINGS_RESOLUTION = 115;
 
     //member variables
     protected GoogleApiClient googleApiClient;
@@ -122,6 +123,7 @@ public abstract class BasePlayServicesFragment
 
         //if resolving error, don't start the client. It is already started.
         if (!resolvingError) {
+            Log.d(TAG, "onStart: Connecting. Time:" + System.currentTimeMillis());
             googleApiClient.connect();
         }
     }
@@ -172,7 +174,7 @@ public abstract class BasePlayServicesFragment
      */
     @Override
     public void onConnected(Bundle bundle) {
-        Log.d(TAG, "onConnected: Connected to Google Play Services!");
+        Log.d(TAG, "onConnected: Connected to Google Play Services! Time:" + System.currentTimeMillis());
     }
 
     /**
@@ -203,7 +205,7 @@ public abstract class BasePlayServicesFragment
             try {
                 resolvingError = true;
                 //check for the result in onActivityResult() in the activity class
-                connectionResult.startResolutionForResult(getActivity(), REQUEST_CODE_PLAY_SERVICES_RESOLUTION);
+                connectionResult.startResolutionForResult(getActivity(), BasePlayServicesActivity.REQUEST_CODE_PLAY_SERVICES_RESOLUTION);
 
             }
             catch (IntentSender.SendIntentException e) {
