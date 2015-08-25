@@ -117,7 +117,7 @@ public abstract class BaseMapFragment
 
         UiSettings mapUiSettings = map.getUiSettings();
         if (mapUiSettings != null) {
-            //allow user to access maps and navigation app from the map
+            //do not allow user to access maps and navigation app from the map, the toolbar is distracting
             mapUiSettings.setMapToolbarEnabled(false);
             //add this only because we need to test on emulator
             if (BuildConfig.DEBUG) {
