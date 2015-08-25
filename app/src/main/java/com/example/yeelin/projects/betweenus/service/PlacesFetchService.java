@@ -18,6 +18,7 @@ public class PlacesFetchService extends Service {
     private static final String TAG = PlacesFetchService.class.getCanonicalName();
     //intent action and extras
     private static final String ACTION_PLACE_DETAILS_FETCH = PlacesFetchService.class.getSimpleName() + ".action.placeSearchById";
+    private static final String ACTION_PLACE_API_CONNECT = PlacesFetchService.class.getSimpleName() + ".action.placeApiConnect";
     private static final String EXTRA_PLACE_IDS = PlacesFetchService.class.getSimpleName() + ".placeIds";
 
     //member variables
@@ -33,6 +34,17 @@ public class PlacesFetchService extends Service {
         Intent intent = new Intent(context, PlacesFetchService.class);
         intent.setAction(ACTION_PLACE_DETAILS_FETCH);
         intent.putStringArrayListExtra(EXTRA_PLACE_IDS, placeIds);
+        return intent;
+    }
+
+    /**
+     * Builds an intent to connect to the place API.
+     * @param context
+     * @return
+     */
+    public static Intent buildPlaceApiConnectIntent(Context context) {
+        Intent intent = new Intent(context, PlacesFetchService.class);
+        intent.setAction(ACTION_PLACE_API_CONNECT);
         return intent;
     }
 
@@ -62,7 +74,7 @@ public class PlacesFetchService extends Service {
     }
 
     /**
-     *
+     * Read the intent and for each start request, send a message to start a job and deliver the start id
      * @param intent
      * @param flags
      * @param startId
@@ -72,10 +84,17 @@ public class PlacesFetchService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        //read the intent
-        ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
-        //for each start request, send a message to start a job and deliver the start id
-        Message message = serviceHandler.obtainMessage(PlacesFetchServiceHandler.MESSAGE_PLACE_DETAILS_FETCH, startId, 0, placeIds);
+        final String action = intent.getAction();
+
+        Message message = null;
+        if (ACTION_PLACE_DETAILS_FETCH.equalsIgnoreCase(action)) {
+            ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
+            message = serviceHandler.obtainMessage(PlacesFetchServiceHandler.MESSAGE_PLACE_DETAILS_FETCH, startId, 0, placeIds);
+        }
+        else if (ACTION_PLACE_API_CONNECT.equalsIgnoreCase(action)) {
+            message = serviceHandler.obtainMessage(PlacesFetchServiceHandler.MESSAGE_PLACE_API_CONNECT, startId, 0);
+        }
+
         serviceHandler.sendMessage(message);
 
         //if we get killed, after returning from here, restart with the same intent

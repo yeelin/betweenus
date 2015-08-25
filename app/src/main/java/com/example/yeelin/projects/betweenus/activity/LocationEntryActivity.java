@@ -11,6 +11,7 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.BuildConfig;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
+import com.example.yeelin.projects.betweenus.service.PlacesFetchService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
 public class LocationEntryActivity
@@ -69,6 +70,27 @@ public class LocationEntryActivity
         else {
             Log.d(TAG, "onCreate: Saved instance state is not null");
         }
+    }
+
+    /**
+     * Start the PlacesFetchService. More specifically, we want to call connect on the google api client
+     * to reduce latency later
+     */
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: Starting PlacesFetchService");
+        startService(PlacesFetchService.buildPlaceApiConnectIntent(this));
+    }
+
+    /**
+     * Destroy the PlacesFetchService since we are going away.
+     */
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: Destroying PlacesFetchService");
+        stopService(PlacesFetchService.buildPlaceDetailsStopFetchIntent(this));
+        super.onDestroy();
     }
 
     /**

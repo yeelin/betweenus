@@ -245,16 +245,6 @@ public class SuggestionsActivity
     }
 
     /**
-     * Stop the PlacesFetchService
-     */
-    @Override
-    protected void onDestroy() {
-        Log.d(TAG, "onDestroy: Destroying the PlacesFetchService");
-        stopService(PlacesFetchService.buildPlaceDetailsStopFetchIntent(this));
-        super.onDestroy();
-    }
-
-    /**
      * Depending on the boolean showingMap, this method toggles the icon of the given menu item
      * @param item
      */

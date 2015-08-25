@@ -27,6 +27,7 @@ public class PlacesFetchServiceHandler
 
     //message types
     public static final int MESSAGE_PLACE_DETAILS_FETCH = 100;
+    public static final int MESSAGE_PLACE_API_CONNECT = 110;
 
     //timeout for api connect and subsequent calls
     private static final int TIMEOUT_SECONDS = 30;
@@ -56,42 +57,45 @@ public class PlacesFetchServiceHandler
      */
     @Override
     public void handleMessage(Message msg) {
-        Log.d(TAG, "handleMessage");
-        if (msg.what == MESSAGE_PLACE_DETAILS_FETCH) {
-            ArrayList<String> placeIds = (ArrayList<String>) msg.obj;
+        switch (msg.what) {
+            case MESSAGE_PLACE_API_CONNECT:
+                Log.d(TAG, "handleMessage: MESSAGE_PLACE_API_CONNECT");
+                //check if we are connected already for some reason, and connect if we are not
+                if (!googleApiClient.isConnected()) {
+                    Log.d(TAG, "handleMessage: GoogleApiClient connecting");
+                    googleApiClient.blockingConnect(TIMEOUT_SECONDS, TimeUnit.SECONDS); //blocking call
+                }
+                Log.d(TAG, "handleMessage: GoogleApiClient connected");
+                break;
 
+            case MESSAGE_PLACE_DETAILS_FETCH:
+                Log.d(TAG, "handleMessage: MESSAGE_PLACE_DETAILS_FETCH");
+                //check if we are still connected, and reconnect if needed
+                if (!googleApiClient.isConnected()) {
+                    Log.d(TAG, "handleMessage: GoogleApiClient Reconnecting");
+                    googleApiClient.blockingConnect(TIMEOUT_SECONDS, TimeUnit.SECONDS); //blocking call
+                    Log.d(TAG, "handleMessage: GoogleApiClient connected");
+                }
 
-            if (!googleApiClient.isConnected()) {
-                Log.d(TAG, "handleMessage: GoogleApiClient connecting");
-                //blocking connect since we are on bg thread
-                googleApiClient.blockingConnect(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            }
+                //call the api to get the place details
+                ArrayList<String> placeIds = (ArrayList<String>) msg.obj;
+                placePendingResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeIds.get(0), placeIds.get(1));
+                final PlaceBuffer result = placePendingResult.await(TIMEOUT_SECONDS, TimeUnit.SECONDS); //blocking call again
 
-            //call the pi to get the place detail
-            placePendingResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeIds.get(0), placeIds.get(1));
-            final PlaceBuffer result = placePendingResult.await(TIMEOUT_SECONDS, TimeUnit.SECONDS); //blocking call again
+                //process result
+                if (result.getStatus().isSuccess()) {
+                    handleGetPlaceByIdSuccess(result);
+                }
+                else {
+                    handleGetPlaceByIdFailure(result);
+                }
 
-            if (!result.getStatus().isSuccess()) {
-                //broadcast error
-                PlacesBroadcastReceiver.broadcastPlacesFailure(applicationContext);
-                //log error
-                Log.d(TAG, "handleMessage: Error contacting getPlaceById API:" + result.getStatus().toString());
+                //clean up
+                releaseResources(result);
+                break;
 
-                //clean up and return
-                result.release();
-                placePendingResult = null;
-                return;
-            }
-
-            //process the result and release the buffer
-            processGetPlaceByIdResult(result);
-
-            //clean up
-            result.release();
-            placePendingResult = null;
-        }
-        else {
-            super.handleMessage(msg);
+            default:
+                super.handleMessage(msg);
         }
     }
 
@@ -99,7 +103,7 @@ public class PlacesFetchServiceHandler
      * Processes the results from the placebuffer and broadcast the latlngs back to the activity
      * @param result
      */
-    private void processGetPlaceByIdResult(final PlaceBuffer result) {
+    private void handleGetPlaceByIdSuccess(final PlaceBuffer result) {
         //found place
         final Place userPlace = result.get(0);
         Log.d(TAG, String.format("processGetPlaceByIdResult: User place. Name:%s LatLng:%f, %f PlaceTypes:%s",
@@ -111,5 +115,25 @@ public class PlacesFetchServiceHandler
 
         //broadcast lat long back
         PlacesBroadcastReceiver.broadcastPlacesSuccess(applicationContext, userPlace.getLatLng(), friendPlace.getLatLng());
+    }
+
+    /**
+     * Handle the failure to retrieve results from getPlaceById api.
+     * @param result
+     */
+    private void handleGetPlaceByIdFailure(final PlaceBuffer result) {
+        //broadcast error
+        PlacesBroadcastReceiver.broadcastPlacesFailure(applicationContext);
+        //log error
+        Log.d(TAG, "handleMessage: Error contacting getPlaceById API:" + result.getStatus().toString());
+    }
+
+    /**
+     * Clean up the resources
+     * @param result
+     */
+    private void releaseResources(final PlaceBuffer result) {
+        result.release();
+        placePendingResult = null;
     }
 }
