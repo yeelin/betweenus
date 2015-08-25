@@ -2,7 +2,6 @@ package com.example.yeelin.projects.betweenus.activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,7 +9,9 @@ import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
@@ -20,6 +21,7 @@ import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.service.PlacesFetchService;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -30,14 +32,14 @@ import java.util.ArrayList;
 public class SuggestionsActivity
         extends BaseActivity
         implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
-        OnSuggestionActionListener {
+        OnSuggestionActionListener,
+        PlacesBroadcastReceiver.PlacesBroadcastListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
     //intent extras
     private static final String EXTRA_SEARCH_TERM = SuggestionsActivity.class.getSimpleName() + ".searchTerm";
-    private static final String EXTRA_USER_LOCATION = SuggestionsActivity.class.getSimpleName() + ".userLocation";
-    private static final String EXTRA_FRIEND_LOCATION = SuggestionsActivity.class.getSimpleName() + ".friendLocation";
+    private static final String EXTRA_PLACE_IDS = SuggestionDetailActivity.class.getSimpleName() + ".placeIds";
 
     //fragment tags
     private static final String FRAGMENT_TAG_LIST = SuggestionsListFragment.class.getSimpleName();
@@ -51,25 +53,30 @@ public class SuggestionsActivity
     private static final int REQUEST_CODE_DETAIL_VIEW = 100;
 
     //member variables
+    private String searchTerm;
     private boolean showingMap = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
+    private PlacesBroadcastReceiver placesBroadcastReceiver;
 
     /**
      * Builds the appropriate intent to start this activity.
      * @param context
-     * @param userLocation
-     * @param friendLocation
+     * @param searchTerm
+     * @param userPlaceId
+     * @param friendPlaceId
      * @return
      */
-    public static Intent buildIntent(Context context, String searchTerm,
-                                     Location userLocation, Location friendLocation) {
+    public static Intent buildIntent(Context context, String searchTerm, String userPlaceId, String friendPlaceId) {
         Intent intent = new Intent(context, SuggestionsActivity.class);
 
         //put extras
         intent.putExtra(EXTRA_SEARCH_TERM, searchTerm);
-        intent.putExtra(EXTRA_USER_LOCATION, userLocation);
-        intent.putExtra(EXTRA_FRIEND_LOCATION, friendLocation);
+
+        ArrayList<String> placeIds = new ArrayList<>(2);
+        placeIds.add(userPlaceId);
+        placeIds.add(friendPlaceId);
+        intent.putStringArrayListExtra(EXTRA_PLACE_IDS, placeIds );
 
         return intent;
     }
@@ -90,9 +97,12 @@ public class SuggestionsActivity
 
         //read extras from intent
         Intent intent = getIntent();
-        String searchTerm = intent.getStringExtra(EXTRA_SEARCH_TERM);
-        Location userLocation = intent.getParcelableExtra(EXTRA_USER_LOCATION);
-        Location friendLocation = intent.getParcelableExtra(EXTRA_FRIEND_LOCATION);
+        searchTerm = intent.getStringExtra(EXTRA_SEARCH_TERM);
+        ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
+
+        //start service to fetch suggestions from the network
+        Log.d(TAG, "onCreate: Starting the PlacesFetchService");
+        startService(PlacesFetchService.buildPlaceDetailsFetchIntent(this, placeIds));
 
         //check if the fragments exists, otherwise create it
         if (savedInstanceState == null) {
@@ -126,15 +136,6 @@ public class SuggestionsActivity
             //restore the state when we last left the activity (either showing map or list)
             toggleListAndMapFragments(false); //false == don't load data since it's not ready
         }
-
-        //initializing the loader to fetch suggestions from the network
-        SuggestionsLoaderCallbacks.initLoader(
-                this,
-                getSupportLoaderManager(),
-                this,
-                searchTerm,
-                userLocation,
-                friendLocation);
     }
 
     /**
@@ -215,6 +216,15 @@ public class SuggestionsActivity
     }
 
     /**
+     * Create a broadcast receiver and register for broadcasts about place ids (success and failures)
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        placesBroadcastReceiver = new PlacesBroadcastReceiver(this, this);
+    }
+
+    /**
      * Saves out the boolean showingMap so that we know which fragment is being displayed
      * @param outState
      */
@@ -223,6 +233,25 @@ public class SuggestionsActivity
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_MAP, showingMap);
         outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.values()));
+    }
+
+    /**
+     * Unregister for broadcasts about place ids (success and failures)
+     */
+    @Override
+    protected void onPause() {
+        placesBroadcastReceiver.unregister();
+        super.onPause();
+    }
+
+    /**
+     * Stop the PlacesFetchService
+     */
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: Destroying the PlacesFetchService");
+        stopService(PlacesFetchService.buildPlaceDetailsStopFetchIntent(this));
+        super.onDestroy();
     }
 
     /**
@@ -399,5 +428,30 @@ public class SuggestionsActivity
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    /**
+     * PlacesBroadcastReceiver.PlacesBroadcastListener implementation
+     * We had successfully retrieved the latlng for the user and friend, so
+     * call the loader to fetch data from Yelp.
+     *
+     * @param userLatLng
+     * @param friendLatLng
+     */
+    @Override
+    public void onPlacesSuccess(LatLng userLatLng, LatLng friendLatLng) {
+        //initializing the loader to fetch suggestions from the network
+        Log.d(TAG, String.format("onPlacesSuccess: User:%s Friend:%s", userLatLng, friendLatLng));
+        SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng);
+    }
+
+    /**
+     * PlacesBroadcastReceiver.PlacesBroadcastListener implementation
+     * We failed to retrieve the latlng for the user and friend, so display
+     * and toast message to inform the user as there is not much else we can do.
+     */
+    @Override
+    public void onPlacesFailure() {
+        Toast.makeText(this, "Failed to obtain the coordinates for you and your friend's locations. Try again", Toast.LENGTH_LONG).show();
     }
 }

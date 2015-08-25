@@ -1,7 +1,6 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -26,8 +25,9 @@ public class LocationEntryFragment
     private static final String TAG = LocationEntryFragment.class.getCanonicalName();
 
     //member variables
-    private Location userLocation;
-    private Location friendLocation;
+    private String userPlaceId;
+    private String friendPlaceId;
+
     private LocationEntryFragmentListener listener;
 
     /**
@@ -35,7 +35,7 @@ public class LocationEntryFragment
      */
     public interface LocationEntryFragmentListener {
         public void onInputLocation(int locationType);
-        public void onSearch(String searchTerm, Location userLocation, Location friendLocation);
+        public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId);
     }
 
     /**
@@ -56,31 +56,30 @@ public class LocationEntryFragment
     public LocationEntryFragment() {}
 
     /**
-     * Sets the user location
+     * Stores the placeId in the corresponding member variable and sets the description text in the field
+     * for display to the user
      * @param locationType
-     * @param location
+     * @param placeId
+     * @param description
      */
-    public void setUserLocation(int locationType, Location location) {
+    public void setUserLocation(int locationType, String placeId, String description) {
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             Log.d(TAG, "setUserLocation: View holder is null, so nothing to do");
             return;
         }
 
-        Bundle bundle = location.getExtras();
-        String name = bundle.getString(LocationUtils.EXTRA_NAME);
-        String address = bundle.getString(LocationUtils.EXTRA_ADDRESS);
-        Log.d(TAG, String.format("setUserLocation: Location name:%s, Location address:%s", name, address));
+        Log.d(TAG, String.format("setUserLocation: PlaceId:%s, Description:%s", placeId, description));
 
         switch (locationType) {
             case LocationUtils.USER_LOCATION:
-                userLocation = location;
-                viewHolder.userLocation.setText(address);
+                userPlaceId = placeId;
+                viewHolder.userLocation.setText(description);
                 break;
 
             case LocationUtils.FRIEND_LOCATION:
-                friendLocation = location;
-                viewHolder.friendLocation.setText(address);
+                friendPlaceId = placeId;
+                viewHolder.friendLocation.setText(description);
                 break;
         }
     }
@@ -168,8 +167,8 @@ public class LocationEntryFragment
                 listener.onInputLocation(LocationUtils.FRIEND_LOCATION);
                 break;
             case R.id.search_button:
-                if (userLocation != null && friendLocation != null) {
-                    listener.onSearch(LocationEntryActivity.DEFAULT_SEARCH_TERM, userLocation, friendLocation);
+                if (userPlaceId != null && friendPlaceId != null) {
+                    listener.onSearch(LocationEntryActivity.DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId);
                 }
                 break;
         }

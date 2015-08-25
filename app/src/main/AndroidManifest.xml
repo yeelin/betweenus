@@ -77,6 +77,11 @@
                 android:value=".activity.SuggestionsActivity"/>
         </activity>
 
+        <!-- Intent service to fetch google places data -->
+        <service
+            android:name=".service.PlacesFetchService"
+            android:exported="false"/>
+
         <!--  Google Play Services -->
         <meta-data
             android:name="com.google.android.gms.version"

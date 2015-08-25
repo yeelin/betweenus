@@ -1,11 +1,11 @@
 package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Loads data in a bg thread. Caches the loaded data, so that it isn't reloaded on orientation change, or when
@@ -19,20 +19,20 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
 
     //member variables
     private final String searchTerm;
-    private final Location userLocation;
-    private final Location friendLocation;
+    private final LatLng userLatLng;
+    private final LatLng friendLatLng;
     private YelpResult yelpResult;
 
     /**
      * Constructor. Creates a fully specified async task loader
      * @param context
      */
-    public SuggestionsAsyncTaskLoader(Context context, String searchTerm, Location userLocation, Location friendLocation) {
+    public SuggestionsAsyncTaskLoader(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
         super(context);
 
         this.searchTerm = searchTerm;
-        this.userLocation = userLocation;
-        this.friendLocation = friendLocation;
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
     }
 
     /**
@@ -43,7 +43,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     @Override
     public YelpResult loadInBackground() {
         Log.d(TAG, "loadInBackground");
-        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLocation, friendLocation);
+        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng);
         return yelpResult;
     }
 

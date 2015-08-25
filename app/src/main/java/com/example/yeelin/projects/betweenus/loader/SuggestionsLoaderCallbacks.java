@@ -1,7 +1,6 @@
 package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
@@ -10,6 +9,7 @@ import android.util.Log;
 
 
 import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.ref.WeakReference;
 
@@ -22,8 +22,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
 
     //bundle args
     private static final String ARG_SEARCH_TERM = SuggestionsLoaderCallbacks.class.getSimpleName() + ".searchTerm";
-    private static final String ARG_USER_LOCATION = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLocation";
-    private static final String ARG_FRIEND_LOCATION = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLocation";
+    private static final String ARG_USER_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLatLng";
+    private static final String ARG_FRIEND_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLatLng";
 
     //member variables
     private Context applicationContext;
@@ -42,15 +42,15 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loaderManager
      * @param loaderListener
      * @param searchTerm
-     * @param userLocation
-     * @param friendLocation
+     * @param userLatLng
+     * @param friendLatLng
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                  String searchTerm, Location userLocation, Location friendLocation) {
+                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
-        args.putParcelable(ARG_USER_LOCATION, userLocation);
-        args.putParcelable(ARG_FRIEND_LOCATION, friendLocation);
+        args.putParcelable(ARG_USER_LATLNG, userLatLng);
+        args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
 
         //call loaderManager's initLoader
         loaderManager.initLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -64,15 +64,15 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loaderManager
      * @param loaderListener
      * @param searchTerm
-     * @param userLocation
-     * @param friendLocation
+     * @param userLatLng
+     * @param friendLatLng
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                     String searchTerm, Location userLocation, Location friendLocation) {
+                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
-        args.putParcelable(ARG_USER_LOCATION, userLocation);
-        args.putParcelable(ARG_FRIEND_LOCATION, friendLocation);
+        args.putParcelable(ARG_USER_LATLNG, userLatLng);
+        args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
 
         //call loaderManager's restart loader
         loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -110,11 +110,11 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         Log.d(TAG, "onCreateLoader");
         //read bundle args
         String searchTerm = args.getString(ARG_SEARCH_TERM, "");
-        Location userLocation = args.getParcelable(ARG_USER_LOCATION);
-        Location friendLocation = args.getParcelable(ARG_FRIEND_LOCATION);
+        LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
+        LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
 
         //create a new loader
-        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLocation, friendLocation);
+        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng);
     }
 
     /**

@@ -3,7 +3,6 @@ package com.example.yeelin.projects.betweenus.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -113,15 +112,14 @@ public class LocationEntryActivity
         }
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            Location location = data.getParcelableExtra(LocationSearchActivity.EXTRA_LOCATION);
+            String placeId = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_ID);
+            String description = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_DESC);
 
             LocationEntryFragment locationEntryFragment = (LocationEntryFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry_fragmentContainer);
-            if (requestCode == REQUEST_CODE_USER_LOCATION) {
-                locationEntryFragment.setUserLocation(LocationUtils.USER_LOCATION, location);
-            }
-            else {
-                locationEntryFragment.setUserLocation(LocationUtils.FRIEND_LOCATION, location);
-            }
+            locationEntryFragment.setUserLocation(
+                    requestCode == REQUEST_CODE_USER_LOCATION ? LocationUtils.USER_LOCATION : LocationUtils.FRIEND_LOCATION,
+                    placeId,
+                    description);
         }
     }
 
@@ -130,14 +128,14 @@ public class LocationEntryActivity
      * Start the suggested places activity
      *
      * @param searchTerm
-     * @param userLocation
-     * @param friendLocation
+     * @param userPlaceId
+     * @param friendPlaceId
      */
     @Override
-    public void onSearch(String searchTerm, Location userLocation, Location friendLocation) {
-        Log.d(TAG, String.format("onSearch: User location:%s, Friend location:%s", userLocation.toString(), friendLocation.toString()));
+    public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId) {
+        Log.d(TAG, String.format("onSearch: User PlaceId:%s, Friend PlaceId:%s", userPlaceId, friendPlaceId));
 
         //start the suggestions list activity
-        startActivity(SuggestionsActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userLocation, friendLocation));
+        startActivity(SuggestionsActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));
     }
 }

@@ -3,7 +3,6 @@ package com.example.yeelin.projects.betweenus.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -12,8 +11,6 @@ import android.widget.Toast;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
-
-import java.util.List;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -27,7 +24,8 @@ public class LocationSearchActivity
     private static final String EXTRA_USER_ID = LocationSearchActivity.class.getSimpleName() + ".userId";
 
     //result intent extras
-    public static final String EXTRA_LOCATION = LocationSearchActivity.class.getSimpleName() + ".location";
+    public static final String EXTRA_PLACE_ID = LocationSearchActivity.class.getSimpleName() + ".placeId";
+    public static final String EXTRA_PLACE_DESC = LocationSearchActivity.class.getSimpleName() + ".placeDescription";
 
     /**
      * Builds the intent to start this activity
@@ -125,15 +123,18 @@ public class LocationSearchActivity
 
     /**
      * LocationSearchFragmentListener implementation
-     * This callback happens when the user selects a suggestion in the location search listview
-     * @param location
+     * This callback happens when the user selects a suggestion in the location search listview.
+     * Creates an intent, set it on the result and finishes the activity.
+     * @param placeId
+     * @param description
      */
     @Override
-    public void onLocationSelected(Location location) {
+    public void onLocationSelected(String placeId, String description) {
         Log.d(TAG, "onLocationSelected");
 
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_LOCATION, location);
+        intent.putExtra(EXTRA_PLACE_ID, placeId);
+        intent.putExtra(EXTRA_PLACE_DESC, description);
 
         setResult(Activity.RESULT_OK, intent);
         finish();

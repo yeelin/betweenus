@@ -66,11 +66,9 @@ public class LocationSearchFragment
 
     //pending results from google play services Places API
     private PendingResult<AutocompletePredictionBuffer> autocompletePendingResult;
-    private PendingResult<PlaceBuffer> placePendingResult;
 
     //callbacks from google play services Places API
     private AutocompleteResultCallback autocompleteResultCallback;
-    private PlaceResultCallback placeResultCallback;
 
     //listener
     private LocationSearchFragmentListener locationSearchListener;
@@ -79,7 +77,7 @@ public class LocationSearchFragment
      * Listener interface to be implemented by whoever is interested in events from this fragment.
      */
     public interface LocationSearchFragmentListener {
-        public void onLocationSelected(Location location);
+        public void onLocationSelected(String placeId, String description);
     }
 
     public static LocationSearchFragment newInstance(int userId) {
@@ -106,8 +104,7 @@ public class LocationSearchFragment
     public GoogleApiClient.Builder buildGoogleApiClient() {
         return new GoogleApiClient
                 .Builder(getActivity())
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API);
+                .addApi(Places.GEO_DATA_API);
     }
 
     /**
@@ -149,9 +146,8 @@ public class LocationSearchFragment
             lastQuery = savedInstanceState.getString(STATE_LAST_QUERY, "");
         }
 
-        //callbacks from Autocomplete and Places API
+        //callbacks from AutocompleteAPI
         autocompleteResultCallback = new AutocompleteResultCallback();
-        placeResultCallback = new PlaceResultCallback();
     }
 
     /**
@@ -232,13 +228,10 @@ public class LocationSearchFragment
     public void onDestroy() {
         //cancel and nullify the pending results
         if (autocompletePendingResult != null) autocompletePendingResult.cancel();
-        if (placePendingResult != null) placePendingResult.cancel();
         autocompletePendingResult = null;
-        placePendingResult = null;
 
         //nullify the callbacks
         autocompleteResultCallback = null;
-        placeResultCallback = null;
 
         super.onDestroy();
     }
@@ -332,18 +325,7 @@ public class LocationSearchFragment
         Log.d(TAG, String.format("onItemClick: Position:%d, Description:%s, PlaceId:%s",
                 position, locationSearchItem.getDescription(), locationSearchItem.getPlaceId()));
 
-        //clear out any old pending results first
-        if (placePendingResult != null) {
-            placePendingResult.cancel();
-            placePendingResult = null;
-        }
-
-        //send the placeId to the getPlaceById API to get the place's name and lat/lng so that we can query Yelp
-        placePendingResult = Places.GeoDataApi.getPlaceById(
-                googleApiClient,
-                locationSearchItem.getPlaceId());
-        //set the callback
-        placePendingResult.setResultCallback(placeResultCallback, PENDING_RESULT_TIME_SECONDS, TimeUnit.SECONDS);
+        locationSearchListener.onLocationSelected(locationSearchItem.getPlaceId(), locationSearchItem.getDescription());
     }
 
     /**
@@ -440,51 +422,4 @@ public class LocationSearchFragment
             return locationSearchItems;
         }
     }
-
-    /**
-     * Class for handling the callback from the getPlaceById places API
-     */
-    private class PlaceResultCallback implements ResultCallback<PlaceBuffer> {
-        /**
-         * ResultCallback<AutocompletePredictionBuffer> required override
-         *
-         * @param places
-         */
-        @Override
-        public void onResult(PlaceBuffer places) {
-            placePendingResult = null;
-
-            final Status status = places.getStatus();
-            if (!status.isSuccess()) {
-                //failed to get results
-                places.release();
-                //notify the user and log error
-                String errorMessage = "Error contacting Google Places getPlaceById API. Status: " + status.toString();
-                Log.e(TAG, "PlaceResultCallback.onResult: " + errorMessage);
-                Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            //found a place matching the placeId
-            final Place foundPlace = places.get(0);
-            Log.d(TAG, String.format("PlaceResultCallback.onResult: Found place. Name:%s LatLng:%f, %f PlaceTypes:%s",
-                    foundPlace.getName().toString(), foundPlace.getLatLng().latitude, foundPlace.getLatLng().longitude, foundPlace.getPlaceTypes().toString()));
-
-            //create a location and notify the listener
-            Location location = new Location("Google Play Services");
-            location.setLatitude(foundPlace.getLatLng().latitude);
-            location.setLongitude(foundPlace.getLatLng().longitude);
-
-            Bundle bundle = new Bundle();
-            bundle.putString(LocationUtils.EXTRA_NAME, foundPlace.getName().toString());
-            bundle.putString(LocationUtils.EXTRA_ADDRESS, foundPlace.getAddress().toString());
-            location.setExtras(bundle);
-
-            locationSearchListener.onLocationSelected(location);
-
-            //release the places buffer, foundPlace should not be used after this call
-            places.release();
-        }
-    }
-
 }
