@@ -316,10 +316,17 @@ public class SuggestionDetailFragment
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(determineMarkerIcon());
         marker = googleMap.addMarker(markerOptions);
+
+        //disable click listener
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
+        if (mapFragment != null) {
+            mapFragment.getView().setClickable(false);
+        }
     }
 
     /**

@@ -134,9 +134,9 @@ public class PlacesService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind");
         return binder;
     }
-
 
     /**
      * Terminate the handler's looper without processing any more messages in the queue.
@@ -144,6 +144,7 @@ public class PlacesService extends Service {
      */
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy");
         //release the binder
         binder = null;
         //release the service handler
