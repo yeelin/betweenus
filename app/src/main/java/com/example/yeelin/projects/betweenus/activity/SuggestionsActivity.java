@@ -227,7 +227,7 @@ public class SuggestionsActivity
         for (int i=0; i<result.getBusinesses().size(); i++) {
             YelpBusiness business = result.getBusinesses().get(i);
             if (selectedIdsMap.containsKey(business.getId())) {
-                selectedItems.add(SimplifiedBusiness.newInstance(business));
+                selectedItems.add(SimplifiedBusiness.newInstance(this, business));
             }
         }
 

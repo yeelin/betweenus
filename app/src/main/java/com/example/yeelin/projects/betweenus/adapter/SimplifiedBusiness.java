@@ -1,9 +1,11 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -23,14 +25,14 @@ public class SimplifiedBusiness implements Parcelable {
     //unused by UI at the moment
     private LatLng latLng;
 
-    public static SimplifiedBusiness newInstance(@NonNull YelpBusiness business) {
-        return new SimplifiedBusiness(business);
+    public static SimplifiedBusiness newInstance(Context context, @NonNull YelpBusiness business) {
+        return new SimplifiedBusiness(context, business);
     }
 
-    private SimplifiedBusiness(@NonNull YelpBusiness business) {
+    private SimplifiedBusiness(Context context, @NonNull YelpBusiness business) {
         id = business.getId();
         name = business.getName();
-        address = business.getLocation().getAddress()[0];
+        address = context.getString(R.string.list_item_short_address, business.getLocation().getAddress()[0], business.getLocation().getCity());
         categories = business.getDisplayCategories();
         reviews = business.getReview_count();
         imageUrl = business.getImage_url();
