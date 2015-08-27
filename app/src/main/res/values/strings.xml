@@ -78,6 +78,7 @@
     <string name="email_body">I found these places on Between: %1$s. What do you think?</string>
 
     <!-- Google play services -->
-    <string name="google_play_services_error">Failed to resolve Google Play Services error. Restart app to try again</string>
+    <string name="google_play_services_error">Oops! Failed to resolve Google Play Services error. Please restart app and try again.</string>
+    <string name="get_place_by_id_error">Oops! Failed to geocode you and your friend\'s locations. Please go back and try again.</string>
 
 </resources>

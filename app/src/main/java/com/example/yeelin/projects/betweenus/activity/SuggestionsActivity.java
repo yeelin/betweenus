@@ -20,7 +20,8 @@ import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
-import com.example.yeelin.projects.betweenus.service.PlacesFetchService;
+import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
+import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -31,7 +32,8 @@ import java.util.ArrayList;
 public class SuggestionsActivity
         extends BasePlayServicesActivity
         implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
-        OnSuggestionActionListener {
+        OnSuggestionActionListener,
+        PlacesBroadcastReceiver.PlacesBroadcastListener {
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -55,6 +57,7 @@ public class SuggestionsActivity
     private boolean showingMap = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
+    private PlacesBroadcastReceiver placesBroadcastReceiver;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -98,8 +101,8 @@ public class SuggestionsActivity
         ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
 
         //start service to fetch suggestions from the network
-        Log.d(TAG, "onCreate: Starting the PlacesFetchService");
-        startService(PlacesFetchService.buildPlaceDetailsFetchIntent(this, placeIds));
+        Log.d(TAG, "onCreate: Starting PlacesService");
+        startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
 
         //check if the fragments exists, otherwise create it
         if (savedInstanceState == null) {
@@ -150,6 +153,25 @@ public class SuggestionsActivity
         toggleMenuItemTitle(toggleItem);
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    /** Create a broadcast receiver and register for place broadcasts (success and failures)
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Registering for broadcasts");
+        placesBroadcastReceiver = new PlacesBroadcastReceiver(this, this); //we are a place broadcast listener
+    }
+
+    /**
+     * Unregister for place broadcasts
+     */
+    @Override
+    protected void onPause() {
+        Log.d(TAG, "onPause: Unregistering for broadcasts");
+        placesBroadcastReceiver.unregister();
+        super.onPause();
     }
 
     /**
@@ -400,8 +422,8 @@ public class SuggestionsActivity
     }
 
     /**
-     * PlacesBroadcastReceiver.PlacesBroadcastListener override
-     * We had successfully retrieved the latlng for the user and friend, so
+     * PlacesBroadcastReceiver.PlacesBroadcastListener callback
+     * We have successfully retrieved the latlng for the user and friend, so
      * call the loader to fetch data from Yelp.
      *
      * @param userLatLng
@@ -415,12 +437,15 @@ public class SuggestionsActivity
     }
 
     /**
-     * PlacesBroadcastReceiver.PlacesBroadcastListener override
+     * PlacesBroadcastReceiver.PlacesBroadcastListener callback
      * We failed to retrieve the latlng for the user and friend, so display
      * and toast message to inform the user as there is not much else we can do.
+     * @param statusCode
+     * @param statusMessage
      */
     @Override
-    public void onPlacesFailure() {
-        Toast.makeText(this, "Failed to obtain the coordinates for you and your friend's locations. Try again", Toast.LENGTH_LONG).show();
+    public void onPlacesFailure(int statusCode, String statusMessage) {
+        Log.d(TAG, String.format("onPlacesFailure: StatusCode:%d, Message:%s", statusCode, statusMessage));
+        Toast.makeText(this, R.string.get_place_by_id_error, Toast.LENGTH_LONG).show();
     }
 }

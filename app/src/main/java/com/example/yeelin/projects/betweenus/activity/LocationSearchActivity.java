@@ -16,7 +16,7 @@ import com.example.yeelin.projects.betweenus.utils.LocationUtils;
  * Created by ninjakiki on 7/15/15.
  */
 public class LocationSearchActivity
-        extends BasePlayServicesActivity
+        extends BaseActivity
         implements LocationSearchFragment.LocationSearchFragmentListener {
     //logcat
     private static final String TAG = LocationSearchActivity.class.getCanonicalName();
@@ -87,34 +87,6 @@ public class LocationSearchActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * BasePlayServicesActivity override
-     * Helper method. Used when no play services are available. Shows a toast and then navigate back to parent activity
-     * since search isn't going to work.
-     */
-    @Override
-    protected void noPlayServicesAvailable() {
-        super.noPlayServicesAvailable();
-
-        //not much else to do here since search won't work, so navigate back to parent seems logical
-        navigateUpToParentActivity(this);
-    }
-
-    /**
-     * BasePlayServicesActivity override
-     * Helper method. Used when play services become available. Notify search fragment that play services are available
-     * and to retry connection.
-     */
-    @Override
-    protected void onPlayServicesAvailable() {
-        Log.d(TAG, "onPlayServicesAvailable");
-
-        LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragmentContainer);
-        if (locationSearchFragment != null) {
-            locationSearchFragment.onPlayServicesAvailable();
         }
     }
 

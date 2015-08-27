@@ -20,12 +20,16 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = PlacesBroadcastReceiver.class.getCanonicalName();
 
     //actions for intent
-    private static final String ACTION_PLACES_SUCCESS = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.PLACES_SUCCESS";
-    private static final String ACTION_PLACES_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.PLACES_FAILURE";
-    private static final String ACTION_CONNECT_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.CONNECT_FAILURE";
+    private static final String ACTION_GET_PLACE_BY_ID_SUCCESS = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.GET_PLACE_BY_ID_SUCCESS";
+    private static final String ACTION_GET_PLACE_BY_ID_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.GET_PLACE_BY_ID_FAILURE";
+    private static final String ACTION_API_CONNECT_SUCCESS = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.API_CONNECT_SUCCESS";
+    private static final String ACTION_API_CONNECT_FAILURE = PlacesBroadcastReceiver.class.getCanonicalName() + ".action.API_CONNECT_FAILURE";
+
     //extras for intent
     private static final String EXTRA_USER_LATLNG = PlacesBroadcastReceiver.class.getSimpleName() + ".userLatLng";
     private static final String EXTRA_FRIEND_LATLNG = PlacesBroadcastReceiver.class.getSimpleName() + ".friendLatLng";
+    private static final String EXTRA_STATUS_CODE = PlacesBroadcastReceiver.class.getSimpleName() + ".statusCode";
+    private static final String EXTRA_STATUS_MESSAGE = PlacesBroadcastReceiver.class.getSimpleName() + ".statusMessage";
     private static final String EXTRA_CONNECTION_RESULT = PlacesBroadcastReceiver.class.getSimpleName() + ".connectionResult";
     private static final String EXTRA_RESOLUTION_TYPE = PlacesBroadcastReceiver.class.getSimpleName() + ".resolutionType";
 
@@ -35,17 +39,27 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
 
     //member variables
     private final Context applicationContext;
-    private final WeakReference<PlacesBroadcastListener> listenerWeakReference;
+    private WeakReference<PlacesBroadcastListener> placesBroadcastListenerWeakRef;
+    private WeakReference<PlacesConnectionBroadcastListener> connectionBroadcastListenerWeakRef;
 
 
     /**
-     * This should be implemented by the activities or fragments that are interested
-     * in the broadcast
+     * This interface should be implemented by the activities or fragments that are interested
+     * in the places broadcast
      */
     public interface PlacesBroadcastListener {
         void onPlacesSuccess(final LatLng userLatLng, final LatLng friendLatLng);
-        void onPlacesFailure();
+        void onPlacesFailure(final int statusCode, final String statusMessage);
+    }
+
+    /**
+     * This interface should be implemented by the activities or fragments that are interested
+     * in the places connection broadcast
+     */
+    public interface PlacesConnectionBroadcastListener {
+        void onConnectSuccess();
         void onConnectFailure(final ConnectionResult connectionResult, final int resolutionType);
+
     }
 
     /**
@@ -55,7 +69,7 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      * @param friendLatLng
      */
     public static void broadcastPlacesSuccess(Context context, LatLng userLatLng, LatLng friendLatLng) {
-        Intent intent = new Intent(ACTION_PLACES_SUCCESS);
+        Intent intent = new Intent(ACTION_GET_PLACE_BY_ID_SUCCESS);
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
         intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
 
@@ -66,8 +80,20 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      * Broadcast getPlaceById failure
      * @param context
      */
-    public static void broadcastPlacesFailure(Context context) {
-        Intent intent = new Intent(ACTION_PLACES_FAILURE);
+    public static void broadcastPlacesFailure(Context context, int statusCode, String statusMessage) {
+        Intent intent = new Intent(ACTION_GET_PLACE_BY_ID_FAILURE);
+        intent.putExtra(EXTRA_STATUS_CODE, statusCode);
+        intent.putExtra(EXTRA_STATUS_MESSAGE, statusMessage);
+
+        LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
+    }
+
+    /**
+     * Broadcast google api client connect success
+     * @param context
+     */
+    public static void broadcastConnectSuccess(Context context) {
+        Intent intent = new Intent(ACTION_API_CONNECT_SUCCESS);
         LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(intent);
     }
 
@@ -77,7 +103,7 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      * @param connectionResult
      */
     public static void broadcastConnectFailure(Context context, ConnectionResult connectionResult, int resolutionType) {
-        Intent intent = new Intent(ACTION_CONNECT_FAILURE);
+        Intent intent = new Intent(ACTION_API_CONNECT_FAILURE);
         intent.putExtra(EXTRA_CONNECTION_RESULT, connectionResult);
         intent.putExtra(EXTRA_RESOLUTION_TYPE, resolutionType);
 
@@ -91,18 +117,37 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      */
     public PlacesBroadcastReceiver(Context context, PlacesBroadcastListener listener) {
         applicationContext = context.getApplicationContext();
-        listenerWeakReference = new WeakReference<>(listener);
+        placesBroadcastListenerWeakRef = new WeakReference<>(listener);
 
         //create intent filter
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ACTION_PLACES_SUCCESS);
-        intentFilter.addAction(ACTION_PLACES_FAILURE);
-        intentFilter.addAction(ACTION_CONNECT_FAILURE);
+        intentFilter.addAction(ACTION_GET_PLACE_BY_ID_SUCCESS);
+        intentFilter.addAction(ACTION_GET_PLACE_BY_ID_FAILURE);
 
         //inform the local broadcast manager that we are interested in this intent filter
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(applicationContext);
         localBroadcastManager.registerReceiver(this, intentFilter);
     }
+
+    /**
+     * Creates a broadcast receiver and register yourself to receive a particular intent filter
+     * @param context
+     * @param listener
+     */
+    public PlacesBroadcastReceiver(Context context, PlacesConnectionBroadcastListener listener) {
+        applicationContext = context.getApplicationContext();
+        connectionBroadcastListenerWeakRef = new WeakReference<>(listener);
+
+        //create intent filter
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_API_CONNECT_SUCCESS);
+        intentFilter.addAction(ACTION_API_CONNECT_FAILURE);
+
+        //inform the local broadcast manager that we are interested in this intent filter
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(applicationContext);
+        localBroadcastManager.registerReceiver(this, intentFilter);
+    }
+
 
     /**
      * Unregister for the broadcast
@@ -122,25 +167,50 @@ public class PlacesBroadcastReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(Context context, Intent intent) {
-        PlacesBroadcastListener listener = listenerWeakReference.get();
-        if (listener == null) {
-            Log.d(TAG, "onReceive: Listener is null, so nothing to do");
-            return;
-        }
 
+        //check the action
         final String action = intent.getAction();
-        if (ACTION_PLACES_SUCCESS.equalsIgnoreCase(action)) {
+        if (ACTION_GET_PLACE_BY_ID_SUCCESS.equalsIgnoreCase(action)) {
+            Log.d(TAG, "onReceive: ACTION_GET_PLACE_BY_ID_SUCCESS");
+            //get the intent extras
             final LatLng userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
             final LatLng friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
-            listener.onPlacesSuccess(userLatLng, friendLatLng);
+
+            //broadcast
+            final PlacesBroadcastListener listener = placesBroadcastListenerWeakRef.get();
+            if (listener != null) {
+                listener.onPlacesSuccess(userLatLng, friendLatLng);
+            }
         }
-        else if (ACTION_PLACES_FAILURE.equalsIgnoreCase(action)) {
-            listener.onPlacesFailure();
+        else if (ACTION_GET_PLACE_BY_ID_FAILURE.equalsIgnoreCase(action)) {
+            Log.d(TAG, "onReceive: ACTION_GET_PLACE_BY_ID_FAILURE");
+            //get intent extras
+            final int statusCode = intent.getIntExtra(EXTRA_STATUS_CODE, 0);
+            final String statusMessage = intent.getStringExtra(EXTRA_STATUS_MESSAGE);
+            //broadcast
+            final PlacesBroadcastListener listener = placesBroadcastListenerWeakRef.get();
+            if (listener != null) {
+                listener.onPlacesFailure(statusCode, statusMessage);
+            }
         }
-        else if (ACTION_CONNECT_FAILURE.equalsIgnoreCase(action)) {
+        else if (ACTION_API_CONNECT_SUCCESS.equalsIgnoreCase(action)) {
+            Log.d(TAG, "onReceive: ACTION_API_CONNECT_SUCCESS");
+            //broadcast
+            final PlacesConnectionBroadcastListener listener = connectionBroadcastListenerWeakRef.get();
+            if (listener != null) {
+                listener.onConnectSuccess();
+            }
+        }
+        else if (ACTION_API_CONNECT_FAILURE.equalsIgnoreCase(action)) {
+            Log.d(TAG, "onReceive: ACTION_API_CONNECT_FAILURE");
+            //get intent extras
             final ConnectionResult connectionResult = intent.getParcelableExtra(EXTRA_CONNECTION_RESULT);
             final int resolutionType = intent.getIntExtra(EXTRA_RESOLUTION_TYPE, NO_RESOLUTION);
-            listener.onConnectFailure(connectionResult, resolutionType);
+            //broadcast
+            final PlacesConnectionBroadcastListener listener = connectionBroadcastListenerWeakRef.get();
+            if (listener != null) {
+                listener.onConnectFailure(connectionResult, resolutionType);
+            }
         }
         else {
             Log.d(TAG, "onReceive: Unknown action:" + action);

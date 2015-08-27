@@ -77,9 +77,9 @@
                 android:value=".activity.SuggestionsActivity"/>
         </activity>
 
-        <!-- Intent service to fetch google places data -->
+        <!-- Intent service to fetch google places and autocomplete data -->
         <service
-            android:name=".service.PlacesFetchService"
+            android:name=".service.PlacesService"
             android:exported="false"/>
 
         <!--  Google Play Services -->
