@@ -240,7 +240,7 @@ public class SuggestionDetailFragment
         Log.d(TAG, "updateView");
 
         //check if the view is ready
-        ViewHolder viewHolder = getViewHolder();
+        final ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
 
         //image
@@ -257,10 +257,17 @@ public class SuggestionDetailFragment
         viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(business.getDistance())));
 
         //address
-        viewHolder.address.setText(business.getLocation().getAddress()[0]);
+        final StringBuilder addressBuilder = new StringBuilder();
+        for (int i=0; i<business.getLocation().getDisplay_address().length; i++) {
+            addressBuilder.append(business.getLocation().getDisplay_address()[i]);
+            if (i < business.getLocation().getDisplay_address().length-1) {
+                addressBuilder.append("\n");
+            }
+        }
+        viewHolder.address.setText(addressBuilder.toString());
 
         //cross streets
-        String crossStreets = business.getLocation().getCross_streets();
+        final String crossStreets = business.getLocation().getCross_streets();
         viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, crossStreets != null ? crossStreets : getString(R.string.not_available)));
 
         //phone
