@@ -34,6 +34,9 @@
     <string name="selected_button">Selected</string>
     <string name="invite_button">Send Invite</string>
 
+    <!-- List view strings -->
+    <string name="list_item_short_address">%1$s, %2$s</string>
+
     <!-- Detail strings for layout only -->
     <string name="detail_name_fake">Espresso Vivace Roasteria</string>
     <string name="detail_reviews_fake">445 reviews</string>

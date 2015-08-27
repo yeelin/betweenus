@@ -80,7 +80,7 @@ public class SuggestionsAdapter
         //set the views
         ImageUtils.loadImage(parent.getContext(), business.getImage_url(), viewHolder.image);
         viewHolder.name.setText(business.getName());
-        viewHolder.address.setText(business.getLocation().getAddress()[0]);
+        viewHolder.address.setText(getContext().getString(R.string.list_item_short_address, business.getLocation().getAddress()[0], business.getLocation().getCity()));
         viewHolder.categories.setText(business.getDisplayCategories());
 
         //set the textview and the yelp stars
