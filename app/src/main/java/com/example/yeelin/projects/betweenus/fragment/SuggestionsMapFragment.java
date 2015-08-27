@@ -1,7 +1,6 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
-import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -178,13 +177,13 @@ public class SuggestionsMapFragment
             idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
             addMarkersToMap();
 
-            //set the camera to the user's location first so that we can later animate to result region
-            Location userLocation = map.getMyLocation();
-            if (userLocation != null) {
-                Log.d(TAG, "updateMap: userLocation != null");
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(userLocation.getLatitude(), userLocation.getLongitude()), DEFAULT_ZOOM);
-                map.moveCamera(cameraUpdate);
-            }
+            //get region center
+            LatLng center = new LatLng(
+                    result.getRegion().getCenter().getLatitude(),
+                    result.getRegion().getCenter().getLongitude());
+            //set the camera to the region center first so that we can later animate from here
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(center);
+            map.moveCamera(cameraUpdate);
         }
 
         //we have updated the map, so set this to false
