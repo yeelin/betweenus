@@ -30,7 +30,7 @@
                 android:layout_alignBottom="@id/detail_mapContainer"
                 android:contentDescription="Image"
                 android:background="@drawable/border_imageview"
-                tools:src="@color/colorAccent"/>
+                android:src="@drawable/ic_business_image_placeholder"/>
 
             <TextView
                 android:id="@+id/detail_name"
@@ -123,8 +123,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:paddingTop="@dimen/card_content_padding"
-            style="@style/Medium_PrimaryTextViewStyle"
+            android:paddingTop="32dp"
+            style="@style/Medium_SecondaryTextViewStyle"
             android:text="@string/detail_container_not_available"
             android:visibility="gone"/>
 

@@ -285,7 +285,7 @@ public class SuggestionDetailFragment
 
         //image
         if (business.getImage_url() != null) {
-            ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image);
+            ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
         }
 
         //name

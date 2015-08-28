@@ -26,7 +26,7 @@
         app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
-        tools:src="@color/colorAccent"/>
+        android:src="@drawable/ic_business_image_placeholder"/>
 
     <LinearLayout
         app:layout_row="0"

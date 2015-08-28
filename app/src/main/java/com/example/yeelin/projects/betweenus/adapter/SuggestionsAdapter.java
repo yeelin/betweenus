@@ -78,7 +78,7 @@ public class SuggestionsAdapter
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         //set the views
-        ImageUtils.loadImage(parent.getContext(), business.getImage_url(), viewHolder.image);
+        ImageUtils.loadImage(parent.getContext(), business.getImage_url(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
         viewHolder.name.setText(business.getName());
         viewHolder.address.setText(getContext().getString(R.string.list_item_short_address, business.getLocation().getAddress()[0], business.getLocation().getCity()));
         viewHolder.categories.setText(business.getDisplayCategories());

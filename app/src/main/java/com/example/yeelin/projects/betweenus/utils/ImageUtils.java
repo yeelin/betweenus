@@ -116,6 +116,24 @@ public class ImageUtils {
     }
 
     /**
+     * Loads an image into the given image view. Placeholders are provided for download and error cases
+     * @param context
+     * @param imageUrl
+     * @param imageView
+     * @param downloadPlaceHolder
+     * @param errorPlaceHolder
+     */
+    public static void loadImage(final Context context, final String imageUrl, final ImageView imageView,
+                                 final int downloadPlaceHolder, final int errorPlaceHolder) {
+        //Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        Picasso.with(context)
+                .load(imageUrl)
+                .placeholder(downloadPlaceHolder)
+                .error(errorPlaceHolder)
+                .into(imageView);
+    }
+
+    /**
      * Loads an image into the given target.
      * Picasso only keeps a weak reference to the Target object. While you can store a strong reference Target
      * in one of your classes, this can still be problematic if the Target references a View in any manner,
