@@ -90,14 +90,16 @@ public class YelpBusiness {
     }
 
     public String getDisplayCategories() {
-        StringBuilder builder = new StringBuilder();
+        if (categories == null || categories.length == 0) return null;
+
+        final StringBuilder categoriesBuilder = new StringBuilder();
         for (int i=0; i<categories.length; i++) {
-            builder.append(categories[i][0]);
-            if (i < categories.length -1) {
-                builder.append(", ");
+            categoriesBuilder.append(categories[i][0]);
+            if (i < categories.length-1) {
+                categoriesBuilder.append(", ");
             }
         }
-        return builder.toString();
+        return categoriesBuilder.toString();
     }
 
     public double getDistance() {

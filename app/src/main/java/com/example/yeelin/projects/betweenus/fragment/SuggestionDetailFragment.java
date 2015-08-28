@@ -253,17 +253,23 @@ public class SuggestionDetailFragment
         //debugging purposes
         if (business == null) {
             Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
+            //animate in the detail empty textview, and animate out the progress bar
+            ViewHolder viewHolder = getViewHolder();
+            if (viewHolder != null && viewHolder.detailEmtpy.getVisibility() != View.VISIBLE) {
+                viewHolder.detailContainer.setVisibility(View.GONE); //make sure container doesn't show
+                AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmtpy, viewHolder.detailProgressBar);
+            }
             return;
         }
         else {
             Log.d(TAG, "onLoadComplete: Yelp business is not null. Updating views");
+            //animate in the detail container, and animate out the progress bar
+            ViewHolder viewHolder = getViewHolder();
+            if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
+                viewHolder.detailEmtpy.setVisibility(View.GONE); //make sure empty view doesn't show
+                AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
+            }
             updateView();
-        }
-
-        //animate in the detail container, and animate out the progress bar
-        ViewHolder viewHolder = getViewHolder();
-        if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
-            AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
         }
     }
 
@@ -278,13 +284,16 @@ public class SuggestionDetailFragment
         if (viewHolder == null) return;
 
         //image
-        ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image);
+        if (business.getImage_url() != null) {
+            ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image);
+        }
 
         //name
-        viewHolder.name.setText(business.getName());
+        viewHolder.name.setText(name);
 
         //categories
-        viewHolder.categories.setText(business.getDisplayCategories());
+        final String categories = business.getDisplayCategories();
+        viewHolder.categories.setText(categories != null ? categories : getString(R.string.not_available));
 
         //compute who is closer
         final int fairness = computeFairnessScore();
@@ -293,43 +302,31 @@ public class SuggestionDetailFragment
         viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address
-        viewHolder.address.setText(buildFullAddress());
+        final String fullAddress = business.getLocation() != null ? business.getLocation().getFullDisplayAddress() : null;
+        viewHolder.address.setText(fullAddress != null ? fullAddress : getString(R.string.not_available));
 
         //cross streets
-        final String crossStreets = business.getLocation().getCross_streets();
+        final String crossStreets = business.getLocation() != null ? business.getLocation().getCross_streets() : null;
         viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, crossStreets != null ? crossStreets : getString(R.string.not_available)));
 
         //phone
-        viewHolder.phone.setText(business.getDisplay_phone());
+        viewHolder.phone.setText(business.getDisplay_phone() != null ? business.getDisplay_phone() : getString(R.string.not_available));
 
         //web address
-        viewHolder.webAddress.setText(business.getMobile_url());
+        viewHolder.webAddress.setText(business.getMobile_url() != null ? business.getMobile_url() : getString(R.string.not_available));
 
         //ratings and reviews
         viewHolder.reviews.setText(getString(R.string.review_count, String.valueOf(business.getReview_count())));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
-        final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
-        viewHolder.reviews.setTag(target);
-        ImageUtils.loadImage(getActivity(), business.getRating_img_url_large(), target);
+        if (business.getRating_img_url_large() != null) {
+            final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
+            viewHolder.reviews.setTag(target);
+            ImageUtils.loadImage(getActivity(), business.getRating_img_url_large(), target);
+        }
 
         //hours
         viewHolder.hoursRange.setText(R.string.not_available);
-    }
-
-    /**
-     * Returns the full address by displaying each element of the display address on a new line.
-     * @return
-     */
-    private String buildFullAddress() {
-        final StringBuilder addressBuilder = new StringBuilder();
-        for (int i=0; i<business.getLocation().getDisplay_address().length; i++) {
-            addressBuilder.append(business.getLocation().getDisplay_address()[i]);
-            if (i < business.getLocation().getDisplay_address().length-1) {
-                addressBuilder.append("\n");
-            }
-        }
-        return addressBuilder.toString();
     }
 
     /**
@@ -375,7 +372,7 @@ public class SuggestionDetailFragment
 
         //disable click listener
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
-        if (mapFragment != null) {
+        if (mapFragment != null && mapFragment.getView() != null) {
             mapFragment.getView().setClickable(false);
         }
     }
@@ -517,6 +514,7 @@ public class SuggestionDetailFragment
 
         final View detailContainer;
         final View detailProgressBar;
+        final TextView detailEmtpy;
 
         ViewHolder(View view) {
             //image view
@@ -541,6 +539,7 @@ public class SuggestionDetailFragment
             //for animation
             detailContainer = view.findViewById(R.id.detail_container);
             detailProgressBar = view.findViewById(R.id.detail_progressBar);
+            detailEmtpy = (TextView) view.findViewById(R.id.detail_empty);
         }
     }
 }

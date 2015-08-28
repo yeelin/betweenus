@@ -49,6 +49,23 @@ public class YelpBusinessLocation {
         return coordinate;
     }
 
+    /**
+     * Returns the full address by displaying each element of the display address on a new line.
+     * @return
+     */
+    public String getFullDisplayAddress() {
+        if (display_address == null || display_address.length == 0) return null;
+
+        final StringBuilder addressBuilder = new StringBuilder();
+        for (int i=0; i<display_address.length; i++) {
+            addressBuilder.append(display_address[i]);
+            if (i < display_address.length-1) {
+                addressBuilder.append("\n");
+            }
+        }
+        return addressBuilder.toString();
+    }
+
     @Override
     public String toString() {
         return String.format("Address:%s, DisplayAddress:%s, City:%s, CrossStreets:%s, Neighborhoods:%s, Coordinates:%s",

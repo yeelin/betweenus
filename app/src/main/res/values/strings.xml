@@ -63,6 +63,7 @@
 
     <!-- Placeholder string for missing fields -->
     <string name="not_available">Not available</string>
+    <string name="detail_container_not_available">Sorry, details are not available at this time.</string>
 
     <!-- Detail buttons-->
     <string name="detail_website_button">Website</string>

@@ -118,6 +118,16 @@
             style="?android:attr/progressBarStyle"
             android:visibility="gone"/>
 
+        <TextView
+            android:id="@+id/detail_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingTop="@dimen/card_content_padding"
+            style="@style/Medium_PrimaryTextViewStyle"
+            android:text="@string/detail_container_not_available"
+            android:visibility="gone"/>
+
         <LinearLayout
             android:id="@+id/detail_container"
             android:layout_width="match_parent"
