@@ -68,7 +68,7 @@
             android:id="@+id/item_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:drawableLeft="@drawable/stars_large_4"
+            tools:drawableLeft="@drawable/stars_small_4"
             android:drawablePadding="5dp"
             android:paddingTop="2dp"
             android:gravity="center_vertical"
