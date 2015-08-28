@@ -17,7 +17,9 @@ import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
+import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -30,6 +32,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
+
+import java.text.DecimalFormat;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -45,14 +49,30 @@ public class SuggestionDetailFragment
     private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
     private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
     private static final String ARG_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".latLng";
+    private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
+    private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
+    private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
     private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
+
+    //constants
+    private static final int IMPERIAL = 0;
+    private static final int METRIC = 1;
+
+    private static final int EQUIDISTANT = 0;
+    private static final int CLOSER_TO_USER = 1;
+    private static final int CLOSER_TO_FRIEND = 2;
+
     //member variables
     private String id;
     private String name;
     private LatLng latLng;
     private boolean toggleState;
-    private Marker marker;
 
+    private LatLng userLatLng;
+    private LatLng friendLatLng;
+    private LatLng midLatLng;
+
+    private Marker marker;
     private YelpBusiness business;
     private SuggestionDetailFragmentListener listener;
 
@@ -60,14 +80,24 @@ public class SuggestionDetailFragment
      * Creates a new instance of this fragment
      * @param id
      * @param name
+     * @param latLng
      * @param toggleState
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng, boolean toggleState) {
+    public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng, boolean toggleState,
+                                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
         args.putParcelable(ARG_LATLNG, latLng);
+
+        args.putParcelable(ARG_USER_LATLNG, userLatLng);
+        args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
+        args.putParcelable(ARG_MID_LATLNG, midLatLng);
+
         args.putBoolean(ARG_TOGGLE_STATE, toggleState);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
@@ -120,6 +150,10 @@ public class SuggestionDetailFragment
             name = args.getString(ARG_NAME);
             latLng = args.getParcelable(ARG_LATLNG);
             toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
+
+            userLatLng = args.getParcelable(ARG_USER_LATLNG);
+            friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
+            midLatLng = args.getParcelable(ARG_MID_LATLNG);
         }
     }
 
@@ -206,18 +240,18 @@ public class SuggestionDetailFragment
      * SingleSuggestionLoaderCallbacks.SingleSuggestionLoaderListener callback
      * When the loader delivers the results, this method would be called.  This method then calls updateView.
      * @param loaderId
-     * @param yelpBusiness
+     * @param business
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable YelpBusiness yelpBusiness) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable YelpBusiness business) {
         if (loaderId != LoaderId.SINGLE_PLACE) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
         }
 
-        this.business = yelpBusiness;
+        this.business = business;
         //debugging purposes
-        if (yelpBusiness == null) {
+        if (business == null) {
             Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
             return;
         }
@@ -252,19 +286,14 @@ public class SuggestionDetailFragment
         //categories
         viewHolder.categories.setText(business.getDisplayCategories());
 
-        //distance from user
-        //TODO: // FIXME: 7/31/15
-        viewHolder.distanceFromCenter.setText(getString(R.string.detail_distance_from_center, String.valueOf(business.getDistance())));
+        //compute who is closer
+        final int fairness = computeFairnessScore();
+        final double distanceFromMidPoint = computeDistanceFromMidPoint(getUnitPreference());
+        final String displayString = formatDistanceFromMidPointString(distanceFromMidPoint, fairness);
+        viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address
-        final StringBuilder addressBuilder = new StringBuilder();
-        for (int i=0; i<business.getLocation().getDisplay_address().length; i++) {
-            addressBuilder.append(business.getLocation().getDisplay_address()[i]);
-            if (i < business.getLocation().getDisplay_address().length-1) {
-                addressBuilder.append("\n");
-            }
-        }
-        viewHolder.address.setText(addressBuilder.toString());
+        viewHolder.address.setText(buildFullAddress());
 
         //cross streets
         final String crossStreets = business.getLocation().getCross_streets();
@@ -286,6 +315,21 @@ public class SuggestionDetailFragment
 
         //hours
         viewHolder.hoursRange.setText(R.string.not_available);
+    }
+
+    /**
+     * Returns the full address by displaying each element of the display address on a new line.
+     * @return
+     */
+    private String buildFullAddress() {
+        final StringBuilder addressBuilder = new StringBuilder();
+        for (int i=0; i<business.getLocation().getDisplay_address().length; i++) {
+            addressBuilder.append(business.getLocation().getDisplay_address()[i]);
+            if (i < business.getLocation().getDisplay_address().length-1) {
+                addressBuilder.append("\n");
+            }
+        }
+        return addressBuilder.toString();
     }
 
     /**
@@ -347,6 +391,102 @@ public class SuggestionDetailFragment
     }
 
     /**
+     * Compares the distance between the user and place with the distance between the friend and place.
+     * Returns constants indicating if the place is closer to user, closer to friend, or equidistant.
+     * @return
+     */
+    private int computeFairnessScore() {
+        //compute distance between 1) user and place, 2) friend and place
+        double userDistance = LocationUtils.computeDistanceBetween(userLatLng, latLng);
+        double friendDistance = LocationUtils.computeDistanceBetween(friendLatLng, latLng);
+
+        //compare the distance and return fairness score
+        if (userDistance < friendDistance) {
+            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_USER. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+            return CLOSER_TO_USER;
+        }
+        if (userDistance > friendDistance) {
+            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_FRIEND. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+            return CLOSER_TO_FRIEND;
+        }
+        Log.d(TAG, String.format("computeFairnessScore: EQUIDISTANT. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+        return EQUIDISTANT;
+    }
+
+    /**
+     * Computes the distance between the place and midpoint. Returns distance in the preferred unit.
+     * @param unitPreference
+     * @return
+     */
+    private double computeDistanceFromMidPoint(int unitPreference) {
+        //compute distance between place and mid point
+        double distanceInMeters = LocationUtils.computeDistanceBetween(latLng, midLatLng);
+
+        //return distance in meters or miles
+        if (unitPreference == IMPERIAL) {
+            double distanceInMiles = LocationUtils.convertMetersToMiles(distanceInMeters);
+            Log.d(TAG, String.format("computeDistanceFromMidPoint: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
+            return distanceInMiles;
+        }
+        Log.d(TAG, "computeDistanceFromMidPoint: Distance(m):" + distanceInMeters);
+        return distanceInMeters;
+    }
+
+    /**
+     * Formats a string which comprises of 1) distance between the place and midpoint, and 2) fairness score.
+     * @param distanceFromMidPoint
+     * @param fairness
+     * @return
+     */
+    private String formatDistanceFromMidPointString(double distanceFromMidPoint, int fairness) {
+        //get reference to a decimal formatter
+        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter();
+
+        //build string
+        StringBuilder stringBuilder = new StringBuilder();
+
+        //build the distance between place and midpoint
+        if (getUnitPreference() == IMPERIAL) {
+            stringBuilder.append(getString(R.string.detail_distance_from_midPoint_miles, decimalFormatter.format(distanceFromMidPoint)));
+        }
+        else if (getUnitPreference() == METRIC) {
+            if (distanceFromMidPoint > 1000) { //if using metric and distance is greater than 1000m, then show in km
+                stringBuilder.append(getString(R.string.detail_distance_from_midPoint_km, decimalFormatter.format(distanceFromMidPoint / 1000.0)));
+            }
+            else {
+                stringBuilder.append(getString(R.string.detail_distance_from_midPoint_meters, decimalFormatter.format(distanceFromMidPoint)));
+            }
+        }
+
+        //append fairness score i.e. text that says whether the place is closer to user or friend
+        stringBuilder.append(" ");
+        switch (fairness) {
+            case CLOSER_TO_USER:
+                stringBuilder.append(getString(R.string.detail_closer_to_user));
+                break;
+            case CLOSER_TO_FRIEND:
+                stringBuilder.append(getString(R.string.detail_closer_to_friend));
+                break;
+            default:
+                stringBuilder.append(getString(R.string.detail_equidistant));
+                break;
+        }
+
+        //done
+        return stringBuilder.toString();
+    }
+
+
+    /**
+     * Get user's preference for units.
+     * TODO: Read this from preferences
+     * @return
+     */
+    private int getUnitPreference() {
+        return IMPERIAL;
+    }
+
+    /**
      * Returns the fragment view's view holder if it exists, or null.
      * @return
      */
@@ -363,7 +503,7 @@ public class SuggestionDetailFragment
         final ImageView image;
         final TextView name;
         final TextView categories;;
-        final TextView distanceFromCenter;
+        final TextView distanceFromMidPoint;
         final TextView address;
         final TextView crossStreets;
         final TextView phone;
@@ -385,7 +525,7 @@ public class SuggestionDetailFragment
             //text views
             name = (TextView) view.findViewById(R.id.detail_name);
             categories = (TextView) view.findViewById(R.id.detail_categories);
-            distanceFromCenter = (TextView) view.findViewById(R.id.detail_distance_from_center);
+            distanceFromMidPoint = (TextView) view.findViewById(R.id.detail_distance_from_midpoint);
             address = (TextView) view.findViewById(R.id.detail_address);
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);

@@ -24,6 +24,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     private static final String ARG_SEARCH_TERM = SuggestionsLoaderCallbacks.class.getSimpleName() + ".searchTerm";
     private static final String ARG_USER_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLatLng";
+    private static final String ARG_MID_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".midLatLng";
 
     //member variables
     private Context applicationContext;
@@ -44,13 +45,15 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param searchTerm
      * @param userLatLng
      * @param friendLatLng
+     * @param midLatLng midpoint between userLatLng and friendLatLng
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
+                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
+        args.putParcelable(ARG_MID_LATLNG, midLatLng);
 
         //call loaderManager's initLoader
         loaderManager.initLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -66,13 +69,15 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param searchTerm
      * @param userLatLng
      * @param friendLatLng
+     * @param midLatLng midpoint between userLatLng and friendLatLng
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
+                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
+        args.putParcelable(ARG_MID_LATLNG, midLatLng);
 
         //call loaderManager's restart loader
         loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -112,9 +117,10 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         String searchTerm = args.getString(ARG_SEARCH_TERM, "");
         LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
         LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
+        LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
 
         //create a new loader
-        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng);
+        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng);
     }
 
     /**

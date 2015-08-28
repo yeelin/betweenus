@@ -22,5 +22,23 @@ public class LocationUtils {
     public static LatLng computeMidPoint(@NonNull LatLng userLatLng, @NonNull LatLng friendLatLng) {
         return SphericalUtil.interpolate(userLatLng, friendLatLng, 0.5);
     }
+
+    /**
+     * Returns the distance between two latlngs in meters
+     * @param firstLatLng
+     * @param secondLatLng
+     * @return
+     */
+    public static double computeDistanceBetween(@NonNull LatLng firstLatLng, @NonNull LatLng secondLatLng) {
+        return SphericalUtil.computeDistanceBetween(firstLatLng, secondLatLng);
+    }
+    /**
+     * Converts meters to miles
+     * @param meters
+     * @return
+     */
+    public static double convertMetersToMiles(double meters) {
+        return meters / 1609.344;
+    }
 }
 

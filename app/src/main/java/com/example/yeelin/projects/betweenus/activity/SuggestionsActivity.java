@@ -22,6 +22,7 @@ import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -54,6 +55,10 @@ public class SuggestionsActivity
 
     //member variables
     private String searchTerm;
+    private LatLng userLatLng;
+    private LatLng friendLatLng;
+    private LatLng midLatLng;
+
     private boolean showingMap = false;
     private YelpResult result;
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
@@ -350,7 +355,8 @@ public class SuggestionsActivity
     public void onSuggestionClick(String id, String name, LatLng latLng) {
         Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
 
-        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, latLng, selectedIdsMap.containsKey(id));
+        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, latLng, selectedIdsMap.containsKey(id),
+                userLatLng, friendLatLng, midLatLng);
         startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
     }
 
@@ -431,9 +437,14 @@ public class SuggestionsActivity
      */
     @Override
     public void onPlacesSuccess(LatLng userLatLng, LatLng friendLatLng) {
-        //initializing the loader to fetch suggestions from the network
         Log.d(TAG, String.format("onPlacesSuccess: User:%s Friend:%s", userLatLng, friendLatLng));
-        SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng);
+
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
+        midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
+
+        //initializing the loader to fetch suggestions from the network
+        SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
     }
 
     /**

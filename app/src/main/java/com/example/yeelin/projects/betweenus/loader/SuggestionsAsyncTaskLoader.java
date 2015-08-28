@@ -21,18 +21,24 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     private final String searchTerm;
     private final LatLng userLatLng;
     private final LatLng friendLatLng;
+    private final LatLng midLatLng;
     private YelpResult yelpResult;
 
     /**
      * Constructor. Creates a fully specified async task loader
      * @param context
+     * @param searchTerm
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
      */
-    public SuggestionsAsyncTaskLoader(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
+    public SuggestionsAsyncTaskLoader(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         super(context);
 
         this.searchTerm = searchTerm;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
+        this.midLatLng = midLatLng;
     }
 
     /**
@@ -43,7 +49,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     @Override
     public YelpResult loadInBackground() {
         Log.d(TAG, "loadInBackground");
-        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng);
+        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
         return yelpResult;
     }
 

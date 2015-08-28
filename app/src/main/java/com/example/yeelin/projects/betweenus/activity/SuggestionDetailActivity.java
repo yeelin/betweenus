@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -27,6 +28,9 @@ public class SuggestionDetailActivity
     public static final String EXTRA_ID = SuggestionDetailActivity.class.getSimpleName() + ".id";
     private static final String EXTRA_NAME = SuggestionDetailActivity.class.getSimpleName() + ".name";
     private static final String EXTRA_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".latLng";
+    private static final String EXTRA_USER_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".userLatLng";
+    private static final String EXTRA_FRIEND_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".friendLatLng";
+    private static final String EXTRA_MID_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".midLatLng";
     public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
 
     //member variables
@@ -40,14 +44,23 @@ public class SuggestionDetailActivity
      * @param name
      * @param latLng
      * @param toggleState
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
-    public static Intent buildIntent(Context context, String id, String name, LatLng latLng, boolean toggleState) {
+    public static Intent buildIntent(Context context, String id, String name, LatLng latLng, boolean toggleState,
+                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
         intent.putExtra(EXTRA_ID, id);
         intent.putExtra(EXTRA_NAME, name);
         intent.putExtra(EXTRA_LATLNG, latLng);
+
+        intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
+        intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
+        intent.putExtra(EXTRA_MID_LATLNG, midLatLng);
+
         intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
 
         return intent;
@@ -71,6 +84,10 @@ public class SuggestionDetailActivity
         String name = intent.getStringExtra(EXTRA_NAME);
         LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
 
+        LatLng userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
+        LatLng friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
+        LatLng midLatLng = intent.getParcelableExtra(EXTRA_MID_LATLNG);
+
         //check if fragment exists, otherwise create it
         if (savedInstanceState == null) {
             Fragment suggestionDetailFragment = getSupportFragmentManager().findFragmentById(R.id.suggestionDetail_fragmentContainer);
@@ -78,13 +95,24 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng, toggleState))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng, toggleState, userLatLng, friendLatLng, midLatLng))
                         .commit();
             }
         }
         else {
             Log.d(TAG, "onCreate: Saved instance state is not null");
         }
+    }
+
+    /**
+     * Inflate the menu
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_suggestion_detail, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     /**
@@ -103,6 +131,10 @@ public class SuggestionDetailActivity
                 //set the result along with the intent, and finish
                 setResult(Activity.RESULT_OK, buildResultIntent());
                 finish();
+                return true;
+
+            case R.id.action_select:
+                Log.d(TAG, "onOptionsItemSelected: Invite button clicked");
                 return true;
 
             default:

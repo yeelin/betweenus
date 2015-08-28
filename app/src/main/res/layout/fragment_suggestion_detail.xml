@@ -29,6 +29,7 @@
                 android:layout_margin="@dimen/card_content_padding"
                 android:layout_alignBottom="@id/detail_mapContainer"
                 android:contentDescription="Image"
+                android:background="@drawable/border_imageview"
                 tools:src="@color/colorAccent"/>
 
             <TextView
@@ -133,7 +134,7 @@
                 style="@style/Medium_PrimaryTextViewStyle"
                 tools:text="@string/detail_categories_fake"/>
             <TextView
-                android:id="@+id/detail_distance_from_center"
+                android:id="@+id/detail_distance_from_midpoint"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_distance_fake"/>
 

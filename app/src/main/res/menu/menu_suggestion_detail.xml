@@ -3,19 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".activity.SuggestionsActivity">
+    tools:context=".activity.SuggestionDetailActivity">
 
-    <item
-        android:id="@+id/action_toggle"
-        android:orderInCategory="101"
-        android:title="@string/action_view_as_map"
-        android:icon="@drawable/ic_action_maps_map"
-        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_select"
         android:orderInCategory="102"
         android:title="@string/action_send"
         android:icon="@drawable/ic_action_content_send"
         app:showAsAction="ifRoom"/>
-
 </menu>

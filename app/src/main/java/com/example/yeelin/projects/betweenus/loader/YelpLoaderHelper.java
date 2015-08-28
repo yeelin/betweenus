@@ -1,16 +1,13 @@
 package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
-import android.location.Location;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.gson.YelpResultDeserializer;
 import com.example.yeelin.projects.betweenus.utils.CacheUtils;
 import com.example.yeelin.projects.betweenus.utils.FetchDataUtils;
-import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.yelp.YelpApiHelper;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
@@ -19,7 +16,6 @@ import com.google.gson.GsonBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/20/15.
@@ -38,9 +34,10 @@ public class YelpLoaderHelper {
      * @param searchTerm
      * @param userLatLng
      * @param friendLatLng
+     * @param midLatLng
      */
     @Nullable
-    public static YelpResult fetchFromNetwork(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng) {
+    public static YelpResult fetchFromNetwork(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "fetchFromNetwork");
 
         //make sure we have network connection and latest SSL
@@ -50,7 +47,7 @@ public class YelpLoaderHelper {
 
         try {
             //fetch data from Yelp
-            YelpResult yelpResult = fetchFromYelp(context, searchTerm, userLatLng, friendLatLng);
+            YelpResult yelpResult = fetchFromYelp(context, searchTerm, userLatLng, friendLatLng, midLatLng);
             CacheUtils.logCache();
             return yelpResult;
         }
@@ -71,8 +68,9 @@ public class YelpLoaderHelper {
      * @param searchTerm
      * @param userLatLng
      * @param friendLatLng
+     * @param midLatLng
      */
-    private static YelpResult fetchFromYelp(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng)
+    private static YelpResult fetchFromYelp(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng)
             throws IOException {
         Log.d(TAG, "fetchFromYelp");
 
@@ -80,8 +78,7 @@ public class YelpLoaderHelper {
         //open a http url connection to get data
         //build the result and return
         YelpApiHelper yelpApiHelper = new YelpApiHelper();
-        LatLng midPoint = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
-        InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, midPoint.latitude, midPoint.longitude);
+        InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, midLatLng.latitude, midLatLng.longitude);
 
         //deserialize the json response
         YelpResult yelpResult = deserializeYelpResponseJson(yelpResponseJSON);
