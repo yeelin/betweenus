@@ -55,6 +55,8 @@ public class SuggestionDetailFragment
     private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
 
     //constants
+    private static final int DEFAULT_ZOOM = 13;
+
     private static final int IMPERIAL = 0;
     private static final int METRIC = 1;
 
@@ -201,7 +203,7 @@ public class SuggestionDetailFragment
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
         if (mapFragment == null) {
             GoogleMapOptions googleMapOptions = new GoogleMapOptions()
-                    .camera(new CameraPosition(latLng, SuggestionsMapFragment.DEFAULT_ZOOM, 0, 0))
+                    .camera(new CameraPosition(latLng, DEFAULT_ZOOM, 0, 0))
                     .compassEnabled(false)
                     .liteMode(true)
                     .mapToolbarEnabled(false)

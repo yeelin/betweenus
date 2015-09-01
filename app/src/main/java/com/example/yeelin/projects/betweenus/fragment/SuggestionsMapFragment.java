@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -13,18 +14,21 @@ import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.SphericalUtil;
 
 /**
  * Created by ninjakiki on 7/28/15.
+ * TODO: Need to include map attribution in about page
+ * GoogleApiAvailability.getOpenSourceSoftwareLicenseInfo.
  */
 public class SuggestionsMapFragment
         extends BaseMapFragment
@@ -37,13 +41,14 @@ public class SuggestionsMapFragment
     //logcat
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
-    //map configurations
-    public static final int DEFAULT_ZOOM = 13; //default zoom when user location is displayed
-    private static final int PADDING_BOUNDING_BOX = 50; //space (in px) to leave between the bounding box edges and the view edges. This value is applied to all four sides of the bounding box.
-
     //member variables
     private YelpResult result;
     private boolean mapNeedsUpdate = false;
+
+    //TODO: show user and friend latlng on the map
+    private LatLng userLatLng;
+    private LatLng friendLatLng;
+    private LatLng midLatLng;
 
     private ArrayMap<String, String> selectedIdsMap;
     private SimpleArrayMap<String, Marker> idToMarkerMap = new SimpleArrayMap<>(); //for changing the selection state of the marker when onSelectionChanged event occurs
@@ -124,8 +129,12 @@ public class SuggestionsMapFragment
      * The loader has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
      * @param result
      * @param selectedIdsMap
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap) {
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap,
+                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "onSuggestionsLoaded");
         this.selectedIdsMap = selectedIdsMap;
 
@@ -138,6 +147,9 @@ public class SuggestionsMapFragment
         else {
             //result is different so save a reference to it
             this.result = result;
+            this.userLatLng = userLatLng;
+            this.friendLatLng = friendLatLng;
+            this.midLatLng = midLatLng;
         }
 
         //check if map is null
@@ -177,17 +189,18 @@ public class SuggestionsMapFragment
             idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
             addMarkersToMap();
 
-            //get region center
-            LatLng center = new LatLng(
-                    result.getRegion().getCenter().getLatitude(),
-                    result.getRegion().getCenter().getLongitude());
-            //set the camera to the region center first so that we can later animate from here
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLng(center);
-            map.moveCamera(cameraUpdate);
+            //add a circle around the center point
+            addCircleToMap();
         }
 
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
+
+        //zoom to bounds using the approx map size (based on display size)
+        final LatLngBounds mapBounds = computeMapBoundsFromResult();
+        final DisplayMetrics display = getResources().getDisplayMetrics();
+        final int padding = display.widthPixels / 20;
+        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding));
     }
 
     /**
@@ -195,8 +208,6 @@ public class SuggestionsMapFragment
      * Also saves marker to business id mapping, and business id to rating url mapping.
      */
     private void addMarkersToMap() {
-        //LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
-
         //loop through suggested items and:
         //1. place markers on the map
         //2. add markers to the markerToId map
@@ -213,13 +224,42 @@ public class SuggestionsMapFragment
             markerToIdMap.put(marker, business.getId());
             idToMarkerMap.put(business.getId(), marker);
             idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
-            //boundsBuilder.include(markerOptions.getPosition());
         }
-        //bounds = boundsBuilder.build();
     }
 
     /**
-     * OnSelectionChangedCallback implememtation
+     * Adds a circle centered at the center of the yelp result region, with radius specified
+     * by half of the longitude delta.
+     */
+    private void addCircleToMap() {
+        Log.d(TAG, "addCircleToMap");
+        //read the yelp result region so that we can specify the map bounds
+        final YelpResultRegion resultRegion = result.getRegion();
+
+        //get region center
+        final LatLng center = new LatLng(
+                resultRegion.getCenter().getLatitude(),
+                resultRegion.getCenter().getLongitude());
+        //get long delta from the center
+        final double longDelta = resultRegion.getSpan().getLongitude_delta();
+
+        //compute radius
+        final LatLng west = new LatLng(center.latitude, center.longitude - longDelta/2);
+        final double radius = SphericalUtil.computeDistanceBetween(center, west);
+        Log.d(TAG, String.format("addCircleToMap: Center:%s, Radius:%.2f", center, radius));
+
+        //create circle and add to map
+        final CircleOptions circleOptions = new CircleOptions()
+                .center(center)
+                .radius(radius)
+                .strokeWidth(0) //no outline
+                .strokeColor(android.R.color.transparent)
+                .fillColor(R.color.colorPrimaryLight);
+        map.addCircle(circleOptions);
+    }
+
+    /**
+     * OnSelectionChangedCallback implementation
      * The contents of the idToMarkerMap array map has changed (even if the reference itself hasn't).
      * Change the color of the corresponding marker.
      * @param id id of the item whose selection has changed.
@@ -255,24 +295,11 @@ public class SuggestionsMapFragment
 
     /**
      * GoogleMap.OnMapLoadedCallback implementation
-     * This method is called when the map has finished rendering.  Animate the camera to the bounds computed
-     * from the yelp result.
+     * This method is called when the map has finished rendering.
      */
     @Override
     public void onMapLoaded() {
         Log.d(TAG, "onMapLoaded");
-        //Note: bounds doesn't works work since some markers may end up on the extreme edge of the map
-//        if (bounds != null) {
-//            Log.d(TAG, "onMapLoaded: Bounds != null");
-//            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
-//        }
-
-        if (cameraPosition == null && result != null) {
-            //read the yelp result region so that we can specify the map bounds
-            LatLngBounds mapBounds = computeMapBoundsFromResult();
-            //animate the camera over to the region specified by bounds
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, PADDING_BOUNDING_BOX));
-        }
     }
 
     /**

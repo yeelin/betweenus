@@ -286,7 +286,7 @@ public class SuggestionsActivity
                     .show(mapFragment)
                     .commit();
             if (shouldLoadData) {
-                mapFragment.onSuggestionsLoaded(result, selectedIdsMap);
+                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
         else {
@@ -297,7 +297,7 @@ public class SuggestionsActivity
                     .show(listFragment)
                     .commit();
             if (shouldLoadData) {
-                listFragment.onSuggestionsLoaded(result, selectedIdsMap);
+                listFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
     }
@@ -332,14 +332,14 @@ public class SuggestionsActivity
             Log.d(TAG, "onLoadComplete: Notifying map fragment");
             SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
-                mapFragment.onSuggestionsLoaded(result, selectedIdsMap);
+                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
         else {
             Log.d(TAG, "onLoadComplete: Notifying list fragment");
             SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
             if (listFragment != null) {
-                listFragment.onSuggestionsLoaded(result, selectedIdsMap);
+                listFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
     }

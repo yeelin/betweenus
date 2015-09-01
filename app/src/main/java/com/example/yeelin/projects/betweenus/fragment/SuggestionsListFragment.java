@@ -154,8 +154,12 @@ public class SuggestionsListFragment
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * @param result
      * @param selectedIdsMap
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng 
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap) {
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap,
+                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
