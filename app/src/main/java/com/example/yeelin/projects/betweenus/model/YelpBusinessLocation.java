@@ -49,6 +49,14 @@ public class YelpBusinessLocation {
         return coordinate;
     }
 
+    public String getShortDisplayAddress() {
+        if (display_address == null || display_address.length == 0) return null;
+        if (city != null)
+            return display_address[0] + ", " + city;
+        else
+            return display_address[0];
+    }
+
     /**
      * Returns the full address by displaying each element of the display address on a new line.
      * @return

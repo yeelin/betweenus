@@ -32,7 +32,7 @@ public class SimplifiedBusiness implements Parcelable {
     private SimplifiedBusiness(Context context, @NonNull YelpBusiness business) {
         id = business.getId();
         name = business.getName();
-        address = context.getString(R.string.list_item_short_address, business.getLocation().getAddress()[0], business.getLocation().getCity());
+        address = business.getLocation().getShortDisplayAddress();
         categories = business.getDisplayCategories();
         reviews = business.getReview_count();
         imageUrl = business.getImage_url();

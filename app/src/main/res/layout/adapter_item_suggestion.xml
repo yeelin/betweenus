@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
+    android:padding="16dp"
 
     app:useDefaultMargins="false"
     app:alignmentMode="alignMargins"
@@ -22,7 +21,7 @@
         android:layout_width="75dp"
         android:layout_height="75dp"
 
-        app:layout_gravity="start"
+        app:layout_gravity="start|top"
         app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
@@ -35,7 +34,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="start"
-
+        android:paddingLeft="4dp"
         app:layout_gravity="center_vertical"
         app:layout_columnWeight=".55"
 
@@ -83,13 +82,17 @@
         app:layout_column="2"
 
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+
+        app:layout_columnWeight=".15"
+
+        android:checkMark="@null"
+        android:drawableLeft="@drawable/checked_item_state"
+        android:drawableRight="@null"
         android:gravity="start"
-
+        android:paddingLeft="4dp"
+        tools:checked="true"
         app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".25"
-
-        android:checkMark="@drawable/checked_item_state"
-        tools:checked="true"/>
+        android:text="@null"/>
 
 </android.support.v7.widget.GridLayout>
