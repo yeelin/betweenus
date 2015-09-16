@@ -28,9 +28,6 @@
 
     <!-- Edit Text Style -->
     <style name="EditTextStyle">
-        <item name="android:layout_marginLeft">@dimen/card_content_padding</item>
-        <item name="android:layout_marginRight">@dimen/card_content_padding</item>
-        <item name="android:layout_marginTop">@dimen/card_content_padding</item>
         <item name="android:layout_centerHorizontal">true</item>
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:textColorHint">@color/textColorSecondary</item>
@@ -46,7 +43,7 @@
     <!-- Medium Button styles-->
     <style name="Medium_AccentButtonStyle">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_height">36dp</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
         <item name="android:background">@color/colorAccent</item>
