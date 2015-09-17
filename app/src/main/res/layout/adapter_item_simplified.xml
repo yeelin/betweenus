@@ -5,8 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
+    android:padding="16dp"
 
     app:useDefaultMargins="false"
     app:alignmentMode="alignMargins"
@@ -22,11 +21,11 @@
         android:layout_width="75dp"
         android:layout_height="75dp"
 
-        app:layout_gravity="start"
+        app:layout_gravity="start|top"
         app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
-        tools:src="@color/colorAccent"/>
+        android:src="@drawable/ic_business_image_placeholder"/>
 
     <LinearLayout
         app:layout_row="0"
@@ -68,7 +67,7 @@
             android:id="@+id/item_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:drawableLeft="@drawable/stars_large_4"
+            tools:drawableLeft="@drawable/stars_small_4"
             android:drawablePadding="5dp"
             android:paddingTop="2dp"
             android:gravity="center_vertical"

@@ -62,6 +62,9 @@
     <string name="not_available">Not available</string>
     <string name="detail_container_not_available">Sorry, details are not available at this time.</string>
 
+    <!-- Empty listview strings -->
+    <string name="no_suggestions">No suggestions</string>
+    <string name="no_selection">You have not made any selections.</string>
     <!-- Detail buttons-->
     <string name="detail_website_button">Website</string>
     <string name="detail_phone_button">Call</string>
@@ -75,6 +78,8 @@
     <string name="invite_image_overlay_text">Invite your friend</string>
     <string name="friend_phone">"Enter friend's phone to invite"</string>
     <string name="friend_email">"Enter friend's email to invite"</string>
+    <string name="invite_by_email">Invite by email instead</string>
+    <string name="invite_by_text">Invite by text instead</string>
 
     <!-- Text message strings -->
     <string name="sms_body">I found these places on Between: %1$s. What do you think?</string>

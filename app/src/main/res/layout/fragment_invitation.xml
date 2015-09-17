@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.widget.NestedScrollView
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,69 +8,101 @@
     android:fillViewport="true"
     tools:context=".fragment.InvitationFragment">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- listview -->
+        <android.support.v4.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:background="@color/colorPrimary"
-                android:gravity="bottom"
-                android:paddingLeft="@dimen/card_content_padding"
-                android:paddingBottom="@dimen/card_content_padding"
-                android:textColor="@android:color/white"
-                android:text="@string/invite_image_overlay_text"
-                android:textSize="24sp"/>
-
+            android:layout_height="wrap_content">
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_margin="24dp">
+                android:layout_height="wrap_content">
 
                 <ListView
                     android:id="@+id/selected_items_listView"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="300dp"
                     android:listSelector="@android:color/transparent"
                     android:cacheColorHint="@android:color/transparent"
+                    android:clipToPadding="false"
+                    android:scrollbarStyle="outsideOverlay"
                     tools:listitem="@layout/adapter_item_simplified"/>
 
                 <TextView
                     android:id="@+id/selected_items_empty"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="You have not selected any places!"
+                    android:text="@string/no_selection"
                     android:visibility="gone"/>
+
             </FrameLayout>
+        </android.support.v4.widget.NestedScrollView>
+
+        <!-- text field and send button -->
+        <android.support.v7.widget.GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+
+            app:useDefaultMargins="false"
+            app:alignmentMode="alignMargins"
+            app:columnOrderPreserved="false"
+            app:columnCount="2"
+            app:orientation="horizontal"
+            android:visibility="visible">
 
             <EditText
-                android:id="@+id/friend_phone"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:id="@+id/friend_contact"
+                app:layout_row="0"
+                app:layout_column="0"
+
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+
+                app:layout_gravity="bottom"
+                app:layout_columnWeight=".8"
+
                 style="@style/EditTextStyle"
                 android:imeOptions="actionSend"
                 android:inputType="phone"
                 android:hint="@string/friend_phone" />
 
-            <EditText
-                android:id="@+id/friend_email"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                style="@style/EditTextStyle"
-                android:imeOptions="actionSend"
-                android:inputType="textEmailAddress"
-                android:hint="@string/friend_email" />
-
-            <Button
+            <ImageButton
                 android:id="@+id/invite_send_button"
-                style="@style/Medium_AccentButtonStyle"
-                android:layout_gravity="end"
-                android:layout_marginTop="16dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginBottom="16dp"
+                app:layout_row="0"
+                app:layout_column="1"
+
+                android:layout_width="0dp"
+                android:layout_height="36dp"
                 android:gravity="center"
-                android:text="@string/invite_button"/>
-        </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+
+                app:layout_gravity="center_vertical"
+                app:layout_columnWeight=".2"
+
+                style="@style/Medium_AccentButtonStyle"
+                android:src="@drawable/ic_action_chat"/>
+
+        </android.support.v7.widget.GridLayout>
+
+        <!-- Toggle alternate invite option -->
+        <Button
+            android:id="@+id/invite_toggle_button"
+            style="@style/Medium_AccentButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_margin="16dp"
+            android:layout_gravity="center"
+
+            android:gravity="center"
+            android:text="@string/invite_by_email" />
+
+    </LinearLayout>
+</ScrollView>

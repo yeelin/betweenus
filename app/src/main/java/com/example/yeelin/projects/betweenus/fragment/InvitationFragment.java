@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -37,13 +39,14 @@ public class InvitationFragment
     //member variables
     private ArrayList<SimplifiedBusiness> selectedItems;
     private InvitationFragmentListener listener;
+    private boolean inviteByText = true;
 
     /**
      * Listener interface for fragments or activities interested in events from this fragment
      */
     public interface InvitationFragmentListener {
-        public void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems);
-        public void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems);
+        void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems);
+        void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems);
     }
 
     /**
@@ -128,12 +131,15 @@ public class InvitationFragment
         SimplifiedBusinessAdapter simplifiedBusinessAdapter = new SimplifiedBusinessAdapter(viewHolder.selectedItemsListView.getContext(), selectedItems);
         viewHolder.selectedItemsListView.setAdapter(simplifiedBusinessAdapter);
 
-        //setup listener for phone and email fields
-        viewHolder.friendPhone.setOnEditorActionListener(this);
-        viewHolder.friendEmail.setOnEditorActionListener(this);
+        //setup listener for contact field
+        viewHolder.friendContact.setOnEditorActionListener(this);
 
         //set up listener for buttons
-        viewHolder.inviteButton.setOnClickListener(this);
+        viewHolder.inviteSendButton.setOnClickListener(this);
+        viewHolder.inviteToggleButton.setOnClickListener(this);
+
+        //do remaining setup based on current toggle state
+        toggleViews();
     }
 
     /**
@@ -174,25 +180,65 @@ public class InvitationFragment
                 sendInvite();
                 break;
 
+            case R.id.invite_toggle_button:
+                inviteByText = !inviteByText;
+                toggleViews();
+                break;
+
             default:
                 break;
         }
     }
 
+    private void toggleViews() {
+        final ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) return;
+
+        if (inviteByText) {
+            Log.d(TAG, "toggleViews: Invite by Text");
+
+            //update toggle button to show alternative option
+            viewHolder.inviteToggleButton.setText(R.string.invite_by_email);
+            //update send button
+            viewHolder.inviteSendButton.setImageResource(R.drawable.ic_action_chat);
+            //update contact field
+            viewHolder.friendContact.setHint(R.string.friend_phone);
+            viewHolder.friendContact.setInputType(InputType.TYPE_CLASS_PHONE);
+            viewHolder.friendContact.setText("");
+        }
+        else {
+            Log.d(TAG, "toggleViews: Invite by Email");
+
+            //update toggle button to show alternative option
+            viewHolder.inviteToggleButton.setText(R.string.invite_by_text);
+            //update send button
+            viewHolder.inviteSendButton.setImageResource(R.drawable.ic_communication_email);
+            //update contact field
+            viewHolder.friendContact.setHint(R.string.friend_email);
+            viewHolder.friendContact.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+            viewHolder.friendContact.setText("");
+        }
+    }
+
     /**
-     * Ask the listener to send the invite either by text or email depending on which field was filled out
+     * Ask the listener to send the invite by email
      */
     private void sendInvite() {
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
 
-        if (viewHolder.friendPhone.getText().length() > 0) {
-            //text friend
-            listener.onInviteByTextMessage(viewHolder.friendPhone.getText().toString(), selectedItems);
+        if (viewHolder.friendContact.getText().length() <= 0) {
+            Log.d(TAG, "sendInvite: No contact provided, nothing to do");
+            return;
         }
-        else if (viewHolder.friendEmail.getText().length() > 0) {
-            //email friend
-            listener.onInviteByEmail(viewHolder.friendEmail.getText().toString(), selectedItems);
+
+        if (inviteByText) {
+            Log.d(TAG, "sendInvite: Text invite: " + selectedItems);
+            listener.onInviteByTextMessage(viewHolder.friendContact.getText().toString(), selectedItems);
+        }
+        else {
+            Log.d(TAG, "sendInvite: Email invite: " + selectedItems);
+            listener.onInviteByEmail(viewHolder.friendContact.getText().toString(), selectedItems);
         }
     }
 
@@ -211,18 +257,17 @@ public class InvitationFragment
      */
     private class ViewHolder {
         final ListView selectedItemsListView;
-
-        final EditText friendPhone;
-        final EditText friendEmail;
-        final Button inviteButton;
+        final EditText friendContact;
+        final ImageButton inviteSendButton;
+        final Button inviteToggleButton;
 
         ViewHolder(View view) {
             selectedItemsListView = (ListView) view.findViewById(R.id.selected_items_listView);
             selectedItemsListView.setEmptyView(view.findViewById(R.id.selected_items_empty));
 
-            friendPhone = (EditText) view.findViewById(R.id.friend_phone);
-            friendEmail = (EditText) view.findViewById(R.id.friend_email);
-            inviteButton = (Button) view.findViewById(R.id.invite_send_button);
+            friendContact = (EditText) view.findViewById(R.id.friend_contact);
+            inviteSendButton = (ImageButton) view.findViewById(R.id.invite_send_button);
+            inviteToggleButton = (Button) view.findViewById(R.id.invite_toggle_button);
         }
     }
 }
