@@ -190,6 +190,9 @@ public class InvitationFragment
         }
     }
 
+    /**
+     * Updates the views based on whether we are inviting by text or email.
+     */
     private void toggleViews() {
         final ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
@@ -221,7 +224,7 @@ public class InvitationFragment
     }
 
     /**
-     * Ask the listener to send the invite by email
+     * Ask the listener to send the invite by the selected option
      */
     private void sendInvite() {
         ViewHolder viewHolder = getViewHolder();
