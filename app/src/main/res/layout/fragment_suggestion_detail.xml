@@ -32,19 +32,29 @@
                 android:background="@drawable/border_imageview"
                 android:src="@drawable/ic_business_image_placeholder"/>
 
-            <TextView
-                android:id="@+id/detail_name"
+            <com.facebook.shimmer.ShimmerFrameLayout
+                android:id="@+id/shimmerContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/detail_image"
                 android:layout_toRightOf="@id/detail_image"
-                android:layout_toEndOf="@id/detail_image"
-                android:paddingRight="@dimen/card_content_padding"
-                android:paddingEnd="@dimen/card_content_padding"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="@dimen/medium_textSize"
-                android:textStyle="bold"
-                tools:text="@string/detail_name_fake"/>
+                android:layout_toEndOf="@id/detail_image">
+
+                <TextView
+                    android:id="@+id/detail_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/detail_image"
+                    android:layout_toRightOf="@id/detail_image"
+                    android:layout_toEndOf="@id/detail_image"
+                    android:paddingRight="@dimen/card_content_padding"
+                    android:paddingEnd="@dimen/card_content_padding"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="@dimen/medium_textSize"
+                    android:textStyle="bold"
+                    tools:text="@string/detail_name_fake"/>
+
+            </com.facebook.shimmer.ShimmerFrameLayout>
         </RelativeLayout>
 
         <!-- Grid of buttons -->

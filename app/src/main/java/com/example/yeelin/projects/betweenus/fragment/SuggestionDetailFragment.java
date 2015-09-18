@@ -21,6 +21,7 @@ import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -239,6 +240,21 @@ public class SuggestionDetailFragment
     }
 
     /**
+     * Do some shimmering in case we load slowly.
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        //shimmer while we are loading
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder != null) {
+            viewHolder.shimmerContainer.setDuration(400);
+            viewHolder.shimmerContainer.startShimmerAnimation();
+        }
+    }
+
+    /**
      * SingleSuggestionLoaderCallbacks.SingleSuggestionLoaderListener callback
      * When the loader delivers the results, this method would be called.  This method then calls updateView.
      * @param loaderId
@@ -252,12 +268,15 @@ public class SuggestionDetailFragment
         }
 
         this.business = business;
-        //debugging purposes
+
         if (business == null) {
             Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
             //animate in the detail empty textview, and animate out the progress bar
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailEmtpy.getVisibility() != View.VISIBLE) {
+                //stop shimmering
+                viewHolder.shimmerContainer.stopShimmerAnimation();
+
                 viewHolder.detailContainer.setVisibility(View.GONE); //make sure container doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmtpy, viewHolder.detailProgressBar);
             }
@@ -268,6 +287,9 @@ public class SuggestionDetailFragment
             //animate in the detail container, and animate out the progress bar
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
+                //stop shimmering
+                viewHolder.shimmerContainer.stopShimmerAnimation();
+
                 viewHolder.detailEmtpy.setVisibility(View.GONE); //make sure empty view doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
             }
@@ -518,6 +540,8 @@ public class SuggestionDetailFragment
         final View detailProgressBar;
         final TextView detailEmtpy;
 
+        final ShimmerFrameLayout shimmerContainer;
+
         ViewHolder(View view) {
             //image view
             image = (ImageView) view.findViewById(R.id.detail_image);
@@ -542,6 +566,9 @@ public class SuggestionDetailFragment
             detailContainer = view.findViewById(R.id.detail_container);
             detailProgressBar = view.findViewById(R.id.detail_progressBar);
             detailEmtpy = (TextView) view.findViewById(R.id.detail_empty);
+
+            //shimmer
+            shimmerContainer = (ShimmerFrameLayout) view.findViewById(R.id.shimmerContainer);
         }
     }
 }
