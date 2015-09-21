@@ -7,6 +7,7 @@ import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Pair;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.MapItemInfoWindowAdapter;
@@ -45,7 +46,6 @@ public class SuggestionsMapFragment
     private YelpResult result;
     private boolean mapNeedsUpdate = false;
 
-    //TODO: show user and friend latlng on the map
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -54,6 +54,8 @@ public class SuggestionsMapFragment
     private SimpleArrayMap<String, Marker> idToMarkerMap = new SimpleArrayMap<>(); //for changing the selection state of the marker when onSelectionChanged event occurs
     private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>(); //for getting the business id corresponding to the clicked marker
     private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>(); //for getting the rating image url corresponding to the clicked marker
+    private Marker userLocationMarker; //for showing user's location marker
+    private Marker friendLocationMarker; //for showing friend's location marker
 
     private OnSuggestionActionListener suggestionActionListener;
 
@@ -178,6 +180,15 @@ public class SuggestionsMapFragment
         markerToIdMap.clear();
         idToMarkerMap.clear();
         idToRatingUrlMap.clear();
+        //clear out any user/friend markers as well
+        if (userLocationMarker != null) {
+            userLocationMarker.remove();
+            userLocationMarker = null;
+        }
+        if (friendLocationMarker != null) {
+            friendLocationMarker.remove();
+            friendLocationMarker = null;
+        }
 
         //check if result is null
         if (result != null && result.getBusinesses().size() > 0) {
@@ -196,11 +207,8 @@ public class SuggestionsMapFragment
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
 
-        //zoom to bounds using the approx map size (based on display size)
-        final LatLngBounds mapBounds = computeMapBoundsFromResult();
-        final DisplayMetrics display = getResources().getDisplayMetrics();
-        final int padding = display.widthPixels / 20;
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding));
+        //zoom to bounds using the approx map size
+        zoomMapToBounds(false, true, false); //false = don't include people, true = base it on display size, false = don't animate transition
     }
 
     /**
@@ -303,11 +311,11 @@ public class SuggestionsMapFragment
     }
 
     /**
-     * Helper method that read the yelp result region and returns them as bounds
-     * for the map
-     * @return
+     * Helper method that read the yelp result region and returns the bounds for the map
+     * as a pair of points (sw, ne).
+     * @return Pair<LatLng (sw), LatLng (ne)>
      */
-    private LatLngBounds computeMapBoundsFromResult() {
+    private Pair<LatLng, LatLng> computePairBoundsFromResult() {
         //read the yelp result region so that we can specify the map bounds
         YelpResultRegion resultRegion = result.getRegion();
 
@@ -330,7 +338,46 @@ public class SuggestionsMapFragment
         LatLng sw = new LatLng(south.latitude, west.longitude);
 
         //create bounds object
-        return new LatLngBounds(sw, ne);
+        return new Pair<>(sw, ne);
+    }
+
+    /**
+     * Zooms the map to bounds based on specified parameters.
+     * @param includePeople if true, then bounds will include user and friend's locations. Additional padding is provided.
+     * @param useDisplaySize if true, then base map size on display size since layout hasn't happened yet
+     * @param shouldAnimate if true, then animate the transition
+     */
+    private void zoomMapToBounds(boolean includePeople, boolean useDisplaySize, boolean shouldAnimate) {
+        final Pair<LatLng, LatLng> pairBounds = computePairBoundsFromResult();
+        final DisplayMetrics display = getResources().getDisplayMetrics();
+
+        LatLngBounds mapBounds;
+        int padding;
+
+        if (includePeople) { //bounds = result and people
+            mapBounds = new LatLngBounds.Builder()
+                    .include(userLatLng)
+                    .include(friendLatLng)
+                    .include(pairBounds.first)
+                    .include(pairBounds.second)
+                    .build();
+            padding = display.widthPixels / 10; //more padding
+        }
+        else { //bounds = result only, no people
+            mapBounds = new LatLngBounds(pairBounds.first, pairBounds.second); //first = sw, second = ne
+            padding = display.widthPixels / 20; //less padding
+        }
+
+        if (shouldAnimate) {
+            map.animateCamera(useDisplaySize ?
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding) :
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, padding));
+        }
+        else {
+            map.moveCamera(useDisplaySize ?
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding) :
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, padding));
+        }
     }
 
     /**
@@ -361,5 +408,56 @@ public class SuggestionsMapFragment
 
         //notify the activity that a suggestion was clicked
         suggestionActionListener.onSuggestionClick(businessId, marker.getTitle(), marker.getPosition());
+    }
+
+    /**
+     * Toggles the user and friend's location markers on the map.  This method is called by SuggestionActivity when the
+     * menu item is toggled.
+     * @param show
+     */
+    public void showPeopleLocation(boolean show) {
+        Log.d(TAG, "showPeopleLocation: Show:" + show);
+        if (show) {
+            //show user's marker
+            if (userLocationMarker == null) {
+                //create and add new marker
+                MarkerOptions userMarkerOptions = new MarkerOptions()
+                        .position(userLatLng)
+                        .title(getString(R.string.map_marker_user_location))
+                        .icon(determineMarkerIcon(false));
+                userLocationMarker = map.addMarker(userMarkerOptions);
+            }
+            else {
+                //marker exists, so set it to visible
+                userLocationMarker.setVisible(true);
+            }
+
+            //show friend's marker
+            if (friendLocationMarker == null) {
+                //create and add new marker
+                MarkerOptions friendMarkerOptions = new MarkerOptions()
+                        .position(friendLatLng)
+                        .title(getString(R.string.map_marker_friend_location))
+                        .icon(determineMarkerIcon(false));
+                friendLocationMarker = map.addMarker(friendMarkerOptions);
+            }
+            else {
+                //marker exists, so set it to visible
+                friendLocationMarker.setVisible(true);
+            }
+
+            //recalculate map bounds to include user and friend markers
+            zoomMapToBounds(true, false, true); //true = include people, false = don't use display size, true = animate transition
+        }
+        else {
+            //hide user's marker
+            if (userLocationMarker != null) userLocationMarker.setVisible(false);
+
+            //hide friend's marker
+            if (friendLocationMarker != null) friendLocationMarker.setVisible(false);
+
+            //recalculate map bounds to show results only
+            zoomMapToBounds(false, false, true); //false = don't include people, false = don't use display size, true = animate transition
+        }
     }
 }

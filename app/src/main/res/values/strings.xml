@@ -3,7 +3,7 @@
 
     <!-- activity titles -->
     <string name="title_launcher">Between</string>
-    <string name="title_suggested_places">Suggested Places</string>
+    <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
@@ -22,6 +22,8 @@
     <string name="action_send">Send to friend</string>
     <string name="action_view_as_map">View as map</string>
     <string name="action_view_as_list">View as list</string>
+    <string name="action_show_people_location">Show user and friend locations</string>
+    <string name="action_hide_people_location">Hide user and friend locations</string>
 
     <!-- Main activity strings -->
     <string name="location_entry_header">Find places to meet between you and your friend</string>
@@ -73,6 +75,8 @@
     <!-- Map strings -->
     <string name="map_contentDescription">Map view of search results</string>
     <string name="map_marker_snippet">Rating:%1$s, Reviews:%2$s </string>
+    <string name="map_marker_user_location">Your location</string>
+    <string name="map_marker_friend_location">"Friend's location"</string>
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>

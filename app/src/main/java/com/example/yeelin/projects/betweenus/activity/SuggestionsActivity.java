@@ -64,6 +64,9 @@ public class SuggestionsActivity
     private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
 
+    private MenuItem peopleLocationMenuItem;
+    private boolean showingPeopleLocation = false;
+
     /**
      * Builds the appropriate intent to start this activity.
      * @param context
@@ -153,9 +156,14 @@ public class SuggestionsActivity
         getMenuInflater().inflate(R.menu.menu_suggestions, menu);
 
         //configure the toggle item to show the correct icon and title depending on boolean showingMap
-        MenuItem toggleItem = menu.findItem(R.id.action_toggle);
+        final MenuItem toggleItem = menu.findItem(R.id.action_toggle);
         toggleMenuItemIcon(toggleItem);
         toggleMenuItemTitle(toggleItem);
+
+        //configure the menu item
+        peopleLocationMenuItem = menu.findItem(R.id.action_show_people_location);
+        showHidePeopleMenuItem();
+        showHidePeopleMenuItemTitle();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -209,10 +217,29 @@ public class SuggestionsActivity
                 Log.d(TAG, String.format("onOptionsItemSelected: Toggle clicked. Current:%s, Next:%s", showingMap ? "map" : "list", !showingMap ? "map" : "list"));
                 showingMap = !showingMap;
 
+                //toggle list/map icon and title
                 toggleMenuItemIcon(item);
                 toggleMenuItemTitle(item);
-
+                //toggle list/map fragments
                 toggleListAndMapFragments(true); //true == load data
+
+                //toggle people location item on/off
+                showHidePeopleMenuItem();
+                showHidePeopleMenuItemTitle();
+                return true;
+
+            //toggle poeple location on/off
+            case R.id.action_show_people_location:
+                Log.d(TAG, String.format("onOptionsItemSelected: People toggle clicked. Current:%s, Next:%s", showingPeopleLocation ? "people" : "no people", !showingPeopleLocation ? "people" : "no people"));
+                showingPeopleLocation = !showingPeopleLocation;
+
+                //toggle people location item on/off
+                showHidePeopleMenuItem();
+                showHidePeopleMenuItemTitle();
+
+                //notify map fragment toggle the markers
+                SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+                if (mapFragment != null) mapFragment.showPeopleLocation(showingPeopleLocation);
                 return true;
 
             default:
@@ -264,6 +291,31 @@ public class SuggestionsActivity
      */
     private void toggleMenuItemTitle(MenuItem item) {
         item.setTitle(showingMap ? R.string.action_view_as_list : R.string.action_view_as_map);
+    }
+
+
+    /**
+     * Depending on the boolean showingPeopleLocation, this method toggles the icon of the
+     * people menu item
+     */
+    private void showHidePeopleMenuItem() {
+        if (showingMap) {
+            peopleLocationMenuItem.setIcon(showingPeopleLocation ? R.drawable.ic_action_social_people_outline : R.drawable.ic_action_social_people);
+            peopleLocationMenuItem.setVisible(true);
+        }
+        else {
+            peopleLocationMenuItem.setVisible(false);
+        }
+    }
+
+    /**
+     * Depending on the boolean showingPeopleLocation, this method toggles the title of the
+     * people menu item
+     */
+    private void showHidePeopleMenuItemTitle() {
+        if (showingMap) {
+            peopleLocationMenuItem.setTitle(showingPeopleLocation ? R.string.action_hide_people_location : R.string.action_show_people_location);
+        }
     }
 
     /**
