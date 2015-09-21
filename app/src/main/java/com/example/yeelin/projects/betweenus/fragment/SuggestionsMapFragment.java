@@ -402,6 +402,13 @@ public class SuggestionsMapFragment
      */
     @Override
     public void onInfoWindowClick(Marker marker) {
+        //do nothing if the tapped info window belongs the user and friend's location marker
+        final String title = marker.getTitle();
+        if (title.equalsIgnoreCase(userLocationMarker.getTitle()) || title.equalsIgnoreCase(friendLocationMarker.getTitle())) {
+            Log.d(TAG, "onInfoWindowClick: Do nothing. Marker's title:"  + title);
+            return;
+        }
+
         //get the business id corresponding to the clicked marker
         String businessId = markerToIdMap.get(marker);
         Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessId));
