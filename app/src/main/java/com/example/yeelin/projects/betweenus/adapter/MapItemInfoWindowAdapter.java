@@ -27,7 +27,9 @@ public class MapItemInfoWindowAdapter
     private Context context;
     private SimpleArrayMap<Marker, Pair<String,Integer>> markerToIdPositionPairMap;
     private SimpleArrayMap<String, String> idToRatingUrlMap;
-    private SimpleArrayMap<Marker, View> markerToViewMap;
+    private SimpleArrayMap<Marker, View> markerToInfoWindowMap;
+    private Marker userLocationMarker;
+    private Marker friendLocationMarker;
 
     /**
      * Constructor
@@ -40,7 +42,8 @@ public class MapItemInfoWindowAdapter
         this.context = context;
         this.markerToIdPositionPairMap = markerToIdPositionPairMap;
         this.idToRatingUrlMap = idToRatingUrlMap;
-        markerToViewMap = new SimpleArrayMap<>();
+
+        markerToInfoWindowMap = new SimpleArrayMap<>();
     }
 
     /**
@@ -57,7 +60,11 @@ public class MapItemInfoWindowAdapter
     }
 
     /**
-     * Returns custom content for the info window given a marker
+     * Returns custom content for the info window given a marker.
+     * Checks markerToInfoWindowMap to see if an info window already exists for the marker.
+     * 1. If it does, it returns the existing info window.
+     * 2. Otherwise, it inflates a new info window depending on whether it is a people location or a place marker.
+     *
      * @param marker
      * @return
      */
@@ -67,40 +74,68 @@ public class MapItemInfoWindowAdapter
 
         //check if view for the given marker already exists, and if so return it
         //there will be one view per marker instead of recycling views
-        if (markerToViewMap.containsKey(marker)) {
-            Log.d(TAG, "getInfoContents: Map contains view for marker so returning");
-            return markerToViewMap.get(marker);
+        if (markerToInfoWindowMap.containsKey(marker)) {
+            Log.d(TAG, "getInfoContents: Map has infoWindow for marker so returning");
+            return markerToInfoWindowMap.get(marker);
         }
 
         //doesn't exist, so inflate a new one
-        Log.d(TAG, "getInfoContents: Map doesn't have view for marker so inflating a new one");
-        View view = View.inflate(context, R.layout.map_info_contents, null);
+        final View view;
 
-        //set the title
-        TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText(marker.getTitle());
+        //check if this marker is the userLocationMarker or the friendLocationMarker
+        if ((userLocationMarker != null && userLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle())) ||
+                (friendLocationMarker != null && friendLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle()))) {
+            //yes, this is either the user or friend marker, so inflate map_info_people_location view
+            Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for marker so inflating a new map_info_people_location window");
+            view = View.inflate(context, R.layout.map_info_people_location, null);
+        }
+        else {
+            //not user or friend marker, so inflate map_info_place view
+            Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for marker so inflating a new map_info_place window");
+            view = View.inflate(context, R.layout.map_info_place, null);
 
-        //set the snippet (i.e. # of reviews) text
-        TextView snippet = (TextView) view.findViewById(R.id.snippet);
-        snippet.setText(marker.getSnippet());
+            //set the snippet (i.e. # of reviews) text
+            TextView snippet = (TextView) view.findViewById(R.id.snippet);
+            snippet.setText(marker.getSnippet());
 
-        //set the rating image
-        String ratingUrl = idToRatingUrlMap.get(markerToIdPositionPairMap.get(marker).first);
+            //set the rating image
+            final Pair<String,Integer> businessIdPositionPair = markerToIdPositionPairMap.get(marker);
+            final String ratingUrl = idToRatingUrlMap.get(businessIdPositionPair.first);
 
 //            //only uncomment this if you want to force a network fetch for the rating image
 //            Picasso.with(getActivity())
 //                    .invalidate(ratingUrl);
 
-        //note: picasso only keeps a weak ref to the target so it may be gc-ed
-        //use setTag so that target will be alive as long as the view is alive
-        final Target target = ImageUtils.newTarget(context, snippet, marker);
-        snippet.setTag(target);
-        ImageUtils.loadImage(context, ratingUrl, target);
+            //note: picasso only keeps a weak ref to the target so it may be gc-ed
+            //use setTag so that target will be alive as long as the view is alive
+            final Target target = ImageUtils.newTarget(context, snippet, marker);
+            snippet.setTag(target);
+            ImageUtils.loadImage(context, ratingUrl, target);
+        }
+
+        //set the title
+        TextView title = (TextView) view.findViewById(R.id.title);
+        title.setText(marker.getTitle());
 
         //store the info window view so that we can return it if requested again
-        markerToViewMap.put(marker, view);
-
+        markerToInfoWindowMap.put(marker, view);
         return view;
+    }
+
+    /**
+     * Setter for userLocationMarker, used by SuggestionsMapFragment
+     * @param userLocationMarker
+     */
+    public void setUserLocationMarker(Marker userLocationMarker) {
+        this.userLocationMarker = userLocationMarker;
+    }
+
+    /**
+     * Setter for friendLocationMarker, used by SuggestionsMapFragment
+     * @param friendLocationMarker
+     */
+    public void setFriendLocationMarker(Marker friendLocationMarker) {
+        this.friendLocationMarker = friendLocationMarker;
     }
 }
 

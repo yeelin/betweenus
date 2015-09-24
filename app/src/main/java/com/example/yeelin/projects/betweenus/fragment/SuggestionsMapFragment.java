@@ -43,6 +43,7 @@ public class SuggestionsMapFragment
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
     //member variables
+    private MapItemInfoWindowAdapter infoWindowAdapter; //custom renderer for info windows
     private YelpResult result;
     private boolean mapNeedsUpdate = false;
 
@@ -114,7 +115,8 @@ public class SuggestionsMapFragment
         googleMap.setOnInfoWindowClickListener(this);
 
         //set a custom renderer for the contents of info windows.
-        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter(getActivity(), markerToIdPositionPairMap, idToRatingUrlMap));
+        infoWindowAdapter = new MapItemInfoWindowAdapter(getActivity(), markerToIdPositionPairMap, idToRatingUrlMap);
+        googleMap.setInfoWindowAdapter(infoWindowAdapter);
 
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
@@ -434,9 +436,12 @@ public class SuggestionsMapFragment
                         .title(getString(R.string.map_marker_user_location))
                         .icon(determineMarkerIcon(false));
                 userLocationMarker = map.addMarker(userMarkerOptions);
+
+                //let the info window renderer know about the user marker
+                infoWindowAdapter.setUserLocationMarker(userLocationMarker);
             }
             else {
-                //marker exists, so set it to visible
+                //user marker already exists, so set it to visible
                 userLocationMarker.setVisible(true);
             }
 
@@ -448,9 +453,12 @@ public class SuggestionsMapFragment
                         .title(getString(R.string.map_marker_friend_location))
                         .icon(determineMarkerIcon(false));
                 friendLocationMarker = map.addMarker(friendMarkerOptions);
+
+                //let the info window renderer know about the friend marker
+                infoWindowAdapter.setFriendLocationMarker(friendLocationMarker);
             }
             else {
-                //marker exists, so set it to visible
+                //friend marker already exists, so set it to visible
                 friendLocationMarker.setVisible(true);
             }
 
