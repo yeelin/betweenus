@@ -86,8 +86,10 @@ public class InvitationActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                Log.d(TAG, "onOptionsItemSelected: Navigating up to parent activity");
-                navigateUpToParentActivity(this);
+                Log.d(TAG, "onOptionsItemSelected: Up button clicked");
+                //we want to behave as if it were back button press here because we could have come
+                //from either SuggestionsPagerActivity or SuggestionsActivity
+                onBackPressed();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
