@@ -31,10 +31,12 @@ public class SuggestionDetailActivity
     private static final String EXTRA_USER_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".userLatLng";
     private static final String EXTRA_FRIEND_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".friendLatLng";
     private static final String EXTRA_MID_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".midLatLng";
+    public static final String EXTRA_POSITION = SuggestionDetailActivity.class.getSimpleName() + ".position";
     public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
 
     //member variables
     private String id;
+    private int position = 0;
     private boolean toggleState;
 
     /**
@@ -49,7 +51,8 @@ public class SuggestionDetailActivity
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
-    public static Intent buildIntent(Context context, String id, String name, LatLng latLng, boolean toggleState,
+    public static Intent buildIntent(Context context, String id, String name, LatLng latLng,
+                                     int position, boolean toggleState,
                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
@@ -57,11 +60,12 @@ public class SuggestionDetailActivity
         intent.putExtra(EXTRA_NAME, name);
         intent.putExtra(EXTRA_LATLNG, latLng);
 
+        intent.putExtra(EXTRA_POSITION, position);
+        intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
+
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
         intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
         intent.putExtra(EXTRA_MID_LATLNG, midLatLng);
-
-        intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
 
         return intent;
     }
@@ -80,7 +84,9 @@ public class SuggestionDetailActivity
         //read intent extras
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
+        position = intent.getIntExtra(EXTRA_POSITION, position);
         toggleState = intent.getBooleanExtra(EXTRA_TOGGLE_STATE, false);
+
         String name = intent.getStringExtra(EXTRA_NAME);
         LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
 
@@ -95,7 +101,9 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng, toggleState, userLatLng, friendLatLng, midLatLng))
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng,
+                                position, toggleState,
+                                userLatLng, friendLatLng, midLatLng))
                         .commit();
             }
         }
@@ -164,6 +172,7 @@ public class SuggestionDetailActivity
         //create result intent and put extras
         Intent resultIntent = new Intent();
         resultIntent.putExtra(EXTRA_ID, id);
+        resultIntent.putExtra(EXTRA_POSITION, position);
         resultIntent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
         return resultIntent;
     }
@@ -207,7 +216,7 @@ public class SuggestionDetailActivity
      * Callback from the detail fragment to toggle the selection
      */
     @Override
-    public void onSelectionToggle() {
-        toggleState = !toggleState;
+    public void onToggle(String id, int position, boolean toggleState) {
+        this.toggleState = toggleState;
     }
 }

@@ -50,11 +50,14 @@ public class SuggestionDetailFragment
     private static final String ARG_ID = SuggestionDetailFragment.class.getSimpleName() + ".id";
     private static final String ARG_NAME = SuggestionDetailFragment.class.getSimpleName() + ".name";
     private static final String ARG_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".latLng";
+    private static final String ARG_POSITION = SuggestionDetailFragment.class.getSimpleName() + ".position";
+    private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
-    private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
 
+    //child fragment tags
+    private static String FRAGMENT_TAG_LITEMAP = SupportMapFragment.class.getSimpleName();
     //constants
     private static final int DEFAULT_ZOOM = 13;
 
@@ -69,6 +72,7 @@ public class SuggestionDetailFragment
     private String id;
     private String name;
     private LatLng latLng;
+    private int position = 0;
     private boolean toggleState;
 
     private LatLng userLatLng;
@@ -84,24 +88,27 @@ public class SuggestionDetailFragment
      * @param id
      * @param name
      * @param latLng
+     * @param position
      * @param toggleState
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
-    public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng, boolean toggleState,
+    public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
+                                                       int position, boolean toggleState,
                                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
         args.putParcelable(ARG_LATLNG, latLng);
 
+        args.putInt(ARG_POSITION, position);
+        args.putBoolean(ARG_TOGGLE_STATE, toggleState);
+
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
-
-        args.putBoolean(ARG_TOGGLE_STATE, toggleState);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
@@ -112,9 +119,9 @@ public class SuggestionDetailFragment
      * Interface for activities or parent fragments interested in events from this fragment
      */
     public interface SuggestionDetailFragmentListener {
-        public void onOpenWebsite(String url);
-        public void onDialPhone(String phone);
-        public void onSelectionToggle();
+        void onOpenWebsite(String url);
+        void onDialPhone(String phone);
+        void onToggle(String id, int position, boolean toggleState);
     }
 
     /**
@@ -149,11 +156,17 @@ public class SuggestionDetailFragment
         //read bundle args
         Bundle args = getArguments();
         if (args != null) {
+            //about the business
             id = args.getString(ARG_ID);
             name = args.getString(ARG_NAME);
             latLng = args.getParcelable(ARG_LATLNG);
+
+            //about the view
+            position = args.getInt(ARG_POSITION, position);
+            FRAGMENT_TAG_LITEMAP = String.format("%s.%d", FRAGMENT_TAG_LITEMAP, position);
             toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
 
+            //user and friend related info
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
             friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
             midLatLng = args.getParcelable(ARG_MID_LATLNG);
@@ -201,8 +214,9 @@ public class SuggestionDetailFragment
         viewHolder.detailProgressBar.setVisibility(View.VISIBLE);
 
         //set up the map
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG_LITEMAP);
         if (mapFragment == null) {
+            Log.d(TAG, "onViewCreated: LiteMap fragment is null");
             GoogleMapOptions googleMapOptions = new GoogleMapOptions()
                     .camera(new CameraPosition(latLng, DEFAULT_ZOOM, 0, 0))
                     .compassEnabled(false)
@@ -217,9 +231,10 @@ public class SuggestionDetailFragment
             mapFragment = SupportMapFragment.newInstance(googleMapOptions);
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.detail_mapContainer, mapFragment)
+                    .add(R.id.detail_mapContainer, mapFragment, FRAGMENT_TAG_LITEMAP)
                     .commit();
         }
+        Log.d(TAG, "onViewCreated: LiteMap fragment is not null");
         mapFragment.getMapAsync(this);
     }
 
@@ -252,6 +267,15 @@ public class SuggestionDetailFragment
             viewHolder.shimmerContainer.setDuration(400);
             viewHolder.shimmerContainer.startShimmerAnimation();
         }
+    }
+
+    /**
+     * Nullify the open browser and dial phone listener
+     */
+    @Override
+    public void onDetach() {
+        listener = null;
+        super.onDetach();
     }
 
     /**
@@ -376,7 +400,7 @@ public class SuggestionDetailFragment
                     //update the marker color
                     marker.setIcon(determineMarkerIcon());
                 }
-                listener.onSelectionToggle();
+                listener.onToggle(id, position, toggleState);
                 break;
         }
     }
@@ -388,6 +412,7 @@ public class SuggestionDetailFragment
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(TAG, "onMapReady");
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
@@ -395,7 +420,7 @@ public class SuggestionDetailFragment
         marker = googleMap.addMarker(markerOptions);
 
         //disable click listener
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.detail_mapContainer);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG_LITEMAP);
         if (mapFragment != null && mapFragment.getView() != null) {
             mapFragment.getView().setClickable(false);
         }

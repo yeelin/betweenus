@@ -26,6 +26,7 @@ import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Created by ninjakiki on 7/13/15.
@@ -49,9 +50,11 @@ public class SuggestionsActivity
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
     private static final String STATE_SELECTED_IDS = SuggestionsActivity.class.getSimpleName() + ".selectedIds";
+    private static final String STATE_SELECTED_POSITIONS = SuggestionsActivity.class.getSimpleName() + ".selectedPositions";
 
     //request code
     private static final int REQUEST_CODE_DETAIL_VIEW = 100;
+    private static final int REQUEST_CODE_PAGER_VIEW = 101;
 
     //member variables
     private String searchTerm;
@@ -61,7 +64,7 @@ public class SuggestionsActivity
 
     private boolean showingMap = false;
     private YelpResult result;
-    private ArrayMap<String, String> selectedIdsMap = new ArrayMap<>();
+    private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
 
     private MenuItem peopleLocationMenuItem;
@@ -132,11 +135,12 @@ public class SuggestionsActivity
 
             //restore map of selected ids
             ArrayList<String> selectedIdsList = savedInstanceState.getStringArrayList(STATE_SELECTED_IDS);
-            if (selectedIdsList != null) {
+            ArrayList<Integer> selectedPositionsList = savedInstanceState.getIntegerArrayList(STATE_SELECTED_POSITIONS);
+            if (selectedIdsList != null && selectedPositionsList != null) {
                 selectedIdsMap.ensureCapacity(selectedIdsList.size());
                 for (int i=0; i < selectedIdsList.size(); i++) {
                     Log.d(TAG, "onCreate: SelectedId:" + selectedIdsList.get(i));
-                    selectedIdsMap.put(selectedIdsList.get(i), selectedIdsList.get(i));
+                    selectedIdsMap.put(selectedIdsList.get(i), selectedPositionsList.get(i));
                 }
                 Log.d(TAG, "onCreate: Restored selected ids: " + selectedIdsList);
             }
@@ -259,7 +263,7 @@ public class SuggestionsActivity
         for (int i=0; i<result.getBusinesses().size(); i++) {
             YelpBusiness business = result.getBusinesses().get(i);
             if (selectedIdsMap.containsKey(business.getId())) {
-                selectedItems.add(SimplifiedBusiness.newInstance(this, business));
+                selectedItems.add(SimplifiedBusiness.newInstance(business));
             }
         }
 
@@ -274,7 +278,8 @@ public class SuggestionsActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_MAP, showingMap);
-        outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.values()));
+        outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.keySet()));
+        outState.putIntegerArrayList(STATE_SELECTED_POSITIONS, new ArrayList<>(selectedIdsMap.values()));
     }
 
     /**
@@ -398,18 +403,45 @@ public class SuggestionsActivity
 
     /**
      * OnSuggestionActionListener implementation
-     * Start the detail activity
-     * @param id
-     * @param name
-     * @param latLng
+     * Start the pager activity
+     * @param id business id
+     * @param name business name
+     * @param latLng business latlng
+     * @param position position of item in pager
      */
     @Override
-    public void onSuggestionClick(String id, String name, LatLng latLng) {
-        Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s", id, name));
+    public void onSuggestionClick(String id, String name, LatLng latLng, int position) {
+        Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s, Position:%d", id, name, position));
 
-        Intent detailIntent = SuggestionDetailActivity.buildIntent(this, id, name, latLng, selectedIdsMap.containsKey(id),
+//        Intent detailIntent = SuggestionDetailActivity.buildIntent(this,
+//                id, name, latLng,
+//                position, selectedIdsMap.containsKey(id),
+//                userLatLng, friendLatLng, midLatLng);
+//        startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
+
+        Intent pagerIntent = SuggestionsPagerActivity.buildIntent(this,
+                position,
+                buildSimplifiedBusinessList(),
+                new ArrayList<>(selectedIdsMap.keySet()),
+                new ArrayList<>(selectedIdsMap.values()),
                 userLatLng, friendLatLng, midLatLng);
-        startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
+        startActivityForResult(pagerIntent, REQUEST_CODE_PAGER_VIEW);
+    }
+
+    /**
+     * Helper method to build the simplified business items array list for marshalling across to the
+     * pager activity.
+     * @return
+     */
+    private ArrayList<SimplifiedBusiness> buildSimplifiedBusinessList() {
+        Log.d(TAG, "buildSimplifiedBusinessList");
+        ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>(result.getBusinesses().size());
+
+        for (int i=0; i<result.getBusinesses().size(); i++) {
+            YelpBusiness business = result.getBusinesses().get(i);
+            simplifiedBusinesses.add(SimplifiedBusiness.newInstance(business));
+        }
+        return simplifiedBusinesses;
     }
 
     /**
@@ -417,11 +449,12 @@ public class SuggestionsActivity
      * Flips the toggle state of the item in the selectedIdsMap.
      * If the item is in the map, it is removed.
      * If the item is not in the map, it is added.
-     * @param id
+     * @param id business id
+     * @param position position of item in list or pager
      * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onSuggestionToggle(String id, boolean toggleState) {
+    public void onSuggestionToggle(String id, int position, boolean toggleState) {
         if (selectedIdsMap.containsKey(id) && !toggleState) {
             //if the item is in the map AND resulting toggle state is false (not selected), we remove it
             Log.d(TAG, "onSuggestionToggle: Item is in the map, so removing:" + id);
@@ -430,7 +463,7 @@ public class SuggestionsActivity
         else if (!selectedIdsMap.containsKey(id) && toggleState) {
             //if the item is not in the map AND resulting toggle state is true, we add it
             Log.d(TAG, "onSuggestionToggle: Item is not in the map, so adding:" + id);
-            selectedIdsMap.put(id, id);
+            selectedIdsMap.put(id, position);
         }
 
         //notify all the fragments that a selection has changed
@@ -447,7 +480,7 @@ public class SuggestionsActivity
     }
 
     /**
-     * Handle the activity result from the detail activity
+     * Handle the activity result from the detail activity or pager activity.
      * @param requestCode
      * @param resultCode
      * @param data
@@ -458,20 +491,56 @@ public class SuggestionsActivity
 
         if (requestCode == REQUEST_CODE_DETAIL_VIEW) {
             if (data == null) {
-                Log.d(TAG, "onActivityResult: Data is null, so nothing to do");
+                Log.d(TAG, "onActivityResult: REQUEST_CODE_DETAIL_VIEW. Data is null, so nothing to do");
                 return;
             }
 
             //read the intent extras
             String id = data.getStringExtra(SuggestionDetailActivity.EXTRA_ID);
             boolean toggleState = data.getBooleanExtra(SuggestionDetailActivity.EXTRA_TOGGLE_STATE, selectedIdsMap.containsKey(id)); //the default value is the previous value
+            int position = data.getIntExtra(SuggestionDetailActivity.EXTRA_POSITION, 0);
 
             //compare the current selection state from the detail view to the original state in selectedIdsMap
             //if different, then update selectedIdsMap
             Log.d(TAG, String.format("onActivityResult: Data is not null. Id:%s, New selection state:%s, Old selection state:%s", id, toggleState, selectedIdsMap.containsKey(id)));
             if (toggleState != selectedIdsMap.containsKey(id)) {
                 Log.d(TAG, "onActivityResult: Selection has changed, so updating the selectedIdsMap");
-                onSuggestionToggle(id, toggleState);
+                onSuggestionToggle(id, position, toggleState);
+            }
+        }
+        else
+        if (requestCode == REQUEST_CODE_PAGER_VIEW) {
+            if (data == null) {
+                Log.d(TAG, "onActivityResult: REQUEST_CODE_PAGER_VIEW. Data is null, so nothing to do");
+                return;
+            }
+
+            //read the intent extras
+            final ArrayList<String> selectedIdsList = data.getStringArrayListExtra(SuggestionsPagerActivity.EXTRA_SELECTED_IDS);
+            final ArrayList<Integer> selectedPositionsList = data.getIntegerArrayListExtra(SuggestionsPagerActivity.EXTRA_SELECTED_POSITIONS);
+            final ArrayMap<String, Integer> newSelectedIdsMap = new ArrayMap<>(selectedIdsList.size());
+            for (int i=0; i<selectedIdsList.size(); i++) {
+                newSelectedIdsMap.put(selectedIdsList.get(i), selectedPositionsList.get(i));
+            }
+
+            //check the old map against the contents of the new map for stuff to remove, i.e. got deselected
+            Set<String> keys = selectedIdsMap.keySet();
+            for (String id : keys) {
+                if (!newSelectedIdsMap.containsKey(id)) {
+                    //new map doesn't have it, so remove
+                    Log.d(TAG, "onActivityResult: Removing Id:" + id);
+                    onSuggestionToggle(id, selectedIdsMap.get(id), false);
+                }
+            }
+
+            //check the new map against the contents of the old map for stuff to add, i.e. got selected
+            Set<String> newKeys = newSelectedIdsMap.keySet();
+            for (String id: newKeys) {
+                if (!selectedIdsMap.containsKey(id)) {
+                    //old map doesn't have it, so add
+                    Log.d(TAG, "onActivityResult: Adding Id:" + id);
+                    onSuggestionToggle(id, newSelectedIdsMap.get(id), true);
+                }
             }
         }
         else {

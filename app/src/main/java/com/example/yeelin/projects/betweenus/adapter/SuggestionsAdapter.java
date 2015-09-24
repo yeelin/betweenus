@@ -37,7 +37,7 @@ public class SuggestionsAdapter
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
     //member variables
     private List<YelpBusiness> businessList;
-    private ArrayMap<String,String> selectedIdsMap;
+    private ArrayMap<String,Integer> selectedIdsMap;
     private OnItemToggleListener listener;
 
     //for rebound
@@ -53,9 +53,10 @@ public class SuggestionsAdapter
         /**
          * Handle the toggling of an item in the listview
          * @param id business id of item toggled
+         * @param position position of item toggled
          * @param toggleState resulting toggle state
          */
-        public void onItemToggle(String id, boolean toggleState);
+        void onItemToggle(String id, int position, boolean toggleState);
     }
 
     /**
@@ -64,7 +65,7 @@ public class SuggestionsAdapter
      * @param businessList
      */
     public SuggestionsAdapter(Context context, @Nullable List<YelpBusiness> businessList,
-                              ArrayMap<String,String> selectedIdsMap, OnItemToggleListener listener) {
+                              ArrayMap<String,Integer> selectedIdsMap, OnItemToggleListener listener) {
 
         super(context, 0, businessList);
         this.businessList = businessList;
@@ -151,7 +152,7 @@ public class SuggestionsAdapter
      * Updates the adapter with a new list of businessList
      * @param businessList
      */
-    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,String> newSelectedIdsMap) {
+    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap) {
         //if it's the same businessList, do nothing. Otherwise, you end up clearing out businessList
         if (this.businessList == businessList) {
             Log.d(TAG, "updateAllItems: this.businessList == businessList. Nothing to do");
@@ -179,13 +180,21 @@ public class SuggestionsAdapter
         Log.d(TAG, "onClick: Toggle was clicked");
 
         //toggle the view
-        CheckedTextView itemToggle = (CheckedTextView) v;
-        itemToggle.toggle();
+        CheckedTextView toggledView = (CheckedTextView) v;
+        toggledView.toggle();
 
         //notify the list fragment, providing both business id and resulting toggle state
-        listener.onItemToggle((String)itemToggle.getTag(R.id.business_id), itemToggle.isChecked());
+        listener.onItemToggle((String) toggledView.getTag(R.id.business_id),
+                (Integer) toggledView.getTag(R.id.position),
+                toggledView.isChecked());
     }
 
+    /**
+     * Handles touch events for integrating with Rebound API
+     * @param v
+     * @param event
+     * @return
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         toggledView = (CheckedTextView) v;
@@ -198,7 +207,9 @@ public class SuggestionsAdapter
 
             case MotionEvent.ACTION_UP:
                 //notify the list fragment, providing both business id and resulting toggle state
-                listener.onItemToggle((String) toggledView.getTag(R.id.business_id), toggledView.isChecked());
+                listener.onItemToggle((String) toggledView.getTag(R.id.business_id),
+                        (Integer) toggledView.getTag(R.id.position),
+                        toggledView.isChecked());
                 scaleSpring.setEndValue(0);
                 break;
 

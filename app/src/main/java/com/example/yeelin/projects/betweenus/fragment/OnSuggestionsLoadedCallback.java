@@ -20,5 +20,5 @@ public interface OnSuggestionsLoadedCallback {
      * @param friendLatLng
      * @param midLatLng 
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng);
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng);
 }

@@ -61,6 +61,14 @@
                 android:value=".activity.LocationEntryActivity"/>
         </activity>
 
+        <activity android:name=".activity.SuggestionsPagerActivity"
+            android:label="@string/title_detail"
+            android:parentActivityName=".activity.SuggestionsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.SuggestionsActivity"/>
+        </activity>
+
         <activity android:name=".activity.SuggestionDetailActivity"
             android:label="@string/title_detail"
             android:parentActivityName=".activity.SuggestionsActivity">

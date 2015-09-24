@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.adapter;
 import android.content.Context;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,20 +25,20 @@ public class MapItemInfoWindowAdapter
 
     //member variables
     private Context context;
-    private SimpleArrayMap<Marker, String> markerToIdMap;
+    private SimpleArrayMap<Marker, Pair<String,Integer>> markerToIdPositionPairMap;
     private SimpleArrayMap<String, String> idToRatingUrlMap;
     private SimpleArrayMap<Marker, View> markerToViewMap;
 
     /**
      * Constructor
      * @param context
-     * @param markerToIdMap
+     * @param markerToIdPositionPairMap
      * @param idToRatingUrlMap
      */
-    public MapItemInfoWindowAdapter(Context context, SimpleArrayMap<Marker, String> markerToIdMap, SimpleArrayMap<String, String> idToRatingUrlMap) {
+    public MapItemInfoWindowAdapter(Context context, SimpleArrayMap<Marker, Pair<String,Integer>> markerToIdPositionPairMap, SimpleArrayMap<String, String> idToRatingUrlMap) {
         super();
         this.context = context;
-        this.markerToIdMap = markerToIdMap;
+        this.markerToIdPositionPairMap = markerToIdPositionPairMap;
         this.idToRatingUrlMap = idToRatingUrlMap;
         markerToViewMap = new SimpleArrayMap<>();
     }
@@ -84,7 +85,7 @@ public class MapItemInfoWindowAdapter
         snippet.setText(marker.getSnippet());
 
         //set the rating image
-        String ratingUrl = idToRatingUrlMap.get(markerToIdMap.get(marker));
+        String ratingUrl = idToRatingUrlMap.get(markerToIdPositionPairMap.get(marker).first);
 
 //            //only uncomment this if you want to force a network fetch for the rating image
 //            Picasso.with(getActivity())

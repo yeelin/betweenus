@@ -50,9 +50,9 @@ public class SuggestionsMapFragment
     private LatLng friendLatLng;
     private LatLng midLatLng;
 
-    private ArrayMap<String, String> selectedIdsMap;
+    private ArrayMap<String, Integer> selectedIdsMap;
     private SimpleArrayMap<String, Marker> idToMarkerMap = new SimpleArrayMap<>(); //for changing the selection state of the marker when onSelectionChanged event occurs
-    private SimpleArrayMap<Marker, String> markerToIdMap = new SimpleArrayMap<>(); //for getting the business id corresponding to the clicked marker
+    private SimpleArrayMap<Marker, Pair<String, Integer>> markerToIdPositionPairMap = new SimpleArrayMap<>(); //for getting the business id and position corresponding to the clicked marker
     private SimpleArrayMap<String, String> idToRatingUrlMap = new SimpleArrayMap<>(); //for getting the rating image url corresponding to the clicked marker
     private Marker userLocationMarker; //for showing user's location marker
     private Marker friendLocationMarker; //for showing friend's location marker
@@ -114,7 +114,7 @@ public class SuggestionsMapFragment
         googleMap.setOnInfoWindowClickListener(this);
 
         //set a custom renderer for the contents of info windows.
-        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter(getActivity(), markerToIdMap, idToRatingUrlMap));
+        googleMap.setInfoWindowAdapter(new MapItemInfoWindowAdapter(getActivity(), markerToIdPositionPairMap, idToRatingUrlMap));
 
         //request for a callback when the map has finished rendering so that we can animate the camera
         googleMap.setOnMapLoadedCallback(this);
@@ -135,7 +135,7 @@ public class SuggestionsMapFragment
      * @param friendLatLng
      * @param midLatLng
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap,
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "onSuggestionsLoaded");
         this.selectedIdsMap = selectedIdsMap;
@@ -177,7 +177,7 @@ public class SuggestionsMapFragment
         //clear out the camera position too
         cameraPosition = null;
         //clear out the markerToId and idToRatingUrl maps as well
-        markerToIdMap.clear();
+        markerToIdPositionPairMap.clear();
         idToMarkerMap.clear();
         idToRatingUrlMap.clear();
         //clear out any user/friend markers as well
@@ -195,7 +195,7 @@ public class SuggestionsMapFragment
             Log.d(TAG, "updateMap: Adding markers to map. Item count:" + result.getBusinesses().size());
 
             //make sure the markerToId map can hold all the markers we are about to add
-            markerToIdMap.ensureCapacity(result.getBusinesses().size());
+            markerToIdPositionPairMap.ensureCapacity(result.getBusinesses().size());
             idToMarkerMap.ensureCapacity(result.getBusinesses().size());
             idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
             addMarkersToMap();
@@ -229,7 +229,7 @@ public class SuggestionsMapFragment
                     .icon(determineMarkerIcon(selectedIdsMap.containsKey(business.getId())));
             Marker marker = map.addMarker(markerOptions);
 
-            markerToIdMap.put(marker, business.getId());
+            markerToIdPositionPairMap.put(marker, new Pair<>(business.getId(), i));
             idToMarkerMap.put(business.getId(), marker);
             idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
         }
@@ -404,17 +404,18 @@ public class SuggestionsMapFragment
     public void onInfoWindowClick(Marker marker) {
         //do nothing if the tapped info window belongs the user and friend's location marker
         final String title = marker.getTitle();
-        if (title.equalsIgnoreCase(userLocationMarker.getTitle()) || title.equalsIgnoreCase(friendLocationMarker.getTitle())) {
+        if ((userLocationMarker != null && userLocationMarker.getTitle().equalsIgnoreCase(title)) ||
+                (friendLocationMarker != null && friendLocationMarker.getTitle().equalsIgnoreCase(title))) {
             Log.d(TAG, "onInfoWindowClick: Do nothing. Marker's title:"  + title);
             return;
         }
 
         //get the business id corresponding to the clicked marker
-        String businessId = markerToIdMap.get(marker);
-        Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessId));
+        final Pair<String,Integer> businessIdPositionPair = markerToIdPositionPairMap.get(marker);
+        Log.d(TAG, String.format("onInfoWindowClick: Marker title:%s, BusinessId:%s", marker.getTitle(), businessIdPositionPair.first));
 
         //notify the activity that a suggestion was clicked
-        suggestionActionListener.onSuggestionClick(businessId, marker.getTitle(), marker.getPosition());
+        suggestionActionListener.onSuggestionClick(businessIdPositionPair.first, marker.getTitle(), marker.getPosition(), businessIdPositionPair.second);
     }
 
     /**

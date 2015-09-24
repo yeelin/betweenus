@@ -134,19 +134,21 @@ public class SuggestionsListFragment
         suggestionActionListener.onSuggestionClick(
                 business.getId(),
                 business.getName(),
-                new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()));
+                new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()),
+                position);
     }
 
     /**
      * SuggestionsAdapter.OnItemToggleListener
      * Handles toggling of item in listview. Notify listener i.e. SuggestionsActivity.
-     * @param id
+     * @param id business id
+     * @param position position of item in list
      * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
-    public void onItemToggle(String id, boolean toggleState) {
-        Log.d(TAG, String.format("onItemToggle:Id:%s, ToggleState:%s", id, toggleState));
-        suggestionActionListener.onSuggestionToggle(id, toggleState);
+    public void onItemToggle(String id, int position, boolean toggleState) {
+        Log.d(TAG, String.format("onItemToggle:Id:%s, Position:%d, ToggleState:%s", id, position, toggleState));
+        suggestionActionListener.onSuggestionToggle(id, position, toggleState);
     }
 
     /**
@@ -158,7 +160,7 @@ public class SuggestionsListFragment
      * @param friendLatLng
      * @param midLatLng 
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,String> selectedIdsMap,
+    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
