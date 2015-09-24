@@ -96,4 +96,6 @@
     <string name="google_play_services_error">Oops! Failed to resolve Google Play Services error. Please restart app and try again.</string>
     <string name="get_place_by_id_error">Oops! Failed to geocode you and your friend\'s locations. Please go back and try again.</string>
 
+    <!-- Snackbar strings -->
+    <string name="go_back">Go back</string>
 </resources>

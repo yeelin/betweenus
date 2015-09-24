@@ -4,12 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
@@ -570,14 +571,28 @@ public class SuggestionsActivity
 
     /**
      * PlacesBroadcastReceiver.PlacesBroadcastListener callback
-     * We failed to retrieve the latlng for the user and friend, so display
-     * and toast message to inform the user as there is not much else we can do.
+     * We failed to retrieve the latlng for the user and friend, so display a snackbar
+     * to inform the user as there is not much else we can do.  The snackbar allows the user to go back to the Location Entry screen.
+     * TODO: Implement retry instead of just go back.
+     *
      * @param statusCode
      * @param statusMessage
      */
     @Override
     public void onPlacesFailure(int statusCode, String statusMessage) {
         Log.d(TAG, String.format("onPlacesFailure: StatusCode:%d, Message:%s", statusCode, statusMessage));
-        Toast.makeText(this, R.string.get_place_by_id_error, Toast.LENGTH_LONG).show();
+
+        //create a snackbar to inform the user
+        final Snackbar snackbar = Snackbar.make(findViewById(R.id.suggestions_root_layout),
+                getString(R.string.get_place_by_id_error),
+                Snackbar.LENGTH_LONG);
+        //provide an action link on the snackbar to go back to the location entry screen
+        snackbar.setAction(getString(R.string.go_back), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
+                navigateUpToParentActivity(SuggestionsActivity.this);
+            }
+        });
     }
 }
