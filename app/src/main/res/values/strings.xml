@@ -11,9 +11,9 @@
 
     <!-- Search strings -->
     <string name="user_search_title">Search your location</string>
-    <string name="friend_search_title">"Search friend's location"</string>
+    <string name="friend_search_title">Search friend\'s location</string>
     <string name="user_query_hint">Your address or city</string>
-    <string name="friend_query_hint">"Friend's address or city"</string>
+    <string name="friend_query_hint">Friend\'s address or city</string>
     <string name="search_attribution_contentDescription">Search powered by Google</string>
     <string name="search_no_results">No locations</string>
 
@@ -61,7 +61,7 @@
     <string name="detail_equidistant">Equidistant</string>
     <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
-    <string name="review_count">%1$s reviews</string>
+    <string name="review_count">%1$d reviews</string>
     <string name="detail_website">Website</string>
     <string name="detail_hours">Hours</string>
 
@@ -79,7 +79,6 @@
 
     <!-- Map strings -->
     <string name="map_contentDescription">Map view of search results</string>
-    <string name="map_marker_snippet">Rating:%1$s, Reviews:%2$s </string>
     <string name="map_marker_user_location">Your location</string>
     <string name="map_marker_friend_location">"Friend's location"</string>
 
@@ -98,9 +97,10 @@
     <string name="email_body">I found these places on Between: %1$s. What do you think?</string>
 
     <!-- Google play services -->
-    <string name="google_play_services_error">Oops! Failed to resolve Google Play Services error. Please restart app and try again.</string>
-    <string name="get_place_by_id_error">Oops! Failed to geocode you and your friend\'s locations. Please go back and try again.</string>
+    <string name="google_play_services_error">Oops! We failed to resolve the Google Play Services error. Please restart app and try again.</string>
+    <string name="get_place_by_id_error">Oops! We failed to geocode you and your friend\'s locations. Please go back and try again.</string>
 
     <!-- Snackbar strings -->
     <string name="go_back">Go back</string>
+
 </resources>

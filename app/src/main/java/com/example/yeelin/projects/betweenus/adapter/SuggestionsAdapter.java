@@ -144,7 +144,7 @@ public class SuggestionsAdapter
         }
 
         //ratings and reviews
-        viewHolder.reviews.setText(getContext().getString(R.string.review_count, String.valueOf(business.getReview_count())));
+        viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReview_count()));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
         if (business.getRating_img_url_large() != null) {
