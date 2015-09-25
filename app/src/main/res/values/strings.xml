@@ -36,6 +36,11 @@
     <string name="selected_button">Selected</string>
     <string name="invite_button">Send Invite</string>
 
+    <!-- List fragment strings -->
+    <string name="item_distance_from_midPoint_miles">%1$s mi off</string>
+    <string name="item_distance_from_midPoint_meters">%1$s m off</string>
+    <string name="item_distance_from_midPoint_km">%1$s km off</string>
+
     <!-- Detail strings for layout only -->
     <string name="detail_name_fake">Espresso Vivace Roasteria</string>
     <string name="detail_reviews_fake">445 reviews</string>
@@ -47,13 +52,13 @@
     <string name="detail_webAddress_fake">"espressovivace.com"</string>
     <string name="detail_hours_fake">"Mon-Sun:6:00am-11:00pm"</string>
 
-    <!-- Detail headers -->
+    <!-- Detail fragment strings -->
     <string name="detail_distance_from_midPoint_miles">%1$s mi away from center</string>
     <string name="detail_distance_from_midPoint_meters">%1$s m away from center</string>
     <string name="detail_distance_from_midPoint_km">%1$s km away from center</string>
-    <string name="detail_closer_to_user">(Closer to you)</string>
-    <string name="detail_closer_to_friend">(Closer to your friend)</string>
-    <string name="detail_equidistant">(Equidistant)</string>
+    <string name="detail_closer_to_user">Closer to you</string>
+    <string name="detail_closer_to_friend">Closer to friend</string>
+    <string name="detail_equidistant">Equidistant</string>
     <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
     <string name="review_count">%1$s reviews</string>

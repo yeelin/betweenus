@@ -5,7 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="10dp"
 
     app:useDefaultMargins="false"
     app:alignmentMode="alignMargins"
@@ -17,12 +20,11 @@
         android:id="@+id/item_image"
         app:layout_row="0"
         app:layout_column="0"
+        app:layout_gravity="start|top"
+        app:layout_columnWeight=".2"
 
         android:layout_width="75dp"
         android:layout_height="75dp"
-
-        app:layout_gravity="start|top"
-        app:layout_columnWeight=".2"
 
         android:contentDescription="Image"
         android:src="@drawable/ic_business_image_placeholder"/>
@@ -30,13 +32,13 @@
     <LinearLayout
         app:layout_row="0"
         app:layout_column="1"
+        app:layout_gravity="top"
+        app:layout_columnWeight=".6"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:paddingLeft="4dp"
-        app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".55"
+        android:paddingLeft="2dp"
 
         android:orientation="vertical">
 
@@ -76,23 +78,48 @@
             tools:text="123 reviews"/>
     </LinearLayout>
 
-    <CheckedTextView
-        android:id="@+id/item_toggle"
+    <LinearLayout
         app:layout_row="0"
         app:layout_column="2"
+        app:layout_gravity="top"
+        app:layout_columnWeight=".2"
 
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-
-        app:layout_columnWeight=".15"
-
-        android:checkMark="@null"
-        android:drawableLeft="@drawable/checked_item_state"
-        android:drawableRight="@null"
+        android:layout_height="wrap_content"
         android:gravity="start"
-        android:paddingLeft="4dp"
-        tools:checked="true"
-        app:layout_gravity="center_vertical"
-        android:text="@null"/>
+        android:paddingLeft="2dp"
 
+        android:orientation="vertical">
+
+        <CheckedTextView
+            android:id="@+id/item_toggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:checkMark="@null"
+            android:drawableLeft="@drawable/checked_item_state"
+            android:drawableRight="@null"
+            android:gravity="start"
+            tools:checked="true"
+            android:text="@null"/>
+
+        <TextView
+            android:id="@+id/item_distance_from_midpoint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:textSize="10sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="2 miles away"/>
+
+        <TextView
+            android:id="@+id/item_fairness_score"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:textSize="10sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="Closer to friend"/>
+
+    </LinearLayout>
 </android.support.v7.widget.GridLayout>

@@ -57,66 +57,88 @@ public class FairnessScoringUtils {
      * @param unitPreference
      * @return
      */
-    public static double computeDistanceFromMidPoint(@NonNull LatLng businessLatLng, @NonNull LatLng midLatLng, int unitPreference) {
+    public static double computeDistanceDelta(@NonNull LatLng businessLatLng, @NonNull LatLng midLatLng, int unitPreference) {
         //compute distance between place and mid point
         double distanceInMeters = LocationUtils.computeDistanceBetween(businessLatLng, midLatLng);
 
         //return distance in meters or miles
         if (unitPreference == IMPERIAL) {
             double distanceInMiles = LocationUtils.convertMetersToMiles(distanceInMeters);
-            Log.d(TAG, String.format("computeDistanceFromMidPoint: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
+            Log.d(TAG, String.format("computeDistanceDelta: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
             return distanceInMiles;
         }
-        Log.d(TAG, "computeDistanceFromMidPoint: Distance(m):" + distanceInMeters);
+        Log.d(TAG, "computeDistanceDelta: Distance(m):" + distanceInMeters);
         return distanceInMeters;
     }
 
     /**
-     * Formats a string which comprises of 1) distance between the place and midpoint, and 2) fairness score.
+     * Returns a formatted a string which comprises of 1) distance between the place and midpoint, and 2) fairness score.
      * @param context
      * @param distanceFromMidPoint
      * @param fairness
      * @param unitPreference
+     * @param verbose
      * @return
      */
-    public static String formatDistanceFromMidPointString(Context context, double distanceFromMidPoint, int fairness, int unitPreference) {
+    public static String formatDistanceDeltaAndFairness(Context context,
+                                                        double distanceFromMidPoint, int fairness,
+                                                        int unitPreference, boolean verbose) {
+        return new StringBuilder(formatDistanceDelta(context, distanceFromMidPoint, unitPreference, verbose))
+                    .append(" ")
+                    .append("(")
+                    .append(formatFairnessScore(context, fairness))
+                    .append(")")
+                    .toString();
+    }
+
+    /**
+     * Returns a formatted a string describing the distance between the place and midpoint. The verbose boolean
+     * determines the verbosity of the string.
+     * @param context
+     * @param distanceFromMidPoint
+     * @param unitPreference
+     * @param verbose
+     * @return
+     */
+    public static String formatDistanceDelta(Context context,
+                                             double distanceFromMidPoint,
+                                             int unitPreference, boolean verbose) {
         //get reference to a decimal formatter
         final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter();
 
-        //build string
-        StringBuilder stringBuilder = new StringBuilder();
-
         //build the distance between place and midpoint
         if (unitPreference == IMPERIAL) {
-            stringBuilder.append(context.getString(R.string.detail_distance_from_midPoint_miles,
-                    decimalFormatter.format(distanceFromMidPoint)));
+            return context.getString(verbose ? R.string.detail_distance_from_midPoint_miles : R.string.item_distance_from_midPoint_miles,
+                    decimalFormatter.format(distanceFromMidPoint));
         }
-        else if (unitPreference == METRIC) {
+        else {
             if (distanceFromMidPoint > 1000) { //if using metric and distance is greater than 1000m, then show in km
-                stringBuilder.append(context.getString(R.string.detail_distance_from_midPoint_km,
-                        decimalFormatter.format(distanceFromMidPoint / 1000.0)));
+                return context.getString(verbose ? R.string.detail_distance_from_midPoint_km : R.string.item_distance_from_midPoint_km,
+                        decimalFormatter.format(distanceFromMidPoint / 1000.0));
             }
             else {
-                stringBuilder.append(context.getString(R.string.detail_distance_from_midPoint_meters,
-                        decimalFormatter.format(distanceFromMidPoint)));
+                return context.getString(verbose ? R.string.detail_distance_from_midPoint_meters : R.string.item_distance_from_midPoint_meters,
+                        decimalFormatter.format(distanceFromMidPoint));
             }
         }
+    }
 
-        //append fairness score i.e. text that says whether the place is closer to user or friend
-        stringBuilder.append(" ");
+    /**
+     * Returns a formatted string which tells the user if the place is closer to the user or friend or equidistant.
+     * @param context
+     * @param fairness
+     * @return
+     */
+    public static String formatFairnessScore(Context context, int fairness) {
         switch (fairness) {
             case CLOSER_TO_USER:
-                stringBuilder.append(context.getString(R.string.detail_closer_to_user));
-                break;
-            case CLOSER_TO_FRIEND:
-                stringBuilder.append(context.getString(R.string.detail_closer_to_friend));
-                break;
-            default:
-                stringBuilder.append(context.getString(R.string.detail_equidistant));
-                break;
-        }
+                return context.getString(R.string.detail_closer_to_user);
 
-        //done
-        return stringBuilder.toString();
+            case CLOSER_TO_FRIEND:
+                return context.getString(R.string.detail_closer_to_friend);
+
+            default:
+                return context.getString(R.string.detail_equidistant);
+        }
     }
 }

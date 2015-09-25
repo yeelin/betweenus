@@ -16,12 +16,14 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringSystem;
 import com.facebook.rebound.SpringUtil;
+import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Target;
 
 import java.util.List;
@@ -38,12 +40,19 @@ public class SuggestionsAdapter
     //member variables
     private List<YelpBusiness> businessList;
     private ArrayMap<String,Integer> selectedIdsMap;
+    private LatLng userLatLng;
+    private LatLng friendLatLng;
+    private LatLng midLatLng;
+
+    //listener
     private OnItemToggleListener listener;
 
     //for rebound
     private final BaseSpringSystem springSystem = SpringSystem.create();
     private final ToggleSpringListener buttonSpringListener = new ToggleSpringListener();
     private Spring scaleSpring;
+
+    //views
     private CheckedTextView toggledView;
 
     /**
@@ -65,11 +74,17 @@ public class SuggestionsAdapter
      * @param businessList
      */
     public SuggestionsAdapter(Context context, @Nullable List<YelpBusiness> businessList,
-                              ArrayMap<String,Integer> selectedIdsMap, OnItemToggleListener listener) {
-
+                              ArrayMap<String,Integer> selectedIdsMap,
+                              LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                              OnItemToggleListener listener) {
         super(context, 0, businessList);
+
         this.businessList = businessList;
         this.selectedIdsMap = selectedIdsMap;
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
+        this.midLatLng = midLatLng;
+
         this.listener = listener;
 
         scaleSpring = springSystem.createSpring();
@@ -145,14 +160,30 @@ public class SuggestionsAdapter
         viewHolder.itemToggle.setOnClickListener(this);
         viewHolder.itemToggle.setOnTouchListener(this);
 
+        //compute fairness and distance from center
+        final LatLng businessLatLng = new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude());
+        final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, businessLatLng);
+        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(businessLatLng, midLatLng, FairnessScoringUtils.IMPERIAL);
+
+        //set distance from center
+        viewHolder.distanceFromMidPoint.setText(FairnessScoringUtils.formatDistanceDelta(getContext(), distanceDelta, FairnessScoringUtils.IMPERIAL, false));
+
+        //set fairness score
+        viewHolder.fairnessScore.setText(FairnessScoringUtils.formatFairnessScore(getContext(), fairness));
+
         return view;
     }
 
     /**
      * Updates the adapter with a new list of businessList
      * @param businessList
+     * @param newSelectedIdsMap
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
      */
-    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap) {
+    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
+                               LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         //if it's the same businessList, do nothing. Otherwise, you end up clearing out businessList
         if (this.businessList == businessList) {
             Log.d(TAG, "updateAllItems: this.businessList == businessList. Nothing to do");
@@ -162,6 +193,9 @@ public class SuggestionsAdapter
         //remove all from the current list
         clear();
         this.selectedIdsMap = newSelectedIdsMap;
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
+        this.midLatLng = midLatLng;
 
         //add all new businessList to the end of the array
         if (businessList != null) {
@@ -255,14 +289,21 @@ public class SuggestionsAdapter
         final TextView reviews;
 
         public final CheckedTextView itemToggle;
+        final TextView distanceFromMidPoint;
+        final TextView fairnessScore;
 
         ViewHolder(View view) {
+            //first column
             image = (ImageView) view.findViewById(R.id.item_image);
+            //second column
             name = (TextView) view.findViewById(R.id.item_name);
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
             reviews = (TextView) view.findViewById(R.id.item_reviews);
+            //third column
             itemToggle = (CheckedTextView) view.findViewById(R.id.item_toggle);
+            distanceFromMidPoint = (TextView) view.findViewById(R.id.item_distance_from_midpoint);
+            fairnessScore = (TextView) view.findViewById(R.id.item_fairness_score);
         }
     }
 

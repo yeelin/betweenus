@@ -18,9 +18,7 @@ import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallba
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
-import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
-import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,8 +32,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
-
-import java.text.DecimalFormat;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -339,8 +335,8 @@ public class SuggestionDetailFragment
 
         //compute who is closer
         final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, latLng);
-        final double distanceFromMidPoint = FairnessScoringUtils.computeDistanceFromMidPoint(latLng, midLatLng, FairnessScoringUtils.IMPERIAL);
-        final String displayString = FairnessScoringUtils.formatDistanceFromMidPointString(getActivity(), distanceFromMidPoint, fairness, FairnessScoringUtils.IMPERIAL);
+        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(latLng, midLatLng, FairnessScoringUtils.IMPERIAL);
+        final String displayString = FairnessScoringUtils.formatDistanceDeltaAndFairness(getActivity(), distanceDelta, fairness, FairnessScoringUtils.IMPERIAL, true);
         viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address

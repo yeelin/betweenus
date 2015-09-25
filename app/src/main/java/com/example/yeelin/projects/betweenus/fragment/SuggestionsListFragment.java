@@ -179,6 +179,7 @@ public class SuggestionsListFragment
                     viewHolder.suggestionsListView.getContext(),
                     result != null ? result.getBusinesses() : null,
                     selectedIdsMap,
+                    userLatLng, friendLatLng, midLatLng,
                     this);
             viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
         }
@@ -186,7 +187,8 @@ public class SuggestionsListFragment
             Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating.");
             suggestionsAdapter.updateAllItems(
                     result != null ? result.getBusinesses() : null,
-                    selectedIdsMap);
+                    selectedIdsMap,
+                    userLatLng, friendLatLng, midLatLng);
         }
 
         //second: animate in the list, and animate out the progress bar
