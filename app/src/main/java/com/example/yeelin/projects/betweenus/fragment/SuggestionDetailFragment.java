@@ -17,6 +17,7 @@ import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
+import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
@@ -60,13 +61,6 @@ public class SuggestionDetailFragment
     private static String FRAGMENT_TAG_LITEMAP = SupportMapFragment.class.getSimpleName();
     //constants
     private static final int DEFAULT_ZOOM = 13;
-
-    private static final int IMPERIAL = 0;
-    private static final int METRIC = 1;
-
-    private static final int EQUIDISTANT = 0;
-    private static final int CLOSER_TO_USER = 1;
-    private static final int CLOSER_TO_FRIEND = 2;
 
     //member variables
     private String id;
@@ -344,9 +338,9 @@ public class SuggestionDetailFragment
         viewHolder.categories.setText(categories != null ? categories : getString(R.string.not_available));
 
         //compute who is closer
-        final int fairness = computeFairnessScore();
-        final double distanceFromMidPoint = computeDistanceFromMidPoint(getUnitPreference());
-        final String displayString = formatDistanceFromMidPointString(distanceFromMidPoint, fairness);
+        final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, latLng);
+        final double distanceFromMidPoint = FairnessScoringUtils.computeDistanceFromMidPoint(latLng, midLatLng, FairnessScoringUtils.IMPERIAL);
+        final String displayString = FairnessScoringUtils.formatDistanceFromMidPointString(getActivity(), distanceFromMidPoint, fairness, FairnessScoringUtils.IMPERIAL);
         viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address
@@ -434,102 +428,6 @@ public class SuggestionDetailFragment
         return toggleState ?
                 BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
                 BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
-    }
-
-    /**
-     * Compares the distance between the user and place with the distance between the friend and place.
-     * Returns constants indicating if the place is closer to user, closer to friend, or equidistant.
-     * @return
-     */
-    private int computeFairnessScore() {
-        //compute distance between 1) user and place, 2) friend and place
-        double userDistance = LocationUtils.computeDistanceBetween(userLatLng, latLng);
-        double friendDistance = LocationUtils.computeDistanceBetween(friendLatLng, latLng);
-
-        //compare the distance and return fairness score
-        if (userDistance < friendDistance) {
-            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_USER. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
-            return CLOSER_TO_USER;
-        }
-        if (userDistance > friendDistance) {
-            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_FRIEND. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
-            return CLOSER_TO_FRIEND;
-        }
-        Log.d(TAG, String.format("computeFairnessScore: EQUIDISTANT. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
-        return EQUIDISTANT;
-    }
-
-    /**
-     * Computes the distance between the place and midpoint. Returns distance in the preferred unit.
-     * @param unitPreference
-     * @return
-     */
-    private double computeDistanceFromMidPoint(int unitPreference) {
-        //compute distance between place and mid point
-        double distanceInMeters = LocationUtils.computeDistanceBetween(latLng, midLatLng);
-
-        //return distance in meters or miles
-        if (unitPreference == IMPERIAL) {
-            double distanceInMiles = LocationUtils.convertMetersToMiles(distanceInMeters);
-            Log.d(TAG, String.format("computeDistanceFromMidPoint: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
-            return distanceInMiles;
-        }
-        Log.d(TAG, "computeDistanceFromMidPoint: Distance(m):" + distanceInMeters);
-        return distanceInMeters;
-    }
-
-    /**
-     * Formats a string which comprises of 1) distance between the place and midpoint, and 2) fairness score.
-     * @param distanceFromMidPoint
-     * @param fairness
-     * @return
-     */
-    private String formatDistanceFromMidPointString(double distanceFromMidPoint, int fairness) {
-        //get reference to a decimal formatter
-        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter();
-
-        //build string
-        StringBuilder stringBuilder = new StringBuilder();
-
-        //build the distance between place and midpoint
-        if (getUnitPreference() == IMPERIAL) {
-            stringBuilder.append(getString(R.string.detail_distance_from_midPoint_miles, decimalFormatter.format(distanceFromMidPoint)));
-        }
-        else if (getUnitPreference() == METRIC) {
-            if (distanceFromMidPoint > 1000) { //if using metric and distance is greater than 1000m, then show in km
-                stringBuilder.append(getString(R.string.detail_distance_from_midPoint_km, decimalFormatter.format(distanceFromMidPoint / 1000.0)));
-            }
-            else {
-                stringBuilder.append(getString(R.string.detail_distance_from_midPoint_meters, decimalFormatter.format(distanceFromMidPoint)));
-            }
-        }
-
-        //append fairness score i.e. text that says whether the place is closer to user or friend
-        stringBuilder.append(" ");
-        switch (fairness) {
-            case CLOSER_TO_USER:
-                stringBuilder.append(getString(R.string.detail_closer_to_user));
-                break;
-            case CLOSER_TO_FRIEND:
-                stringBuilder.append(getString(R.string.detail_closer_to_friend));
-                break;
-            default:
-                stringBuilder.append(getString(R.string.detail_equidistant));
-                break;
-        }
-
-        //done
-        return stringBuilder.toString();
-    }
-
-
-    /**
-     * Get user's preference for units.
-     * TODO: Read this from preferences
-     * @return
-     */
-    private int getUnitPreference() {
-        return IMPERIAL;
     }
 
     /**
