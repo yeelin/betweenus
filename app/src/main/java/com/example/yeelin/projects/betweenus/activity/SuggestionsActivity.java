@@ -583,16 +583,17 @@ public class SuggestionsActivity
         Log.d(TAG, String.format("onPlacesFailure: StatusCode:%d, Message:%s", statusCode, statusMessage));
 
         //create a snackbar to inform the user
-        final Snackbar snackbar = Snackbar.make(findViewById(R.id.suggestions_root_layout),
-                getString(R.string.get_place_by_id_error),
-                Snackbar.LENGTH_LONG);
-        //provide an action link on the snackbar to go back to the location entry screen
-        snackbar.setAction(getString(R.string.go_back), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
-                navigateUpToParentActivity(SuggestionsActivity.this);
-            }
-        });
+        final View rootView = findViewById(R.id.root_layout);
+        if (rootView != null) {
+            final Snackbar snackbar = Snackbar.make(rootView, getString(R.string.get_place_by_id_error), Snackbar.LENGTH_LONG);
+            //provide an action link on the snackbar to go back to the location entry screen
+            snackbar.setAction(getString(R.string.snackbar_go_back), new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
+                    navigateUpToParentActivity(SuggestionsActivity.this);
+                }
+            });
+        }
     }
 }

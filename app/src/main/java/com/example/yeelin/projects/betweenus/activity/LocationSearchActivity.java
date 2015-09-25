@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;

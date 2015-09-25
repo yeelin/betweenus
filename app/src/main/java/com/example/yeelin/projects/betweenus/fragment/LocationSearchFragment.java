@@ -6,9 +6,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.activity.DummySearchActivity;
@@ -346,7 +345,20 @@ public class LocationSearchFragment
     @Override
     public void onAutocompleteFailure(int statusCode, String statusMessage) {
         Log.d(TAG, String.format("onAutocompleteFailure: StatusCode:%s, Message:%s", statusCode, statusMessage));
-        Toast.makeText(getActivity(), statusMessage, Toast.LENGTH_LONG).show();
+
+        //the view is already gone, so don't bother
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) return;
+
+        //create a snackbar to inform the user
+        final Snackbar snackbar = Snackbar.make(viewHolder.rootLayout, statusMessage, Snackbar.LENGTH_LONG);
+        snackbar.setAction(getString(R.string.snackbar_retry), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onAutocompleteFailure.onClick: Retrying autocomplete");
+                onQueryTextChange(lastQuery);
+            }
+        });
     }
 
     /**
@@ -363,10 +375,12 @@ public class LocationSearchFragment
      * View holder class
      */
     private class ViewHolder {
+        final View rootLayout;
         final ListView searchListView;
         final ImageView searchAttribution;
 
         ViewHolder(View view) {
+            rootLayout = view.findViewById(R.id.root_layout);
             searchListView = (ListView) view.findViewById(R.id.search_listview);
             searchListView.setEmptyView(view.findViewById(R.id.search_empty));
             searchAttribution = (ImageView) view.findViewById(R.id.search_attribution);
