@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -41,6 +42,9 @@ public class SuggestionsMapFragment
 
     //logcat
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
+
+    //constants
+    private static final int COLOR_GRAY_500_OPACITY_40 = Color.argb(102, 158, 158, 158); //40% opaque means 0.4*255=102, 102 in Hex is 66
 
     //member variables
     private MapItemInfoWindowAdapter infoWindowAdapter; //custom renderer for info windows
@@ -243,6 +247,7 @@ public class SuggestionsMapFragment
      */
     private void addCircleToMap() {
         Log.d(TAG, "addCircleToMap");
+
         //read the yelp result region so that we can specify the map bounds
         final YelpResultRegion resultRegion = result.getRegion();
 
@@ -250,21 +255,25 @@ public class SuggestionsMapFragment
         final LatLng center = new LatLng(
                 resultRegion.getCenter().getLatitude(),
                 resultRegion.getCenter().getLongitude());
-        //get long delta from the center
-        final double longDelta = resultRegion.getSpan().getLongitude_delta();
 
-        //compute radius
-        final LatLng west = new LatLng(center.latitude, center.longitude - longDelta/2);
-        final double radius = SphericalUtil.computeDistanceBetween(center, west);
+        //get delta of lat/long from the center
+        double latDelta = resultRegion.getSpan().getLatitude_delta();
+        double longDelta = resultRegion.getSpan().getLongitude_delta();
+
+        //compute nw from center
+        LatLng nw = new LatLng(center.latitude + latDelta/2, center.longitude - longDelta/2);
+
+        //compute radius using nw point
+        double radius = SphericalUtil.computeDistanceBetween(center, nw);
         Log.d(TAG, String.format("addCircleToMap: Center:%s, Radius:%.2f", center, radius));
 
         //create circle and add to map
         final CircleOptions circleOptions = new CircleOptions()
                 .center(center)
                 .radius(radius)
-                .strokeWidth(0) //no outline
-                .strokeColor(android.R.color.transparent)
-                .fillColor(R.color.colorPrimaryLight);
+                .strokeWidth(1)
+                .strokeColor(COLOR_GRAY_500_OPACITY_40) //using argb defined in file since HEX definied in colors.xml don't appear to be working for this case
+                .fillColor(COLOR_GRAY_500_OPACITY_40);
         map.addCircle(circleOptions);
     }
 
@@ -319,25 +328,19 @@ public class SuggestionsMapFragment
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
         //read the yelp result region so that we can specify the map bounds
-        YelpResultRegion resultRegion = result.getRegion();
+        final YelpResultRegion resultRegion = result.getRegion();
 
         //get region center
-        LatLng center = new LatLng(
+        final LatLng center = new LatLng(
                 resultRegion.getCenter().getLatitude(),
                 resultRegion.getCenter().getLongitude());
         //get delta of lat/long from the center
         double latDelta = resultRegion.getSpan().getLatitude_delta();
         double longDelta = resultRegion.getSpan().getLongitude_delta();
 
-        //compute north, south, east, west from center
-        LatLng north = new LatLng(center.latitude + latDelta/2, center.longitude);
-        LatLng south = new LatLng(center.latitude - latDelta/2, center.longitude);
-        LatLng east = new LatLng(center.latitude, center.longitude + longDelta/2);
-        LatLng west = new LatLng(center.latitude, center.longitude - longDelta/2);
-
         //compute ne and sw from center
-        LatLng ne = new LatLng(north.latitude, east.longitude);
-        LatLng sw = new LatLng(south.latitude, west.longitude);
+        LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);
+        LatLng sw = new LatLng(center.latitude - latDelta/2, center.longitude - longDelta/2);
 
         //create bounds object
         return new Pair<>(sw, ne);
@@ -354,7 +357,7 @@ public class SuggestionsMapFragment
         final DisplayMetrics display = getResources().getDisplayMetrics();
 
         LatLngBounds mapBounds;
-        int padding;
+        int padding = display.widthPixels / 10;
 
         if (includePeople) { //bounds = result and people
             mapBounds = new LatLngBounds.Builder()
@@ -363,11 +366,9 @@ public class SuggestionsMapFragment
                     .include(pairBounds.first)
                     .include(pairBounds.second)
                     .build();
-            padding = display.widthPixels / 10; //more padding
         }
         else { //bounds = result only, no people
             mapBounds = new LatLngBounds(pairBounds.first, pairBounds.second); //first = sw, second = ne
-            padding = display.widthPixels / 20; //less padding
         }
 
         if (shouldAnimate) {
