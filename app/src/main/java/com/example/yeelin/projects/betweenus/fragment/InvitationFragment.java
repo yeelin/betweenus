@@ -18,7 +18,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusinessAdapter;
 
 import java.util.ArrayList;

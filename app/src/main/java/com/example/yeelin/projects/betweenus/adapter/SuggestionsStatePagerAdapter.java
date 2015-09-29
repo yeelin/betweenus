@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,6 +8,7 @@ import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
+import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;

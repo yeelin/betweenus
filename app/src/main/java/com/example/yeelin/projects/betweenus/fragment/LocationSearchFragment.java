@@ -27,7 +27,7 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.activity.DummySearchActivity;
 import com.example.yeelin.projects.betweenus.adapter.LocationSearchAdapter;
-import com.example.yeelin.projects.betweenus.adapter.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.model.LocationSearchItem;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 

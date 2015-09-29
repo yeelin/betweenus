@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;

@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.adapter;
+package com.example.yeelin.projects.betweenus.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

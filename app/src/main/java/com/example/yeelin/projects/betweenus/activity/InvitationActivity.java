@@ -9,7 +9,7 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
 
 import java.util.ArrayList;

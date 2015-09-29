@@ -1,12 +1,9 @@
-package com.example.yeelin.projects.betweenus.adapter;
+package com.example.yeelin.projects.betweenus.model;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
-import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.google.android.gms.maps.model.LatLng;
 
 /**

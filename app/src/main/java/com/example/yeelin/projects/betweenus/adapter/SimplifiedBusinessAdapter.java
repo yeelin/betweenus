@@ -1,7 +1,6 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.squareup.picasso.Target;
 
