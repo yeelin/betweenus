@@ -11,6 +11,10 @@ import com.example.yeelin.projects.betweenus.R;
 public class MapColorUtils {
     private float[] hsvPrimaryDark = new float[3];
     private float[] hsvAccentDark = new float[3];
+
+    //constants
+    public static final int COLOR_GRAY_500_OPACITY_40 = Color.argb(102, 158, 158, 158); //40% opaque means 0.4*255=102, 102 in Hex is 66
+
     private static MapColorUtils instance;
 
     public static MapColorUtils getInstance(Context context) {

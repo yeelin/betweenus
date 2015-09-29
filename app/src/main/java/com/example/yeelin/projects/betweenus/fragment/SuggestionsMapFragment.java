@@ -43,9 +43,6 @@ public class SuggestionsMapFragment
     //logcat
     private static final String TAG = SuggestionsMapFragment.class.getCanonicalName();
 
-    //constants
-    private static final int COLOR_GRAY_500_OPACITY_40 = Color.argb(102, 158, 158, 158); //40% opaque means 0.4*255=102, 102 in Hex is 66
-
     //member variables
     private MapItemInfoWindowAdapter infoWindowAdapter; //custom renderer for info windows
     private YelpResult result;
@@ -243,7 +240,7 @@ public class SuggestionsMapFragment
 
     /**
      * Adds a circle centered at the center of the yelp result region, with radius specified
-     * by half of the longitude delta.
+     * by the distance from the center to the nw point of the result region.
      */
     private void addCircleToMap() {
         Log.d(TAG, "addCircleToMap");
@@ -272,8 +269,8 @@ public class SuggestionsMapFragment
                 .center(center)
                 .radius(radius)
                 .strokeWidth(1)
-                .strokeColor(COLOR_GRAY_500_OPACITY_40) //using argb defined in file since HEX definied in colors.xml don't appear to be working for this case
-                .fillColor(COLOR_GRAY_500_OPACITY_40);
+                .strokeColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40) //using argb defined in class since HEX defined in colors.xml don't appear to be working for this case
+                .fillColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40);
         map.addCircle(circleOptions);
     }
 
