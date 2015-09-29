@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.activity.DummySearchActivity;
@@ -324,7 +325,7 @@ public class LocationSearchFragment
         //check if listview adapter exists
         LocationSearchAdapter locationSearchAdapter = (LocationSearchAdapter) viewHolder.searchListView.getAdapter();
         if (locationSearchAdapter == null) {
-            //create and set the adapter with the search resul items
+            //create and set the adapter with the search result items
             Log.d(TAG, "onAutocompleteResult: Search adapter is null, so creating a new one");
             locationSearchAdapter = new LocationSearchAdapter(viewHolder.searchListView.getContext(), items);
             viewHolder.searchListView.setAdapter(locationSearchAdapter);
@@ -333,6 +334,11 @@ public class LocationSearchFragment
             //update the adapter
             Log.d(TAG, "onAutocompleteResult: Search adapter is not null, so updating");
             locationSearchAdapter.updateAllItems(items);
+        }
+
+        //set empty view text to "no locations found"
+        if (items == null || items.size() == 0) {
+            viewHolder.searchStatus.setText(R.string.search_no_results);
         }
     }
 
@@ -349,6 +355,9 @@ public class LocationSearchFragment
         //the view is already gone, so don't bother
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
+
+        //set empty view text to "no locations found"
+        viewHolder.searchStatus.setText(R.string.search_no_results);
 
         //create a snackbar to inform the user
         final Snackbar snackbar = Snackbar.make(viewHolder.rootLayout, statusMessage, Snackbar.LENGTH_LONG);
@@ -377,12 +386,17 @@ public class LocationSearchFragment
     private class ViewHolder {
         final View rootLayout;
         final ListView searchListView;
+        final TextView searchStatus;
+
         final ImageView searchAttribution;
 
         ViewHolder(View view) {
             rootLayout = view.findViewById(R.id.root_layout);
+
             searchListView = (ListView) view.findViewById(R.id.search_listview);
-            searchListView.setEmptyView(view.findViewById(R.id.search_empty));
+            searchStatus = (TextView) view.findViewById(R.id.search_empty);
+            searchListView.setEmptyView(searchStatus);
+
             searchAttribution = (ImageView) view.findViewById(R.id.search_attribution);
         }
     }

@@ -15,7 +15,7 @@
     <string name="user_query_hint">Your address or city</string>
     <string name="friend_query_hint">Friend\'s address or city</string>
     <string name="search_attribution_contentDescription">Search powered by Google</string>
-    <string name="search_no_results">No locations</string>
+    <string name="search_no_results">No locations found</string>
 
     <!-- menu actions -->
     <string name="action_search">Search</string>
