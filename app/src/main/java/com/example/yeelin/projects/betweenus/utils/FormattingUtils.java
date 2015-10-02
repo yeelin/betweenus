@@ -10,15 +10,32 @@ public class FormattingUtils {
     private static DecimalFormat decimalFormatter;
 
     /**
-     * Returns a decimal formatter that rounds up and shows up to 2 digits after the decimal point.
+     * Returns a decimal formatter that rounds up half and
+     * shows up to the given digits after the decimal point.
+     * @param maxFractionDigits
      * @return
      */
-    public static DecimalFormat getDecimalFormatter() {
+    public static DecimalFormat getDecimalFormatter(int maxFractionDigits) {
         if (decimalFormatter == null) {
             decimalFormatter = (DecimalFormat) DecimalFormat.getInstance();
-            decimalFormatter.setRoundingMode(RoundingMode.HALF_UP);
-            decimalFormatter.setMaximumFractionDigits(2);
         }
+        decimalFormatter.setRoundingMode(RoundingMode.HALF_UP);
+        decimalFormatter.setMaximumFractionDigits(maxFractionDigits);
+        return decimalFormatter;
+    }
+
+    /**
+     * Returns a decimal formatter that doesn't do any rounding and
+     * shows up to the given digits after the decimal point
+     * @param maxFractionDigits
+     * @return
+     */
+    public static DecimalFormat getDecimalFormatterNoRounding(int maxFractionDigits) {
+        if (decimalFormatter == null) {
+            decimalFormatter = (DecimalFormat) DecimalFormat.getInstance();
+        }
+        decimalFormatter.setRoundingMode(RoundingMode.UNNECESSARY);
+        decimalFormatter.setMaximumFractionDigits(maxFractionDigits);
         return decimalFormatter;
     }
 }

@@ -104,7 +104,7 @@ public class FairnessScoringUtils {
                                              double distanceFromMidPoint,
                                              int unitPreference, boolean verbose) {
         //get reference to a decimal formatter
-        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter();
+        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(2);
 
         //build the distance between place and midpoint
         if (unitPreference == IMPERIAL) {

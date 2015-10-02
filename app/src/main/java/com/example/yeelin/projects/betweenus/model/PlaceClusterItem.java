@@ -12,15 +12,22 @@ public class PlaceClusterItem implements ClusterItem {
     private final String title;
     private final String snippet;
     private final String ratingUrl;
+
+    private final double rating;
     private final int resultPosition;
 
-    public PlaceClusterItem(LatLng position, String id, String title, String snippet, String ratingUrl, int resultPosition) {
+    public PlaceClusterItem(LatLng position, String id, String title,
+                            String snippet, String ratingUrl, double rating,
+                            int resultPosition) {
         this.position = position;
 
         this.id = id;
         this.title = title;
+
         this.snippet = snippet;
         this.ratingUrl = ratingUrl;
+        this.rating = rating;
+
         this.resultPosition = resultPosition;
     }
 
@@ -43,6 +50,10 @@ public class PlaceClusterItem implements ClusterItem {
 
     public String getRatingUrl() {
         return ratingUrl;
+    }
+
+    public double getRating() {
+        return rating;
     }
 
     public int getResultPosition() {

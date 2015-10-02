@@ -22,10 +22,10 @@
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"
         android:textStyle="bold"
-        tools:text="Place name"/>
+        tools:text="Cluster title"/>
 
     <TextView
-        android:id="@+id/snippet"
+        android:id="@+id/first_snippet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -34,8 +34,18 @@
         android:singleLine="true"
         android:textColor="@color/textColorSecondary"
         android:textSize="12sp"
-        android:drawableLeft="@drawable/stars_small_4"
-        android:drawablePadding="5dp"
-        android:paddingTop="2dp"
-        android:text="0 reviews"/>
+        tools:text="Cluster snippet"/>
+
+    <TextView
+        android:id="@+id/second_snippet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="12sp"
+        tools:text="Cluster snippet 2"/>
+
 </LinearLayout>

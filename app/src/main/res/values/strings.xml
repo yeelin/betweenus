@@ -82,6 +82,14 @@
     <string name="map_marker_user_location">Your location</string>
     <string name="map_marker_friend_location">"Friend's location"</string>
 
+    <!-- Map info window strings -->
+    <string name="map_cluster_infoWindow_title">%1$d in the cluster</string>
+    <plurals name="map_cluster_infoWindow_first_snippet">
+        <item quantity="one">Highest rated has %1$s star</item>
+        <item quantity="other">Highest rated has %1$s stars</item>
+    </plurals>
+    <string name="map_cluster_infoWindow_second_snippet">%1$d with 4 or more stars</string>
+
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>
     <string name="friend_phone">"Enter friend's phone to invite"</string>
