@@ -16,6 +16,6 @@
         android:textColor="@color/colorPrimary"
         android:textSize="14sp"
         android:textStyle="bold"
-        tools:text="Place name"/>
+        tools:text="Person title"/>
 
 </LinearLayout>

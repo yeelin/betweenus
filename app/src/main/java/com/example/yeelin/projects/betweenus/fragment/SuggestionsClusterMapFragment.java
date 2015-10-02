@@ -58,8 +58,9 @@ public class SuggestionsClusterMapFragment
     //member variables
     private ClusterManager<PlaceClusterItem> clusterManager;
     private PlaceClusterRenderer clusterRenderer;
+    private PlaceClusterItemInfoWindowAdapter clusterItemInfoWindowAdapter;
+    private PlaceClusterInfoWindowAdapter clusterInfoWindowAdapter;
 
-    //private MapItemInfoWindowAdapter infoWindowAdapter; //custom renderer for info windows
     private YelpResult result;
     private boolean mapNeedsUpdate = false;
 
@@ -70,7 +71,7 @@ public class SuggestionsClusterMapFragment
     //selected ids map
     private ArrayMap<String, Integer> selectedIdsMap;
 
-    //maps to retrieve data back later
+    //allows us to retrieve data back later
     private SimpleArrayMap<String, PlaceClusterItem> idToClusterItemMap = new SimpleArrayMap<>(); //needed to toggle the marker color
     private Marker userLocationMarker; //for showing user's location marker
     private Marker friendLocationMarker; //for showing friend's location marker
@@ -138,11 +139,14 @@ public class SuggestionsClusterMapFragment
 
         //http://stackoverflow.com/questions/21885225/showing-custom-infowindow-for-android-maps-utility-library-for-android
         //1. set cluster manager's marker manager as the map's info window adapter
-        map.setInfoWindowAdapter(clusterManager.getMarkerManager());
+        //map.setInfoWindowAdapter(clusterManager.getMarkerManager());
+        map.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         //2. set a custom info window adapter for the marker collection
-        clusterManager.getMarkerCollection().setOnInfoWindowAdapter(new PlaceClusterItemInfoWindowAdapter());
+        clusterItemInfoWindowAdapter = new PlaceClusterItemInfoWindowAdapter();
+        clusterManager.getMarkerCollection().setOnInfoWindowAdapter(clusterItemInfoWindowAdapter);
         //3. set a custom info window adapter for the cluster collection
-        clusterManager.getClusterMarkerCollection().setOnInfoWindowAdapter(new PlaceClusterInfoWindowAdapter());
+        clusterInfoWindowAdapter = new PlaceClusterInfoWindowAdapter();
+        clusterManager.getClusterMarkerCollection().setOnInfoWindowAdapter(clusterInfoWindowAdapter);
 
         //this class will handle cluster clicks and cluster info window clicks
         clusterManager.setOnClusterClickListener(this);
@@ -223,7 +227,7 @@ public class SuggestionsClusterMapFragment
 
         //check if result is null
         if (result != null && result.getBusinesses().size() > 0) {
-            Log.d(TAG, "updateMap: Adding cluster items to map. Item count:" + result.getBusinesses().size());
+            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getBusinesses().size());
 
             //make sure the idToClusterItemMap has enough space
             idToClusterItemMap.ensureCapacity(result.getBusinesses().size());
@@ -352,7 +356,7 @@ public class SuggestionsClusterMapFragment
      */
     @Override
     public boolean onClusterClick(Cluster<PlaceClusterItem> cluster) {
-        Log.d(TAG, "onClusterClicked: A cluster was clicked");
+        Log.d(TAG, "onClusterClick: A cluster was clicked");
         return false;
     }
 
@@ -374,7 +378,7 @@ public class SuggestionsClusterMapFragment
      */
     @Override
     public boolean onClusterItemClick(PlaceClusterItem placeClusterItem) {
-        Log.d(TAG, "onClusterItemClick: A cluster item (i.e. marker) was clicked");
+        Log.d(TAG, "onClusterItemClick: A cluster item was clicked");
 
         // We return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
@@ -389,7 +393,7 @@ public class SuggestionsClusterMapFragment
      */
     @Override
     public void onClusterItemInfoWindowClick(PlaceClusterItem placeClusterItem) {
-        Log.d(TAG, "onClusterItemInfoWindowClick: A cluster item (i.e. marker) info window was clicked");
+        Log.d(TAG, "onClusterItemInfoWindowClick: A cluster item's info window was clicked");
 
         //notify the activity that a suggestion was clicked
         suggestionActionListener.onSuggestionClick(placeClusterItem.getId(),
@@ -487,7 +491,6 @@ public class SuggestionsClusterMapFragment
                         .title(getString(R.string.map_marker_user_location))
                         .icon(determineMarkerIcon(false));
                 userLocationMarker = map.addMarker(userMarkerOptions);
-
             }
             else {
                 //user marker already exists, so set it to visible
@@ -502,7 +505,6 @@ public class SuggestionsClusterMapFragment
                         .title(getString(R.string.map_marker_friend_location))
                         .icon(determineMarkerIcon(false));
                 friendLocationMarker = map.addMarker(friendMarkerOptions);
-
             }
             else {
                 //friend marker already exists, so set it to visible
@@ -620,7 +622,6 @@ public class SuggestionsClusterMapFragment
          */
         @Override
         public View getInfoWindow(Marker marker) {
-            Log.d(TAG, "getInfoWindow");
             return null;
         }
 
@@ -645,40 +646,24 @@ public class SuggestionsClusterMapFragment
             }
 
             //doesn't exist, so inflate a new one
-            final View view;
-
-            //check if this marker is the userLocationMarker or the friendLocationMarker
-            if ((userLocationMarker != null && userLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle())) ||
-                    (friendLocationMarker != null && friendLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle()))) {
-                //yes, this is either the user or friend marker, so inflate map_info_people_location view
-                Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster item marker so inflating a new map_info_people_location window");
-                view = View.inflate(getContext(), R.layout.map_info_people_location, null);
-            }
-            else {
-                //not user or friend marker, so inflate map_info_place view
-                Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster marker so inflating a new map_info_place window");
-                view = View.inflate(getContext(), R.layout.map_info_place, null);
-
-                //set the snippet (i.e. # of reviews) text
-                TextView snippet = (TextView) view.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
-
-//            //only uncomment this if you want to force a network fetch for the rating image
-//            Picasso.with(getActivity())
-//                    .invalidate(ratingUrl);
-
-                //note: picasso only keeps a weak ref to the target so it may be gc-ed
-                //use setTag so that target will be alive as long as the view is alive
-                final Target target = ImageUtils.newTarget(getContext(), snippet, marker);
-                snippet.setTag(target);
-                ImageUtils.loadImage(getContext(),
-                        clusterRenderer.getClusterItem(marker) != null ? clusterRenderer.getClusterItem(marker).getRatingUrl() : null, //TODO: provide placeholder image
-                        target);
-            }
+            Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster marker so inflating a new map_info_place window");
+            final View view = View.inflate(getContext(), R.layout.map_info_place, null);
 
             //set the title
             TextView title = (TextView) view.findViewById(R.id.title);
             title.setText(marker.getTitle());
+
+            //set the snippet (i.e. # of reviews) text
+            TextView snippet = (TextView) view.findViewById(R.id.snippet);
+            snippet.setText(marker.getSnippet());
+
+            //note: picasso only keeps a weak ref to the target so it may be gc-ed
+            //use setTag so that target will be alive as long as the view is alive
+            final Target target = ImageUtils.newTarget(getContext(), snippet, marker);
+            snippet.setTag(target);
+            ImageUtils.loadImage(getContext(),
+                    clusterRenderer.getClusterItem(marker) != null ? clusterRenderer.getClusterItem(marker).getRatingUrl() : null, //TODO: provide placeholder image
+                    target);
 
             //store the info window view so that we can return it if requested again
             clusterItemMarkerToInfoWindowMap.put(marker, view);
@@ -717,7 +702,6 @@ public class SuggestionsClusterMapFragment
          */
         @Override
         public View getInfoWindow(Marker marker) {
-            Log.d(TAG, "getInfoWindow");
             return null;
         }
 
@@ -782,11 +766,57 @@ public class SuggestionsClusterMapFragment
                 }
             }
 
-
             //store the info window view in a map so that we can return it if requested again
             clusterMarkerToInfoWindowMap.put(marker, view);
 
             return view;
+        }
+    }
+
+    /**
+     * CustomInfoWindowAdapter
+     * This class is an adapter for info windows of markers
+     * 1. handles only people location markers
+     * 2. farms out the other types of markers to other adapters
+     */
+    private class CustomInfoWindowAdapter
+            implements GoogleMap.InfoWindowAdapter {
+        //logcat
+        private final String TAG = CustomInfoWindowAdapter.class.getCanonicalName();
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            return null;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            Log.d(TAG, "getInfoContents: Marker title: " + marker.getTitle());
+
+            if (clusterRenderer.getCluster(marker) != null) {
+                //we are dealing with a cluster
+                Log.d(TAG, "getInfoContents: Redirecting to cluster info window adapter");
+                return clusterInfoWindowAdapter.getInfoContents(marker);
+            }
+            else if (clusterRenderer.getClusterItem(marker) != null) {
+                //we are dealing with a cluster item
+                Log.d(TAG, "getInfoContents: Redirecting to cluster item info window adapter");
+                return clusterItemInfoWindowAdapter.getInfoContents(marker);
+            }
+            else if ((userLocationMarker != null && userLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle())) ||
+                    (friendLocationMarker != null && friendLocationMarker.getTitle().equalsIgnoreCase(marker.getTitle()))) {
+                //we are dealing with a user or friend location marker
+                Log.d(TAG, "getInfoContents: Inflating a new map_info_people_location window");
+
+                final View view = View.inflate(getContext(), R.layout.map_info_people_location, null);
+                TextView title = (TextView) view.findViewById(R.id.title);
+                title.setText(marker.getTitle());
+                return view;
+            }
+            else {
+                Log.d(TAG, "getInfoContents: Unknown marker");
+                return null;
+            }
         }
     }
 }
