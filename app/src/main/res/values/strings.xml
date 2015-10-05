@@ -3,6 +3,7 @@
 
     <!-- activity titles -->
     <string name="title_launcher">Between</string>
+    <string name="title_map">Cluster Map Test</string>
     <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
     <string name="title_search">Search</string>

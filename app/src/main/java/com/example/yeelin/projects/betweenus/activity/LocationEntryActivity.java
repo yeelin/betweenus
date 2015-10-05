@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.example.yeelin.projects.betweenus.BuildConfig;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
@@ -35,6 +35,8 @@ public class LocationEntryActivity
 
     //member variables
     private PlacesBroadcastReceiver placesBroadcastReceiver;
+    private String userPlaceId;
+    private String friendPlaceId;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -54,10 +56,9 @@ public class LocationEntryActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //turn on strict mode
-        if (BuildConfig.DEBUG) {
-            StrictMode.enableDefaults();
-        }
+        //strict mode
+        //turn this off if testing for map performance, otherwise things become very slow
+//        if (BuildConfig.DEBUG) StrictMode.enableDefaults();
 
         setContentView(R.layout.activity_location_entry);
         //setup toolbar
@@ -79,6 +80,25 @@ public class LocationEntryActivity
             Log.d(TAG, "onCreate: Saved instance state is not null");
         }
     }
+
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_location_entry, menu);
+//        return super.onCreateOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.action_map_activity:
+//                //start the suggestions map activity that will host the cluster map
+//                if (userPlaceId != null && friendPlaceId != null) {
+//                    startActivity(SuggestionsMapActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));
+//                }
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     /**
      * Start the PlacesService. More specifically, we want to call connect on the google api client
@@ -180,8 +200,12 @@ public class LocationEntryActivity
         }
 
         if (resultCode == Activity.RESULT_OK && data != null) {
-            String placeId = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_ID);
-            String description = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_DESC);
+            final String placeId = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_ID);
+            if (requestCode == REQUEST_CODE_USER_LOCATION)
+                userPlaceId = placeId;
+            else
+                friendPlaceId = placeId;
+            final String description = data.getStringExtra(LocationSearchActivity.EXTRA_PLACE_DESC);
 
             LocationEntryFragment locationEntryFragment = (LocationEntryFragment) getSupportFragmentManager().findFragmentById(R.id.locationEntry_fragmentContainer);
             locationEntryFragment.setUserLocation(

@@ -53,6 +53,17 @@
                 android:value=".activity.LocationSearchActivity"/>
         </activity>
 
+        <!-- For testing only -->
+        <!--
+        <activity android:name=".activity.SuggestionsMapActivity"
+            android:label="@string/title_map"
+            android:parentActivityName=".activity.LocationEntryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.LocationEntryActivity"/>
+        </activity>
+        -->
+
         <activity android:name=".activity.SuggestionsActivity"
             android:label="@string/title_suggested_places"
             android:parentActivityName=".activity.LocationEntryActivity">

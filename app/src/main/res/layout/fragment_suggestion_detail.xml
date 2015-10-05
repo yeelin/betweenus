@@ -193,7 +193,7 @@
             <TextView
                 android:id="@+id/detail_reviews"
                 style="@style/Medium_SecondaryTextViewStyle"
-                tools:drawableLeft="@drawable/stars_large_4"
+                tools:drawableLeft="@drawable/stars_small_4"
                 android:drawablePadding="5dp"
                 tools:text="@string/detail_reviews_fake"/>
             <!-- END:Reviews group-->
