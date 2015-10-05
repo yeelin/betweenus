@@ -1,63 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".fragment.LocationEntryFragment">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:background="@color/colorPrimary"
-        android:gravity="bottom"
-        android:paddingLeft="16dp"
-        android:paddingBottom="16dp"
-        android:textColor="@android:color/white"
-        android:text="@string/location_entry_header"
-        android:textSize="24sp"/>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/user_location"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:paddingLeft="16dp"
-        android:gravity="left|center_vertical"
-        android:text="@string/user_location" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="@color/colorPrimary"
+            android:gravity="bottom"
+            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
+            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp"
+            android:textColor="@android:color/white"
+            android:text="@string/location_entry_header"
+            android:textSize="24sp"/>
 
-    <View
-        android:layout_width="match_parent"
-        style="@style/HorizontalRuleStyle"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"/>
+        <TextView
+            android:id="@+id/user_location"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start|center_vertical"
+            android:text="@string/user_location" />
 
-    <TextView
-        android:id="@+id/friend_location"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:paddingLeft="16dp"
-        android:gravity="left|center_vertical"
-        android:text="@string/friend_location" />
+        <View
+            android:layout_width="match_parent"
+            style="@style/HorizontalRuleStyle"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"/>
 
-    <View
-        android:layout_width="match_parent"
-        style="@style/HorizontalRuleStyle"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"/>
+        <TextView
+            android:id="@+id/friend_location"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="start|center_vertical"
+            android:text="@string/friend_location" />
 
-    <Button
-        android:id="@+id/search_button"
-        style="@style/Medium_AccentButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginTop="32dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center"
-        android:text= "@string/search_button"/>
+        <View
+            android:layout_width="match_parent"
+            style="@style/HorizontalRuleStyle"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"/>
 
-</LinearLayout>
+        <Button
+            android:id="@+id/search_button"
+            style="@style/Medium_AccentButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:text= "@string/search_button"/>
+
+    </LinearLayout>
+</ScrollView>
