@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
@@ -42,11 +43,11 @@ public class SuggestionsActivity
 
     //intent extras
     private static final String EXTRA_SEARCH_TERM = SuggestionsActivity.class.getSimpleName() + ".searchTerm";
-    private static final String EXTRA_PLACE_IDS = SuggestionDetailActivity.class.getSimpleName() + ".placeIds";
+    private static final String EXTRA_PLACE_IDS = SuggestionsActivity.class.getSimpleName() + ".placeIds";
 
     //fragment tags
     private static final String FRAGMENT_TAG_LIST = SuggestionsListFragment.class.getSimpleName();
-    private static final String FRAGMENT_TAG_MAP = SuggestionsMapFragment.class.getSimpleName();
+    private static final String FRAGMENT_TAG_MAP = SuggestionsClusterMapFragment.class.getSimpleName();
 
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
@@ -120,7 +121,7 @@ public class SuggestionsActivity
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: Saved instance state is null");
             Fragment listFragment = SuggestionsListFragment.newInstance();
-            Fragment mapFragment = SuggestionsMapFragment.newInstance();
+            Fragment mapFragment = SuggestionsClusterMapFragment.newInstance();
 
             getSupportFragmentManager()
                     .beginTransaction()
@@ -243,7 +244,7 @@ public class SuggestionsActivity
                 showHidePeopleMenuItemTitle();
 
                 //notify map fragment toggle the markers
-                SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+                SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
                 if (mapFragment != null) mapFragment.showPeopleLocation(showingPeopleLocation);
                 return true;
 
@@ -334,7 +335,7 @@ public class SuggestionsActivity
      */
     private void toggleListAndMapFragments(boolean shouldLoadData) {
         SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-        SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+        SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
 
         if (showingMap) {
             Log.d(TAG, "toggleListAndMapFragments: Showing map fragment");
@@ -388,7 +389,7 @@ public class SuggestionsActivity
 
         if (showingMap) {
             Log.d(TAG, "onLoadComplete: Notifying map fragment");
-            SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+            SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
                 mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
@@ -468,7 +469,7 @@ public class SuggestionsActivity
         }
 
         //notify all the fragments that a selection has changed
-        SuggestionsMapFragment mapFragment = (SuggestionsMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
+        SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
         SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
         if (mapFragment != null) {
             Log.d(TAG, "onSuggestionToggle: Notifying map fragment that a selection has changed");

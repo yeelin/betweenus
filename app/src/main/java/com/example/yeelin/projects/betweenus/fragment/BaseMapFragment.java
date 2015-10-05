@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.example.yeelin.projects.betweenus.BuildConfig;
 import com.example.yeelin.projects.betweenus.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,7 +34,7 @@ public abstract class BaseMapFragment
     public BaseMapFragment() { }
 
     /**
-     * Create the fragment
+     * Create the fragment and restore any saved camera position
      * @param savedInstanceState
      */
     @Override
@@ -115,14 +114,12 @@ public abstract class BaseMapFragment
         Log.d(TAG, "onMapReady");
         map = googleMap;
 
-        UiSettings mapUiSettings = map.getUiSettings();
+        final UiSettings mapUiSettings = map.getUiSettings();
         if (mapUiSettings != null) {
             //do not allow user to access maps and navigation app from the map, the toolbar is distracting
             mapUiSettings.setMapToolbarEnabled(false);
-            //add this only because we need to test on emulator
-            if (BuildConfig.DEBUG) {
-                mapUiSettings.setZoomControlsEnabled(true);
-            }
+            //add this only if we need to test on emulator
+            //if (BuildConfig.DEBUG) mapUiSettings.setZoomControlsEnabled(true);
         }
 
         //show user's current location on the map

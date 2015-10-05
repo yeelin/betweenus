@@ -9,6 +9,7 @@ import android.support.v4.util.SimpleArrayMap;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
+import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
 
@@ -56,25 +57,29 @@ public class SuggestionsClusterMapFragment
     private static final double HIGH_RATING = 4.0;
 
     //member variables
+    //map-related
     private ClusterManager<PlaceClusterItem> clusterManager;
     private PlaceClusterRenderer clusterRenderer;
     private PlaceClusterItemInfoWindowAdapter clusterItemInfoWindowAdapter;
     private PlaceClusterInfoWindowAdapter clusterInfoWindowAdapter;
+    private Marker userLocationMarker; //for showing user's location marker
+    private Marker friendLocationMarker; //for showing friend's location marker
+    private boolean mapNeedsUpdate = false;
+    private BitmapDescriptor unselectedMarkerBitmap;
+    private BitmapDescriptor selectedMarkerBitmap;
 
     private YelpResult result;
-    private boolean mapNeedsUpdate = false;
-
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
 
     //selected ids map
     private ArrayMap<String, Integer> selectedIdsMap;
-
     //allows us to retrieve data back later
-    private SimpleArrayMap<String, PlaceClusterItem> idToClusterItemMap = new SimpleArrayMap<>(); //needed to toggle the marker color
-    private Marker userLocationMarker; //for showing user's location marker
-    private Marker friendLocationMarker; //for showing friend's location marker
+    private ArrayMap<String, PlaceClusterItem> idToClusterItemMap = new ArrayMap<>(); //needed to toggle the marker color
+    private SparseArray<String> clusterSizeToTitleMap = new SparseArray<>();
+    private SparseArray<String> highestRatingToFirstSnippetMap = new SparseArray<>();
+    private SparseArray<String> placesWithHighRatingToSecondSnippetMap = new SparseArray<>();
 
     private OnSuggestionActionListener suggestionActionListener;
 
@@ -155,6 +160,10 @@ public class SuggestionsClusterMapFragment
         //this class will handle cluster item clicks and cluster item info window clicks
         clusterManager.setOnClusterItemClickListener(this);
         clusterManager.setOnClusterItemInfoWindowClickListener(this);
+
+        //initialize the different marker bitmaps
+        unselectedMarkerBitmap = BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
+        selectedMarkerBitmap = BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue());
 
         //if the results had come in first before the map was ready and the map needs updating immediately, then do it.
         // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
@@ -266,12 +275,12 @@ public class SuggestionsClusterMapFragment
                     business.getRating(),
                     i);
 
-            //add it to the cluster manager
-            clusterManager.addItem(clusterItem);
-
             //put it in the idToClusterItemMap
             idToClusterItemMap.put(business.getId(), clusterItem);
         }
+
+        //add to the cluster manager in bulk
+        clusterManager.addItems(idToClusterItemMap.values());
     }
 
     /**
@@ -308,45 +317,6 @@ public class SuggestionsClusterMapFragment
                 .strokeColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40) //using argb defined in class since HEX defined in colors.xml don't appear to be working for this case
                 .fillColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40);
         map.addCircle(circleOptions);
-    }
-
-    /**
-     * OnSelectionChangedCallback implementation
-     * The contents of the idToClusterItemMap array map has changed (even if the reference itself hasn't).
-     * Change the color of the marker corresponding to the cluster item
-     *
-     * @param id id of the item whose selection has changed.
-     * @param toggleState resulting toggle state (true means selected, false means not selected)
-     */
-    @Override
-    public void onSelectionChanged(String id, boolean toggleState) {
-        Log.d(TAG, String.format("onSelectionChanged: Id:%s, ToggleState:%s", id, toggleState));
-
-        if(!idToClusterItemMap.containsKey(id)) {
-            Log.d(TAG, String.format("onSelectionChanged: Id could not be found in idToClusterItemMap, so nothing to do. idToClusterItemMap size:%d", idToClusterItemMap.size()));
-            return;
-        }
-
-        //find the cluster item corresponding to the id whose selection has changed
-        final PlaceClusterItem clusterItem = idToClusterItemMap.get(id);
-        if (clusterItem == null) {
-            Log.d(TAG, "onSelectionChanged: Failed to retrieve cluster item with Id: " + id);
-        }
-        else {
-            //get the marker from the cluster item
-            final Marker marker = clusterRenderer.getMarker(clusterItem);
-            if (marker == null) {
-                //can't find marker
-                //this means the cluster item hasn't been rendered as a marker yet
-                //which is ok since onBeforeClusterItemRendered will be called later
-                Log.d(TAG, "onSelectionChanged: Failed to retrieve marker from cluster item. This means marker hasn't been rendered yet. Cluster item title: " + clusterItem.getTitle());
-            }
-            else {
-                //found marker, so change the icon
-                Log.d(TAG, "onSelectionChanged: Success retrieving marker from cluster item. Cluster item title: " + clusterItem.getTitle());
-                marker.setIcon(determineMarkerIcon(toggleState));
-            }
-        }
     }
 
     /**
@@ -408,9 +378,7 @@ public class SuggestionsClusterMapFragment
      * @return
      */
     private BitmapDescriptor determineMarkerIcon(boolean toggleState) {
-        return toggleState ?
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
+        return toggleState ? selectedMarkerBitmap : unselectedMarkerBitmap;
     }
 
     /**
@@ -431,8 +399,8 @@ public class SuggestionsClusterMapFragment
         double longDelta = resultRegion.getSpan().getLongitude_delta();
 
         //compute ne and sw from center
-        LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);
-        LatLng sw = new LatLng(center.latitude - latDelta/2, center.longitude - longDelta/2);
+        final LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);
+        final LatLng sw = new LatLng(center.latitude - latDelta/2, center.longitude - longDelta/2);
 
         //create bounds object
         return new Pair<>(sw, ne);
@@ -488,8 +456,7 @@ public class SuggestionsClusterMapFragment
                 //create and add new marker
                 MarkerOptions userMarkerOptions = new MarkerOptions()
                         .position(userLatLng)
-                        .title(getString(R.string.map_marker_user_location))
-                        .icon(determineMarkerIcon(false));
+                        .title(getString(R.string.map_marker_user_location));
                 userLocationMarker = map.addMarker(userMarkerOptions);
             }
             else {
@@ -502,8 +469,7 @@ public class SuggestionsClusterMapFragment
                 //create and add new marker
                 MarkerOptions friendMarkerOptions = new MarkerOptions()
                         .position(friendLatLng)
-                        .title(getString(R.string.map_marker_friend_location))
-                        .icon(determineMarkerIcon(false));
+                        .title(getString(R.string.map_marker_friend_location));
                 friendLocationMarker = map.addMarker(friendMarkerOptions);
             }
             else {
@@ -523,6 +489,45 @@ public class SuggestionsClusterMapFragment
 
             //recalculate map bounds to show results only
             zoomMapToBounds(false, false, true); //false = don't include people, false = don't use display size, true = animate transition
+        }
+    }
+
+    /**
+     * OnSelectionChangedCallback implementation
+     * The contents of the idToClusterItemMap array map has changed (even if the reference itself hasn't).
+     * Change the color of the marker corresponding to the cluster item
+     *
+     * @param id id of the item whose selection has changed.
+     * @param toggleState resulting toggle state (true means selected, false means not selected)
+     */
+    @Override
+    public void onSelectionChanged(String id, boolean toggleState) {
+        Log.d(TAG, String.format("onSelectionChanged: Id:%s, ToggleState:%s", id, toggleState));
+
+        if(!idToClusterItemMap.containsKey(id)) {
+            Log.d(TAG, String.format("onSelectionChanged: Id could not be found in idToClusterItemMap, so nothing to do. idToClusterItemMap size:%d", idToClusterItemMap.size()));
+            return;
+        }
+
+        //find the cluster item corresponding to the id whose selection has changed
+        final PlaceClusterItem clusterItem = idToClusterItemMap.get(id);
+        if (clusterItem == null) {
+            Log.d(TAG, "onSelectionChanged: Failed to retrieve cluster item with Id: " + id);
+        }
+        else {
+            //get the marker from the cluster item
+            final Marker marker = clusterRenderer.getMarker(clusterItem);
+            if (marker == null) {
+                //can't find marker
+                //this means the cluster item hasn't been rendered as a marker yet
+                //which is ok since onBeforeClusterItemRendered will be called later
+                Log.d(TAG, "onSelectionChanged: Failed to retrieve marker from cluster item. This means marker hasn't been rendered yet. Cluster item title: " + clusterItem.getTitle());
+            }
+            else {
+                //found marker, so change the icon
+                Log.d(TAG, "onSelectionChanged: Success retrieving marker from cluster item. Cluster item title: " + clusterItem.getTitle());
+                marker.setIcon(determineMarkerIcon(toggleState));
+            }
         }
     }
 
@@ -578,18 +583,17 @@ public class SuggestionsClusterMapFragment
             super.onBeforeClusterRendered(cluster, markerOptions);
 
             Log.d(TAG, "onBeforeClusterRendered");
-            markerOptions.title(getString(R.string.map_cluster_infoWindow_title, cluster.getSize()));
-        }
+            //check if the title string already exists for this cluster size
+            //reuse it if it does, so that we don't do another resource read
+            String clusterTitle = clusterSizeToTitleMap.get(cluster.getSize());
+            if (clusterTitle == null) {
+                clusterTitle = getString(R.string.map_cluster_infoWindow_title, cluster.getSize());
+                clusterSizeToTitleMap.put(cluster.getSize(), clusterTitle);
+            }
 
-//        /**
-//         * Always render as clusters if there is more than 3
-//         * @param cluster
-//         * @return
-//         */
-//        @Override
-//        protected boolean shouldRenderAsCluster(Cluster<PlaceClusterItem> cluster) {
-//            return cluster.getSize() > 3;
-//        }
+            //set title on the
+            markerOptions.title(clusterTitle);
+        }
     }
 
     /**
@@ -650,19 +654,20 @@ public class SuggestionsClusterMapFragment
             final View view = View.inflate(getContext(), R.layout.map_info_place, null);
 
             //set the title
-            TextView title = (TextView) view.findViewById(R.id.title);
+            final TextView title = (TextView) view.findViewById(R.id.title);
             title.setText(marker.getTitle());
 
             //set the snippet (i.e. # of reviews) text
-            TextView snippet = (TextView) view.findViewById(R.id.snippet);
+            final TextView snippet = (TextView) view.findViewById(R.id.snippet);
             snippet.setText(marker.getSnippet());
 
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
+            final PlaceClusterItem placeClusterItem = clusterRenderer.getClusterItem(marker);
             final Target target = ImageUtils.newTarget(getContext(), snippet, marker);
             snippet.setTag(target);
             ImageUtils.loadImage(getContext(),
-                    clusterRenderer.getClusterItem(marker) != null ? clusterRenderer.getClusterItem(marker).getRatingUrl() : null, //TODO: provide placeholder image
+                    placeClusterItem != null ? placeClusterItem.getRatingUrl() : null, //TODO: provide placeholder image
                     target);
 
             //store the info window view so that we can return it if requested again
@@ -742,6 +747,7 @@ public class SuggestionsClusterMapFragment
                 secondSnippet.setVisibility(View.GONE);
             }
             else {
+                //compute the highest rating in the cluster and the places with high ratings, i.e. >= 4
                 double highestRating = 0.0;
                 int numWithHighRating = 0;
 
@@ -754,15 +760,34 @@ public class SuggestionsClusterMapFragment
                     }
                 }
 
-                firstSnippet.setText(getResources().getQuantityString(R.plurals.map_cluster_infoWindow_first_snippet,
-                        (int) Math.round(highestRating),
-                        FormattingUtils.getDecimalFormatterNoRounding(1).format(highestRating)));
+                //check if the first snippet string already exists for this highest rating
+                //reuse it if it does, so that we don't do another resource read
+                int roundedHighestRating = (int) Math.round(highestRating);
+                String clusterFirstSnippet = highestRatingToFirstSnippetMap.get(roundedHighestRating);
+                if (clusterFirstSnippet == null) {
+                    clusterFirstSnippet = getResources().getQuantityString(
+                            R.plurals.map_cluster_infoWindow_first_snippet,
+                            roundedHighestRating,
+                            FormattingUtils.getDecimalFormatterNoRounding(1).format(highestRating));
+                    highestRatingToFirstSnippetMap.put(roundedHighestRating, clusterFirstSnippet);
+                }
+                firstSnippet.setText(clusterFirstSnippet);
+
+
+                //check if the highest rating place has less than 4 stars
+                //if so no need to report numWithHighRating
                 if (highestRating < HIGH_RATING) {
-                    //the highest rating place has less than 4 stars, so no need to report numWithHighRating
                     secondSnippet.setVisibility(View.GONE);
                 }
                 else {
-                    secondSnippet.setText(getString(R.string.map_cluster_infoWindow_second_snippet, numWithHighRating));
+                    //check if the second snippet string already exists for number with high ratings
+                    //reuse it if it does, so that we don't do another resource read
+                    String clusterSecondSnippet = placesWithHighRatingToSecondSnippetMap.get(numWithHighRating);
+                    if (clusterSecondSnippet == null) {
+                        clusterSecondSnippet = getString(R.string.map_cluster_infoWindow_second_snippet, numWithHighRating);
+                        placesWithHighRatingToSecondSnippetMap.put(numWithHighRating, clusterSecondSnippet);
+                    }
+                    secondSnippet.setText(clusterSecondSnippet);
                 }
             }
 
@@ -809,7 +834,7 @@ public class SuggestionsClusterMapFragment
                 Log.d(TAG, "getInfoContents: Inflating a new map_info_people_location window");
 
                 final View view = View.inflate(getContext(), R.layout.map_info_people_location, null);
-                TextView title = (TextView) view.findViewById(R.id.title);
+                final TextView title = (TextView) view.findViewById(R.id.title);
                 title.setText(marker.getTitle());
                 return view;
             }
