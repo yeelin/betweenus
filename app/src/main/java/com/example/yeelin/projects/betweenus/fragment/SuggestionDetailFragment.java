@@ -25,8 +25,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -224,7 +222,12 @@ public class SuggestionDetailFragment
                     .add(R.id.detail_mapContainer, mapFragment, FRAGMENT_TAG_LITEMAP)
                     .commit();
         }
-        Log.d(TAG, "onViewCreated: LiteMap fragment is not null");
+
+        if (mapFragment != null && mapFragment.getView() != null) {
+            Log.d(TAG, "onViewCreated: Disable map click");
+            mapFragment.getView().setClickable(false);
+        }
+
         mapFragment.getMapAsync(this);
     }
 
@@ -382,13 +385,13 @@ public class SuggestionDetailFragment
                 break;
             case R.id.detail_select_button:
                 toggleState = !toggleState;
-                ViewHolder viewHolder = getViewHolder();
+                final ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
                     //update the select button icon and text
                     viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite : R.drawable.ic_action_detail_unfavorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
-                    marker.setIcon(determineMarkerIcon());
+                    marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
                 }
                 listener.onToggle(id, position, toggleState);
                 break;
@@ -403,27 +406,19 @@ public class SuggestionDetailFragment
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.d(TAG, "onMapReady");
+
+        //disable click listener
+        final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG_LITEMAP);
+        if (mapFragment != null && mapFragment.getView() != null) {
+            Log.d(TAG, "onMapReady: Disable map click");
+            mapFragment.getView().setClickable(false);
+        }
+
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
-                .icon(determineMarkerIcon());
+                .icon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
         marker = googleMap.addMarker(markerOptions);
-
-        //disable click listener
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG_LITEMAP);
-        if (mapFragment != null && mapFragment.getView() != null) {
-            mapFragment.getView().setClickable(false);
-        }
-    }
-
-    /**
-     * Helper method that returns the correct hue based on the toggle state
-     * @return
-     */
-    private BitmapDescriptor determineMarkerIcon() {
-        return toggleState ?
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
     }
 
     /**

@@ -33,8 +33,6 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -81,8 +79,6 @@ public class SuggestionsMapActivity
     private Marker userLocationMarker; //for showing user's location marker
     private Marker friendLocationMarker; //for showing friend's location marker
     private boolean mapNeedsUpdate = false;
-    private BitmapDescriptor unselectedMarkerBitmap;
-    private BitmapDescriptor selectedMarkerBitmap;
 
     //data
     private YelpResult result;
@@ -274,10 +270,6 @@ public class SuggestionsMapActivity
         clusterManager.setOnClusterItemClickListener(this);
         clusterManager.setOnClusterItemInfoWindowClickListener(this);
 
-        //initialize the different marker bitmaps
-        unselectedMarkerBitmap = BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(this).getPrimaryDarkHue());
-        selectedMarkerBitmap = BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(this).getAccentDarkHue());
-
         //if the results had come in first before the map was ready and the map needs updating immediately, then do it.
         // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
         if (mapNeedsUpdate) {
@@ -428,15 +420,6 @@ public class SuggestionsMapActivity
     }
 
     /**
-     * Helper method that returns the correct hue based on the given toggle state
-     * @param toggleState
-     * @return
-     */
-    private BitmapDescriptor determineMarkerIcon(boolean toggleState) {
-        return toggleState ? selectedMarkerBitmap : unselectedMarkerBitmap;
-    }
-
-    /**
      * Helper method that read the yelp result region and returns the bounds for the map
      * as a pair of points (sw, ne).
      * @return Pair<LatLng (sw), LatLng (ne)>
@@ -535,7 +518,7 @@ public class SuggestionsMapActivity
             //set the title, snippet and icon on the marker for the cluster item
             markerOptions.title(item.getTitle())
                     .snippet(item.getSnippet())
-                    .icon(determineMarkerIcon(selectedIdsMap.containsKey(item.getId())));
+                    .icon(MapColorUtils.determineMarkerIcon(SuggestionsMapActivity.this, selectedIdsMap.containsKey(item.getId())));
         }
 
         /**

@@ -18,8 +18,6 @@ import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -229,7 +227,7 @@ public class SuggestionsMapFragment
                     .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
                     .title(business.getName())
                     .snippet(getString(R.string.review_count, business.getReview_count()))
-                    .icon(determineMarkerIcon(selectedIdsMap.containsKey(business.getId())));
+                    .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(business.getId())));
             Marker marker = map.addMarker(markerOptions);
 
             markerToIdPositionPairMap.put(marker, new Pair<>(business.getId(), i));
@@ -294,19 +292,8 @@ public class SuggestionsMapFragment
         Marker marker = idToMarkerMap.get(id);
         //change the color of the icon based on the current selection state
         if (marker != null) {
-            marker.setIcon(determineMarkerIcon(toggleState));
+            marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
         }
-    }
-
-    /**
-     * Helper method that returns the correct hue based on the given toggle state
-     * @param toggleState
-     * @return
-     */
-    private BitmapDescriptor determineMarkerIcon(boolean toggleState) {
-        return toggleState ?
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getAccentDarkHue()) :
-                BitmapDescriptorFactory.defaultMarker(MapColorUtils.getInstance(getActivity()).getPrimaryDarkHue());
     }
 
     /**
@@ -432,7 +419,7 @@ public class SuggestionsMapFragment
                 MarkerOptions userMarkerOptions = new MarkerOptions()
                         .position(userLatLng)
                         .title(getString(R.string.map_marker_user_location))
-                        .icon(determineMarkerIcon(false));
+                        .icon(MapColorUtils.determineMarkerIcon(getContext(), false));
                 userLocationMarker = map.addMarker(userMarkerOptions);
 
                 //let the info window renderer know about the user marker
@@ -449,7 +436,7 @@ public class SuggestionsMapFragment
                 MarkerOptions friendMarkerOptions = new MarkerOptions()
                         .position(friendLatLng)
                         .title(getString(R.string.map_marker_friend_location))
-                        .icon(determineMarkerIcon(false));
+                        .icon(MapColorUtils.determineMarkerIcon(getContext(), false));
                 friendLocationMarker = map.addMarker(friendMarkerOptions);
 
                 //let the info window renderer know about the friend marker
