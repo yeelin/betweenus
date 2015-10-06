@@ -17,3 +17,6 @@ app/build
 # Ignore iml files
 *.iml
 app/*.iml
+
+# Captures
+captures/
