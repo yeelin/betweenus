@@ -140,8 +140,8 @@ public class SuggestionsClusterMapFragment
 
         //http://stackoverflow.com/questions/21885225/showing-custom-infowindow-for-android-maps-utility-library-for-android
         //1. set cluster manager's marker manager as the map's info window adapter
-        //map.setInfoWindowAdapter(clusterManager.getMarkerManager());
-        map.setInfoWindowAdapter(new CustomInfoWindowAdapter());
+        map.setInfoWindowAdapter(clusterManager.getMarkerManager());
+        //map.setInfoWindowAdapter(new CustomInfoWindowAdapter());
         //2. set a custom info window adapter for the marker collection
         clusterItemInfoWindowAdapter = new PlaceClusterItemInfoWindowAdapter();
         clusterManager.getMarkerCollection().setOnInfoWindowAdapter(clusterItemInfoWindowAdapter);
@@ -433,13 +433,15 @@ public class SuggestionsClusterMapFragment
      */
     public void showPeopleLocation(boolean show) {
         Log.d(TAG, "showPeopleLocation: Show:" + show);
+
         if (show) {
             //show user's marker
             if (userLocationMarker == null) {
                 //create and add new marker
                 MarkerOptions userMarkerOptions = new MarkerOptions()
-                        .position(userLatLng)
-                        .title(getString(R.string.map_marker_user_location));
+                        .icon(MapColorUtils.getUserMarkerIcon(getContext()))
+                        .position(userLatLng);
+                        //.title(getString(R.string.map_marker_user_location));
                 userLocationMarker = map.addMarker(userMarkerOptions);
             }
             else {
@@ -451,8 +453,9 @@ public class SuggestionsClusterMapFragment
             if (friendLocationMarker == null) {
                 //create and add new marker
                 MarkerOptions friendMarkerOptions = new MarkerOptions()
-                        .position(friendLatLng)
-                        .title(getString(R.string.map_marker_friend_location));
+                        .icon(MapColorUtils.getFriendMarkerIcon(getContext()))
+                        .position(friendLatLng);
+                        //.title(getString(R.string.map_marker_friend_location));
                 friendLocationMarker = map.addMarker(friendMarkerOptions);
             }
             else {
@@ -509,7 +512,7 @@ public class SuggestionsClusterMapFragment
             else {
                 //found marker, so change the icon
                 Log.d(TAG, "onSelectionChanged: Success retrieving marker from cluster item. Cluster item title: " + clusterItem.getTitle());
-                marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
+                marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, clusterItem.getRating()));
             }
         }
     }
@@ -551,7 +554,7 @@ public class SuggestionsClusterMapFragment
             //set the title, snippet and icon on the marker for the cluster item
             markerOptions.title(item.getTitle())
                     .snippet(item.getSnippet())
-                    .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(item.getId())));
+                    .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(item.getId()), item.getRating()));
         }
 
         /**

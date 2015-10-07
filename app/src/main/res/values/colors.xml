@@ -26,4 +26,16 @@
     <color name="textColorPrimary">@color/gray_700</color>
     <color name="textColorSecondary">@color/gray_500</color>
     <color name="textColorTertiary">@color/gray_200</color>
+
+    <color name="rating_5_0">#FF5500</color>
+    <color name="rating_4_5">#FF6A00</color>
+    <color name="rating_4_0">#FF8000</color>
+    <color name="rating_3_5">#FF9500</color>
+    <color name="rating_3_0">#FFAA00</color>
+    <color name="rating_2_5">#FFBF00</color>
+    <color name="rating_2_0">#FFD500</color>
+    <color name="rating_1_5">#FFEA00</color>
+    <color name="rating_1_0">#FFFF00</color>
+    <color name="rating_0_5">#EAFF00</color>
+    <color name="rating_0_0">#9E9E9E</color>
 </resources>

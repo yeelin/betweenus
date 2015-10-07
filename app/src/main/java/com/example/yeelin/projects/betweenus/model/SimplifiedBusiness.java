@@ -16,6 +16,7 @@ public class SimplifiedBusiness implements Parcelable {
     private String address;
     private String categories;
     private int reviews;
+    private double rating;
 
     private String webUrl;
     private String imageUrl;
@@ -33,6 +34,7 @@ public class SimplifiedBusiness implements Parcelable {
         address = business.getLocation().getShortDisplayAddress();
         categories = business.getDisplayCategories();
         reviews = business.getReview_count();
+        rating = business.getRating();
 
         webUrl = business.getMobile_url();
         imageUrl = business.getImage_url();
@@ -50,8 +52,9 @@ public class SimplifiedBusiness implements Parcelable {
         address = in.readString();
         categories = in.readString();
         reviews = in.readInt();
-        webUrl = in.readString();
+        rating = in.readDouble();
 
+        webUrl = in.readString();
         imageUrl = in.readString();
         ratingUrl = in.readString();
     }
@@ -94,12 +97,12 @@ public class SimplifiedBusiness implements Parcelable {
         dest.writeString(address);
         dest.writeString(categories);
         dest.writeInt(reviews);
+        dest.writeDouble(rating);
 
         dest.writeString(webUrl);
         dest.writeString(imageUrl);
         dest.writeString(ratingUrl);
     }
-
 
     public String getId() {
         return id;
@@ -123,6 +126,10 @@ public class SimplifiedBusiness implements Parcelable {
 
     public int getReviews() {
         return reviews;
+    }
+
+    public double getRating() {
+        return rating;
     }
 
     public String getWebUrl() {

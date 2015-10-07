@@ -47,6 +47,7 @@ public class SuggestionDetailFragment
     private static final String ARG_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".latLng";
     private static final String ARG_POSITION = SuggestionDetailFragment.class.getSimpleName() + ".position";
     private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
+    private static final String ARG_RATING = SuggestionDetailFragment.class.getSimpleName() + ".rating";
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
@@ -62,6 +63,7 @@ public class SuggestionDetailFragment
     private LatLng latLng;
     private int position = 0;
     private boolean toggleState;
+    private double rating;
 
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -78,13 +80,14 @@ public class SuggestionDetailFragment
      * @param latLng
      * @param position
      * @param toggleState
+     * @param rating
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
     public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
-                                                       int position, boolean toggleState,
+                                                       int position, boolean toggleState, double rating,
                                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
@@ -93,6 +96,7 @@ public class SuggestionDetailFragment
 
         args.putInt(ARG_POSITION, position);
         args.putBoolean(ARG_TOGGLE_STATE, toggleState);
+        args.putDouble(ARG_RATING, rating);
 
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
@@ -153,6 +157,7 @@ public class SuggestionDetailFragment
             position = args.getInt(ARG_POSITION, position);
             FRAGMENT_TAG_LITEMAP = String.format("%s.%d", FRAGMENT_TAG_LITEMAP, position);
             toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
+            rating = args.getDouble(ARG_RATING);
 
             //user and friend related info
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
@@ -290,12 +295,12 @@ public class SuggestionDetailFragment
             Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
             //animate in the detail empty textview, and animate out the progress bar
             ViewHolder viewHolder = getViewHolder();
-            if (viewHolder != null && viewHolder.detailEmtpy.getVisibility() != View.VISIBLE) {
+            if (viewHolder != null && viewHolder.detailEmpty.getVisibility() != View.VISIBLE) {
                 //stop shimmering
                 viewHolder.shimmerContainer.stopShimmerAnimation();
 
                 viewHolder.detailContainer.setVisibility(View.GONE); //make sure container doesn't show
-                AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmtpy, viewHolder.detailProgressBar);
+                AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmpty, viewHolder.detailProgressBar);
             }
             return;
         }
@@ -307,7 +312,7 @@ public class SuggestionDetailFragment
                 //stop shimmering
                 viewHolder.shimmerContainer.stopShimmerAnimation();
 
-                viewHolder.detailEmtpy.setVisibility(View.GONE); //make sure empty view doesn't show
+                viewHolder.detailEmpty.setVisibility(View.GONE); //make sure empty view doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
             }
             updateView();
@@ -391,7 +396,7 @@ public class SuggestionDetailFragment
                     viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite : R.drawable.ic_action_detail_unfavorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
-                    marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
+                    marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));
                 }
                 listener.onToggle(id, position, toggleState);
                 break;
@@ -417,7 +422,7 @@ public class SuggestionDetailFragment
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
-                .icon(MapColorUtils.determineMarkerIcon(getContext(), toggleState));
+                .icon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));
         marker = googleMap.addMarker(markerOptions);
     }
 
@@ -452,7 +457,7 @@ public class SuggestionDetailFragment
 
         final View detailContainer;
         final View detailProgressBar;
-        final TextView detailEmtpy;
+        final TextView detailEmpty;
 
         final ShimmerFrameLayout shimmerContainer;
 
@@ -479,7 +484,7 @@ public class SuggestionDetailFragment
             //for animation
             detailContainer = view.findViewById(R.id.detail_container);
             detailProgressBar = view.findViewById(R.id.detail_progressBar);
-            detailEmtpy = (TextView) view.findViewById(R.id.detail_empty);
+            detailEmpty = (TextView) view.findViewById(R.id.detail_empty);
 
             //shimmer
             shimmerContainer = (ShimmerFrameLayout) view.findViewById(R.id.shimmerContainer);

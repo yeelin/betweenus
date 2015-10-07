@@ -82,6 +82,8 @@
     <string name="map_contentDescription">Map view of search results</string>
     <string name="map_marker_user_location">Your location</string>
     <string name="map_marker_friend_location">"Friend's location"</string>
+    <string name="map_marker_you">You</string>
+    <string name="map_marker_friend">Friend</string>
 
     <!-- Map info window strings -->
     <string name="map_cluster_infoWindow_title">%1$d in the cluster</string>

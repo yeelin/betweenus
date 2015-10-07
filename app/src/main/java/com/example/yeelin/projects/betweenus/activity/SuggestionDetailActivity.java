@@ -33,6 +33,7 @@ public class SuggestionDetailActivity
     private static final String EXTRA_MID_LATLNG = SuggestionDetailActivity.class.getSimpleName() + ".midLatLng";
     public static final String EXTRA_POSITION = SuggestionDetailActivity.class.getSimpleName() + ".position";
     public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
+    private static final String EXTRA_RATING = SuggestionDetailActivity.class.getSimpleName() + ".rating";
 
     //member variables
     private String id;
@@ -45,14 +46,16 @@ public class SuggestionDetailActivity
      * @param id
      * @param name
      * @param latLng
+     * @param position
      * @param toggleState
+     * @param rating
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
     public static Intent buildIntent(Context context, String id, String name, LatLng latLng,
-                                     int position, boolean toggleState,
+                                     int position, boolean toggleState, double rating,
                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
@@ -62,6 +65,7 @@ public class SuggestionDetailActivity
 
         intent.putExtra(EXTRA_POSITION, position);
         intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
+        intent.putExtra(EXTRA_RATING, rating);
 
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
         intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
@@ -89,6 +93,7 @@ public class SuggestionDetailActivity
 
         String name = intent.getStringExtra(EXTRA_NAME);
         LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
+        double rating = intent.getDoubleExtra(EXTRA_RATING, 0);
 
         LatLng userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
         LatLng friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
@@ -102,7 +107,7 @@ public class SuggestionDetailActivity
                 getSupportFragmentManager()
                         .beginTransaction()
                         .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng,
-                                position, toggleState,
+                                position, toggleState, rating,
                                 userLatLng, friendLatLng, midLatLng))
                         .commit();
             }
