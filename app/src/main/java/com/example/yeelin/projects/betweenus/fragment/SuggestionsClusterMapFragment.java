@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
+import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -52,7 +53,7 @@ public class SuggestionsClusterMapFragment
     //logcat
     private static final String TAG = SuggestionsClusterMapFragment.class.getCanonicalName();
     //constants
-    private static final double HIGH_RATING = 4.0;
+    private static final double MIN_HIGH_RATING = 3.9;
 
     //member variables
     //map-related
@@ -279,6 +280,7 @@ public class SuggestionsClusterMapFragment
      * Adds a circle centered at the center of the yelp result region, with radius specified
      * by the distance from the center to the nw point of the result region.
      */
+    @Deprecated
     private void addCircleToMap() {
         Log.d(TAG, "addCircleToMap");
 
@@ -312,6 +314,7 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
+     * OnClusterClickListener<PlaceClusterItem>
      * Called when the cluster is clicked
      * @param cluster A collection of ClusterItems that are nearby each other.
      * @return
@@ -319,19 +322,52 @@ public class SuggestionsClusterMapFragment
     @Override
     public boolean onClusterClick(Cluster<PlaceClusterItem> cluster) {
         Log.d(TAG, "onClusterClick: A cluster was clicked");
+        // We return false to indicate that we have not consumed the event and that we wish
+        // for the default behavior to occur (which is for the camera to move such that the
+        // cluster is centered and for the cluster's info window to open, if it has one).
         return false;
     }
 
     /**
+     * OnClusterInfoWindowClickListener<PlaceClusterItem>
      * Called when the cluster's info window is clicked
      * @param cluster A collection of ClusterItems that are nearby each other.
      */
     @Override
     public void onClusterInfoWindowClick(Cluster<PlaceClusterItem> cluster) {
         Log.d(TAG, "onClusterInfoWindowClick: A cluster's info window was clicked");
+        declusterByClusterBounds(cluster);
     }
 
     /**
+     * Attempts to decluster by increasing the zoom by the specified amount.
+     * Actual declustering is not guaranteed.
+     * @param cluster
+     * @param increaseInZoom
+     */
+    @Deprecated
+    private void declusterByIncreasingZoom(final Cluster<PlaceClusterItem> cluster, int increaseInZoom) {
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(), map.getCameraPosition().zoom + increaseInZoom));
+    }
+
+    /**
+     * Attempts to decluster by changing the map bounds to include just the items in the cluster.
+     * Complete declustering is not guaranteed, but this will break the original cluster into at least 2 clusters.
+     * @param cluster
+     */
+    private void declusterByClusterBounds(final Cluster<PlaceClusterItem> cluster) {
+        final DisplayMetrics display = getResources().getDisplayMetrics();
+        int padding = display.widthPixels / 10;
+
+        final LatLngBounds.Builder builder = LatLngBounds.builder();
+        for (PlaceClusterItem clusterItem : cluster.getItems()) {
+            builder.include(clusterItem.getPosition());
+        }
+        map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
+    }
+
+    /**
+     * OnClusterItemClickListener<PlaceClusterItem>
      * Called when an individual cluster item (i.e. marker) is clicked.
      * This should be similar to onMarkerClick
      *
@@ -349,6 +385,7 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
+     * OnClusterItemInfoWindowClickListener<PlaceClusterItem>
      * Called when an individual cluster item's info window is clicked
      * This should be similar to onInfoWindowClick
      * @param placeClusterItem ClusterItem represents a marker on the map.
@@ -358,6 +395,7 @@ public class SuggestionsClusterMapFragment
         Log.d(TAG, "onClusterItemInfoWindowClick: A cluster item's info window was clicked");
 
         //notify the activity that a suggestion was clicked
+        //open the view pager of detail fragments
         suggestionActionListener.onSuggestionClick(placeClusterItem.getId(),
                 placeClusterItem.getTitle(),
                 placeClusterItem.getPosition(),
@@ -398,6 +436,7 @@ public class SuggestionsClusterMapFragment
     private void zoomMapToBounds(boolean includePeople, boolean useDisplaySize, boolean shouldAnimate) {
         final Pair<LatLng, LatLng> pairBounds = computePairBoundsFromResult();
         final DisplayMetrics display = getResources().getDisplayMetrics();
+        int toolbarHeight = ((AppCompatActivity)getActivity()).getSupportActionBar() == null ? 0 : ((AppCompatActivity)getActivity()).getSupportActionBar().getHeight();
 
         LatLngBounds mapBounds;
         int padding = display.widthPixels / 10;
@@ -409,6 +448,7 @@ public class SuggestionsClusterMapFragment
                     .include(pairBounds.first)
                     .include(pairBounds.second)
                     .build();
+            padding += 50; //additional padding of 50 so that the markers are not clipped
         }
         else { //bounds = result only, no people
             mapBounds = new LatLngBounds(pairBounds.first, pairBounds.second); //first = sw, second = ne
@@ -416,12 +456,12 @@ public class SuggestionsClusterMapFragment
 
         if (shouldAnimate) {
             map.animateCamera(useDisplaySize ?
-                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding) :
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels - toolbarHeight, padding) :
                     CameraUpdateFactory.newLatLngBounds(mapBounds, padding));
         }
         else {
             map.moveCamera(useDisplaySize ?
-                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels, padding) :
+                    CameraUpdateFactory.newLatLngBounds(mapBounds, display.widthPixels, display.heightPixels - toolbarHeight, padding) :
                     CameraUpdateFactory.newLatLngBounds(mapBounds, padding));
         }
     }
@@ -430,8 +470,10 @@ public class SuggestionsClusterMapFragment
      * Toggles the user and friend's location markers on the map.
      * This method is called by SuggestionActivity when the menu item is toggled.
      * @param show
+     * @param useDisplaySize
+     * @param shouldAnimate
      */
-    public void showPeopleLocation(boolean show) {
+    public void showPeopleLocation(boolean show, boolean useDisplaySize, boolean shouldAnimate) {
         Log.d(TAG, "showPeopleLocation: Show:" + show);
 
         if (show) {
@@ -462,9 +504,6 @@ public class SuggestionsClusterMapFragment
                 //friend marker already exists, so set it to visible
                 friendLocationMarker.setVisible(true);
             }
-
-            //recalculate map bounds to include user and friend markers
-            zoomMapToBounds(true, false, true); //true = include people, false = don't use display size, true = animate transition
         }
         else {
             //hide user's marker
@@ -472,10 +511,10 @@ public class SuggestionsClusterMapFragment
 
             //hide friend's marker
             if (friendLocationMarker != null) friendLocationMarker.setVisible(false);
-
-            //recalculate map bounds to show results only
-            zoomMapToBounds(false, false, true); //false = don't include people, false = don't use display size, true = animate transition
         }
+
+        //recalculate map bounds and change camera
+        zoomMapToBounds(show, useDisplaySize, shouldAnimate); //show = include or don't include people, false = don't use display size, true = animate transition
     }
 
     /**
@@ -738,7 +777,7 @@ public class SuggestionsClusterMapFragment
                 int numWithHighRating = 0;
 
                 for (PlaceClusterItem clusterItem : cluster.getItems()) {
-                    if (clusterItem.getRating() >= HIGH_RATING) {
+                    if (clusterItem.getRating() >= MIN_HIGH_RATING) {
                         ++numWithHighRating;
                     }
                     if (clusterItem.getRating() > highestRating) {
@@ -762,7 +801,7 @@ public class SuggestionsClusterMapFragment
 
                 //check if the highest rating place has less than 4 stars
                 //if so no need to report numWithHighRating
-                if (highestRating < HIGH_RATING) {
+                if (highestRating < MIN_HIGH_RATING) {
                     secondSnippet.setVisibility(View.GONE);
                 }
                 else {
@@ -790,6 +829,7 @@ public class SuggestionsClusterMapFragment
      * 1. handles only people location markers
      * 2. farms out the other types of markers to other adapters
      */
+    @Deprecated
     private class CustomInfoWindowAdapter
             implements GoogleMap.InfoWindowAdapter {
         //logcat

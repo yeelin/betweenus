@@ -21,10 +21,10 @@
     <!-- menu actions -->
     <string name="action_search">Search</string>
     <string name="action_send">Send to friend</string>
-    <string name="action_view_as_map">View as map</string>
-    <string name="action_view_as_list">View as list</string>
-    <string name="action_show_people_location">Show user and friend locations</string>
-    <string name="action_hide_people_location">Hide user and friend locations</string>
+    <string name="action_view_as_map">View results in a map</string>
+    <string name="action_view_as_list">View results in a list</string>
+    <string name="action_show_people_location">Show you and your friend\'s locations</string>
+    <string name="action_hide_people_location">Hide you and your friend\'s locations</string>
 
     <!-- Main activity strings -->
     <string name="location_entry_header">Find places to meet between you and your friend</string>
@@ -86,12 +86,12 @@
     <string name="map_marker_friend">Friend</string>
 
     <!-- Map info window strings -->
-    <string name="map_cluster_infoWindow_title">%1$d in the cluster</string>
+    <string name="map_cluster_infoWindow_title">%1$d results</string>
     <plurals name="map_cluster_infoWindow_first_snippet">
-        <item quantity="one">Highest rated has %1$s star</item>
-        <item quantity="other">Highest rated has %1$s stars</item>
+        <item quantity="one">Best: %1$s star</item>
+        <item quantity="other">Best: %1$s stars</item>
     </plurals>
-    <string name="map_cluster_infoWindow_second_snippet">%1$d with 4 or more stars</string>
+    <string name="map_cluster_infoWindow_second_snippet">4+ stars: %1$d</string>
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>

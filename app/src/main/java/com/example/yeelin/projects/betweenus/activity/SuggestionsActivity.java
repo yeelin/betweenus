@@ -245,7 +245,7 @@ public class SuggestionsActivity
 
                 //notify map fragment toggle the markers
                 SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-                if (mapFragment != null) mapFragment.showPeopleLocation(showingPeopleLocation);
+                if (mapFragment != null) mapFragment.showPeopleLocation(showingPeopleLocation, false, true); //false = don't use display size, true = animate transition
                 return true;
 
             default:
@@ -307,7 +307,7 @@ public class SuggestionsActivity
      */
     private void showHidePeopleMenuItem() {
         if (showingMap) {
-            peopleLocationMenuItem.setIcon(showingPeopleLocation ? R.drawable.ic_action_social_people_outline : R.drawable.ic_action_social_people);
+            peopleLocationMenuItem.setIcon(showingPeopleLocation ? R.drawable.ic_action_social_people : R.drawable.ic_action_social_people_outline);
             peopleLocationMenuItem.setVisible(true);
         }
         else {
