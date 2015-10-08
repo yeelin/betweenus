@@ -11,6 +11,9 @@
     <color name="teal_400">#26A69A</color>
     <color name="teal_700">#00796B</color>
 
+    <!-- Tertiary color palette -->
+    <color name="red_300">#F36C58</color>
+
     <color name="colorPrimaryLight">@color/indigo_400</color>
     <color name="colorPrimary">@color/indigo_500</color>
     <color name="colorPrimaryDark">@color/indigo_800</color>

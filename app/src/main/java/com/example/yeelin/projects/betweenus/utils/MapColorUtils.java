@@ -208,6 +208,8 @@ public class MapColorUtils {
 
     /**
      * Creates a bitmap based on rating using the saturation change method
+     * https://developers.google.com/maps/documentation/android-api/utility/marker-clustering
+     * http://googlegeodevelopers.blogspot.com/2015/09/maps-zen-visualize.html
      * @param context
      * @param integerRating
      * @return

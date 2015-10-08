@@ -194,7 +194,7 @@ public class SuggestionDetailFragment
         viewHolder.name.setText(name);
 
         //set up the state of the select button
-        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite : R.drawable.ic_action_detail_unfavorite, 0, 0, 0);
+        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
         viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
 
         //set up click listeners
@@ -393,7 +393,7 @@ public class SuggestionDetailFragment
                 final ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
                     //update the select button icon and text
-                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite : R.drawable.ic_action_detail_unfavorite, 0, 0, 0);
+                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
                     marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));
