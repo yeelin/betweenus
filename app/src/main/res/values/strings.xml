@@ -101,11 +101,19 @@
     <string name="invite_by_text">Invite by text instead</string>
 
     <!-- Text message strings -->
-    <string name="sms_body">I found these places on Between: %1$s. What do you think?</string>
+    <plurals name="sms_body">
+        <item quantity="one">What do you think of this option?</item>
+        <item quantity="other">What do you think of these options?</item>
+    </plurals>
 
     <!-- Email strings -->
     <string name="email_subject">Invitation from Between</string>
-    <string name="email_body">I found these places on Between: %1$s. What do you think?</string>
+    <plurals name="email_body">
+        <item quantity="one">What do you think of this option?</item>
+        <item quantity="other">What do you think of these options?</item>
+    </plurals>
+    <string name="email_body_begin">I found these options on Btwn:</string>
+    <string name="email_body_end">What do you think?</string>
 
     <!-- Google play services -->
     <string name="google_play_services_error">Oops! We failed to resolve the Google Play Services error. Please restart app and try again.</string>

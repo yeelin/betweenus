@@ -5,12 +5,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
+import com.example.yeelin.projects.betweenus.utils.EmailUtils;
+import com.example.yeelin.projects.betweenus.utils.SmsUtils;
 
 import java.util.ArrayList;
 
@@ -109,7 +113,7 @@ public class InvitationActivity
         Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(recipientUri));
 
         //put extras
-        intent.putExtra(EXTRA_SMS_BODY, getString(R.string.sms_body, buildSelectedItemsString(selectedItems)));
+        intent.putExtra(EXTRA_SMS_BODY, SmsUtils.buildBody(this, selectedItems));
 
         //check that there's an app to handle the intent, and start the Activity
         if(intent.resolveActivity(getPackageManager()) != null) {
@@ -135,7 +139,9 @@ public class InvitationActivity
         //put extras
         intent.putExtra(Intent.EXTRA_EMAIL, new String[] {friendEmail}); //recipient's email must be in an array
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
-        intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.email_body, buildSelectedItemsString(selectedItems)));
+
+        Spanned spannedHtml = Html.fromHtml(EmailUtils.buildBody(this, selectedItems));
+        intent.putExtra(Intent.EXTRA_TEXT, spannedHtml);
 
         //check that there's an app to handle the intent, and start the Activity
         if (intent.resolveActivity(getPackageManager()) != null) {
@@ -164,22 +170,5 @@ public class InvitationActivity
         else {
             super.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    /**
-     * Helper method that builds a string using names from the selectedItems array list
-     * @param selectedItems
-     * @return
-     */
-    private String buildSelectedItemsString(ArrayList<SimplifiedBusiness> selectedItems) {
-        StringBuilder builder = new StringBuilder();
-
-        for (int i=0; i<selectedItems.size(); i++) {
-            builder.append(selectedItems.get(i).getName());
-            if (i < selectedItems.size()-1) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
     }
 }
