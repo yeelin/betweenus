@@ -31,9 +31,17 @@ public class LocationEntryFragment
     //logcat
     private static final String TAG = LocationEntryFragment.class.getCanonicalName();
 
+    //saved instance state
+    private static final String STATE_USER_PLACE_ID = LocationEntryFragment.class.getSimpleName() + ".userPlaceId";
+    private static final String STATE_FRIEND_PLACE_ID = LocationEntryFragment.class.getSimpleName() + ".friendPlaceId";
+    private static final String STATE_USER_PLACE_DESC = LocationEntryFragment.class.getSimpleName() + ".userPlaceDesc";
+    private static final String STATE_FRIEND_PLACE_DESC = LocationEntryFragment.class.getSimpleName() + ".friendPlaceDesc";
+
     //member variables
     private String userPlaceId;
     private String friendPlaceId;
+    private String userPlaceDescription;
+    private String friendPlaceDescription;
 
     private LocationEntryFragmentListener listener;
 
@@ -74,24 +82,26 @@ public class LocationEntryFragment
      * @param placeId
      * @param description
      */
-    public void setUserLocation(int locationType, String placeId, String description) {
-        ViewHolder viewHolder = getViewHolder();
-        if (viewHolder == null) {
-            Log.d(TAG, "setUserLocation: View holder is null, so nothing to do");
+    public void setUserLocation(int locationType, @Nullable String placeId, @Nullable String description) {
+        Log.d(TAG, String.format("setUserLocation: PlaceId:%s, Description:%s", placeId, description));
+
+        if (placeId == null || description == null) {
+            Log.d(TAG, "setUserLocation: Params are null, so nothing to do");
             return;
         }
 
-        Log.d(TAG, String.format("setUserLocation: PlaceId:%s, Description:%s", placeId, description));
-
+        ViewHolder viewHolder = getViewHolder();
         switch (locationType) {
             case LocationUtils.USER_LOCATION:
                 userPlaceId = placeId;
-                viewHolder.userLocation.setText(description);
+                userPlaceDescription = description;
+                if (viewHolder != null) viewHolder.userLocation.setText(userPlaceDescription);
                 break;
 
             case LocationUtils.FRIEND_LOCATION:
                 friendPlaceId = placeId;
-                viewHolder.friendLocation.setText(description);
+                friendPlaceDescription = description;
+                if (viewHolder != null) viewHolder.friendLocation.setText(friendPlaceDescription);
                 break;
         }
     }
@@ -123,6 +133,13 @@ public class LocationEntryFragment
 
         //create the animation spring
         scaleSpring = springSystem.createSpring();
+
+        if (savedInstanceState != null) {
+            userPlaceId = savedInstanceState.getString(STATE_USER_PLACE_ID);
+            friendPlaceId = savedInstanceState.getString(STATE_FRIEND_PLACE_ID);
+            userPlaceDescription = savedInstanceState.getString(STATE_USER_PLACE_DESC);
+            friendPlaceDescription = savedInstanceState.getString(STATE_FRIEND_PLACE_DESC);
+        }
     }
 
     /**
@@ -151,12 +168,17 @@ public class LocationEntryFragment
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
 
+        //add click listeners
         viewHolder.userLocation.setOnClickListener(this);
         viewHolder.friendLocation.setOnClickListener(this);
         viewHolder.searchButton.setOnClickListener(this);
 
         //add on touch listener to button
         viewHolder.searchButton.setOnTouchListener(this);
+
+        //set user and friend locations
+        setUserLocation(LocationUtils.USER_LOCATION, userPlaceId, userPlaceDescription);
+        setUserLocation(LocationUtils.FRIEND_LOCATION, friendPlaceId, friendPlaceDescription);
     }
 
     @Override
@@ -172,6 +194,20 @@ public class LocationEntryFragment
 
         // Remove the listener to the spring when the Activity pauses.
         scaleSpring.removeListener(buttonSpringListener);
+    }
+
+    /**
+     * Save out the user or friend place id and description if they have been set
+     * @param outState
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (userPlaceId != null) outState.putString(STATE_USER_PLACE_ID, userPlaceId);
+        if (friendPlaceId != null) outState.putString(STATE_FRIEND_PLACE_ID, friendPlaceId);
+        if (userPlaceDescription != null) outState.putString(STATE_USER_PLACE_DESC, userPlaceDescription);
+        if (friendPlaceDescription != null) outState.putString(STATE_FRIEND_PLACE_DESC, friendPlaceDescription);
     }
 
     /**
