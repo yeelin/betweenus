@@ -26,7 +26,8 @@
         android:layout_alignParentTop="true"
         android:clipToPadding="false"
         android:scrollbarStyle="outsideOverlay"
-        android:padding="8dp"/>
+        android:listSelector="@drawable/selector_list_item"
+        tools:listitem="@layout/adapter_item_search"/>
 
     <TextView
         android:id="@+id/search_empty"

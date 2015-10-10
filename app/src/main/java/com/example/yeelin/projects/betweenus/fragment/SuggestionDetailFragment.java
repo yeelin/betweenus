@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -194,7 +195,10 @@ public class SuggestionDetailFragment
         viewHolder.name.setText(name);
 
         //set up the state of the select button
-        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+            viewHolder.selectButton.setCompoundDrawablesRelativeWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+        else
+            viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
         viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
 
         //set up click listeners
@@ -393,7 +397,10 @@ public class SuggestionDetailFragment
                 final ViewHolder viewHolder = getViewHolder();
                 if (viewHolder != null) {
                     //update the select button icon and text
-                    viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                        viewHolder.selectButton.setCompoundDrawablesRelativeWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+                    else
+                        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
                     marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));

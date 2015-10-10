@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingTop="2dp"
     android:paddingLeft="2dp"
     android:paddingStart="2dp"
@@ -14,7 +14,7 @@
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:ellipsize="end"
@@ -26,16 +26,14 @@
 
     <TextView
         android:id="@+id/snippet"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         android:gravity="center_vertical"
-        android:ellipsize="end"
-        android:singleLine="true"
         android:textColor="@color/textColorSecondary"
         android:textSize="12sp"
         android:drawableLeft="@drawable/stars_small_4"
         android:drawablePadding="5dp"
         android:paddingTop="2dp"
-        android:text="0 reviews"/>
+        android:text="@string/no_reviews"/>
 </LinearLayout>

@@ -24,7 +24,8 @@
         app:layout_gravity="start|top"
         app:layout_columnWeight=".2"
 
-        android:contentDescription="Image"
+        android:contentDescription="@string/image_placeholder_content_description"
+        android:background="@drawable/image_placeholder_border"
         android:src="@drawable/ic_business_image_placeholder"/>
 
     <LinearLayout
@@ -68,6 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:drawableLeft="@drawable/stars_small_4"
+            tools:drawableStart="@drawable/stars_small_4"
             android:drawablePadding="5dp"
             android:paddingTop="2dp"
             android:gravity="center_vertical"

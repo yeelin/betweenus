@@ -69,6 +69,8 @@
     <!-- Placeholder string for missing fields -->
     <string name="not_available">Not available</string>
     <string name="detail_container_not_available">Sorry, details are not available at this time.</string>
+    <string name="image_placeholder_content_description">Image not available</string>
+    <string name="no_reviews">0 reviews</string>
 
     <!-- Empty listview strings -->
     <string name="no_suggestions">No suggestions</string>
@@ -86,12 +88,12 @@
     <string name="map_marker_friend">Friend</string>
 
     <!-- Map info window strings -->
-    <string name="map_cluster_infoWindow_title">%1$d results</string>
-    <plurals name="map_cluster_infoWindow_first_snippet">
-        <item quantity="one">Best: %1$s star</item>
-        <item quantity="other">Best: %1$s stars</item>
+    <string name="map_cluster_infoWindow_title">%1$d Results</string>
+    <string name="map_cluster_infoWindow_first_snippet">Best rating:</string>
+    <plurals name="map_cluster_infoWindow_second_snippet">
+        <item quantity="one">4+ stars: %1$d result</item>
+        <item quantity="other">4+ stars: %1$d results</item>
     </plurals>
-    <string name="map_cluster_infoWindow_second_snippet">4+ stars: %1$d</string>
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>

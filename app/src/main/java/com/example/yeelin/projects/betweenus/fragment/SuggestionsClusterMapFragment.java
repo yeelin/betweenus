@@ -75,7 +75,6 @@ public class SuggestionsClusterMapFragment
     //allows us to retrieve data back later
     private ArrayMap<String, PlaceClusterItem> idToClusterItemMap = new ArrayMap<>(); //needed to toggle the marker color
     private SparseArray<String> clusterSizeToTitleMap = new SparseArray<>();
-    private SparseArray<String> highestRatingToFirstSnippetMap = new SparseArray<>();
     private SparseArray<String> placesWithHighRatingToSecondSnippetMap = new SparseArray<>();
 
     private OnSuggestionActionListener suggestionActionListener;
@@ -689,7 +688,7 @@ public class SuggestionsClusterMapFragment
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
             final PlaceClusterItem placeClusterItem = clusterRenderer.getClusterItem(marker);
-            final Target target = ImageUtils.newTarget(getContext(), snippet, marker);
+            final Target target = ImageUtils.newTarget(getContext(), snippet, marker, true);
             snippet.setTag(target);
             ImageUtils.loadImage(getContext(),
                     placeClusterItem != null ? placeClusterItem.getRatingUrl() : null, //TODO: provide placeholder image
@@ -772,36 +771,29 @@ public class SuggestionsClusterMapFragment
                 secondSnippet.setVisibility(View.GONE);
             }
             else {
-                //compute the highest rating in the cluster and the places with high ratings, i.e. >= 4
-                double highestRating = 0.0;
+                //compute the best rating in the cluster and the places with high ratings, i.e. >= 4
+                double bestRatingSoFar = 0.0;
+                String bestRatingSoFarUrl = "";
                 int numWithHighRating = 0;
 
                 for (PlaceClusterItem clusterItem : cluster.getItems()) {
                     if (clusterItem.getRating() >= MIN_HIGH_RATING) {
                         ++numWithHighRating;
                     }
-                    if (clusterItem.getRating() > highestRating) {
-                        highestRating = clusterItem.getRating();
+                    if (clusterItem.getRating() > bestRatingSoFar) {
+                        bestRatingSoFar = clusterItem.getRating();
+                        bestRatingSoFarUrl = clusterItem.getRatingUrl();
                     }
                 }
 
-                //check if the first snippet string already exists for this highest rating
-                //reuse it if it does, so that we don't do another resource read
-                int roundedHighestRating = (int) Math.round(highestRating);
-                String clusterFirstSnippet = highestRatingToFirstSnippetMap.get(roundedHighestRating);
-                if (clusterFirstSnippet == null) {
-                    clusterFirstSnippet = getResources().getQuantityString(
-                            R.plurals.map_cluster_infoWindow_first_snippet,
-                            roundedHighestRating,
-                            FormattingUtils.getDecimalFormatterNoRounding(1).format(highestRating));
-                    highestRatingToFirstSnippetMap.put(roundedHighestRating, clusterFirstSnippet);
-                }
-                firstSnippet.setText(clusterFirstSnippet);
+                //first snippet: load the rating image using the best rating url
+                final Target target = ImageUtils.newTarget(getContext(), firstSnippet, marker, false);
+                firstSnippet.setTag(target);
+                ImageUtils.loadImage(getContext(), bestRatingSoFarUrl, target);
 
-
-                //check if the highest rating place has less than 4 stars
+                //check if the best rating place has less than 4 stars
                 //if so no need to report numWithHighRating
-                if (highestRating < MIN_HIGH_RATING) {
+                if (bestRatingSoFar < MIN_HIGH_RATING) {
                     secondSnippet.setVisibility(View.GONE);
                 }
                 else {
@@ -809,7 +801,10 @@ public class SuggestionsClusterMapFragment
                     //reuse it if it does, so that we don't do another resource read
                     String clusterSecondSnippet = placesWithHighRatingToSecondSnippetMap.get(numWithHighRating);
                     if (clusterSecondSnippet == null) {
-                        clusterSecondSnippet = getString(R.string.map_cluster_infoWindow_second_snippet, numWithHighRating);
+                        clusterSecondSnippet = getResources().getQuantityString(
+                                R.plurals.map_cluster_infoWindow_second_snippet,
+                                numWithHighRating,
+                                numWithHighRating);
                         placesWithHighRatingToSecondSnippetMap.put(numWithHighRating, clusterSecondSnippet);
                     }
                     secondSnippet.setText(clusterSecondSnippet);

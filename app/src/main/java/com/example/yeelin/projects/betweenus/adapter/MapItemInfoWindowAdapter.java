@@ -108,7 +108,7 @@ public class MapItemInfoWindowAdapter
 
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
-            final Target target = ImageUtils.newTarget(context, snippet, marker);
+            final Target target = ImageUtils.newTarget(context, snippet, marker, true);
             snippet.setTag(target);
             ImageUtils.loadImage(context, ratingUrl, target);
         }

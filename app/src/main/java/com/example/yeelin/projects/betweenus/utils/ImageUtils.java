@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,7 +39,10 @@ public class ImageUtils {
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 if (textView != null) {
                     //Log.d(TAG, "onBitmapLoaded: Textview is not null");
-                    textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                    else
+                        textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
                 }
                 else {
                     //Log.d(TAG, "onBitmapLoaded: Textview is already null so nothing to do");
@@ -63,9 +67,10 @@ public class ImageUtils {
      * @param context
      * @param textView
      * @param marker
+     * @param left which side to load the image on
      * @return
      */
-    public static Target newTarget(final Context context, final TextView textView, final Marker marker) {
+    public static Target newTarget(final Context context, final TextView textView, final Marker marker, final boolean left) {
         //Log.d(TAG, "newTarget");
         return new Target() {
             /**
@@ -78,7 +83,12 @@ public class ImageUtils {
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 if (textView != null) {
                     //Log.d(TAG, "onBitmapLoaded: Textview is not null");
-                    textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                    if (left) {
+                        textView.setCompoundDrawablesWithIntrinsicBounds(new BitmapDrawable(context.getResources(), bitmap), null, null, null);
+                    }
+                    else {
+                        textView.setCompoundDrawablesWithIntrinsicBounds(null, null, new BitmapDrawable(context.getResources(), bitmap), null);
+                    }
 
                     if (marker != null && marker.isInfoWindowShown()) {
                         //Log.d(TAG, "onBitmapLoaded: Showing info window");

@@ -66,7 +66,7 @@ public class SuggestionsMapActivity
     private static final String EXTRA_PLACE_IDS = SuggestionsMapActivity.class.getSimpleName() + ".placeIds";
 
     //constants
-    private static final double HIGH_RATING = 4.0;
+    private static final double MIN_HIGH_RATING = 4.0;
 
     //member variables
     //map-related
@@ -92,7 +92,6 @@ public class SuggestionsMapActivity
     //allows us to retrieve data back later
     private ArrayMap<String, PlaceClusterItem> idToClusterItemMap = new ArrayMap<>(); //needed to toggle the marker color
     private SparseArray<String> clusterSizeToTitleMap = new SparseArray<>();
-    private SparseArray<String> highestRatingToFirstSnippetMap = new SparseArray<>();
     private SparseArray<String> placesWithHighRatingToSecondSnippetMap = new SparseArray<>();
 
     /**
@@ -614,7 +613,7 @@ public class SuggestionsMapActivity
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
             final PlaceClusterItem placeclusterItem = clusterRenderer.getClusterItem(marker);
-            final Target target = ImageUtils.newTarget(SuggestionsMapActivity.this, snippet, marker);
+            final Target target = ImageUtils.newTarget(SuggestionsMapActivity.this, snippet, marker, true);
             snippet.setTag(target);
             ImageUtils.loadImage(SuggestionsMapActivity.this,
                     placeclusterItem != null ? placeclusterItem.getRatingUrl() : null, //TODO: provide placeholder image
@@ -697,34 +696,29 @@ public class SuggestionsMapActivity
                 secondSnippet.setVisibility(View.GONE);
             }
             else {
-                double highestRating = 0.0;
+                //compute the best rating in the cluster and the places with high ratings, i.e. >= 4
+                double bestRatingSoFar = 0.0;
+                String bestRatingSoFarUrl = "";
                 int numWithHighRating = 0;
 
                 for (PlaceClusterItem clusterItem : cluster.getItems()) {
-                    if (clusterItem.getRating() >= HIGH_RATING) {
+                    if (clusterItem.getRating() >= MIN_HIGH_RATING) {
                         ++numWithHighRating;
                     }
-                    if (clusterItem.getRating() > highestRating) {
-                        highestRating = clusterItem.getRating();
+                    if (clusterItem.getRating() > bestRatingSoFar) {
+                        bestRatingSoFar = clusterItem.getRating();
+                        bestRatingSoFarUrl = clusterItem.getRatingUrl();
                     }
                 }
 
-                //check if the first snippet string already exists for this highest rating
-                //reuse it if it does, so that we don't do another resource read
-                int roundedHighestRating = (int) Math.round(highestRating);
-                String clusterFirstSnippet = highestRatingToFirstSnippetMap.get(roundedHighestRating);
-                if (clusterFirstSnippet == null) {
-                    clusterFirstSnippet = getResources().getQuantityString(
-                            R.plurals.map_cluster_infoWindow_first_snippet,
-                            roundedHighestRating,
-                            FormattingUtils.getDecimalFormatterNoRounding(1).format(highestRating));
-                    highestRatingToFirstSnippetMap.put(roundedHighestRating, clusterFirstSnippet);
-                }
-                firstSnippet.setText(clusterFirstSnippet);
+                //first snippet: load the rating image using the best rating url
+                final Target target = ImageUtils.newTarget(SuggestionsMapActivity.this, firstSnippet, marker, false);
+                firstSnippet.setTag(target);
+                ImageUtils.loadImage(SuggestionsMapActivity.this, bestRatingSoFarUrl, target);
 
-                //check if the highest rating place has less than 4 stars
+                //check if the best rating place has less than 4 stars
                 //if so no need to report numWithHighRating
-                if (highestRating < 4) {
+                if (bestRatingSoFar < MIN_HIGH_RATING) {
                     secondSnippet.setVisibility(View.GONE);
                 }
                 else {
@@ -732,7 +726,10 @@ public class SuggestionsMapActivity
                     //reuse it if it does, so that we don't do another resource read
                     String clusterSecondSnippet = placesWithHighRatingToSecondSnippetMap.get(numWithHighRating);
                     if (clusterSecondSnippet == null) {
-                        clusterSecondSnippet = getString(R.string.map_cluster_infoWindow_second_snippet, numWithHighRating);
+                        clusterSecondSnippet = getResources().getQuantityString(
+                                R.plurals.map_cluster_infoWindow_second_snippet,
+                                numWithHighRating,
+                                numWithHighRating);
                         placesWithHighRatingToSecondSnippetMap.put(numWithHighRating, clusterSecondSnippet);
                     }
                     secondSnippet.setText(clusterSecondSnippet);
