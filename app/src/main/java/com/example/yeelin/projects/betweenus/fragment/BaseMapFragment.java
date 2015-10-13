@@ -41,6 +41,7 @@ public abstract class BaseMapFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
+            Log.d(TAG, "onCreate: Restoring camera position");
             cameraPosition = savedInstanceState.getParcelable(STATE_CAMERA_POSITION);
         }
     }
@@ -62,6 +63,7 @@ public abstract class BaseMapFragment
      */
     @Override
     public void onResume() {
+        Log.d(TAG, "onResume");
         super.onResume();
 
         //restore the map to the previous camera position if any
@@ -79,6 +81,7 @@ public abstract class BaseMapFragment
         super.onPause();
 
         if (map != null) {
+            Log.d(TAG, "onPause: Getting camera position");
             cameraPosition = map.getCameraPosition();
         }
     }
@@ -89,9 +92,11 @@ public abstract class BaseMapFragment
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState");
         super.onSaveInstanceState(outState);
 
         if (cameraPosition != null) {
+            Log.d(TAG, "onSaveInstanceState: Saving camera position");
             outState.putParcelable(STATE_CAMERA_POSITION, cameraPosition);
         }
     }

@@ -17,7 +17,6 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragm
 import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
-import com.example.yeelin.projects.betweenus.fragment.SuggestionsMapFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
@@ -51,6 +50,10 @@ public class SuggestionsActivity
 
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
+    private static final String STATE_SHOWING_PEOPLE_LOCATION = SuggestionsActivity.class.getSimpleName() + ".showingPeopleLocation";
+    private static final String STATE_USER_LATLNG = SuggestionsActivity.class.getSimpleName() + ".userLatLng";
+    private static final String STATE_FRIEND_LATLNG = SuggestionsActivity.class.getSimpleName() + ".friendLatLng";
+    private static final String STATE_MID_LATLNG = SuggestionsActivity.class.getSimpleName() + ".midLatLng";
     private static final String STATE_SELECTED_IDS = SuggestionsActivity.class.getSimpleName() + ".selectedIds";
     private static final String STATE_SELECTED_POSITIONS = SuggestionsActivity.class.getSimpleName() + ".selectedPositions";
 
@@ -114,12 +117,13 @@ public class SuggestionsActivity
         ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
 
         //start service to fetch suggestions from the network
-        Log.d(TAG, "onCreate: Starting PlacesService");
-        startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
+        //Log.d(TAG, "onCreate: Starting PlacesService");
+        //startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
 
         //check if the fragments exists, otherwise create it
         if (savedInstanceState == null) {
             Log.d(TAG, "onCreate: Saved instance state is null");
+
             Fragment listFragment = SuggestionsListFragment.newInstance();
             Fragment mapFragment = SuggestionsClusterMapFragment.newInstance();
 
@@ -132,8 +136,14 @@ public class SuggestionsActivity
         }
         else {
             Log.d(TAG, "onCreate: Saved instance state is not null");
-            //restore last shown state (either map or list)
+            //restore last shown state
             showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
+            showingPeopleLocation = savedInstanceState.getBoolean(STATE_SHOWING_PEOPLE_LOCATION, false);
+
+            //restore latlngs
+            userLatLng = savedInstanceState.getParcelable(STATE_USER_LATLNG);
+            friendLatLng = savedInstanceState.getParcelable(STATE_FRIEND_LATLNG);
+            midLatLng = savedInstanceState.getParcelable(STATE_MID_LATLNG);
 
             //restore map of selected ids
             ArrayList<String> selectedIdsList = savedInstanceState.getStringArrayList(STATE_SELECTED_IDS);
@@ -147,8 +157,20 @@ public class SuggestionsActivity
                 Log.d(TAG, "onCreate: Restored selected ids: " + selectedIdsList);
             }
 
-            //restore the state when we last left the activity (either showing map or list)
+            //restore the view to the last fragment when we last left the activity (either showing map or list)
             toggleListAndMapFragments(false); //false == don't load data since it's not ready
+        }
+
+        //check to make sure latlngs are not null
+        //note: even in configuration change, it's possible that the activity was destroyed before the latlngs were set with values
+        if (userLatLng == null || friendLatLng == null || midLatLng == null) {
+            //latlngs are null so start the place service to get the latlngs
+            Log.d(TAG, "onCreate: LatLngs are null.  Starting PlacesService");
+            startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
+        }
+        else {
+            //latlngs are not null so initialize the loader to fetch suggestions from the network
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
         }
     }
 
@@ -161,15 +183,15 @@ public class SuggestionsActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_suggestions, menu);
 
-        //configure the toggle item to show the correct icon and title depending on boolean showingMap
+        //configure the list/map toggle to show the correct icon and title depending on boolean showingMap
         final MenuItem toggleItem = menu.findItem(R.id.action_toggle);
-        toggleMenuItemIcon(toggleItem);
-        toggleMenuItemTitle(toggleItem);
+        toggleMapMenuIcon(toggleItem);
+        toggleMapMenuTitle(toggleItem);
 
-        //configure the menu item
+        //configure the people toggle to show the correct icon and title depending on boolean showingPeopleLocation
         peopleLocationMenuItem = menu.findItem(R.id.action_show_people_location);
-        showHidePeopleMenuItem();
-        showHidePeopleMenuItemTitle();
+        togglePeopleMenuIcon();
+        togglePeopleMenuTitle();
 
         return super.onCreateOptionsMenu(menu);
     }
@@ -224,28 +246,28 @@ public class SuggestionsActivity
                 showingMap = !showingMap;
 
                 //toggle list/map icon and title
-                toggleMenuItemIcon(item);
-                toggleMenuItemTitle(item);
+                toggleMapMenuIcon(item);
+                toggleMapMenuTitle(item);
                 //toggle list/map fragments
                 toggleListAndMapFragments(true); //true == load data
 
                 //toggle people location item on/off
-                showHidePeopleMenuItem();
-                showHidePeopleMenuItemTitle();
+                togglePeopleMenuIcon();
+                togglePeopleMenuTitle();
                 return true;
 
-            //toggle poeple location on/off
+            //toggle people location on/off
             case R.id.action_show_people_location:
                 Log.d(TAG, String.format("onOptionsItemSelected: People toggle clicked. Current:%s, Next:%s", showingPeopleLocation ? "people" : "no people", !showingPeopleLocation ? "people" : "no people"));
                 showingPeopleLocation = !showingPeopleLocation;
 
                 //toggle people location item on/off
-                showHidePeopleMenuItem();
-                showHidePeopleMenuItemTitle();
+                togglePeopleMenuIcon();
+                togglePeopleMenuTitle();
 
-                //notify map fragment toggle the markers
+                //notify map fragment toggle the people markers
                 SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-                if (mapFragment != null) mapFragment.showPeopleLocation(showingPeopleLocation, false, true); //false = don't use display size, true = animate transition
+                if (mapFragment != null) mapFragment.togglePeopleLocation(showingPeopleLocation, true); //true = update UI immediately
                 return true;
 
             default:
@@ -273,13 +295,25 @@ public class SuggestionsActivity
     }
 
     /**
-     * Saves out the boolean showingMap so that we know which fragment is being displayed
+     * Saves out
+     * 1. the boolean showingMap so that we know which fragment is being displayed
+     * 2. the boolean showingPeopleLocation so that we know if people location were being displayed
+     * 3. the latlngs (user, friend, mid) so that we don't have to requery the service
+     * 4. the selected ids map so that we know which results were selected by the user
+     * 5. the selected positions in the list/pager corresponding to the selected ids
+     *
      * @param outState
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_MAP, showingMap);
+        outState.putBoolean(STATE_SHOWING_PEOPLE_LOCATION, showingPeopleLocation);
+
+        if (userLatLng != null) outState.putParcelable(STATE_USER_LATLNG, userLatLng);
+        if (friendLatLng != null) outState.putParcelable(STATE_FRIEND_LATLNG, friendLatLng);
+        if (midLatLng != null) outState.putParcelable(STATE_MID_LATLNG, midLatLng);
+
         outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.keySet()));
         outState.putIntegerArrayList(STATE_SELECTED_POSITIONS, new ArrayList<>(selectedIdsMap.values()));
     }
@@ -288,7 +322,7 @@ public class SuggestionsActivity
      * Depending on the boolean showingMap, this method toggles the icon of the given menu item
      * @param item
      */
-    private void toggleMenuItemIcon(MenuItem item) {
+    private void toggleMapMenuIcon(MenuItem item) {
         item.setIcon(showingMap ? R.drawable.ic_action_view_list : R.drawable.ic_action_maps_map);
     }
 
@@ -296,18 +330,18 @@ public class SuggestionsActivity
      * Depending on the boolean showingMap, this method toggles the title of the given menu item
      * @param item
      */
-    private void toggleMenuItemTitle(MenuItem item) {
+    private void toggleMapMenuTitle(MenuItem item) {
         item.setTitle(showingMap ? R.string.action_view_as_list : R.string.action_view_as_map);
     }
-
 
     /**
      * Depending on the boolean showingPeopleLocation, this method toggles the icon of the
      * people menu item
      */
-    private void showHidePeopleMenuItem() {
+    private void togglePeopleMenuIcon() {
         if (showingMap) {
-            peopleLocationMenuItem.setIcon(showingPeopleLocation ? R.drawable.ic_action_social_people : R.drawable.ic_action_social_people_outline);
+            peopleLocationMenuItem.setIcon(showingPeopleLocation ?
+                    R.drawable.ic_action_social_people : R.drawable.ic_action_social_people_outline);
             peopleLocationMenuItem.setVisible(true);
         }
         else {
@@ -319,9 +353,10 @@ public class SuggestionsActivity
      * Depending on the boolean showingPeopleLocation, this method toggles the title of the
      * people menu item
      */
-    private void showHidePeopleMenuItemTitle() {
+    private void togglePeopleMenuTitle() {
         if (showingMap) {
-            peopleLocationMenuItem.setTitle(showingPeopleLocation ? R.string.action_hide_people_location : R.string.action_show_people_location);
+            peopleLocationMenuItem.setTitle(showingPeopleLocation ?
+                    R.string.action_hide_people_location : R.string.action_show_people_location);
         }
     }
 
@@ -344,6 +379,10 @@ public class SuggestionsActivity
                     .hide(listFragment)
                     .show(mapFragment)
                     .commit();
+
+            //tell the map fragment if we should be showing people location, but only update when the rest of the data is ready
+            mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
+
             if (shouldLoadData) {
                 mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
@@ -378,7 +417,7 @@ public class SuggestionsActivity
 
         //debugging purposes
         if (result == null) {
-            Log.d(TAG, "onLoadComplete: SuggestedItems is null. Loader must be resetting");
+            Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
         }
         else {
             Log.d(TAG, "onLoadComplete: Item count:" + result.getBusinesses().size());
@@ -391,6 +430,7 @@ public class SuggestionsActivity
             Log.d(TAG, "onLoadComplete: Notifying map fragment");
             SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
             if (mapFragment != null) {
+                mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
                 mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }

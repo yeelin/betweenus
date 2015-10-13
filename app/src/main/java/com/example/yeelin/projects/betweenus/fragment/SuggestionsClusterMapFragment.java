@@ -19,7 +19,6 @@ import com.example.yeelin.projects.betweenus.model.PlaceClusterItem;
 import com.example.yeelin.projects.betweenus.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
-import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -52,6 +51,7 @@ public class SuggestionsClusterMapFragment
 
     //logcat
     private static final String TAG = SuggestionsClusterMapFragment.class.getCanonicalName();
+
     //constants
     private static final double MIN_HIGH_RATING = 3.9;
 
@@ -64,6 +64,7 @@ public class SuggestionsClusterMapFragment
     private Marker userLocationMarker; //for showing user's location marker
     private Marker friendLocationMarker; //for showing friend's location marker
     private boolean mapNeedsUpdate = false;
+    private boolean showingPeopleLocation = false;
 
     private YelpResult result;
     private LatLng userLatLng;
@@ -186,6 +187,7 @@ public class SuggestionsClusterMapFragment
         }
         else {
             //result is different so save a reference to it
+            Log.d(TAG, "updateMap: Result is different");
             this.result = result;
             this.userLatLng = userLatLng;
             this.friendLatLng = friendLatLng;
@@ -210,22 +212,6 @@ public class SuggestionsClusterMapFragment
     private void updateMap() {
         Log.d(TAG, "updateMap");
 
-        //clear out the map first before adding new markers
-        map.clear();
-        //clear out the camera position too
-        cameraPosition = null;
-        //clear out the idToClusterItemMap
-        idToClusterItemMap.clear();
-        //clear out any user/friend markers as well
-        if (userLocationMarker != null) {
-            userLocationMarker.remove();
-            userLocationMarker = null;
-        }
-        if (friendLocationMarker != null) {
-            friendLocationMarker.remove();
-            friendLocationMarker = null;
-        }
-
         //check if result is null
         if (result != null && result.getBusinesses().size() > 0) {
             Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getBusinesses().size());
@@ -237,15 +223,21 @@ public class SuggestionsClusterMapFragment
             addClusterItemsToClusterManager();
             clusterManager.cluster();
 
-            //add a circle around the center point
-            //addCircleToMap();
+            //update people location markers
+            updatePeopleLocationMarkers();
         }
 
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
 
-        //zoom to bounds using the approx map size
-        zoomMapToBounds(false, true, false); //false = don't include people, true = base it on display size, false = don't animate transition
+        //if we don't have a saved camera position then zoom to bounds using the approx map size
+        if (cameraPosition == null) {
+            Log.d(TAG, "updateMap: Camera position is null so zooming map based on approx display size");
+            zoomMapToBounds(true, false); //true = base it on display size, false = don't animate transition
+        }
+        else {
+            Log.d(TAG, "updateMap: Camera position is not null so it would be restored in onResume");
+        }
     }
 
     /**
@@ -428,19 +420,19 @@ public class SuggestionsClusterMapFragment
 
     /**
      * Zooms the map to bounds based on specified parameters.
-     * @param includePeople if true, then bounds will include user and friend's locations. Additional padding is provided.
      * @param useDisplaySize if true, then base map size on display size since layout hasn't happened yet
      * @param shouldAnimate if true, then animate the transition
      */
-    private void zoomMapToBounds(boolean includePeople, boolean useDisplaySize, boolean shouldAnimate) {
+    private void zoomMapToBounds(boolean useDisplaySize, boolean shouldAnimate) {
         final Pair<LatLng, LatLng> pairBounds = computePairBoundsFromResult();
         final DisplayMetrics display = getResources().getDisplayMetrics();
-        int toolbarHeight = ((AppCompatActivity)getActivity()).getSupportActionBar() == null ? 0 : ((AppCompatActivity)getActivity()).getSupportActionBar().getHeight();
+        int toolbarHeight = ((AppCompatActivity)getActivity()).getSupportActionBar() == null ?
+                0 : ((AppCompatActivity)getActivity()).getSupportActionBar().getHeight();
 
         LatLngBounds mapBounds;
         int padding = display.widthPixels / 10;
 
-        if (includePeople) { //bounds = result and people
+        if (showingPeopleLocation) { //bounds = result and people
             mapBounds = new LatLngBounds.Builder()
                     .include(userLatLng)
                     .include(friendLatLng)
@@ -466,16 +458,30 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
-     * Toggles the user and friend's location markers on the map.
-     * This method is called by SuggestionActivity when the menu item is toggled.
-     * @param show
-     * @param useDisplaySize
-     * @param shouldAnimate
+     * Toggles the people location markers on the map.
+     * This method is called by SuggestionActivity when the people menu item is toggled.
+     *
+     * @param toggleOn
+     * @param updateImmediately if this is false, then only the member variable is set. the ui isn't updated until
+     *                          the next time
      */
-    public void showPeopleLocation(boolean show, boolean useDisplaySize, boolean shouldAnimate) {
-        Log.d(TAG, "showPeopleLocation: Show:" + show);
+    public void togglePeopleLocation(boolean toggleOn, boolean updateImmediately) {
+        showingPeopleLocation = toggleOn;
 
-        if (show) {
+        if (updateImmediately && map != null) {
+            updatePeopleLocationMarkers();
+            zoomMapToBounds(false, true); //false = don't use display size, true = animate transition
+        }
+    }
+
+    /**
+     * Helper method that either puts people location markers on the map, or hides them.
+     * Don't forget to call zoomMapToBounds after this method.
+     */
+    private void updatePeopleLocationMarkers () {
+        Log.d(TAG, "updatePeopleLocation: Toggle state:" + showingPeopleLocation);
+
+        if (showingPeopleLocation) {
             //show user's marker
             if (userLocationMarker == null) {
                 //create and add new marker
@@ -513,7 +519,7 @@ public class SuggestionsClusterMapFragment
         }
 
         //recalculate map bounds and change camera
-        zoomMapToBounds(show, useDisplaySize, shouldAnimate); //show = include or don't include people, false = don't use display size, true = animate transition
+        //zoomMapToBounds(showingPeopleLocation, useDisplaySize, shouldAnimate); //show = include or don't include people, false = don't use display size, true = animate transition
     }
 
     /**
