@@ -32,6 +32,14 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".activity.LoginActivity"
+            android:label="@string/title_login"
+            android:parentActivityName=".activity.LocationEntryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.LocationEntryActivity"/>
+        </activity>
+
         <activity android:name=".activity.LocationSearchActivity"
             android:label="@string/title_search"
             android:parentActivityName=".activity.LocationEntryActivity">
@@ -109,6 +117,16 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME"/>
+            android:value="@string/google_api_key"/>
+
+        <!-- Facebook -->
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/app_name" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
     </application>
 </manifest>

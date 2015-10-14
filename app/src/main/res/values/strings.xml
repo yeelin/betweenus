@@ -3,6 +3,7 @@
 
     <!-- activity titles -->
     <string name="title_launcher">Between</string>
+    <string name="title_login">Login</string>
     <string name="title_map">Cluster Map Test</string>
     <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
@@ -124,5 +125,11 @@
     <!-- Snackbar strings -->
     <string name="snackbar_go_back">Go back</string>
     <string name="snackbar_retry">Retry</string>
+
+    <!-- google places api -->
+    <string name="google_api_key">AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME</string>
+
+    <!-- facebook sdk -->
+    <string name="facebook_app_id">711402509003581</string>
 
 </resources>

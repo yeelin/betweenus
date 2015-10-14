@@ -15,6 +15,8 @@ import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.ConnectionResult;
 
 public class LocationEntryActivity
@@ -56,6 +58,9 @@ public class LocationEntryActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //initialize the fb sdk
+        FacebookSdk.sdkInitialize(getApplicationContext());
+
         //strict mode
         //turn this off if testing for map performance, otherwise things become very slow
 //        if (BuildConfig.DEBUG) StrictMode.enableDefaults();
@@ -81,24 +86,27 @@ public class LocationEntryActivity
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_location_entry, menu);
-//        return super.onCreateOptionsMenu(menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_location_entry, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
 //            case R.id.action_map_activity:
 //                //start the suggestions map activity that will host the cluster map
 //                if (userPlaceId != null && friendPlaceId != null) {
 //                    startActivity(SuggestionsMapActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));
 //                }
 //                return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+            case R.id.action_fb_login:
+                startActivity(LoginActivity.buildIntent(this));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     /**
      * Start the PlacesService. More specifically, we want to call connect on the google api client
@@ -119,6 +127,9 @@ public class LocationEntryActivity
         super.onResume();
         Log.d(TAG, "onResume: Registering for broadcasts");
         placesBroadcastReceiver = new PlacesBroadcastReceiver(this, this); //we are a connection broadcast listener
+
+        //fb logs install and 'app activate' app events
+        AppEventsLogger.activateApp(this);
     }
 
     /**
@@ -128,6 +139,10 @@ public class LocationEntryActivity
     protected void onPause() {
         Log.d(TAG, "onPause: Unregistering for broadcasts");
         placesBroadcastReceiver.unregister();
+
+        //fb logs 'app deactivate' app event
+        AppEventsLogger.deactivateApp(this);
+
         super.onPause();
     }
 

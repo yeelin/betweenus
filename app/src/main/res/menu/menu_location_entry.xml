@@ -5,10 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".activity.SuggestionsMapActivity">
 
+    <!--
     <item
         android:id="@+id/action_map_activity"
         android:orderInCategory="100"
         android:title="Launch map activity"
         android:icon="@drawable/ic_action_maps_place"
         app:showAsAction="ifRoom" />
+    -->
+
+    <item
+        android:id="@+id/action_fb_login"
+        android:orderInCategory="100"
+        android:title="Login with Facebook"
+        app:showAsAction="never"/>
 </menu>
