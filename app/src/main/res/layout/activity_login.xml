@@ -22,4 +22,9 @@
         android:name="com.example.yeelin.projects.betweenus.fragment.LoginFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+    <fragment
+        android:id="@+id/logout_fragment"
+        android:name="com.example.yeelin.projects.betweenus.fragment.LogoutFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 </LinearLayout>
