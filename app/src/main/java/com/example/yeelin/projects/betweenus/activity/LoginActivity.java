@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -63,6 +62,17 @@ public class LoginActivity
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
 
+        //store references to both fragments
+        FragmentManager fm = getSupportFragmentManager();
+        fragments[LOGIN] = fm.findFragmentById(R.id.login_fragment);
+        fragments[LOGOUT] = fm.findFragmentById(R.id.logout_fragment);
+
+        //hide both fragments
+        fm.beginTransaction()
+                .hide(fragments[LOGIN])
+                .hide(fragments[LOGOUT])
+                .commit();
+
         //init access token tracker
         accessTokenTracker = new AccessTokenTracker() {
             @Override
@@ -78,27 +88,16 @@ public class LoginActivity
                     if (currentAccessToken != null) {
                         //yes, user is logged in
                         Log.d(TAG, "onCurrentAccessTokenChanged: User is now logged in");
-                        showFragment(LOGOUT, false);
+                        showLogoutFragment(false);
                     }
                     else {
                         //no, user is not logged in
                         Log.d(TAG, "onCurrentAccessTokenChanged: User is no longer logged in");
-                        showFragment(LOGIN, false);
+                        showLoginFragment(false);
                     }
                 }
             }
         };
-
-        //store references to both fragments
-        FragmentManager fm = getSupportFragmentManager();
-        fragments[LOGIN] = fm.findFragmentById(R.id.login_fragment);
-        fragments[LOGOUT] = fm.findFragmentById(R.id.logout_fragment);
-
-        //hide both fragments
-        FragmentTransaction transaction = fm.beginTransaction();
-        transaction.hide(fragments[LOGIN])
-                .hide(fragments[LOGOUT])
-                .commit();
     }
 
     @Override
@@ -125,30 +124,20 @@ public class LoginActivity
         accessTokenTracker.stopTracking();
     }
 
-    private void showLoginFragment() {
-        showFragment(LOGIN, true);
+    /**
+     * Helper method for showing the login fragment
+     * @param addToBackStack
+     */
+    private void showLoginFragment(boolean addToBackStack) {
+        showFragment(fragments, LOGIN, addToBackStack);
     }
 
-    private void showLogoutFragment() {
-        showFragment(LOGOUT, true);
-    }
-
-    private void showFragment(int fragmentIndex, boolean addToBackStack) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
-        for (int i=0; i<fragments.length; i++) {
-            if (i == fragmentIndex) transaction.show(fragments[i]);
-            else transaction.hide(fragments[i]);
-        }
-        if (addToBackStack) {
-            transaction.addToBackStack(null); //no name for the transaction
-        }
-        transaction.commit();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    /**
+     * Helper method for showing the logout fragment
+     * @param addToBackStack
+     */
+    private void showLogoutFragment(boolean addToBackStack) {
+        showFragment(fragments, LOGOUT, addToBackStack);
     }
 
     @Override
@@ -159,12 +148,12 @@ public class LoginActivity
         if (AccessToken.getCurrentAccessToken() != null) {
             //yes, user is logged in
             Log.d(TAG, "onResumeFragments: User is logged in");
-            showFragment(LOGOUT, false);
+            showLogoutFragment(false);
         }
         else {
             //no, user is not logged in
             Log.d(TAG, "onResumeFragments: User is not logged in");
-            showFragment(LOGIN, false);
+            showLoginFragment(false);
         }
     }
 

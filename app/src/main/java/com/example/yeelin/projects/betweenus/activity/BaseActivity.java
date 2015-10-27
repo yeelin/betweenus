@@ -1,6 +1,9 @@
 package com.example.yeelin.projects.betweenus.activity;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -47,5 +50,25 @@ public abstract class BaseActivity
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         NavUtils.navigateUpTo(currentActivity, intent);
+    }
+
+    /**
+     * Show a fragment given a fragment index. Caller decides whether or not to add to backstack.
+     *
+     * @param fragments array of fragments to show or hide
+     * @param fragmentIndex index of the fragment to show
+     * @param addToBackStack whether or not to add to the backstack. adding means the back button will work
+     */
+    protected void showFragment(Fragment[] fragments, int fragmentIndex, boolean addToBackStack) {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction transaction = fm.beginTransaction();
+        for (int i=0; i<fragments.length; i++) {
+            if (i == fragmentIndex) transaction.show(fragments[i]);
+            else transaction.hide(fragments[i]);
+        }
+        if (addToBackStack) {
+            transaction.addToBackStack(null); //no name for the transaction
+        }
+        transaction.commit();
     }
 }

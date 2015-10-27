@@ -17,8 +17,14 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-    <FrameLayout
-        android:id="@+id/suggestions_fragmentContainer"
+    <fragment
+        android:id="@+id/list_fragment"
+        android:name="com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <fragment
+        android:id="@+id/map_fragment"
+        android:name="com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 </LinearLayout>

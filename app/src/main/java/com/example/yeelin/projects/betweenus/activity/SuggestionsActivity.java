@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.Menu;
@@ -44,9 +45,10 @@ public class SuggestionsActivity
     private static final String EXTRA_SEARCH_TERM = SuggestionsActivity.class.getSimpleName() + ".searchTerm";
     private static final String EXTRA_PLACE_IDS = SuggestionsActivity.class.getSimpleName() + ".placeIds";
 
-    //fragment tags
-    private static final String FRAGMENT_TAG_LIST = SuggestionsListFragment.class.getSimpleName();
-    private static final String FRAGMENT_TAG_MAP = SuggestionsClusterMapFragment.class.getSimpleName();
+    //fragment constants
+    private static final int LIST = 0;
+    private static final int MAP = 1;
+    private static final int FRAGMENT_COUNT = MAP + 1;
 
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
@@ -67,6 +69,7 @@ public class SuggestionsActivity
     private LatLng friendLatLng;
     private LatLng midLatLng;
 
+    private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
     private boolean showingMap = false;
     private YelpResult result;
     private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
@@ -120,22 +123,14 @@ public class SuggestionsActivity
         //Log.d(TAG, "onCreate: Starting PlacesService");
         //startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
 
-        //check if the fragments exists, otherwise create it
-        if (savedInstanceState == null) {
-            Log.d(TAG, "onCreate: Saved instance state is null");
+        //store references to both fragments
+        FragmentManager fm = getSupportFragmentManager();
+        fragments[LIST] = fm.findFragmentById(R.id.list_fragment);
+        fragments[MAP] = fm.findFragmentById(R.id.map_fragment);
 
-            Fragment listFragment = SuggestionsListFragment.newInstance();
-            Fragment mapFragment = SuggestionsClusterMapFragment.newInstance();
-
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.suggestions_fragmentContainer, listFragment, FRAGMENT_TAG_LIST)
-                    .add(R.id.suggestions_fragmentContainer, mapFragment, FRAGMENT_TAG_MAP)
-                    .hide(mapFragment) //hide the map fragment, by default show the list first
-                    .commit();
-        }
-        else {
+        if (savedInstanceState != null) {
             Log.d(TAG, "onCreate: Saved instance state is not null");
+
             //restore last shown state
             showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
             showingPeopleLocation = savedInstanceState.getBoolean(STATE_SHOWING_PEOPLE_LOCATION, false);
@@ -156,10 +151,11 @@ public class SuggestionsActivity
                 }
                 Log.d(TAG, "onCreate: Restored selected ids: " + selectedIdsList);
             }
-
-            //restore the view to the last fragment when we last left the activity (either showing map or list)
-            toggleListAndMapFragments(false); //false == don't load data since it's not ready
         }
+
+        //show the list fragment if this is the first time (i.e. no savedInstanceState) or
+        //restore the view to the last fragment when we last left the activity (either showing map or list)
+        toggleListAndMapFragments(false, false); //false == don't add to backstack, false == don't load data since it's not ready
 
         //check to make sure latlngs are not null
         //note: even in configuration change, it's possible that the activity was destroyed before the latlngs were set with values
@@ -249,7 +245,7 @@ public class SuggestionsActivity
                 toggleMapMenuIcon(item);
                 toggleMapMenuTitle(item);
                 //toggle list/map fragments
-                toggleListAndMapFragments(true); //true == load data
+                toggleListAndMapFragments(true, true); //true, true == add to backstack and load data
 
                 //toggle people location item on/off
                 togglePeopleMenuIcon();
@@ -265,9 +261,9 @@ public class SuggestionsActivity
                 togglePeopleMenuIcon();
                 togglePeopleMenuTitle();
 
-                //notify map fragment toggle the people markers
-                SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-                if (mapFragment != null) mapFragment.togglePeopleLocation(showingPeopleLocation, true); //true = update UI immediately
+                //notify map fragment to toggle the people markers
+                if (fragments[MAP] != null)
+                    ((SuggestionsClusterMapFragment) fragments[MAP]).togglePeopleLocation(showingPeopleLocation, true); //true = update UI immediately
                 return true;
 
             default:
@@ -361,26 +357,37 @@ public class SuggestionsActivity
     }
 
     /**
+     * Helper method for showing the list fragment
+     * @param addToBackStack
+     */
+    private void showListFragment(boolean addToBackStack) {
+        showFragment(fragments, LIST, addToBackStack);
+    }
+
+    /**
+     * Helper method for showing the map fragment
+     * @param addToBackStack
+     */
+    private void showMapFragment(boolean addToBackStack) {
+        showFragment(fragments, MAP, addToBackStack);
+    }
+
+    /**
      * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments.
      * If shouldLoadData is true, then the current result along with the selectedIdsMap is passed
      * to the fragment.
      * If selectionsChanged is true, then the id of the changed item is passed to the fragment.
      *
+     * @param addToBackStack
      * @param shouldLoadData
      */
-    private void toggleListAndMapFragments(boolean shouldLoadData) {
-        SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-        SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-
+    private void toggleListAndMapFragments(boolean addToBackStack, boolean shouldLoadData) {
         if (showingMap) {
             Log.d(TAG, "toggleListAndMapFragments: Showing map fragment");
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .hide(listFragment)
-                    .show(mapFragment)
-                    .commit();
+            showMapFragment(addToBackStack);
 
             //tell the map fragment if we should be showing people location, but only update when the rest of the data is ready
+            SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
             mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
 
             if (shouldLoadData) {
@@ -389,17 +396,13 @@ public class SuggestionsActivity
         }
         else {
             Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .hide(mapFragment)
-                    .show(listFragment)
-                    .commit();
+            showListFragment(addToBackStack);
+
             if (shouldLoadData) {
-                listFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
+                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
     }
-
 
     /**
      * SuggestionsLoaderCallbacks.SuggestionsLoaderListener callback
@@ -428,17 +431,22 @@ public class SuggestionsActivity
 
         if (showingMap) {
             Log.d(TAG, "onLoadComplete: Notifying map fragment");
-            SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-            if (mapFragment != null) {
+
+            if (fragments[MAP] != null) {
+                SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
                 mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
                 mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
             }
         }
         else {
             Log.d(TAG, "onLoadComplete: Notifying list fragment");
-            SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-            if (listFragment != null) {
-                listFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
+
+            if (fragments[LIST] != null) {
+                Log.d(TAG, "onLoadComplete: List fragment is not null");
+                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
+            }
+            else {
+                Log.d(TAG, "onLoadComplete: List fragment is null");
             }
         }
     }
@@ -509,15 +517,14 @@ public class SuggestionsActivity
         }
 
         //notify all the fragments that a selection has changed
-        SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_MAP);
-        SuggestionsListFragment listFragment = (SuggestionsListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_TAG_LIST);
-        if (mapFragment != null) {
+        if (fragments[MAP] != null) {
             Log.d(TAG, "onSuggestionToggle: Notifying map fragment that a selection has changed");
-            mapFragment.onSelectionChanged(id, toggleState);
+            ((SuggestionsClusterMapFragment) fragments[MAP]).onSelectionChanged(id, toggleState);
         }
-        if (listFragment != null) {
+
+        if (fragments[LIST] != null) {
             Log.d(TAG, "onSuggestionToggle: Notifying list fragment that a selection has changed");
-            listFragment.onSelectionChanged(id, toggleState);
+            ((SuggestionsListFragment) fragments[LIST]).onSelectionChanged(id, toggleState);
         }
     }
 
