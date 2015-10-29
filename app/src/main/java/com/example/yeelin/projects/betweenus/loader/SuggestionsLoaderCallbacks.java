@@ -8,7 +8,8 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 
 
-import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpResult;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.ref.WeakReference;
@@ -34,7 +35,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * Listener interface. The loader's listener is usually the ui.
      */
     public interface SuggestionsLoaderListener {
-        void onLoadComplete(LoaderId loaderId, @Nullable YelpResult yelpResult);
+        void onLoadComplete(LoaderId loaderId, @Nullable LocalResult yelpResult);
     }
 
     /**

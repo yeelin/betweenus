@@ -3,10 +3,11 @@ package com.example.yeelin.projects.betweenus.loader;
 import android.content.Context;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.yelp.json.YelpJsonDeserializerHelper;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.CacheUtils;
 import com.example.yeelin.projects.betweenus.utils.FetchDataUtils;
-import com.example.yeelin.projects.betweenus.yelp.YelpApiHelper;
+import com.example.yeelin.projects.betweenus.data.yelp.query.YelpApiHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -67,40 +68,9 @@ public class SingleSuggestionLoaderHelper {
         InputStream yelpResponseJSON = yelpApiHelper.searchByBusinessId(id);
 
         //deserialize the json response
-        YelpBusiness yelpBusiness  = deserializeYelpResponseJson(yelpResponseJSON);
+        YelpBusiness yelpBusiness  = YelpJsonDeserializerHelper.deserializeYelpSingleResponse(yelpResponseJSON);
         Log.d(TAG, "fetchFromYelp: YelpResult: " + yelpBusiness);
 
         return yelpBusiness;
-    }
-
-    /**
-     * Deserialize the yelp JSON response using GSON
-     * @param yelpResponseJSON
-     * @throws IOException
-     */
-    private static YelpBusiness deserializeYelpResponseJson(InputStream yelpResponseJSON)
-            throws IOException {
-
-        //create a gson object
-        final Gson gson = new GsonBuilder().create();
-
-        InputStreamReader yelpResponseInputStreamReader = null;
-        try {
-            //create an input stream reader from the json input stream
-            yelpResponseInputStreamReader = new InputStreamReader(yelpResponseJSON, "UTF-8");
-
-            //deserialize json into java
-            YelpBusiness yelpBusiness = gson.fromJson(yelpResponseInputStreamReader, YelpBusiness.class);
-
-            //log for debugging purposes
-            Log.d(TAG, "deserializeYelpResponseJson: YelpBusiness: " + yelpBusiness);
-            return yelpBusiness;
-        }
-        finally {
-            if (yelpResponseInputStreamReader != null) {
-                yelpResponseInputStreamReader.close();
-                Log.d(TAG, "deserializeYelpResponseJson: Closed yelpResponseInputStreamReader");
-            }
-        }
     }
 }

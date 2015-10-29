@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.yelp;
+package com.example.yeelin.projects.betweenus.data.yelp.query;
 
 import android.util.Log;
 
@@ -19,19 +19,7 @@ public class YelpApiHelper {
     //logcat
     private static final String TAG = YelpApiHelper.class.getCanonicalName();
 
-    private static final String API_HOST = "api.yelp.com";
-    private static final String SEARCH_PATH = "/v2/search";
-    private static final String BUSINESS_PATH = "/v2/business";
-    private static final int SEARCH_LIMIT = 20;
-    /**
-    * Update OAuth credentials below from the Yelp Developers API site:
-    * http://www.yelp.com/developers/getting_started/api_access
-    */
-    private static final String CONSUMER_KEY = "XscMpy2EVnUv8N_g1KUqEg";
-    private static final String CONSUMER_SECRET = "UMn3ASsDQ9n1SEzvRDR2rE1QEM0";
-    private static final String TOKEN = "iEMsmq_91rS7C4poXa8hySvlldNP-5d5";
-    private static final String TOKEN_SECRET = "DSEdDgz399mmvb3x_BjmCdOQekM";
-
+    //member variables
     private OAuthService service;
     private Token accessToken;
 
@@ -41,10 +29,10 @@ public class YelpApiHelper {
     public YelpApiHelper() {
         this.service = new ServiceBuilder()
                         .provider(TwoStepOAuth.class)
-                        .apiKey(CONSUMER_KEY)
-                        .apiSecret(CONSUMER_SECRET)
+                        .apiKey(YelpConstants.CONSUMER_KEY)
+                        .apiSecret(YelpConstants.CONSUMER_SECRET)
                         .build();
-        this.accessToken = new Token(TOKEN, TOKEN_SECRET);
+        this.accessToken = new Token(YelpConstants.TOKEN, YelpConstants.TOKEN_SECRET);
     }
 
     /**
@@ -67,18 +55,18 @@ public class YelpApiHelper {
      * Search API: Specify location by neighborhood, address, or city
      * Creates and sends a request to the Search API by term and location.
      *
-     * @param term String of the search term to be queried
+     * @param searchTerm String of the search term to be queried
      * @param location String of the location
      * @return JSON Response
      */
-    public InputStream searchForBusinessesByLocation(String term,
+    public InputStream searchForBusinessesByLocation(String searchTerm,
                                                      String location, double latitude, double longitude) {
-        OAuthRequest request = createOAuthRequest(SEARCH_PATH);
+        OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
-        request.addQuerystringParameter("term", term);
-        request.addQuerystringParameter("location", location);
-        request.addQuerystringParameter("cll", String.format("%f,%f", latitude, longitude));
-        request.addQuerystringParameter("limit", String.valueOf(SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
+        request.addQuerystringParameter(YelpConstants.LOCATION, location);
+        request.addQuerystringParameter(YelpConstants.LATLNG, String.format("%f,%f", latitude, longitude));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
 
         return sendRequestAndGetResponse(request);
     }
@@ -95,11 +83,11 @@ public class YelpApiHelper {
      */
     public InputStream searchForBusinessesByBoundingBox(String searchTerm,
                                                         double latitudeSW, double longitudeSW, double latitudeNE, double longitudeNE) {
-        OAuthRequest request = createOAuthRequest(SEARCH_PATH);
+        OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
-        request.addQuerystringParameter("term", searchTerm);
-        request.addQuerystringParameter("bounds", String.format("%f,%f|%f,%f", latitudeSW, longitudeSW, latitudeNE, longitudeNE));
-        request.addQuerystringParameter("limit", String.valueOf(SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
+        request.addQuerystringParameter(YelpConstants.BOUNDS, String.format("%f,%f|%f,%f", latitudeSW, longitudeSW, latitudeNE, longitudeNE));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
 
         return sendRequestAndGetResponse(request);
     }
@@ -114,11 +102,11 @@ public class YelpApiHelper {
      */
     public InputStream searchForBusinessesByGeoCoords(String searchTerm,
                                                       double latitude, double longitude) {
-        OAuthRequest request = createOAuthRequest(SEARCH_PATH);
+        OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
-        request.addQuerystringParameter("term", searchTerm);
-        request.addQuerystringParameter("ll", String.format("%f,%f", latitude, longitude));
-        request.addQuerystringParameter("limit", String.valueOf(SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
+        request.addQuerystringParameter(YelpConstants.LATLNG, String.format("%f,%f", latitude, longitude));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
 
         return sendRequestAndGetResponse(request);
     }
@@ -131,7 +119,7 @@ public class YelpApiHelper {
      * @return JSON Response
      */
     public InputStream searchByBusinessId(String businessID) {
-        OAuthRequest request = createOAuthRequest(BUSINESS_PATH + "/" + businessID);
+        OAuthRequest request = createOAuthRequest(YelpConstants.BUSINESS_PATH + "/" + businessID);
 
         return sendRequestAndGetResponse(request);
     }
@@ -143,7 +131,7 @@ public class YelpApiHelper {
      * @return OAuthRequest
      */
     private OAuthRequest createOAuthRequest(String path) {
-        OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + API_HOST + path);
+        OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + YelpConstants.API_HOST + path);
         return request;
     }
 

@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 
-import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -20,5 +20,5 @@ public interface OnSuggestionsLoadedCallback {
      * @param friendLatLng
      * @param midLatLng 
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng);
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng);
 }

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpResult;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -169,7 +169,6 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     private void releaseResources(YelpResult yelpResult) {
         Log.d(TAG, "releaseResources");
         if (yelpResult != null) {
-            yelpResult.release();
             yelpResult = null;
         }
     }

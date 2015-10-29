@@ -1,4 +1,7 @@
-package com.example.yeelin.projects.betweenus.model;
+package com.example.yeelin.projects.betweenus.data.yelp.model;
+
+import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Arrays;
 
@@ -6,24 +9,33 @@ import java.util.Arrays;
  * Created by ninjakiki on 7/23/15.
  * Location data for a business
  */
-public class YelpBusinessLocation {
+public class YelpBusinessLocation implements LocalBusinessLocation {
     //Address for this business. Only includes address fields.
-    private String[] address;
+    private final String[] address;
 
     //Address for this business formatted for display. Includes all address fields, cross streets and city, state_code, etc.
-    private String[] display_address;
+    private final String[] display_address;
 
     //City for this business
-    private String city;
+    private final String city;
 
     //Cross streets for this business
-    private String cross_streets;
+    private final String cross_streets;
 
     //List that provides neighborhood(s) information for business
-    private String[] neighborhoods;
+    private final String[] neighborhoods;
 
     //Coordinates for this business
-    private Coordinate coordinate;
+    private final Coordinate coordinate;
+
+    public YelpBusinessLocation(String[] address, String[] display_address, String city, String cross_streets, String[] neighborhoods, Coordinate coordinate) {
+        this.address = address;
+        this.display_address = display_address;
+        this.city = city;
+        this.cross_streets = cross_streets;
+        this.neighborhoods = neighborhoods;
+        this.coordinate = coordinate;
+    }
 
     public String[] getAddress() {
         return address;
@@ -49,12 +61,23 @@ public class YelpBusinessLocation {
         return coordinate;
     }
 
+    @Override
     public String getShortDisplayAddress() {
         if (display_address == null || display_address.length == 0) return null;
         if (city != null)
             return display_address[0] + ", " + city;
         else
             return display_address[0];
+    }
+
+    @Override
+    public String getLongDisplayAddress() {
+        return getFullDisplayAddress();
+    }
+
+    @Override
+    public LatLng getLatLng() {
+        return new LatLng(coordinate.latitude, coordinate.longitude);
     }
 
     /**
@@ -85,9 +108,14 @@ public class YelpBusinessLocation {
      */
     public static class Coordinate {
         //Latitude for this business
-        private double latitude;
+        private final double latitude;
         //Longitude for this business
-        private double longitude;
+        private final double longitude;
+
+        public Coordinate(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
 
         public double getLatitude() {
             return latitude;

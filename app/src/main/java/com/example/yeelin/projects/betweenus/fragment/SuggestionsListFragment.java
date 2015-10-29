@@ -15,8 +15,8 @@ import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -130,11 +130,11 @@ public class SuggestionsListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.d(TAG, "onItemClick: Position clicked:" + position);
 
-        YelpBusiness business = (YelpBusiness) parent.getAdapter().getItem(position);
+        LocalBusiness business = (LocalBusiness) parent.getAdapter().getItem(position);
         suggestionActionListener.onSuggestionClick(
                 business.getId(),
                 business.getName(),
-                new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()),
+                business.getLocalBusinessLocation().getLatLng(),
                 position);
     }
 
@@ -160,7 +160,7 @@ public class SuggestionsListFragment
      * @param friendLatLng
      * @param midLatLng 
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
@@ -177,7 +177,7 @@ public class SuggestionsListFragment
             Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is null, so creating a new one.");
             suggestionsAdapter = new SuggestionsAdapter(
                     viewHolder.suggestionsListView.getContext(),
-                    result != null ? result.getBusinesses() : null,
+                    result != null ? result.getLocalBusinesses() : null,
                     selectedIdsMap,
                     userLatLng, friendLatLng, midLatLng,
                     this);
@@ -186,7 +186,7 @@ public class SuggestionsListFragment
         else {
             Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating.");
             suggestionsAdapter.updateAllItems(
-                    result != null ? result.getBusinesses() : null,
+                    result != null ? result.getLocalBusinesses() : null,
                     selectedIdsMap,
                     userLatLng, friendLatLng, midLatLng);
         }
@@ -229,7 +229,7 @@ public class SuggestionsListFragment
 
             for (int i=firstVisiblePosition; i<=lastVisiblePosition; i++) {
                 //second: check if the business id is the same as the one we are looking for
-                YelpBusiness business = (YelpBusiness) viewHolder.suggestionsListView.getItemAtPosition(i);
+                LocalBusiness business = (LocalBusiness) viewHolder.suggestionsListView.getItemAtPosition(i);
                 if (id.equalsIgnoreCase(business.getId())) { //found it
                     Log.d(TAG, "onSelectionChanged: Found matching business id. Position:" + i);
                     //get the view corresponding to that row

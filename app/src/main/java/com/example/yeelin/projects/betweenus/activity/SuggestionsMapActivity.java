@@ -18,14 +18,12 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.model.PlaceClusterItem;
 import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpResult;
-import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
-import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
@@ -81,7 +79,7 @@ public class SuggestionsMapActivity
     private boolean mapNeedsUpdate = false;
 
     //data
-    private YelpResult result;
+    private LocalResult result;
     private String searchTerm;
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -209,7 +207,7 @@ public class SuggestionsMapActivity
      * @param result
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable YelpResult result) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable LocalResult result) {
         if (loaderId != LoaderId.MULTI_PLACES) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
@@ -220,7 +218,7 @@ public class SuggestionsMapActivity
             return;
         }
 
-        Log.d(TAG, "onLoadComplete: Item count:" + result.getBusinesses().size());
+        Log.d(TAG, "onLoadComplete: Item count:" + result.getLocalBusinesses().size());
         //reset the member variables
         this.result = result;
 
@@ -284,11 +282,11 @@ public class SuggestionsMapActivity
         Log.d(TAG, "updateMap");
 
         //check if result is null
-        if (result != null && result.getBusinesses().size() > 0) {
-            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getBusinesses().size());
+        if (result != null && result.getLocalBusinesses().size() > 0) {
+            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getLocalBusinesses().size());
 
             //make sure the idToClusterItemMap has enough space
-            idToClusterItemMap.ensureCapacity(result.getBusinesses().size());
+            idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
 
             //add cluster items and call cluster!
             addClusterItemsToClusterManager();
@@ -308,16 +306,16 @@ public class SuggestionsMapActivity
      */
     private void addClusterItemsToClusterManager() {
         //loop through result
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            final YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            final LocalBusiness business = result.getLocalBusinesses().get(i);
 
             //create a new cluster item
             final PlaceClusterItem clusterItem = new PlaceClusterItem(
-                    new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()),
+                    business.getLocalBusinessLocation().getLatLng(),
                     business.getId(),
                     business.getName(),
-                    getString(R.string.review_count, business.getReview_count()),
-                    business.getRating_img_url_large(),
+                    getString(R.string.review_count, business.getReviewCount()),
+                    business.getRatingImageUrl(),
                     business.getRating(),
                     i);
 
@@ -409,10 +407,10 @@ public class SuggestionsMapActivity
      */
     private ArrayList<SimplifiedBusiness> buildSimplifiedBusinessList() {
         Log.d(TAG, "buildSimplifiedBusinessList");
-        final ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>(result.getBusinesses().size());
+        final ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>(result.getLocalBusinesses().size());
 
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            final YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            final LocalBusiness business = result.getLocalBusinesses().get(i);
             simplifiedBusinesses.add(SimplifiedBusiness.newInstance(business));
         }
         return simplifiedBusinesses;
@@ -424,16 +422,11 @@ public class SuggestionsMapActivity
      * @return Pair<LatLng (sw), LatLng (ne)>
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
-        //read the yelp result region so that we can specify the map bounds
-        final YelpResultRegion resultRegion = result.getRegion();
-
         //get region center
-        final LatLng center = new LatLng(
-                resultRegion.getCenter().getLatitude(),
-                resultRegion.getCenter().getLongitude());
+        final LatLng center = result.getResultCenter();
         //get delta of lat/long from the center
-        final double latDelta = resultRegion.getSpan().getLatitude_delta();
-        final double longDelta = resultRegion.getSpan().getLongitude_delta();
+        final double latDelta = result.getResultLatitudeDelta();
+        final double longDelta = result.getResultLongitudeDelta();
 
         //compute ne and sw from center
         final LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);

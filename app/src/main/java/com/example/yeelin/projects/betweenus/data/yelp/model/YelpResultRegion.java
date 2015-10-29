@@ -1,13 +1,18 @@
-package com.example.yeelin.projects.betweenus.model;
+package com.example.yeelin.projects.betweenus.data.yelp.model;
 
 /**
  * Created by ninjakiki on 7/23/15.
  */
 public class YelpResultRegion {
     //Span of suggested map bounds
-    private Span span;
+    private final Span span;
     //Center position of map bounds
-    private Center center;
+    private final Center center;
+
+    public YelpResultRegion(Span span, Center center) {
+        this.span = span;
+        this.center = center;
+    }
 
     public Span getSpan() {
         return span;
@@ -27,9 +32,14 @@ public class YelpResultRegion {
      */
     public static class Span {
         //Latitude width of map bounds
-        private double latitude_delta;
+        private final double latitude_delta;
         //Longitude height of map bounds
-        private double longitude_delta;
+        private final double longitude_delta;
+
+        public Span(double latitude_delta, double longitude_delta) {
+            this.latitude_delta = latitude_delta;
+            this.longitude_delta = longitude_delta;
+        }
 
         public double getLatitude_delta() {
             return latitude_delta;
@@ -50,9 +60,14 @@ public class YelpResultRegion {
      */
     public static class Center {
         //Latitude position of map bounds center
-        private double latitude;
+        private final double latitude;
         //Longitude position of map bounds center
-        private double longitude;
+        private final double longitude;
+
+        public Center(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
 
         public double getLatitude() {
             return latitude;

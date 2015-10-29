@@ -16,7 +16,7 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;

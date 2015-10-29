@@ -15,20 +15,17 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.model.PlaceClusterItem;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpResult;
-import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.SphericalUtil;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
@@ -66,7 +63,7 @@ public class SuggestionsClusterMapFragment
     private boolean mapNeedsUpdate = false;
     private boolean showingPeopleLocation = false;
 
-    private YelpResult result;
+    private LocalResult result;
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -174,7 +171,7 @@ public class SuggestionsClusterMapFragment
      * @param friendLatLng
      * @param midLatLng
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "onSuggestionsLoaded");
         this.selectedIdsMap = selectedIdsMap;
@@ -213,11 +210,11 @@ public class SuggestionsClusterMapFragment
         Log.d(TAG, "updateMap");
 
         //check if result is null
-        if (result != null && result.getBusinesses().size() > 0) {
-            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getBusinesses().size());
+        if (result != null && result.getLocalBusinesses().size() > 0) {
+            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getLocalBusinesses().size());
 
             //make sure the idToClusterItemMap has enough space
-            idToClusterItemMap.ensureCapacity(result.getBusinesses().size());
+            idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
 
             //add cluster items and call cluster!
             addClusterItemsToClusterManager();
@@ -246,16 +243,16 @@ public class SuggestionsClusterMapFragment
      */
     private void addClusterItemsToClusterManager() {
         //loop through result
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            final YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            final LocalBusiness business = result.getLocalBusinesses().get(i);
 
             //create a new cluster item
             final PlaceClusterItem clusterItem = new PlaceClusterItem(
-                    new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()),
+                    business.getLocalBusinessLocation().getLatLng(),
                     business.getId(),
                     business.getName(),
-                    getString(R.string.review_count, business.getReview_count()),
-                    business.getRating_img_url_large(),
+                    getString(R.string.review_count, business.getReviewCount()),
+                    business.getRatingImageUrl(),
                     business.getRating(),
                     i);
 
@@ -272,37 +269,37 @@ public class SuggestionsClusterMapFragment
      * by the distance from the center to the nw point of the result region.
      */
     @Deprecated
-    private void addCircleToMap() {
-        Log.d(TAG, "addCircleToMap");
-
-        //read the yelp result region so that we can specify the map bounds
-        final YelpResultRegion resultRegion = result.getRegion();
-
-        //get region center
-        final LatLng center = new LatLng(
-                resultRegion.getCenter().getLatitude(),
-                resultRegion.getCenter().getLongitude());
-
-        //get delta of lat/long from the center
-        double latDelta = resultRegion.getSpan().getLatitude_delta();
-        double longDelta = resultRegion.getSpan().getLongitude_delta();
-
-        //compute nw from center
-        LatLng nw = new LatLng(center.latitude + latDelta/2, center.longitude - longDelta/2);
-
-        //compute radius using nw point
-        double radius = SphericalUtil.computeDistanceBetween(center, nw);
-        Log.d(TAG, String.format("addCircleToMap: Center:%s, Radius:%.2f", center, radius));
-
-        //create circle and add to map
-        final CircleOptions circleOptions = new CircleOptions()
-                .center(center)
-                .radius(radius)
-                .strokeWidth(1)
-                .strokeColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40) //using argb defined in class since HEX defined in colors.xml don't appear to be working for this case
-                .fillColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40);
-        map.addCircle(circleOptions);
-    }
+//    private void addCircleToMap() {
+//        Log.d(TAG, "addCircleToMap");
+//
+//        //read the yelp result region so that we can specify the map bounds
+//        final YelpResultRegion resultRegion = result.getRegion();
+//
+//        //get region center
+//        final LatLng center = new LatLng(
+//                resultRegion.getCenter().getLatitude(),
+//                resultRegion.getCenter().getLongitude());
+//
+//        //get delta of lat/long from the center
+//        double latDelta = resultRegion.getSpan().getLatitude_delta();
+//        double longDelta = resultRegion.getSpan().getLongitude_delta();
+//
+//        //compute nw from center
+//        LatLng nw = new LatLng(center.latitude + latDelta/2, center.longitude - longDelta/2);
+//
+//        //compute radius using nw point
+//        double radius = SphericalUtil.computeDistanceBetween(center, nw);
+//        Log.d(TAG, String.format("addCircleToMap: Center:%s, Radius:%.2f", center, radius));
+//
+//        //create circle and add to map
+//        final CircleOptions circleOptions = new CircleOptions()
+//                .center(center)
+//                .radius(radius)
+//                .strokeWidth(1)
+//                .strokeColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40) //using argb defined in class since HEX defined in colors.xml don't appear to be working for this case
+//                .fillColor(MapColorUtils.COLOR_GRAY_500_OPACITY_40);
+//        map.addCircle(circleOptions);
+//    }
 
     /**
      * OnClusterClickListener<PlaceClusterItem>
@@ -399,16 +396,11 @@ public class SuggestionsClusterMapFragment
      * @return Pair<LatLng (sw), LatLng (ne)>
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
-        //read the yelp result region so that we can specify the map bounds
-        final YelpResultRegion resultRegion = result.getRegion();
-
         //get region center
-        final LatLng center = new LatLng(
-                resultRegion.getCenter().getLatitude(),
-                resultRegion.getCenter().getLongitude());
+        final LatLng center = result.getResultCenter();
         //get delta of lat/long from the center
-        double latDelta = resultRegion.getSpan().getLatitude_delta();
-        double longDelta = resultRegion.getSpan().getLongitude_delta();
+        double latDelta = result.getResultLatitudeDelta();
+        double longDelta = result.getResultLongitudeDelta();
 
         //compute ne and sw from center
         final LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);

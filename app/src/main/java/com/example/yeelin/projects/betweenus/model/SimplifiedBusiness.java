@@ -4,6 +4,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -22,8 +24,11 @@ public class SimplifiedBusiness implements Parcelable {
     private String imageUrl;
     private String ratingUrl;
 
-
     public static SimplifiedBusiness newInstance(@NonNull YelpBusiness business) {
+        return new SimplifiedBusiness(business);
+    }
+
+    public static SimplifiedBusiness newInstance(@NonNull LocalBusiness business) {
         return new SimplifiedBusiness(business);
     }
 
@@ -39,6 +44,20 @@ public class SimplifiedBusiness implements Parcelable {
         webUrl = business.getMobile_url();
         imageUrl = business.getImage_url();
         ratingUrl = business.getRating_img_url_large();
+    }
+
+    private SimplifiedBusiness(@NonNull LocalBusiness business) {
+        id = business.getId();
+        name = business.getName();
+        latLng = new LatLng(business.getLocalBusinessLocation().getLatLng().latitude, business.getLocalBusinessLocation().getLatLng().longitude);
+        address = business.getLocalBusinessLocation().getShortDisplayAddress();
+        categories = business.getCategory();
+        reviews = business.getReviewCount();
+        rating = business.getRating();
+
+        webUrl = business.getMobileUrl();
+        imageUrl = business.getImageUrl();
+        ratingUrl = business.getRatingImageUrl();
     }
 
     /**

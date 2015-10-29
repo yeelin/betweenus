@@ -4,7 +4,7 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 
 /**
  * Created by ninjakiki on 7/31/15.

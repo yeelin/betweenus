@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.yelp;
+package com.example.yeelin.projects.betweenus.data.yelp.query;
 
 /**
  * Created by ninjakiki on 7/21/15.

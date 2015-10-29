@@ -1,58 +1,62 @@
-package com.example.yeelin.projects.betweenus.model;
+package com.example.yeelin.projects.betweenus.data.yelp.model;
+
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 
 import java.util.Arrays;
 
 /**
  * Created by ninjakiki on 7/22/15.
  */
-public class YelpBusiness {
+public class YelpBusiness implements LocalBusiness {
     //Yelp ID for this business
-    private String id;
+    private final String id;
 
     //Whether business has been (permanently) closed
-    private boolean is_closed;
+    private final boolean is_closed;
 
     //Name of this business
-    private String name;
+    private final String name;
 
     //URL of photo for this business
-    private String image_url;
+    private final String image_url;
 
     //URL for mobile business page on Yelp
-    private String mobile_url;
+    private final String mobile_url;
 
     //Phone number for this business with international dialing code (e.g. +442079460000)
-    private String phone;
+    private final String phone;
 
     //Phone number for this business formatted for display
-    private String display_phone;
+    private final String display_phone;
 
     //Number of reviews for this business
-    private int review_count;
+    private final int review_count;
 
     //Provides a list of category name, alias pairs that this business is associated with.
     // For example, [["Local Flavor", "localflavor"], ["Active Life", "active"], ["Mass Media", "massmedia"]]
     //The alias is provided so you can search with the category_filter.
-    private String[][] categories;
+    private final String[][] categories;
 
     //Distance that business is from search location in meters, if a latitude/longitude is specified.
-    private double distance;
+    private final double distance;
 
     //Rating for this business (value ranges from 1, 1.5, ... 4.5, 5)
-    private double rating;
+    private final double rating;
 
     //URL to star rating image for this business (size = 84x17)
-    private String rating_img_url;
+    private final String rating_img_url;
 
     //URL to small version of rating image for this business (size = 50x10)
-    private String rating_img_url_small;
+    private final String rating_img_url_small;
 
     //URL to large version of rating image for this business (size = 166x30)
-    private String rating_img_url_large;
+    private final String rating_img_url_large;
 
     //Location data for this business
-    private YelpBusinessLocation location;
+    private final YelpBusinessLocation location;
 
+    @Override
     public String getId() {
         return id;
     }
@@ -61,8 +65,34 @@ public class YelpBusiness {
         return is_closed;
     }
 
+    @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getImageUrl() {
+        return image_url;
+    }
+
+    @Override
+    public String getMobileUrl() {
+        return mobile_url;
+    }
+
+    @Override
+    public String getPhoneNumber() {
+        return phone;
+    }
+
+    @Override
+    public int getReviewCount() {
+        return review_count;
+    }
+
+    @Override
+    public String getCategory() {
+        return getDisplayCategories();
     }
 
     public String getImage_url() {
@@ -106,8 +136,14 @@ public class YelpBusiness {
         return distance;
     }
 
+    @Override
     public double getRating() {
         return rating;
+    }
+
+    @Override
+    public String getRatingImageUrl() {
+        return rating_img_url_large;
     }
 
     public String getRating_img_url() {
@@ -126,7 +162,28 @@ public class YelpBusiness {
         return location;
     }
 
-    public YelpBusiness() {}
+    @Override
+    public LocalBusinessLocation getLocalBusinessLocation() {
+        return location;
+    }
+
+    public YelpBusiness(String id, boolean is_closed, String name, String image_url, String mobile_url, String phone, String display_phone, int review_count, String[][] categories, double distance, double rating, String rating_img_url, String rating_img_url_small, String rating_img_url_large, YelpBusinessLocation location) {
+        this.id = id;
+        this.is_closed = is_closed;
+        this.name = name;
+        this.image_url = image_url;
+        this.mobile_url = mobile_url;
+        this.phone = phone;
+        this.display_phone = display_phone;
+        this.review_count = review_count;
+        this.categories = categories;
+        this.distance = distance;
+        this.rating = rating;
+        this.rating_img_url = rating_img_url;
+        this.rating_img_url_small = rating_img_url_small;
+        this.rating_img_url_large = rating_img_url_large;
+        this.location = location;
+    }
 
     /**
      * For debugging

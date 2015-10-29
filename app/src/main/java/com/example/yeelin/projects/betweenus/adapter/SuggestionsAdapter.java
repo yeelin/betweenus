@@ -15,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.facebook.rebound.BaseSpringSystem;
@@ -32,13 +32,13 @@ import java.util.List;
  * Created by ninjakiki on 7/21/15.
  */
 public class SuggestionsAdapter
-        extends ArrayAdapter<YelpBusiness>
+        extends ArrayAdapter<LocalBusiness>
         implements View.OnClickListener,
         View.OnTouchListener {
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
     //member variables
-    private List<YelpBusiness> businessList;
+    private List<LocalBusiness> businessList;
     private ArrayMap<String,Integer> selectedIdsMap;
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -73,7 +73,7 @@ public class SuggestionsAdapter
      * @param context
      * @param businessList
      */
-    public SuggestionsAdapter(Context context, @Nullable List<YelpBusiness> businessList,
+    public SuggestionsAdapter(Context context, @Nullable List<LocalBusiness> businessList,
                               ArrayMap<String,Integer> selectedIdsMap,
                               LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                               OnItemToggleListener listener) {
@@ -106,24 +106,24 @@ public class SuggestionsAdapter
             view.setTag(new ViewHolder(view));
         }
 
-        YelpBusiness business = getItem(position);
+        LocalBusiness business = getItem(position);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         //set the views
         //image
-        if (business.getImage_url() != null) {
-            ImageUtils.loadImage(parent.getContext(), business.getImage_url(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
+        if (business.getImageUrl() != null) {
+            ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
         }
 
         //name
         viewHolder.name.setText(business.getName());
 
         //short address
-        if (business.getLocation() == null) {
+        if (business.getLocalBusinessLocation() == null) {
             viewHolder.address.setVisibility(View.INVISIBLE);
         }
         else {
-            final String shortAddress = business.getLocation().getShortDisplayAddress();
+            final String shortAddress = business.getLocalBusinessLocation().getShortDisplayAddress();
             if (shortAddress == null) {
                 viewHolder.address.setVisibility(View.INVISIBLE);
             }
@@ -134,7 +134,7 @@ public class SuggestionsAdapter
         }
 
         //categories
-        final String categories = business.getDisplayCategories();
+        final String categories = business.getCategory();
         if (categories != null) {
             viewHolder.categories.setVisibility(View.VISIBLE);
             viewHolder.categories.setText(categories);
@@ -144,13 +144,13 @@ public class SuggestionsAdapter
         }
 
         //ratings and reviews
-        viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReview_count()));
+        viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReviewCount()));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
-        if (business.getRating_img_url_large() != null) {
+        if (business.getRatingImageUrl() != null) {
             final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
             viewHolder.reviews.setTag(target);
-            ImageUtils.loadImage(parent.getContext(), business.getRating_img_url_large(), target);
+            ImageUtils.loadImage(parent.getContext(), business.getRatingImageUrl(), target);
         }
 
         //set the checked state
@@ -161,7 +161,7 @@ public class SuggestionsAdapter
         viewHolder.itemToggle.setOnTouchListener(this);
 
         //compute fairness and distance from center
-        final LatLng businessLatLng = new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude());
+        final LatLng businessLatLng = business.getLocalBusinessLocation().getLatLng();
         final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, businessLatLng);
         final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(businessLatLng, midLatLng, FairnessScoringUtils.IMPERIAL);
 
@@ -182,7 +182,7 @@ public class SuggestionsAdapter
      * @param friendLatLng
      * @param midLatLng
      */
-    public void updateAllItems(@Nullable List<YelpBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
+    public void updateAllItems(@Nullable List<LocalBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
                                LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         //if it's the same businessList, do nothing. Otherwise, you end up clearing out businessList
         if (this.businessList == businessList) {

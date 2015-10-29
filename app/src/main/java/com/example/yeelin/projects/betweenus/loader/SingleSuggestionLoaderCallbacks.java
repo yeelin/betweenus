@@ -7,7 +7,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 
 import java.lang.ref.WeakReference;
 

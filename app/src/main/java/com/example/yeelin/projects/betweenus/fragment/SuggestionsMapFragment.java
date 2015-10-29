@@ -12,9 +12,8 @@ import android.util.Pair;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.MapItemInfoWindowAdapter;
 
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpResult;
-import com.example.yeelin.projects.betweenus.model.YelpResultRegion;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,7 +42,7 @@ public class SuggestionsMapFragment
 
     //member variables
     private MapItemInfoWindowAdapter infoWindowAdapter; //custom renderer for info windows
-    private YelpResult result;
+    private LocalResult result;
     private boolean mapNeedsUpdate = false;
 
     private LatLng userLatLng;
@@ -136,7 +135,7 @@ public class SuggestionsMapFragment
      * @param friendLatLng
      * @param midLatLng
      */
-    public void onSuggestionsLoaded(@Nullable YelpResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
                                     LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "onSuggestionsLoaded");
         this.selectedIdsMap = selectedIdsMap;
@@ -192,13 +191,13 @@ public class SuggestionsMapFragment
         }
 
         //check if result is null
-        if (result != null && result.getBusinesses().size() > 0) {
-            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + result.getBusinesses().size());
+        if (result != null && result.getLocalBusinesses().size() > 0) {
+            Log.d(TAG, "updateMap: Adding markers to map. Item count:" + result.getLocalBusinesses().size());
 
             //make sure the markerToId map can hold all the markers we are about to add
-            markerToIdPositionPairMap.ensureCapacity(result.getBusinesses().size());
-            idToMarkerMap.ensureCapacity(result.getBusinesses().size());
-            idToRatingUrlMap.ensureCapacity(result.getBusinesses().size());
+            markerToIdPositionPairMap.ensureCapacity(result.getLocalBusinesses().size());
+            idToMarkerMap.ensureCapacity(result.getLocalBusinesses().size());
+            idToRatingUrlMap.ensureCapacity(result.getLocalBusinesses().size());
             addMarkersToMap();
 
             //add a circle around the center point
@@ -220,19 +219,19 @@ public class SuggestionsMapFragment
         //loop through suggested items and:
         //1. place markers on the map
         //2. add markers to the markerToId map
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            final LocalBusiness business = result.getLocalBusinesses().get(i);
 
             MarkerOptions markerOptions = new MarkerOptions()
-                    .position(new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude()))
+                    .position(business.getLocalBusinessLocation().getLatLng())
                     .title(business.getName())
-                    .snippet(getString(R.string.review_count, business.getReview_count()))
+                    .snippet(getString(R.string.review_count, business.getReviewCount()))
                     .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(business.getId())));
             Marker marker = map.addMarker(markerOptions);
 
             markerToIdPositionPairMap.put(marker, new Pair<>(business.getId(), i));
             idToMarkerMap.put(business.getId(), marker);
-            idToRatingUrlMap.put(business.getId(), business.getRating_img_url_large());
+            idToRatingUrlMap.put(business.getId(), business.getRatingImageUrl());
         }
     }
 
@@ -243,17 +242,12 @@ public class SuggestionsMapFragment
     private void addCircleToMap() {
         Log.d(TAG, "addCircleToMap");
 
-        //read the yelp result region so that we can specify the map bounds
-        final YelpResultRegion resultRegion = result.getRegion();
-
         //get region center
-        final LatLng center = new LatLng(
-                resultRegion.getCenter().getLatitude(),
-                resultRegion.getCenter().getLongitude());
+        final LatLng center = result.getResultCenter();
 
         //get delta of lat/long from the center
-        double latDelta = resultRegion.getSpan().getLatitude_delta();
-        double longDelta = resultRegion.getSpan().getLongitude_delta();
+        double latDelta = result.getResultLatitudeDelta();
+        double longDelta = result.getResultLongitudeDelta();
 
         //compute nw from center
         LatLng nw = new LatLng(center.latitude + latDelta/2, center.longitude - longDelta/2);
@@ -311,16 +305,11 @@ public class SuggestionsMapFragment
      * @return Pair<LatLng (sw), LatLng (ne)>
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
-        //read the yelp result region so that we can specify the map bounds
-        final YelpResultRegion resultRegion = result.getRegion();
-
         //get region center
-        final LatLng center = new LatLng(
-                resultRegion.getCenter().getLatitude(),
-                resultRegion.getCenter().getLongitude());
+        final LatLng center = result.getResultCenter();
         //get delta of lat/long from the center
-        double latDelta = resultRegion.getSpan().getLatitude_delta();
-        double longDelta = resultRegion.getSpan().getLongitude_delta();
+        double latDelta = result.getResultLatitudeDelta();
+        double longDelta = result.getResultLongitudeDelta();
 
         //compute ne and sw from center
         LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);

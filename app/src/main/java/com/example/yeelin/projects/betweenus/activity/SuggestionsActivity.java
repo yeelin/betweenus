@@ -14,17 +14,19 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
-import com.example.yeelin.projects.betweenus.model.YelpBusiness;
-import com.example.yeelin.projects.betweenus.model.YelpResult;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.facebook.AccessToken;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class SuggestionsActivity
         implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
         OnSuggestionActionListener,
         PlacesBroadcastReceiver.PlacesBroadcastListener {
+    //TODO: Remove this constant
+    private static final boolean USE_FB = true;
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -59,7 +63,7 @@ public class SuggestionsActivity
     private static final String STATE_SELECTED_IDS = SuggestionsActivity.class.getSimpleName() + ".selectedIds";
     private static final String STATE_SELECTED_POSITIONS = SuggestionsActivity.class.getSimpleName() + ".selectedPositions";
 
-    //request code
+    //activity request code
     private static final int REQUEST_CODE_DETAIL_VIEW = 100;
     private static final int REQUEST_CODE_PAGER_VIEW = 101;
 
@@ -71,7 +75,7 @@ public class SuggestionsActivity
 
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
     private boolean showingMap = false;
-    private YelpResult result;
+    private LocalResult result;
     private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
 
@@ -110,18 +114,14 @@ public class SuggestionsActivity
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        //setup view and toolbar
         setContentView(R.layout.activity_suggestions);
-        //setup toolbar
         setupToolbar(R.id.suggestions_toolbar, true);
 
         //read extras from intent
         Intent intent = getIntent();
         searchTerm = intent.getStringExtra(EXTRA_SEARCH_TERM);
         ArrayList<String> placeIds = intent.getStringArrayListExtra(EXTRA_PLACE_IDS);
-
-        //start service to fetch suggestions from the network
-        //Log.d(TAG, "onCreate: Starting PlacesService");
-        //startService(PlacesService.buildGetPlaceByIdIntent(this, placeIds));
 
         //store references to both fragments
         FragmentManager fm = getSupportFragmentManager();
@@ -280,8 +280,8 @@ public class SuggestionsActivity
         Log.d(TAG, "buildSelectedItemsList");
         ArrayList<SimplifiedBusiness> selectedItems = new ArrayList<>(selectedIdsMap.size());
 
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            LocalBusiness business = result.getLocalBusinesses().get(i);
             if (selectedIdsMap.containsKey(business.getId())) {
                 selectedItems.add(SimplifiedBusiness.newInstance(business));
             }
@@ -412,7 +412,7 @@ public class SuggestionsActivity
      * @param result
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable YelpResult result) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable LocalResult result) {
         if (loaderId != LoaderId.MULTI_PLACES) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
@@ -423,7 +423,7 @@ public class SuggestionsActivity
             Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
         }
         else {
-            Log.d(TAG, "onLoadComplete: Item count:" + result.getBusinesses().size());
+            Log.d(TAG, "onLoadComplete: Item count:" + result.getLocalBusinesses().size());
         }
 
         //reset the member variables
@@ -485,10 +485,10 @@ public class SuggestionsActivity
      */
     private ArrayList<SimplifiedBusiness> buildSimplifiedBusinessList() {
         Log.d(TAG, "buildSimplifiedBusinessList");
-        ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>(result.getBusinesses().size());
+        ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>(result.getLocalBusinesses().size());
 
-        for (int i=0; i<result.getBusinesses().size(); i++) {
-            YelpBusiness business = result.getBusinesses().get(i);
+        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+            LocalBusiness business = result.getLocalBusinesses().get(i);
             simplifiedBusinesses.add(SimplifiedBusiness.newInstance(business));
         }
         return simplifiedBusinesses;
@@ -614,7 +614,22 @@ public class SuggestionsActivity
         midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
 
         //initializing the loader to fetch suggestions from the network
-        SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
+        if (!USE_FB) {
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
+            return;
+        }
+
+        //check if user is currently logged into fb
+        if (AccessToken.getCurrentAccessToken() != null) {
+            Log.d(TAG, "onPlacesSuccess: User is logged in");
+
+            //create fb graph request for searching places
+            //provide SuggestionsLoaderCallbacks.SuggestionsLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
+            FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, this);
+        }
+        else {
+            Log.d(TAG, "onPlacesSuccess: User is not logged in");
+        }
     }
 
     /**
