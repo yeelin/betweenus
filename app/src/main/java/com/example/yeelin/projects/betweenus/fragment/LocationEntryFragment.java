@@ -18,6 +18,7 @@ import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.facebook.rebound.SpringUtil;
 
@@ -133,6 +134,9 @@ public class LocationEntryFragment
 
         //create the animation spring
         scaleSpring = springSystem.createSpring();
+        SpringConfig springConfig = scaleSpring.getSpringConfig();
+        Log.d(TAG, String.format("onCreate: Before: Tension:%f, Friction:%f", springConfig.tension, springConfig.friction));
+        scaleSpring.setSpringConfig(new SpringConfig(70, 15));
 
         if (savedInstanceState != null) {
             userPlaceId = savedInstanceState.getString(STATE_USER_PLACE_ID);
