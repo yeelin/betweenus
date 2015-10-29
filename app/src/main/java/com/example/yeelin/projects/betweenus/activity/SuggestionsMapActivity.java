@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
@@ -417,21 +418,44 @@ public class SuggestionsMapActivity
     }
 
     /**
-     * Helper method that read the yelp result region and returns the bounds for the map
-     * as a pair of points (sw, ne).
+     * Helper method that either:
+     * 1. reads the yelp result region and returns the bounds for the map
+     * 2. iterates over the fb result and returns the map bounds based on the latlngs of the businesses in the result
+     *
+     * The map bounds are returned as a pair of points (sw, ne).
      * @return Pair<LatLng (sw), LatLng (ne)>
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
         //get region center
         final LatLng center = result.getResultCenter();
-        //get delta of lat/long from the center
-        final double latDelta = result.getResultLatitudeDelta();
-        final double longDelta = result.getResultLongitudeDelta();
 
-        //compute ne and sw from center
-        final LatLng ne = new LatLng(center.latitude + latDelta/2, center.longitude + longDelta/2);
-        final LatLng sw = new LatLng(center.latitude - latDelta/2, center.longitude - longDelta/2);
+        final LatLng ne;
+        final LatLng sw;
+        if (center != null) {
+            //note: we most likely have yelp data
+            //get delta of lat/long from the center
+            double latDelta = result.getResultLatitudeDelta();
+            double longDelta = result.getResultLongitudeDelta();
 
+            //compute ne and sw from center
+            ne = new LatLng(center.latitude + latDelta / 2, center.longitude + longDelta / 2);
+            sw = new LatLng(center.latitude - latDelta / 2, center.longitude - longDelta / 2);
+        }
+        else {
+            //note: we most likely have fb data
+            //build the bounds from all the latlngs in the result
+            final LatLngBounds.Builder mapBoundsBuilder = new LatLngBounds.Builder();
+            for (int i=0; i<result.getLocalBusinesses().size(); i++) {
+                final LocalBusinessLocation location = result.getLocalBusinesses().get(i).getLocalBusinessLocation();
+                if (location != null) {
+                    mapBoundsBuilder.include(location.getLatLng());
+                }
+            }
+
+            final LatLngBounds mapBounds = mapBoundsBuilder.build();
+            ne = mapBounds.northeast;
+            sw = mapBounds.southwest;
+        }
         //create bounds object
         return new Pair<>(sw, ne);
     }
