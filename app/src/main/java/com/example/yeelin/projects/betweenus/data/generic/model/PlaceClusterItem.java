@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.model;
+package com.example.yeelin.projects.betweenus.data.generic.model;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;

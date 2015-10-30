@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.Pair;
 
-import com.example.yeelin.projects.betweenus.model.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.data.generic.model.LocationSearchItem;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;

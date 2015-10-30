@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.fragment;
+package com.example.yeelin.projects.betweenus.fragment.callback;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;

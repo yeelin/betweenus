@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.fragment;
+package com.example.yeelin.projects.betweenus.fragment.callback;
 
 import com.google.android.gms.maps.model.LatLng;
 

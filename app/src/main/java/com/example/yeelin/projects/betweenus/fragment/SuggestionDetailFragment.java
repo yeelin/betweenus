@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -124,12 +125,12 @@ public class SuggestionDetailFragment
 
     /**
      * Make sure activity or parent fragment is a listener
-     * @param activity
+     * @param context
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : context;
         try {
             listener = (SuggestionDetailFragmentListener) objectToCast;
         }

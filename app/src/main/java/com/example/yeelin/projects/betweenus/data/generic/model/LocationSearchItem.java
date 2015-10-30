@@ -1,4 +1,4 @@
-package com.example.yeelin.projects.betweenus.model;
+package com.example.yeelin.projects.betweenus.data.generic.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

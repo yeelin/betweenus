@@ -27,7 +27,7 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.activity.DummySearchActivity;
 import com.example.yeelin.projects.betweenus.adapter.LocationSearchAdapter;
-import com.example.yeelin.projects.betweenus.model.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.data.generic.model.LocationSearchItem;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 
@@ -91,13 +91,13 @@ public class LocationSearchFragment
 
     /**
      * Make sure either the activity or the parent fragment implements the listener interface.
-     * @param activity
+     * @param context
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : context;
         try {
             locationSearchListener = (LocationSearchFragmentListener) objectToCast;
         }

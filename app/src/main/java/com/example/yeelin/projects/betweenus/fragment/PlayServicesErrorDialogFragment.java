@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -52,11 +53,11 @@ public class PlayServicesErrorDialogFragment extends DialogFragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         Fragment parent = getParentFragment();
-        Object objectToCast = parent != null ? parent : activity;
+        Object objectToCast = parent != null ? parent : context;
         try {
             listener = (PlayServicesErrorDialogFragmentListener) objectToCast;
         }

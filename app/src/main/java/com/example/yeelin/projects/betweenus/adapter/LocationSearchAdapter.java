@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.data.generic.model.LocationSearchItem;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,7 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SimplifiedBusinessAdapter;
 
 import java.util.ArrayList;
@@ -70,13 +71,13 @@ public class InvitationFragment
 
     /**
      * Make sure either the activity or the parent fragment implements the listener interface
-     * @param activity
+     * @param context
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : context;
         try {
             listener = (InvitationFragmentListener) objectToCast;
         }

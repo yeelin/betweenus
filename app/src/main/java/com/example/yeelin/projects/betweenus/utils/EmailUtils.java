@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.model.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 
 import java.util.ArrayList;
 

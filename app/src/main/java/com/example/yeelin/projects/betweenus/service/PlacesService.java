@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
-import com.example.yeelin.projects.betweenus.model.LocationSearchItem;
+import com.example.yeelin.projects.betweenus.data.generic.model.LocationSearchItem;
 
 import java.util.ArrayList;
 

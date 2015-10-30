@@ -18,7 +18,10 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
-import com.example.yeelin.projects.betweenus.model.PlaceClusterItem;
+import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChangedCallback;
+import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
+import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
+import com.example.yeelin.projects.betweenus.data.generic.model.PlaceClusterItem;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -93,13 +96,13 @@ public class SuggestionsClusterMapFragment
 
     /**
      * Make sure the parent fragment or activity implements the suggestion click listener
-     * @param activity
+     * @param context
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        Object objectToCast = getParentFragment() != null ? getParentFragment() : activity;
+        Object objectToCast = getParentFragment() != null ? getParentFragment() : context;
         try {
             suggestionActionListener = (OnSuggestionActionListener) objectToCast;
         }
