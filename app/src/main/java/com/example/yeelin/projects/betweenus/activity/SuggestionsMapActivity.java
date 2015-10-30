@@ -23,6 +23,7 @@ import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.generic.model.PlaceClusterItem;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
+import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
@@ -51,7 +52,7 @@ public class SuggestionsMapActivity
         extends FragmentActivity
         implements
         PlacesBroadcastReceiver.PlacesBroadcastListener,
-        SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
+        SuggestionsLoaderListener,
         OnMapReadyCallback,
         ClusterManager.OnClusterClickListener<PlaceClusterItem>,
         ClusterManager.OnClusterInfoWindowClickListener<PlaceClusterItem>,

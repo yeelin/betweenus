@@ -2,12 +2,12 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 
 import java.lang.ref.WeakReference;
 
@@ -25,13 +25,6 @@ public class SingleSuggestionLoaderCallbacks
     //member variables
     private Context applicationContext;
     private WeakReference<SingleSuggestionLoaderListener> loaderListenerWeakRef;
-
-    /**
-     * Listener interface. The loader's listener is usually the ui.
-     */
-    public interface SingleSuggestionLoaderListener {
-        void onLoadComplete(LoaderId loaderId, @Nullable YelpBusiness yelpBusiness);
-    }
 
     /**
      * Helper method to initialize the loader and callbacks

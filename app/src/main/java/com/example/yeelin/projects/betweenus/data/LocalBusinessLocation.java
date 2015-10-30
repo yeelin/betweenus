@@ -10,5 +10,7 @@ public interface LocalBusinessLocation {
 
     String getLongDisplayAddress();
 
+    String getCrossStreets();
+
     LatLng getLatLng();
 }

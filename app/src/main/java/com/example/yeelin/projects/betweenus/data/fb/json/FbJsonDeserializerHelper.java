@@ -24,7 +24,7 @@ public class FbJsonDeserializerHelper {
     private static final String TAG = FbJsonDeserializerHelper.class.getCanonicalName();
 
     /**
-     * Deserializes the raw json response into a FbResult object using GSON
+     * Deserializes the raw json response for multiple pages into a FbResult object using GSON
      * @param rawJson
      * @return
      */
@@ -37,8 +37,23 @@ public class FbJsonDeserializerHelper {
         //deserialize json into java
         FbResult fbResult = gson.fromJson(rawJson, FbResult.class);
         Log.d(TAG, "deserializeFbResponse: Size of arraylist:" + fbResult.getPages().size());
-        Log.d(TAG, "deserializeFbResponse: Result:" + fbResult.toString());
+        Log.d(TAG, "deserializeFbResponse: Result:" + fbResult);
         return fbResult;
+    }
+
+    /**
+     * Deserializes the raw json response for a single page into a FbPage object using GSON
+     * @param rawJson
+     * @return
+     */
+    public static FbPage deserializeFbSingleResponse(String rawJson) {
+        //create a gson object
+        final Gson gson = new GsonBuilder().create();
+
+        //deserialize json into java
+        FbPage fbPage = gson.fromJson(rawJson, FbPage.class);
+        Log.d(TAG, "deserializeFbResponse: Page:" + fbPage);
+        return fbPage;
     }
 
     /**

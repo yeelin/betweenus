@@ -2,14 +2,12 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-
-import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.yelp.model.YelpResult;
+import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.lang.ref.WeakReference;
@@ -30,13 +28,6 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     //member variables
     private Context applicationContext;
     private WeakReference<SuggestionsLoaderListener> loaderListenerWeakRef;
-
-    /**
-     * Listener interface. The loader's listener is usually the ui.
-     */
-    public interface SuggestionsLoaderListener {
-        void onLoadComplete(LoaderId loaderId, @Nullable LocalResult yelpResult);
-    }
 
     /**
      * Helper method to initialize the loader and callbacks

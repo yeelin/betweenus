@@ -15,6 +15,7 @@ import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
@@ -23,6 +24,7 @@ import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActio
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
+import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
@@ -37,11 +39,10 @@ import java.util.Set;
  */
 public class SuggestionsActivity
         extends BasePlayServicesActivity
-        implements SuggestionsLoaderCallbacks.SuggestionsLoaderListener,
+        implements
+        SuggestionsLoaderListener,
         OnSuggestionActionListener,
         PlacesBroadcastReceiver.PlacesBroadcastListener {
-    //TODO: Remove this constant
-    private static final boolean USE_FB = true;
     //logcat
     private static final String TAG = SuggestionsActivity.class.getCanonicalName();
 
@@ -613,22 +614,22 @@ public class SuggestionsActivity
         this.friendLatLng = friendLatLng;
         midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
 
-        //initializing the loader to fetch suggestions from the network
-        if (!USE_FB) {
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
-            return;
-        }
+        if (FbConstants.USE_FB) {
+            //check if user is currently logged into fb
+            if (AccessToken.getCurrentAccessToken() != null) {
+                Log.d(TAG, "onPlacesSuccess: User is logged in");
 
-        //check if user is currently logged into fb
-        if (AccessToken.getCurrentAccessToken() != null) {
-            Log.d(TAG, "onPlacesSuccess: User is logged in");
-
-            //create fb graph request for searching places
-            //provide SuggestionsLoaderCallbacks.SuggestionsLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
-            FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, this);
+                //create fb graph request for searching places
+                //provide SuggestionsLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
+                FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, this);
+            }
+            else {
+                Log.d(TAG, "onPlacesSuccess: User is not logged in");
+            }
         }
         else {
-            Log.d(TAG, "onPlacesSuccess: User is not logged in");
+            //initializing the loader to fetch suggestions from the network
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
         }
     }
 

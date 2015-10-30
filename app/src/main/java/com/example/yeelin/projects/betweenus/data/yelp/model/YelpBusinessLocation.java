@@ -76,6 +76,9 @@ public class YelpBusinessLocation implements LocalBusinessLocation {
     }
 
     @Override
+    public String getCrossStreets() { return cross_streets; }
+
+    @Override
     public LatLng getLatLng() {
         return new LatLng(coordinate.latitude, coordinate.longitude);
     }

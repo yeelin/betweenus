@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,13 +14,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
+import com.facebook.AccessToken;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -38,7 +41,8 @@ import com.squareup.picasso.Target;
  */
 public class SuggestionDetailFragment
         extends Fragment
-        implements SingleSuggestionLoaderCallbacks.SingleSuggestionLoaderListener,
+        implements
+        SingleSuggestionLoaderListener,
         View.OnClickListener,
         OnMapReadyCallback {
     //logcat
@@ -72,7 +76,7 @@ public class SuggestionDetailFragment
     private LatLng midLatLng;
 
     private Marker marker;
-    private YelpBusiness business;
+    private LocalBusiness business;
     private SuggestionDetailFragmentListener listener;
 
     /**
@@ -249,12 +253,24 @@ public class SuggestionDetailFragment
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        //initialize the loader to fetch details for this particular id from the network
-        SingleSuggestionLoaderCallbacks.initLoader(
-                getActivity(),
-                getLoaderManager(),
-                this,
-                id);
+        if (FbConstants.USE_FB) {
+            //check if user is currently logged into fb
+            if (AccessToken.getCurrentAccessToken() != null) {
+                Log.d(TAG, "onActivityCreated: User is logged in");
+
+                //create fb graph request for searching places
+                //provide SingleSuggestionLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
+                FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, this);
+            }
+        }
+        else {
+            //initialize the loader to fetch details for this particular id from the network
+            SingleSuggestionLoaderCallbacks.initLoader(
+                    getActivity(),
+                    getLoaderManager(),
+                    this,
+                    id);
+        }
     }
 
     /**
@@ -288,7 +304,7 @@ public class SuggestionDetailFragment
      * @param business
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable YelpBusiness business) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable LocalBusiness business) {
         if (loaderId != LoaderId.SINGLE_PLACE) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
@@ -297,7 +313,7 @@ public class SuggestionDetailFragment
         this.business = business;
 
         if (business == null) {
-            Log.d(TAG, "onLoadComplete: Yelp business is null. Loader must be resetting");
+            Log.d(TAG, "onLoadComplete: Local business is null. Loader must be resetting");
             //animate in the detail empty textview, and animate out the progress bar
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailEmpty.getVisibility() != View.VISIBLE) {
@@ -310,7 +326,7 @@ public class SuggestionDetailFragment
             return;
         }
         else {
-            Log.d(TAG, "onLoadComplete: Yelp business is not null. Updating views");
+            Log.d(TAG, "onLoadComplete: Local business is not null. Updating views");
             //animate in the detail container, and animate out the progress bar
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
@@ -335,15 +351,15 @@ public class SuggestionDetailFragment
         if (viewHolder == null) return;
 
         //image
-        if (business.getImage_url() != null) {
-            ImageUtils.loadImage(getActivity(), business.getImage_url(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
+        if (business.getImageUrl() != null) {
+            ImageUtils.loadImage(getActivity(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
         }
 
         //name
         viewHolder.name.setText(name);
 
         //categories
-        final String categories = business.getDisplayCategories();
+        final String categories = business.getCategory();
         viewHolder.categories.setText(categories != null ? categories : getString(R.string.not_available));
 
         //compute who is closer
@@ -353,27 +369,27 @@ public class SuggestionDetailFragment
         viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address
-        final String fullAddress = business.getLocation() != null ? business.getLocation().getFullDisplayAddress() : null;
+        final String fullAddress = business.getLocalBusinessLocation() != null ? business.getLocalBusinessLocation().getLongDisplayAddress() : null;
         viewHolder.address.setText(fullAddress != null ? fullAddress : getString(R.string.not_available));
 
         //cross streets
-        final String crossStreets = business.getLocation() != null ? business.getLocation().getCross_streets() : null;
+        final String crossStreets = business.getLocalBusinessLocation() != null ? business.getLocalBusinessLocation().getCrossStreets() : null;
         viewHolder.crossStreets.setText(getString(R.string.detail_crossStreets, crossStreets != null ? crossStreets : getString(R.string.not_available)));
 
         //phone
-        viewHolder.phone.setText(business.getDisplay_phone() != null ? business.getDisplay_phone() : getString(R.string.not_available));
+        viewHolder.phone.setText(business.getPhoneNumber() != null ? business.getPhoneNumber() : getString(R.string.not_available));
 
         //web address
-        viewHolder.webAddress.setText(business.getMobile_url() != null ? business.getMobile_url() : getString(R.string.not_available));
+        viewHolder.webAddress.setText(business.getMobileUrl() != null ? business.getMobileUrl() : getString(R.string.not_available));
 
         //ratings and reviews
-        viewHolder.reviews.setText(getString(R.string.review_count, business.getReview_count()));
+        viewHolder.reviews.setText(getString(R.string.review_count, business.getReviewCount()));
         //note: picasso only keeps a weak ref to the target so it may be gc-ed
         //use setTag so that target will be alive as long as the view is alive
-        if (business.getRating_img_url_large() != null) {
+        if (business.getRatingImageUrl() != null) {
             final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
             viewHolder.reviews.setTag(target);
-            ImageUtils.loadImage(getActivity(), business.getRating_img_url_large(), target);
+            ImageUtils.loadImage(getActivity(), business.getRatingImageUrl(), target);
         }
 
         //hours
@@ -388,10 +404,10 @@ public class SuggestionDetailFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.detail_website_button:
-                listener.onOpenWebsite(business.getMobile_url());
+                listener.onOpenWebsite(business.getMobileUrl());
                 break;
             case R.id.detail_phone_button:
-                listener.onDialPhone(business.getPhone());
+                listener.onDialPhone(business.getPhoneNumber());
                 break;
             case R.id.detail_select_button:
                 toggleState = !toggleState;

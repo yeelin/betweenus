@@ -43,6 +43,11 @@ public class FbLocation implements LocalBusinessLocation {
     }
 
     @Override
+    public String getCrossStreets() {
+        return null;
+    }
+
+    @Override
     public LatLng getLatLng() {
         return new LatLng(latitude, longitude);
     }

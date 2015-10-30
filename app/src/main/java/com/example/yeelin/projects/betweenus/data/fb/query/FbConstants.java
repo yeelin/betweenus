@@ -6,9 +6,38 @@ import android.text.TextUtils;
  * Created by ninjakiki on 10/27/15.
  */
 public class FbConstants {
+    //TODO: Remove hack
+    public static final boolean USE_FB = false;
+
     //endpoint
     public static final String SEARCH_ENDPOINT = "/search";
 
+    /**
+     * Parameter names
+     */
+    //query
+    public static final String QUERY = "q";
+    //type
+    public static final String TYPE = "type";
+    //center
+    public static final String CENTER = "center";
+    //distance
+    public static final String DISTANCE = "distance";
+    //fields
+    public static final String FIELDS = "fields";
+
+    /**
+     * Parameter values
+     */
+    //query
+    private static final String RESTAURANT = "restaurant";
+    public static final String REQUEST_QUERY = RESTAURANT;
+    //type
+    private static final String PLACE = "place";
+    public static final String REQUEST_TYPE = PLACE;
+    //distance
+    private static final String THREE_MILE_RADIUS = "4828"; //3 miles == 4848 meters
+    public static final String REQUEST_DISTANCE = THREE_MILE_RADIUS;
     //fields
     private static final String ID = "id";
     private static final String ABOUT = "about";
@@ -37,25 +66,12 @@ public class FbConstants {
     private static final String CHECKINS = "checkins";
     private static final String LIKES = "likes";
     private static final String PHOTOS = "photos";
-    public static final String FIELDS = "fields";
-    public static final String REQUEST_FIELDS = TextUtils.join(",", new String[]{ID, CATEGORY, LOCATION, NAME, PHONE, PICTURE, WEBSITE, CHECKINS, LIKES});
+    public static final String REQUEST_FIELDS_SIMPLE = TextUtils.join(",",
+            new String[]{ID, CATEGORY, LOCATION, NAME, PHONE, PICTURE, WEBSITE, CHECKINS, LIKES});
+    public static final String REQUEST_FIELDS_DETAIL = TextUtils.join(",",
+            new String[]{ID, ABOUT, ATTIRE, CATEGORY, CATEGORY_LIST, COVER, CULINARY_TEAM, DESCRIPTION, FOOD_STYLES, GENERAL_INFO,
+                        HOURS, IS_ALWAYS_OPEN, LINK, LOCATION, NAME, PARKING, PAYMENT_OPTIONS, PHONE, PICTURE, PRICE_RANGE,
+                        PUBLIC_TRANSIT, RESTAURANT_SERVICES, RESTAURANT_SPECIALTIES, WEBSITE, CHECKINS, LIKES, PHOTOS});
 
-    //query
-    private static final String RESTAURANT = "restaurant";
-    public static final String QUERY = "q";
-    public static final String REQUEST_QUERY = RESTAURANT;
-
-    //type
-    private static final String PLACE = "place";
-    public static final String TYPE = "type";
-    public static final String REQUEST_TYPE = PLACE;
-
-    //center
-    public static final String CENTER = "center";
-
-    //distance
-    private static final String THREE_MILE_RADIUS = "4828"; //3 miles == 4848 meters
-    public static final String DISTANCE = "distance";
-    public static final String REQUEST_DISTANCE = THREE_MILE_RADIUS;
 
 }
