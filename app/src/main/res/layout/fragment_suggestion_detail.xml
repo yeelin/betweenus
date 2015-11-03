@@ -144,7 +144,7 @@
         <LinearLayout
             android:id="@+id/detail_container"
             android:layout_width="match_parent"
-            android:layout_height="360dp"
+            android:layout_height="wrap_content"
             android:paddingTop="@dimen/card_content_padding"
             android:paddingLeft="@dimen/card_content_padding"
             android:paddingRight="@dimen/card_content_padding"
@@ -209,6 +209,8 @@
                 android:text="@string/detail_hours"/>
             <TextView
                 android:id="@+id/detail_hours_range"
+                android:minLines="1"
+                android:maxLines="14"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_hours_fake"/>
             <!-- END:Hours group-->

@@ -17,7 +17,7 @@ public interface LocalBusiness {
     String getDescription();
     String[] getFoodStyles();
     String getGeneralInfo();
-    HashMap<String,String> getHours();
+    String[] getHours();
     boolean isAlwaysOpen();
     String getFbLink();
 

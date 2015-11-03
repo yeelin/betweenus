@@ -1,15 +1,23 @@
 package com.example.yeelin.projects.betweenus.data.fb.model;
 
+import android.util.Log;
+
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
  * Created by ninjakiki on 10/27/15.
  */
 public class FbPage implements LocalBusiness {
+    private static final String TAG = FbPage.class.getCanonicalName();
+    private static final String[] dayOfWeek = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"};
+    private static final String[] DAY_OF_WEEK = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
     private final String id;
     private final String about;
     private final String attire;
@@ -86,7 +94,7 @@ public class FbPage implements LocalBusiness {
                         "PriceRange:%s, Transit:%s, Services:%s, Specialties:%s, " +
                         "Website:%s, Checkins:%d, Likes:%d]}" ,
                 id, about, attire, category, Arrays.toString(category_list), cover, culinary_team,
-                description, Arrays.toString(food_styles), general_info, hours != null ? String.format("[Keys:%s, Values:%s]", hours.keySet(), hours.values()) : null, is_always_open, link,
+                description, Arrays.toString(food_styles), general_info, getHours(), is_always_open, link,
                 location, name, parking, payment_options, phone, picture,
                 price_range, public_transit, restaurant_services, restaurant_specialties,
                 website, checkins, likes);
@@ -178,8 +186,54 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
-    public HashMap<String, String> getHours() {
-        return hours;
+    public String[] getHours() {
+        if (hours != null) return buildHoursArray();
+        return null;
+    }
+
+    private String[] buildHoursArray() {
+        ArrayList<String> hoursArrayList = new ArrayList<>(hours.size() + dayOfWeek.length); //additional space to accommodate closed days
+        String key;
+        String openValue;
+        String closeValue;
+        String status;
+        boolean isOpenToday;
+
+        //iterate over the days of the week
+        for (int i=0; i<dayOfWeek.length; i++) {
+            //always reset this to false so that we know if the place is not open that day
+            isOpenToday = false;
+
+            //each day can have up to 2 openings
+            for (int j=1; j<=2; j++) {
+
+                //open or close
+                status = "open";
+                key = String.format("%s_%d_%s", dayOfWeek[i], j, status);
+                openValue = hours.get(key);
+
+                if (openValue != null) {
+                    status = "close";
+                    key = String.format("%s_%d_%s", dayOfWeek[i], j, status);
+                    closeValue = hours.get(key);
+
+                    if (closeValue != null) {
+                        if (j == 1)
+                            hoursArrayList.add(String.format("%s\t:\t%s - %s", DAY_OF_WEEK[i], openValue, closeValue));
+                        else
+                            hoursArrayList.add(String.format("   \t:\t%s - %s", openValue, closeValue));
+                        isOpenToday = true;
+                    }
+                }
+            }
+
+            if (!isOpenToday) {
+                hoursArrayList.add(String.format("%s\t:\t%s", DAY_OF_WEEK[i], "Closed"));
+            }
+        }
+        hoursArrayList.trimToSize();
+        Log.d(TAG, "buildHoursArray:" + hoursArrayList);
+        return hoursArrayList.toArray(new String[hoursArrayList.size()]);
     }
 
     @Override

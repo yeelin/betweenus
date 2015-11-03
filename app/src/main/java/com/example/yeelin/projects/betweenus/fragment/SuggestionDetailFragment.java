@@ -393,7 +393,21 @@ public class SuggestionDetailFragment
         }
 
         //hours
-        viewHolder.hoursRange.setText(R.string.not_available);
+        if (business.isAlwaysOpen()) {
+            viewHolder.hoursRange.setText(R.string.always_open);
+        }
+        else {
+            String[] hoursArray = business.getHours();
+            if (hoursArray == null) {
+                viewHolder.hoursRange.setText(R.string.not_available);
+            } else {
+                StringBuilder builder = new StringBuilder(hoursArray.length);
+                for (int i = 0; i < hoursArray.length; i++) {
+                    builder.append(hoursArray[i] + "\n");
+                }
+                viewHolder.hoursRange.setText(builder.toString());
+            }
+        }
     }
 
     /**

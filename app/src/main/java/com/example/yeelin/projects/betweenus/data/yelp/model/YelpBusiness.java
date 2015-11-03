@@ -143,7 +143,7 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
-    public HashMap<String, String> getHours() {
+    public String[] getHours() {
         return null;
     }
 
