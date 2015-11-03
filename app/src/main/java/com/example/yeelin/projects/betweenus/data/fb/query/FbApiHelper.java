@@ -40,7 +40,7 @@ public class FbApiHelper {
         Log.d(TAG, String.format("searchForPlaces: MidLatLng:%f,%f", midLatLng.latitude, midLatLng.longitude));
 
         //create the graph request
-        GraphRequest request = new GraphRequest(
+        final GraphRequest request = new GraphRequest(
                 accessToken,
                 FbConstants.SEARCH_ENDPOINT,
                 parameters,
@@ -48,8 +48,7 @@ public class FbApiHelper {
                 new GraphRequest.Callback() {
                     @Override
                     public void onCompleted(GraphResponse response) {
-                        Log.d(TAG, "Raw: " + response.getRawResponse());
-                        Log.d(TAG, "Query: " + response.getRequest().toString());
+                        Log.d(TAG, String.format("searchForPlaces: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
 
                         final FbResult result = FbJsonDeserializerHelper.deserializeFbResponse(response.getRawResponse());
                         listener.onLoadComplete(LoaderId.MULTI_PLACES, result); //TODO: Using the loaderId here is a total hack
@@ -79,8 +78,7 @@ public class FbApiHelper {
                 new GraphRequest.Callback() {
                     @Override
                     public void onCompleted(GraphResponse response) {
-                        Log.d(TAG, "Raw: " + response.getRawResponse());
-                        Log.d(TAG, "Query: " + response.getRequest().toString());
+                        Log.d(TAG, String.format("getPlaceDetails: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
 
                         FbPage page = FbJsonDeserializerHelper.deserializeFbSingleResponse(response.getRawResponse());
                         listener.onLoadComplete(LoaderId.SINGLE_PLACE, page);

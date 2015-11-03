@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by ninjakiki on 10/27/15.
@@ -35,9 +36,8 @@ public class FbJsonDeserializerHelper {
         final Gson gson = gsonBuilder.create();
 
         //deserialize json into java
-        FbResult fbResult = gson.fromJson(rawJson, FbResult.class);
-        Log.d(TAG, "deserializeFbResponse: Size of arraylist:" + fbResult.getPages().size());
-        Log.d(TAG, "deserializeFbResponse: Result:" + fbResult);
+        final FbResult fbResult = gson.fromJson(rawJson, FbResult.class);
+        Log.d(TAG, String.format("deserializeFbResponse: Size:%d, FbResult:%s", fbResult.getPages().size(), fbResult));
         return fbResult;
     }
 
@@ -51,8 +51,8 @@ public class FbJsonDeserializerHelper {
         final Gson gson = new GsonBuilder().create();
 
         //deserialize json into java
-        FbPage fbPage = gson.fromJson(rawJson, FbPage.class);
-        Log.d(TAG, "deserializeFbResponse: Page:" + fbPage);
+        final FbPage fbPage = gson.fromJson(rawJson, FbPage.class);
+        Log.d(TAG, "deserializeFbSingleResponse: FbPage:" + fbPage);
         return fbPage;
     }
 

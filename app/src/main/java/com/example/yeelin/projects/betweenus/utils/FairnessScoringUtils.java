@@ -39,14 +39,14 @@ public class FairnessScoringUtils {
 
         //compare the distance and return fairness score
         if (userDistance < friendDistance) {
-            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_USER. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+            //Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_USER. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
             return CLOSER_TO_USER;
         }
         if (userDistance > friendDistance) {
-            Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_FRIEND. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+            //Log.d(TAG, String.format("computeFairnessScore: CLOSER_TO_FRIEND. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
             return CLOSER_TO_FRIEND;
         }
-        Log.d(TAG, String.format("computeFairnessScore: EQUIDISTANT. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
+        //Log.d(TAG, String.format("computeFairnessScore: EQUIDISTANT. UserDistance:%.2f, FriendDistance:%.2f", userDistance, friendDistance));
         return EQUIDISTANT;
     }
 
@@ -64,10 +64,10 @@ public class FairnessScoringUtils {
         //return distance in meters or miles
         if (unitPreference == IMPERIAL) {
             double distanceInMiles = LocationUtils.convertMetersToMiles(distanceInMeters);
-            Log.d(TAG, String.format("computeDistanceDelta: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
+            //Log.d(TAG, String.format("computeDistanceDelta: Distance(m):%.2f, Distance(mi):%.2f", distanceInMeters, distanceInMiles));
             return distanceInMiles;
         }
-        Log.d(TAG, "computeDistanceDelta: Distance(m):" + distanceInMeters);
+        //Log.d(TAG, "computeDistanceDelta: Distance(m):" + distanceInMeters);
         return distanceInMeters;
     }
 

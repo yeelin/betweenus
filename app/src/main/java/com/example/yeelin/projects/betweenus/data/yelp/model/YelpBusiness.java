@@ -4,6 +4,7 @@ import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by ninjakiki on 7/22/15.
@@ -61,18 +62,34 @@ public class YelpBusiness implements LocalBusiness {
         return id;
     }
 
-    public boolean is_closed() {
-        return is_closed;
-    }
-
     @Override
     public String getName() {
         return name;
     }
 
     @Override
+    public String getAbout() {
+        return null;
+    }
+
+    @Override
+    public String getAttire() {
+        return null;
+    }
+
+    @Override
     public String getImageUrl() {
         return image_url;
+    }
+
+    @Override
+    public String getPriceRange() {
+        return null;
+    }
+
+    @Override
+    public String getPublicTransit() {
+        return null;
     }
 
     @Override
@@ -91,8 +108,72 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public int getCheckins() {
+        return 0;
+    }
+
+    @Override
+    public int getLikes() {
+        return 0;
+    }
+
+    @Override
     public String getCategory() {
         return getDisplayCategories();
+    }
+
+    @Override
+    public String getCulinaryTeam() {
+        return null;
+    }
+
+    @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
+    public String[] getFoodStyles() {
+        return null;
+    }
+
+    @Override
+    public String getGeneralInfo() {
+        return null;
+    }
+
+    @Override
+    public HashMap<String, String> getHours() {
+        return null;
+    }
+
+    @Override
+    public boolean isAlwaysOpen() {
+        return false;
+    }
+
+    @Override
+    public String getFbLink() {
+        return null;
+    }
+
+    @Override
+    public double getRating() {
+        return rating;
+    }
+
+    @Override
+    public String getRatingImageUrl() {
+        return rating_img_url_large;
+    }
+
+    @Override
+    public LocalBusinessLocation getLocalBusinessLocation() {
+        return location;
+    }
+
+    public boolean is_closed() {
+        return is_closed;
     }
 
     public String getImage_url() {
@@ -136,16 +217,6 @@ public class YelpBusiness implements LocalBusiness {
         return distance;
     }
 
-    @Override
-    public double getRating() {
-        return rating;
-    }
-
-    @Override
-    public String getRatingImageUrl() {
-        return rating_img_url_large;
-    }
-
     public String getRating_img_url() {
         return rating_img_url;
     }
@@ -159,11 +230,6 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     public YelpBusinessLocation getLocation() {
-        return location;
-    }
-
-    @Override
-    public LocalBusinessLocation getLocalBusinessLocation() {
         return location;
     }
 
