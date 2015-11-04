@@ -358,9 +358,20 @@ public class SuggestionDetailFragment
         //name
         viewHolder.name.setText(name);
 
-        //categories
-        final String categories = business.getCategory();
-        viewHolder.categories.setText(categories != null ? categories : getString(R.string.not_available));
+        //category list
+        final String[] categoryList = business.getCategoryList();
+        if (categoryList == null) {
+            viewHolder.categories.setVisibility(View.GONE);
+        }
+        else {
+            viewHolder.categories.setVisibility(View.VISIBLE);
+            StringBuilder builder = new StringBuilder(categoryList.length);
+            for (int i=0; i<categoryList.length; i++) {
+                builder.append(categoryList[i]);
+                if (i < categoryList.length-1) builder.append(", ");
+            }
+            viewHolder.categories.setText(builder.toString());
+        }
 
         //compute who is closer
         final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, latLng);
@@ -382,6 +393,13 @@ public class SuggestionDetailFragment
         //web address
         viewHolder.webAddress.setText(business.getMobileUrl() != null ? business.getMobileUrl() : getString(R.string.not_available));
 
+        //price range
+        final String priceRange = business.getPriceRange();
+        if (priceRange != null)
+            viewHolder.priceRange.setText(priceRange);
+        else
+            viewHolder.priceRange.setText(R.string.not_available);
+
         //ratings and reviews OR likes and checkins
         if (business.getReviewCount() != -1) {
             //we have yelp data
@@ -397,8 +415,15 @@ public class SuggestionDetailFragment
         }
         else {
             //we most likely have fb data
-            viewHolder.reviews.setText(getContext().getString(R.string.like_count, business.getLikes()));
-            viewHolder.checkins.setText(getContext().getString(R.string.checkin_count, business.getCheckins()));
+            viewHolder.checkins.setVisibility(View.VISIBLE);
+            viewHolder.reviews.setText(getContext().getResources().getQuantityString(
+                    R.plurals.like_count,
+                    business.getLikes(),
+                    business.getLikes()));
+            viewHolder.checkins.setText(getContext().getResources().getQuantityString(
+                    R.plurals.checkin_count,
+                    business.getCheckins(),
+                    business.getCheckins()));
         }
 
         //hours
@@ -495,6 +520,7 @@ public class SuggestionDetailFragment
         final TextView crossStreets;
         final TextView phone;
         final TextView webAddress;
+        final TextView priceRange;
         final TextView reviews;
         final TextView checkins;
         final TextView hoursRange;
@@ -521,6 +547,7 @@ public class SuggestionDetailFragment
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);
             webAddress = (TextView) view.findViewById(R.id.detail_webAddress);
+            priceRange = (TextView) view.findViewById(R.id.detail_price_range);
             reviews = (TextView) view.findViewById(R.id.detail_reviews);
             checkins = (TextView) view.findViewById(R.id.detail_checkins);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);

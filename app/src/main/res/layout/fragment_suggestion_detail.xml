@@ -188,6 +188,17 @@
                 tools:text="@string/detail_webAddress_fake"/>
             <!-- END:Website group-->
 
+            <!-- START:Price group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_price_range"/>
+            <TextView
+                android:id="@+id/detail_price_range"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_priceRange_fake"/>
+            <!-- END:Price group-->
+
             <!-- START:Reviews group-->
             <TextView
                 android:layout_marginTop="@dimen/card_content_padding"

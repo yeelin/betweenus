@@ -127,7 +127,7 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public String getPriceRange() {
-        return null;
+        return price_range;
     }
 
     @Override
@@ -163,6 +163,16 @@ public class FbPage implements LocalBusiness {
     @Override
     public String getCategory() {
         return category;
+    }
+
+    @Override
+    public String[] getCategoryList() {
+        if (category_list == null || category_list.length == 0) return null;
+        String[] categoryArray = new String[category_list.length];
+        for (int i=0; i<categoryArray.length; i++) {
+            categoryArray[i] = category_list[i].getName();
+        }
+        return categoryArray;
     }
 
     @Override

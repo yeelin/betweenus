@@ -16,4 +16,12 @@ public class FbPageCategory {
     public String toString() {
         return String.format("[id:%s, name:%s]", id, name);
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getId() {
+        return id;
+    }
 }

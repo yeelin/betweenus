@@ -133,14 +133,19 @@ public class SuggestionsAdapter
             }
         }
 
-        //categories
-        final String categories = business.getCategory();
-        if (categories != null) {
-            viewHolder.categories.setVisibility(View.VISIBLE);
-            viewHolder.categories.setText(categories);
+        //category list
+        final String[] categoryList = business.getCategoryList();
+        if (categoryList == null) {
+            viewHolder.categories.setVisibility(View.GONE);
         }
         else {
-            viewHolder.categories.setVisibility(View.INVISIBLE);
+            viewHolder.categories.setVisibility(View.VISIBLE);
+            StringBuilder builder = new StringBuilder(categoryList.length);
+            for (int i=0; i<categoryList.length; i++) {
+                builder.append(categoryList[i]);
+                if (i < categoryList.length-1) builder.append(", ");
+            }
+            viewHolder.categories.setText(builder.toString());
         }
 
         //ratings and reviews OR likes and checkins
@@ -154,14 +159,30 @@ public class SuggestionsAdapter
                 viewHolder.reviews.setTag(target);
                 ImageUtils.loadImage(parent.getContext(), business.getRatingImageUrl(), target);
             }
+            //no likes or checkins
             viewHolder.checkins.setVisibility(View.GONE);
         }
         else {
             //we most likely have fb data
-            viewHolder.reviews.setText(getContext().getString(R.string.like_count, business.getLikes()));
-            viewHolder.checkins.setText(getContext().getString(R.string.checkin_count, business.getCheckins()));
+            viewHolder.checkins.setVisibility(View.VISIBLE);
+            viewHolder.reviews.setText(getContext().getResources().getQuantityString(
+                    R.plurals.like_count,
+                    business.getLikes(),
+                    business.getLikes()));
+            viewHolder.checkins.setText(getContext().getResources().getQuantityString(
+                    R.plurals.checkin_count,
+                    business.getCheckins(),
+                    business.getCheckins()));
         }
-
+        //price range
+        final String priceRange = business.getPriceRange();
+        if (priceRange == null) {
+            viewHolder.priceRange.setVisibility(View.GONE);
+        }
+        else {
+            viewHolder.priceRange.setVisibility(View.VISIBLE);
+            viewHolder.priceRange.setText(priceRange);
+        }
         //set the checked state
         viewHolder.itemToggle.setChecked(selectedIdsMap.containsKey(business.getId()));
         viewHolder.itemToggle.setTag(R.id.business_id, business.getId());
@@ -297,6 +318,7 @@ public class SuggestionsAdapter
         final TextView categories;
         final TextView reviews;
         final TextView checkins;
+        final TextView priceRange;
 
         public final CheckedTextView itemToggle;
         final TextView distanceFromMidPoint;
@@ -311,6 +333,7 @@ public class SuggestionsAdapter
             categories = (TextView) view.findViewById(R.id.item_categories);
             reviews = (TextView) view.findViewById(R.id.item_reviews);
             checkins = (TextView) view.findViewById(R.id.item_checkins);
+            priceRange = (TextView) view.findViewById(R.id.item_price_range);
             //third column
             itemToggle = (CheckedTextView) view.findViewById(R.id.item_toggle);
             distanceFromMidPoint = (TextView) view.findViewById(R.id.item_distance_from_midpoint);

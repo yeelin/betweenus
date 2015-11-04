@@ -123,6 +123,17 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public String[] getCategoryList() {
+        if (categories == null || categories.length == 0) return null;
+
+        String[] categoryArray = new String[categories.length];
+        for (int i=0; i<categoryArray.length; i++) {
+            categoryArray[i] = categories[i][0];
+        }
+        return categoryArray;
+    }
+
+    @Override
     public String getCulinaryTeam() {
         return null;
     }

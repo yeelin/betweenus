@@ -1,7 +1,5 @@
 package com.example.yeelin.projects.betweenus.data;
 
-import java.util.HashMap;
-
 /**
  * Created by ninjakiki on 10/28/15.
  */
@@ -10,7 +8,7 @@ public interface LocalBusiness {
     String getAbout();
     String getAttire();
     String getCategory();
-    //Missing:category_list
+    String[] getCategoryList();
     //Missing:cover
     String getCulinaryTeam();
 

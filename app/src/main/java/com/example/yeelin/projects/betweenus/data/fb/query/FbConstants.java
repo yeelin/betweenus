@@ -76,7 +76,7 @@ public class FbConstants {
     private static final String LIKES = "likes";
     private static final String PHOTOS = "photos"; //TODO
     public static final String REQUEST_FIELDS_SIMPLE = TextUtils.join(",",
-            new String[]{ID, CATEGORY, LOCATION, NAME, PHONE, PICTURE, WEBSITE, CHECKINS, LIKES});
+            new String[]{ID, CATEGORY, CATEGORY_LIST, LOCATION, NAME, PHONE, PICTURE, PRICE_RANGE, WEBSITE, CHECKINS, LIKES});
     public static final String REQUEST_FIELDS_DETAIL = TextUtils.join(",",
             new String[]{ID, ABOUT, ATTIRE, CATEGORY, CATEGORY_LIST, COVER, CULINARY_TEAM,
                         DESCRIPTION, FOOD_STYLES, GENERAL_INFO, HOURS, IS_ALWAYS_OPEN, LINK,
