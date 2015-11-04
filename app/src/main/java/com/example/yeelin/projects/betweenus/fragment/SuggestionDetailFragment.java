@@ -382,14 +382,23 @@ public class SuggestionDetailFragment
         //web address
         viewHolder.webAddress.setText(business.getMobileUrl() != null ? business.getMobileUrl() : getString(R.string.not_available));
 
-        //ratings and reviews
-        viewHolder.reviews.setText(getString(R.string.review_count, business.getReviewCount()));
-        //note: picasso only keeps a weak ref to the target so it may be gc-ed
-        //use setTag so that target will be alive as long as the view is alive
-        if (business.getRatingImageUrl() != null) {
-            final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
-            viewHolder.reviews.setTag(target);
-            ImageUtils.loadImage(getActivity(), business.getRatingImageUrl(), target);
+        //ratings and reviews OR likes and checkins
+        if (business.getReviewCount() != -1) {
+            //we have yelp data
+            viewHolder.reviews.setText(getString(R.string.review_count, business.getReviewCount()));
+            //note: picasso only keeps a weak ref to the target so it may be gc-ed
+            //use setTag so that target will be alive as long as the view is alive
+            if (business.getRatingImageUrl() != null) {
+                final Target target = ImageUtils.newTarget(getActivity(), viewHolder.reviews);
+                viewHolder.reviews.setTag(target);
+                ImageUtils.loadImage(getActivity(), business.getRatingImageUrl(), target);
+            }
+            viewHolder.checkins.setVisibility(View.GONE);
+        }
+        else {
+            //we most likely have fb data
+            viewHolder.reviews.setText(getContext().getString(R.string.like_count, business.getLikes()));
+            viewHolder.checkins.setText(getContext().getString(R.string.checkin_count, business.getCheckins()));
         }
 
         //hours
@@ -487,6 +496,7 @@ public class SuggestionDetailFragment
         final TextView phone;
         final TextView webAddress;
         final TextView reviews;
+        final TextView checkins;
         final TextView hoursRange;
 
         final Button websiteButton;
@@ -512,6 +522,7 @@ public class SuggestionDetailFragment
             phone = (TextView) view.findViewById(R.id.detail_phone);
             webAddress = (TextView) view.findViewById(R.id.detail_webAddress);
             reviews = (TextView) view.findViewById(R.id.detail_reviews);
+            checkins = (TextView) view.findViewById(R.id.detail_checkins);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
 
             //buttons

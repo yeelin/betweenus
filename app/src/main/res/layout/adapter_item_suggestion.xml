@@ -81,6 +81,16 @@
             android:textSize="12sp"
             android:textColor="@color/textColorSecondary"
             tools:text="123 reviews"/>
+
+        <TextView
+            android:id="@+id/item_checkins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="456 checkins"/>
     </LinearLayout>
 
     <LinearLayout

@@ -200,6 +200,10 @@
                 tools:drawableStart="@drawable/stars_small_4"
                 android:drawablePadding="5dp"
                 tools:text="@string/detail_reviews_fake"/>
+            <TextView
+                android:id="@+id/detail_checkins"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_checkins_fake"/>
             <!-- END:Reviews group-->
 
             <!-- START:Hours group-->
@@ -210,7 +214,7 @@
             <TextView
                 android:id="@+id/detail_hours_range"
                 android:minLines="1"
-                android:maxLines="14"
+                android:maxLines="7"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_hours_fake"/>
             <!-- END:Hours group-->

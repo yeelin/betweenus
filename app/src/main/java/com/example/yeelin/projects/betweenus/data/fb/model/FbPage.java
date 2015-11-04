@@ -147,7 +147,7 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public int getReviewCount() {
-        return checkins;
+        return -1;
     }
 
     @Override
@@ -192,13 +192,14 @@ public class FbPage implements LocalBusiness {
     }
 
     private String[] buildHoursArray() {
-        ArrayList<String> hoursArrayList = new ArrayList<>(hours.size() + dayOfWeek.length); //additional space to accommodate closed days
+        String[] hoursArray = new String[dayOfWeek.length];
         String key;
         String openValue;
         String closeValue;
         String status;
         boolean isOpenToday;
 
+        int n=0;
         //iterate over the days of the week
         for (int i=0; i<dayOfWeek.length; i++) {
             //always reset this to false so that we know if the place is not open that day
@@ -219,21 +220,22 @@ public class FbPage implements LocalBusiness {
 
                     if (closeValue != null) {
                         if (j == 1)
-                            hoursArrayList.add(String.format("%s\t:\t%s - %s", DAY_OF_WEEK[i], openValue, closeValue));
-                        else
-                            hoursArrayList.add(String.format("   \t:\t%s - %s", openValue, closeValue));
+                            hoursArray[n] = String.format("%s\t:\t%s - %s", DAY_OF_WEEK[i], openValue, closeValue);
+                        if (j == 2)
+                            hoursArray[n] = String.format("%s, %s - %s", hoursArray[n], openValue, closeValue);
                         isOpenToday = true;
                     }
                 }
             }
 
             if (!isOpenToday) {
-                hoursArrayList.add(String.format("%s\t:\t%s", DAY_OF_WEEK[i], "Closed"));
+                hoursArray[n] = String.format("%s\t:\t%s", DAY_OF_WEEK[i], "Closed");
             }
+            ++n;
         }
-        hoursArrayList.trimToSize();
-        Log.d(TAG, "buildHoursArray:" + hoursArrayList);
-        return hoursArrayList.toArray(new String[hoursArrayList.size()]);
+
+        Log.d(TAG, "buildHoursArray:" + Arrays.toString(hoursArray));
+        return hoursArray;
     }
 
     @Override
@@ -248,7 +250,7 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public double getRating() {
-        return likes;
+        return -1;
     }
 
     @Override

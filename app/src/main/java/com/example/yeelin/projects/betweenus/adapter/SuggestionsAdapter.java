@@ -143,14 +143,23 @@ public class SuggestionsAdapter
             viewHolder.categories.setVisibility(View.INVISIBLE);
         }
 
-        //ratings and reviews
-        viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReviewCount()));
-        //note: picasso only keeps a weak ref to the target so it may be gc-ed
-        //use setTag so that target will be alive as long as the view is alive
-        if (business.getRatingImageUrl() != null) {
-            final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
-            viewHolder.reviews.setTag(target);
-            ImageUtils.loadImage(parent.getContext(), business.getRatingImageUrl(), target);
+        //ratings and reviews OR likes and checkins
+        if (business.getReviewCount() != -1) {
+            //we have yelp data
+            viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReviewCount()));
+            //note: picasso only keeps a weak ref to the target so it may be gc-ed
+            //use setTag so that target will be alive as long as the view is alive
+            if (business.getRatingImageUrl() != null) {
+                final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
+                viewHolder.reviews.setTag(target);
+                ImageUtils.loadImage(parent.getContext(), business.getRatingImageUrl(), target);
+            }
+            viewHolder.checkins.setVisibility(View.GONE);
+        }
+        else {
+            //we most likely have fb data
+            viewHolder.reviews.setText(getContext().getString(R.string.like_count, business.getLikes()));
+            viewHolder.checkins.setText(getContext().getString(R.string.checkin_count, business.getCheckins()));
         }
 
         //set the checked state
@@ -287,6 +296,7 @@ public class SuggestionsAdapter
         final TextView address;
         final TextView categories;
         final TextView reviews;
+        final TextView checkins;
 
         public final CheckedTextView itemToggle;
         final TextView distanceFromMidPoint;
@@ -300,6 +310,7 @@ public class SuggestionsAdapter
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
             reviews = (TextView) view.findViewById(R.id.item_reviews);
+            checkins = (TextView) view.findViewById(R.id.item_checkins);
             //third column
             itemToggle = (CheckedTextView) view.findViewById(R.id.item_toggle);
             distanceFromMidPoint = (TextView) view.findViewById(R.id.item_distance_from_midpoint);

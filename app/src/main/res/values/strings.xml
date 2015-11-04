@@ -46,6 +46,7 @@
     <!-- Detail strings for layout only -->
     <string name="detail_name_fake">Espresso Vivace Roasteria</string>
     <string name="detail_reviews_fake">445 reviews</string>
+    <string name="detail_checkins_fake">1002 checkins</string>
     <string name="detail_address_fake">532 Broadway E, Seattle</string>
     <string name="detail_categories_fake">Coffee and Tea</string>
     <string name="detail_distance_fake">0.1 mi</string>
@@ -64,6 +65,8 @@
     <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
     <string name="review_count">%1$d reviews</string>
+    <string name="like_count">%1$d likes</string>
+    <string name="checkin_count">%1$d checkins</string>
     <string name="detail_website">Website</string>
     <string name="detail_hours">Hours</string>
 
