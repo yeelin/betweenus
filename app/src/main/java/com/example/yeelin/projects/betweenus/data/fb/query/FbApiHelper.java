@@ -15,6 +15,8 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Iterator;
+
 /**
  * Created by ninjakiki on 10/29/15.
  */
@@ -49,8 +51,23 @@ public class FbApiHelper {
                     @Override
                     public void onCompleted(GraphResponse response) {
                         Log.d(TAG, String.format("searchForPlaces: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
-
                         final FbResult result = FbJsonDeserializerHelper.deserializeFbResponse(response.getRawResponse());
+
+                        //Remove any not Restaurant/cafe or Local business categories
+                        //This is needed to cleanup fb data
+                        if (result != null) {
+                            for (Iterator<FbPage> iterator = result.getPages().iterator(); iterator.hasNext();) {
+                                FbPage page = iterator.next();
+                                if (!page.getCategory().startsWith(FbConstants.CATEGORY_RESTAURANT) && !page.getCategory().startsWith(FbConstants.CATEGORY_LOCAL)) {
+                                    Log.d(TAG, "searchForPlaces: Removing " + page.getName());
+                                    Log.d(TAG, "searchForPlaces: Size before remove:" + result.getPages().size());
+                                    iterator.remove();
+                                    Log.d(TAG, "searchForPlaces: Size after remove:" + result.getPages().size());
+                                }
+                            }
+                        }
+
+                        //notify the listener that we have the result
                         listener.onLoadComplete(LoaderId.MULTI_PLACES, result); //TODO: Using the loaderId here is a total hack
                     }
                 });

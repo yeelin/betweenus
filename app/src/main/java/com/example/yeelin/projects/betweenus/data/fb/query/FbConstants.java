@@ -12,6 +12,10 @@ public class FbConstants {
     //endpoint
     public static final String SEARCH_ENDPOINT = "/search";
 
+    //desirable categories
+    public static final String CATEGORY_RESTAURANT = "Restaurant";
+    public static final String CATEGORY_LOCAL = "Local";
+
     /**
      * Parameter names
      */

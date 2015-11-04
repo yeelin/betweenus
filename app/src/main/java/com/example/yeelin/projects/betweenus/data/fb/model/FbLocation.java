@@ -34,12 +34,24 @@ public class FbLocation implements LocalBusinessLocation {
 
     @Override
     public String getShortDisplayAddress() {
-        return String.format("%s, %s", street, city);
+        if (street != null && street.length() > 0 && city != null && city.length() > 0) return String.format("%s, %s", street, city);
+        if (street != null && street.length() > 0) return street;
+        if (city != null && city.length() > 0) return city;
+        return null;
     }
 
     @Override
     public String getLongDisplayAddress() {
-        return String.format("%s\n%s, %s %s", street, city, state, zip);
+        final String startAddress = getShortDisplayAddress();
+        final String endAddress;
+        if (state != null && state.length() > 0 && zip != null && zip.length() > 0) endAddress = state + " " + zip;
+        else if (state != null && state.length() > 0) endAddress = state;
+        else if (zip != null && zip.length() > 0) endAddress = zip;
+        else endAddress = null;
+
+        if (startAddress != null && endAddress != null) return startAddress + "\n" + endAddress;
+        if (startAddress != null) return startAddress;
+        return endAddress;
     }
 
     @Override
