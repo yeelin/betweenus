@@ -390,15 +390,13 @@ public class SuggestionDetailFragment
         //phone
         viewHolder.phone.setText(business.getPhoneNumber() != null ? business.getPhoneNumber() : getString(R.string.not_available));
 
-        //web address
+        //web address and fbAddress
         viewHolder.webAddress.setText(business.getMobileUrl() != null ? business.getMobileUrl() : getString(R.string.not_available));
+        if (business.getFbLink() == null) viewHolder.fbAddress.setVisibility(View.GONE);
+        else viewHolder.fbAddress.setText(business.getFbLink());
 
         //price range
-        final String priceRange = business.getPriceRange();
-        if (priceRange != null)
-            viewHolder.priceRange.setText(priceRange);
-        else
-            viewHolder.priceRange.setText(R.string.not_available);
+        viewHolder.priceRange.setText(business.getPriceRange() != null ? business.getPriceRange() : getString(R.string.not_available));
 
         //ratings and reviews OR likes and checkins
         if (business.getReviewCount() != -1) {
@@ -442,6 +440,12 @@ public class SuggestionDetailFragment
                 viewHolder.hoursRange.setText(builder.toString());
             }
         }
+
+        //culinary team
+        viewHolder.culinaryTeam.setText(business.getCulinaryTeam() != null ? business.getCulinaryTeam() : getString(R.string.not_available));
+
+        //description
+        viewHolder.description.setText(business.getDescription() != null ? business.getDescription() : getString(R.string.not_available));
     }
 
     /**
@@ -520,10 +524,13 @@ public class SuggestionDetailFragment
         final TextView crossStreets;
         final TextView phone;
         final TextView webAddress;
+        final TextView fbAddress;
         final TextView priceRange;
         final TextView reviews;
         final TextView checkins;
         final TextView hoursRange;
+        final TextView culinaryTeam;
+        final TextView description;
 
         final Button websiteButton;
         final Button phoneButton;
@@ -547,10 +554,13 @@ public class SuggestionDetailFragment
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);
             webAddress = (TextView) view.findViewById(R.id.detail_webAddress);
+            fbAddress = (TextView) view.findViewById(R.id.detail_fbAddress);
             priceRange = (TextView) view.findViewById(R.id.detail_price_range);
             reviews = (TextView) view.findViewById(R.id.detail_reviews);
             checkins = (TextView) view.findViewById(R.id.detail_checkins);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
+            culinaryTeam = (TextView) view.findViewById(R.id.detail_culinary_team);
+            description = (TextView) view.findViewById(R.id.detail_description);
 
             //buttons
             websiteButton = (Button) view.findViewById(R.id.detail_website_button);

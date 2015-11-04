@@ -144,7 +144,7 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
-    public String[] getFoodStyles() {
+    public String[] getCuisine() {
         return null;
     }
 

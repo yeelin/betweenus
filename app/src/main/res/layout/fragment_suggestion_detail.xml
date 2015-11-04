@@ -186,6 +186,10 @@
                 android:id="@+id/detail_webAddress"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_webAddress_fake"/>
+            <TextView
+                android:id="@+id/detail_fbAddress"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_fbAddress_fake"/>
             <!-- END:Website group-->
 
             <!-- START:Price group-->
@@ -228,6 +232,32 @@
                 android:maxLines="7"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_hours_fake"/>
+            <!-- END:Hours group-->
+
+            <!-- START:CulinaryTeam group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_culinary_team"/>
+            <TextView
+                android:id="@+id/detail_culinary_team"
+                android:minLines="1"
+                android:maxLines="7"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_culinaryTeam_fake"/>
+            <!-- END:Hours group-->
+
+            <!-- START:Description group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_description"/>
+            <TextView
+                android:id="@+id/detail_description"
+                android:minLines="1"
+                android:maxLines="7"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_description_fake"/>
             <!-- END:Hours group-->
 
         </LinearLayout>

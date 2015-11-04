@@ -13,7 +13,7 @@ public interface LocalBusiness {
     String getCulinaryTeam();
 
     String getDescription();
-    String[] getFoodStyles();
+    String[] getCuisine();
     String getGeneralInfo();
     String[] getHours();
     boolean isAlwaysOpen();

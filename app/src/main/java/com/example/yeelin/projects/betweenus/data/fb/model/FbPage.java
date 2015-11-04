@@ -186,7 +186,7 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
-    public String[] getFoodStyles() {
+    public String[] getCuisine() {
         return food_styles;
     }
 
