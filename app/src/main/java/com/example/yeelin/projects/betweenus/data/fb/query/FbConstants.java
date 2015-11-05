@@ -112,8 +112,8 @@ public abstract class FbConstants {
 
     static class Response {
         //desirable categories
-        public static final String CATEGORY_RESTAURANT = "Restaurant";
-        public static final String CATEGORY_LOCAL = "Local";
+        public static final String CATEGORY_RESTAURANT = "restaurant";
+        public static final String CATEGORY_LOCAL = "local";
     }
 }
 

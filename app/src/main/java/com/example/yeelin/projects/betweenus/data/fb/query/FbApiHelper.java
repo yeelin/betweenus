@@ -15,6 +15,7 @@ import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -61,8 +62,33 @@ public class FbApiHelper {
                         if (result != null) {
                             for (Iterator<FbPage> iterator = result.getPages().iterator(); iterator.hasNext();) {
                                 FbPage page = iterator.next();
-                                if (!page.getCategory().startsWith(FbConstants.Response.CATEGORY_RESTAURANT) &&
-                                        !page.getCategory().startsWith(FbConstants.Response.CATEGORY_LOCAL)) {
+                                boolean validCategory = false;
+                                boolean validCategoryList = false;
+
+                                //check category field to see if it contains "restaurant" or "local"
+                                String category = page.getCategory().toLowerCase();
+                                if (category.contains(FbConstants.Response.CATEGORY_RESTAURANT) || category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
+                                    validCategory = true;
+                                }
+
+                                //if category is valid, then check category_list field to see if any one of the categories contain "restaurant"
+                                if (validCategory) {
+                                    String[] categoryArray = page.getCategoryList();
+                                    for (int i = 0; i < categoryArray.length; i++) {
+                                        category = categoryArray[i].toLowerCase();
+                                        if (category.contains(FbConstants.Response.CATEGORY_RESTAURANT) || category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
+                                            validCategoryList = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+
+                                //if both validCategory and validCategoryList are true, this result is good, so don't remove.
+                                //otherwise, remove the result
+                                if (!(validCategory && validCategoryList)) {
+                                    Log.d(TAG, String.format("searchForPlaces: Not one category is restaurant. Name:%s, Category:%s, CategoryList:%s",
+                                            page.getName(), page.getCategory(), Arrays.toString(page.getCategoryList())));
                                     iterator.remove();
                                 }
                             }

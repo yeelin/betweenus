@@ -54,8 +54,13 @@ public class SimplifiedBusinessAdapter
         viewHolder.categories.setText(business.getCategories());
         viewHolder.reviews.setText(parent.getContext().getString(R.string.review_count, business.getReviews()));
 
-        //load the images
-        ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image);
+        //load the image
+        //don't worry about imageUrl being null since Picasso will handle it and use the placeholder instead
+        //checking business.getImageUrl() != null causes an issue here because if the view is recycled and the imageUrl
+        //for the current business is null, then the imageView will not be cleared.
+        ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
+
+        //load the rating stars
         final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
         viewHolder.reviews.setTag(target);
         ImageUtils.loadImage(parent.getContext(), business.getRatingUrl(), target);

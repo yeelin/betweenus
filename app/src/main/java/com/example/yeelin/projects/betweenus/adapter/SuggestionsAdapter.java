@@ -111,9 +111,10 @@ public class SuggestionsAdapter
 
         //set the views
         //image
-        if (business.getImageUrl() != null) {
-            ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
-        }
+        //don't worry about imageUrl being null since Picasso will handle it and use the placeholder instead
+        //checking business.getImageUrl() != null causes an issue here because if the view is recycled and the imageUrl
+        //for the current business is null, then the imageView will not be cleared.
+        ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
 
         //name
         viewHolder.name.setText(business.getName());
