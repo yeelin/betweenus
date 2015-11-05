@@ -14,6 +14,10 @@ public class FbPagePicture {
         return data;
     }
 
+    public boolean isSilhouette() {
+        return data.isSilhouette();
+    }
+
     public String toString() {
         return data.toString();
     }

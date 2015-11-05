@@ -6,6 +6,9 @@
     <!-- elevations -->
     <dimen name="toolbar_elevation">8dp</dimen>
 
+    <!-- profile image -->
+    <dimen name="profile_image_size">75dp</dimen>
+
     <!-- text sizes -->
     <dimen name="xlarge_textSize">72sp</dimen>
     <dimen name="medium_textSize">24sp</dimen>

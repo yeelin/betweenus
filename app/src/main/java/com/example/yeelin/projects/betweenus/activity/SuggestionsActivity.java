@@ -621,7 +621,8 @@ public class SuggestionsActivity
 
                 //create fb graph request for searching places
                 //provide SuggestionsLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
-                FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, this);
+                int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
+                FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, imageSizePx, imageSizePx, this);
             }
             else {
                 Log.d(TAG, "onPlacesSuccess: User is not logged in");

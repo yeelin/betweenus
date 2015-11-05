@@ -25,8 +25,8 @@
         app:layout_gravity="start|top"
         app:layout_columnWeight=".2"
 
-        android:layout_width="75dp"
-        android:layout_height="75dp"
+        android:layout_width="@dimen/profile_image_size"
+        android:layout_height="@dimen/profile_image_size"
 
         android:contentDescription="@string/image_placeholder_content_description"
         android:background="@drawable/image_placeholder_border"

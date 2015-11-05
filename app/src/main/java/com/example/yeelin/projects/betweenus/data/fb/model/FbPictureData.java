@@ -16,7 +16,7 @@ public class FbPictureData {
         return url;
     }
 
-    public boolean is_silhouette() {
+    public boolean isSilhouette() {
         return is_silhouette;
     }
 

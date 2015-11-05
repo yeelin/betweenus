@@ -29,22 +29,25 @@ public class FbApiHelper {
      * The request is made asynchronously so the caller must provide a callback.
      * @param accessToken
      * @param midLatLng
+     * @param imageHeightPx
+     * @param imageWidthPx
      * @param listener
      */
-    public static void searchForPlaces(AccessToken accessToken, LatLng midLatLng, final SuggestionsLoaderListener listener) {
+    public static void searchForPlaces(AccessToken accessToken, LatLng midLatLng, int imageHeightPx, int imageWidthPx,
+                                       final SuggestionsLoaderListener listener) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
-        parameters.putString(FbConstants.QUERY, FbConstants.REQUEST_QUERY);
-        parameters.putString(FbConstants.TYPE, FbConstants.REQUEST_TYPE);
-        parameters.putString(FbConstants.CENTER, String.format("%f,%f", midLatLng.latitude, midLatLng.longitude));
-        parameters.putString(FbConstants.DISTANCE, FbConstants.REQUEST_DISTANCE);
-        parameters.putString(FbConstants.FIELDS, FbConstants.REQUEST_FIELDS_SIMPLE);
-        Log.d(TAG, String.format("searchForPlaces: MidLatLng:%f,%f", midLatLng.latitude, midLatLng.longitude));
+        parameters.putString(FbConstants.ParamNames.QUERY, FbConstants.ParamValues.QUERY_RESTAURANT);
+        parameters.putString(FbConstants.ParamNames.TYPE, FbConstants.ParamValues.TYPE_PLACE);
+        parameters.putString(FbConstants.ParamNames.CENTER, String.format("%f,%f", midLatLng.latitude, midLatLng.longitude));
+        parameters.putString(FbConstants.ParamNames.DISTANCE, FbConstants.ParamValues.DISTANCE_THREE_MILE_RADIUS);
+        parameters.putString(FbConstants.ParamNames.LIMIT, FbConstants.ParamValues.LIMIT_20);
+        parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildSimpleFields(imageHeightPx, imageWidthPx));
 
         //create the graph request
         final GraphRequest request = new GraphRequest(
                 accessToken,
-                FbConstants.SEARCH_ENDPOINT,
+                FbConstants.Endpoints.SEARCH,
                 parameters,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -53,16 +56,14 @@ public class FbApiHelper {
                         Log.d(TAG, String.format("searchForPlaces: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
                         final FbResult result = FbJsonDeserializerHelper.deserializeFbResponse(response.getRawResponse());
 
-                        //Remove any not Restaurant/cafe or Local business categories
+                        //Remove any pages that are not Restaurant/cafe or Local business categories
                         //This is needed to cleanup fb data
                         if (result != null) {
                             for (Iterator<FbPage> iterator = result.getPages().iterator(); iterator.hasNext();) {
                                 FbPage page = iterator.next();
-                                if (!page.getCategory().startsWith(FbConstants.CATEGORY_RESTAURANT) && !page.getCategory().startsWith(FbConstants.CATEGORY_LOCAL)) {
-                                    Log.d(TAG, "searchForPlaces: Removing " + page.getName());
-                                    Log.d(TAG, "searchForPlaces: Size before remove:" + result.getPages().size());
+                                if (!page.getCategory().startsWith(FbConstants.Response.CATEGORY_RESTAURANT) &&
+                                        !page.getCategory().startsWith(FbConstants.Response.CATEGORY_LOCAL)) {
                                     iterator.remove();
-                                    Log.d(TAG, "searchForPlaces: Size after remove:" + result.getPages().size());
                                 }
                             }
                         }
@@ -81,10 +82,11 @@ public class FbApiHelper {
      * @param id
      * @param listener
      */
-    public static void getPlaceDetails(AccessToken accessToken, String id, final SingleSuggestionLoaderListener listener) {
+    public static void getPlaceDetails(AccessToken accessToken, String id, int imageHeightPx, int imageWidthPx,
+                                       final SingleSuggestionLoaderListener listener) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
-        parameters.putString(FbConstants.FIELDS, FbConstants.REQUEST_FIELDS_DETAIL);
+        parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildDetailFields(imageHeightPx, imageWidthPx));
 
         //create the graph request
         GraphRequest request = new GraphRequest(

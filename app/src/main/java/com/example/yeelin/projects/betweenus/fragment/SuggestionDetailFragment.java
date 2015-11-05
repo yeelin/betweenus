@@ -260,7 +260,8 @@ public class SuggestionDetailFragment
 
                 //create fb graph request for searching places
                 //provide SingleSuggestionLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
-                FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, this);
+                int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
+                FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, imageSizePx, imageSizePx, this);
             }
         }
         else {
