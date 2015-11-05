@@ -1,7 +1,5 @@
 package com.example.yeelin.projects.betweenus.data.fb.model;
 
-import android.support.v4.util.ArrayMap;
-import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
@@ -9,10 +7,8 @@ import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by ninjakiki on 10/27/15.
@@ -39,15 +35,15 @@ public class FbPage implements LocalBusiness {
 
     private final FbLocation location;
     private final String name;
-    private final FbPageParking parking;
-    private final FbPagePaymentOptions payment_options;
+    private final HashMap<String,Integer> parking;
+    private final HashMap<String,Integer> payment_options;
     private final String phone;
     private final FbPagePicture picture;
 
     private final String price_range;
     private final String public_transit;
     private final HashMap<String,Integer> restaurant_services;
-    private final FbPageRestaurantSpecialties restaurant_specialties;
+    private final HashMap<String,Integer> restaurant_specialties;
 
     private final String website;
     private final int checkins;
@@ -55,8 +51,8 @@ public class FbPage implements LocalBusiness {
 
     public FbPage(String id, String about, String attire, String category, FbPageCategory[] category_list, FbCoverPhoto cover, String culinary_team,
                   String description, String[] food_styles, String general_info, HashMap<String, String> hours, boolean is_always_open, String link,
-                  FbLocation location, String name, FbPageParking parking, FbPagePaymentOptions payment_options, String phone, FbPagePicture picture,
-                  String price_range, String public_transit, HashMap<String,Integer> restaurant_services, FbPageRestaurantSpecialties restaurant_specialties,
+                  FbLocation location, String name, HashMap<String,Integer> parking, HashMap<String,Integer> payment_options, String phone, FbPagePicture picture,
+                  String price_range, String public_transit, HashMap<String,Integer> restaurant_services, HashMap<String,Integer> restaurant_specialties,
                   String website, int checkins, int likes) {
         this.id = id;
         this.about = about;
@@ -99,8 +95,8 @@ public class FbPage implements LocalBusiness {
                         "Website:%s, Checkins:%d, Likes:%d]}" ,
                 id, about, attire, category, Arrays.toString(category_list), cover, culinary_team,
                 description, Arrays.toString(food_styles), general_info, Arrays.toString(getHours()), is_always_open, link,
-                location, name, parking, payment_options, phone, picture,
-                price_range, public_transit, Arrays.toString(getRestaurantServices()), restaurant_specialties,
+                location, name, Arrays.toString(getParking()), Arrays.toString(getPaymentOptions()), phone, picture,
+                price_range, public_transit, Arrays.toString(getRestaurantServices()), Arrays.toString(getRestaurantSpecialities()),
                 website, checkins, likes);
     }
 
@@ -112,6 +108,38 @@ public class FbPage implements LocalBusiness {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String[] getParking() {
+        if (parking == null || parking.size() == 0) return null;
+
+        ArrayList<String> parkingArrayList = new ArrayList<>(parking.size());
+        for (Map.Entry<String,Integer> entry : parking.entrySet()) {
+            if (entry.getValue() == 1) {
+                parkingArrayList.add(FbPageParking.MAP.get(entry.getKey()));
+            }
+        }
+
+        //if we never found any parking==1 values, return null
+        if (parkingArrayList.size() == 0) return null;
+        return parkingArrayList.toArray(new String[parkingArrayList.size()]);
+    }
+
+    @Override
+    public String[] getPaymentOptions() {
+        if (payment_options == null || payment_options.size() == 0) return null;
+
+        ArrayList<String> paymentOptionsArrayList = new ArrayList<>(payment_options.size());
+        for (Map.Entry<String,Integer> entry : payment_options.entrySet()) {
+            if (entry.getValue() == 1) {
+                paymentOptionsArrayList.add(FbPagePaymentOptions.MAP.get(entry.getKey()));
+            }
+        }
+
+        //if we never found any payment options==1 values, return null
+        if (paymentOptionsArrayList.size() == 0) return null;
+        return paymentOptionsArrayList.toArray(new String[paymentOptionsArrayList.size()]);
     }
 
     @Override
@@ -149,7 +177,24 @@ public class FbPage implements LocalBusiness {
                 restaurantServicesArrayList.add(FbPageRestaurantServices.MAP.get(entry.getKey()));
             }
         }
+        //if we never found any restaurant services==1 values, return null
+        if (restaurantServicesArrayList.size() == 0) return null;
         return restaurantServicesArrayList.toArray(new String[restaurantServicesArrayList.size()]);
+    }
+
+    @Override
+    public String[] getRestaurantSpecialities() {
+        if (restaurant_specialties == null || restaurant_specialties.size() == 0) return null;
+
+        ArrayList<String> restaurantSpecialitiesArrayList = new ArrayList<>(restaurant_specialties.size());
+        for (Map.Entry<String,Integer> entry : restaurant_specialties.entrySet()) {
+            if (entry.getValue() == 1) {
+                restaurantSpecialitiesArrayList.add(FbPageRestaurantSpecialities.MAP.get(entry.getKey()));
+            }
+        }
+        //if we never found any restaurant specialities==1 values, return null
+        if (restaurantSpecialitiesArrayList.size() == 0) return null;
+        return restaurantSpecialitiesArrayList.toArray(new String[restaurantSpecialitiesArrayList.size()]);
     }
 
     @Override
@@ -262,7 +307,6 @@ public class FbPage implements LocalBusiness {
             ++n;
         }
 
-        Log.d(TAG, "buildHoursArray:" + Arrays.toString(hoursArray));
         return hoursArray;
     }
 

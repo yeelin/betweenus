@@ -234,6 +234,17 @@
                 tools:text="@string/detail_hours_fake"/>
             <!-- END:Hours group-->
 
+            <!-- START:Specialities group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_specialities"/>
+            <TextView
+                android:id="@+id/detail_specialities"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_specialities_fake"/>
+            <!-- END:Specialities group-->
+
             <!-- START:Services group-->
             <TextView
                 android:layout_marginTop="@dimen/card_content_padding"
@@ -245,6 +256,28 @@
                 tools:text="@string/detail_services_fake"/>
             <!-- END:Services group-->
 
+            <!-- START:Parking group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_parking"/>
+            <TextView
+                android:id="@+id/detail_parking"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_parking_fake"/>
+            <!-- END:Parking group-->
+
+            <!-- START:PaymentOptions group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_payment_options"/>
+            <TextView
+                android:id="@+id/detail_payment_options"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_paymentOptions_fake"/>
+            <!-- END:PaymentOptions group-->
+
             <!-- START:CulinaryTeam group-->
             <TextView
                 android:layout_marginTop="@dimen/card_content_padding"
@@ -252,11 +285,9 @@
                 android:text="@string/detail_culinary_team"/>
             <TextView
                 android:id="@+id/detail_culinary_team"
-                android:minLines="1"
-                android:maxLines="7"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_culinaryTeam_fake"/>
-            <!-- END:Hours group-->
+            <!-- END:CulinaryTeam group-->
 
             <!-- START:Description group-->
             <TextView

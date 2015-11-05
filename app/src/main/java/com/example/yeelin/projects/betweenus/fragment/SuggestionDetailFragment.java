@@ -429,7 +429,7 @@ public class SuggestionDetailFragment
             viewHolder.hoursRange.setText(R.string.always_open);
         }
         else {
-            String[] hoursArray = business.getHours();
+            final String[] hoursArray = business.getHours();
             if (hoursArray == null) {
                 viewHolder.hoursRange.setText(R.string.not_available);
             } else {
@@ -442,8 +442,21 @@ public class SuggestionDetailFragment
             }
         }
 
+        //specialities
+        final String[] specialitiesArray = business.getRestaurantSpecialities();
+        if (specialitiesArray == null) {
+            viewHolder.specialities.setText(R.string.not_available);
+        } else {
+            StringBuilder builder = new StringBuilder(specialitiesArray.length);
+            for (int i=0; i<specialitiesArray.length; i++) {
+                builder.append(specialitiesArray[i]);
+                if (i < specialitiesArray.length-1) builder.append(", ");
+            }
+            viewHolder.specialities.setText(builder.toString());
+        }
+
         //services
-        String[] servicesArray = business.getRestaurantServices();
+        final String[] servicesArray = business.getRestaurantServices();
         if (servicesArray == null) {
             viewHolder.services.setText(R.string.not_available);
         } else {
@@ -453,6 +466,32 @@ public class SuggestionDetailFragment
                 if (i < servicesArray.length-1) builder.append(", ");
             }
             viewHolder.services.setText(builder.toString());
+        }
+
+        //parking
+        final String[] parkingArray = business.getParking();
+        if (parkingArray == null) {
+            viewHolder.parking.setText(R.string.not_available);
+        } else {
+            StringBuilder builder = new StringBuilder(parkingArray.length);
+            for (int i=0; i<parkingArray.length; i++) {
+                builder.append(parkingArray[i]);
+                if (i < parkingArray.length-1) builder.append(", ");
+            }
+            viewHolder.parking.setText(builder.toString());
+        }
+
+        //payment options
+        final String[] paymentOptionsArray = business.getPaymentOptions();
+        if (paymentOptionsArray == null) {
+            viewHolder.paymentOptions.setText(R.string.not_available);
+        } else {
+            StringBuilder builder = new StringBuilder(paymentOptionsArray.length);
+            for (int i=0; i<paymentOptionsArray.length; i++) {
+                builder.append(paymentOptionsArray[i]);
+                if (i < paymentOptionsArray.length-1) builder.append(", ");
+            }
+            viewHolder.paymentOptions.setText(builder.toString());
         }
 
         //culinary team
@@ -544,7 +583,10 @@ public class SuggestionDetailFragment
         final TextView reviews;
         final TextView checkins;
         final TextView hoursRange;
+        final TextView specialities;
         final TextView services;
+        final TextView parking;
+        final TextView paymentOptions;
         final TextView culinaryTeam;
         final TextView description;
 
@@ -575,7 +617,10 @@ public class SuggestionDetailFragment
             reviews = (TextView) view.findViewById(R.id.detail_reviews);
             checkins = (TextView) view.findViewById(R.id.detail_checkins);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
+            specialities = (TextView) view.findViewById(R.id.detail_specialities);
             services = (TextView) view.findViewById(R.id.detail_services);
+            parking = (TextView) view.findViewById(R.id.detail_parking);
+            paymentOptions = (TextView) view.findViewById(R.id.detail_payment_options);
             culinaryTeam = (TextView) view.findViewById(R.id.detail_culinary_team);
             description = (TextView) view.findViewById(R.id.detail_description);
 

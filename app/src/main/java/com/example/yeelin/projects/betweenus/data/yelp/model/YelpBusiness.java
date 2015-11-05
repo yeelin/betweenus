@@ -68,6 +68,16 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public String[] getParking() {
+        return null;
+    }
+
+    @Override
+    public String[] getPaymentOptions() {
+        return null;
+    }
+
+    @Override
     public String getAbout() {
         return null;
     }
@@ -94,6 +104,11 @@ public class YelpBusiness implements LocalBusiness {
 
     @Override
     public String[] getRestaurantServices() {
+        return null;
+    }
+
+    @Override
+    public String[] getRestaurantSpecialities() {
         return null;
     }
 

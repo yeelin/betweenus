@@ -21,15 +21,15 @@ public interface LocalBusiness {
 
     LocalBusinessLocation getLocalBusinessLocation();
     String getName();
-    //Missing:Parking
-    //Missing:Payment options
+    String[] getParking();
+    String[] getPaymentOptions();
     String getPhoneNumber();
     String getImageUrl();
 
     String getPriceRange();
     String getPublicTransit();
     String[] getRestaurantServices();
-    //Missing:restaurant_specialties
+    String[] getRestaurantSpecialities();
 
     String getMobileUrl();
     double getRating();
