@@ -234,6 +234,17 @@
                 tools:text="@string/detail_hours_fake"/>
             <!-- END:Hours group-->
 
+            <!-- START:Services group-->
+            <TextView
+                android:layout_marginTop="@dimen/card_content_padding"
+                style="@style/Medium_PrimaryTextViewStyle"
+                android:text="@string/detail_services"/>
+            <TextView
+                android:id="@+id/detail_services"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_services_fake"/>
+            <!-- END:Services group-->
+
             <!-- START:CulinaryTeam group-->
             <TextView
                 android:layout_marginTop="@dimen/card_content_padding"

@@ -28,7 +28,7 @@ public interface LocalBusiness {
 
     String getPriceRange();
     String getPublicTransit();
-    //Missing:restaurant_services
+    String[] getRestaurantServices();
     //Missing:restaurant_specialties
 
     String getMobileUrl();

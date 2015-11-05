@@ -1,5 +1,7 @@
 package com.example.yeelin.projects.betweenus.data.fb.model;
 
+import android.support.v4.util.ArrayMap;
+import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by ninjakiki on 10/27/15.
@@ -29,7 +33,7 @@ public class FbPage implements LocalBusiness {
     private final String description;
     private final String[] food_styles;
     private final String general_info;
-    private final HashMap<String, String> hours;
+    private final HashMap<String,String> hours;
     private final boolean is_always_open;
     private final String link;
 
@@ -42,7 +46,7 @@ public class FbPage implements LocalBusiness {
 
     private final String price_range;
     private final String public_transit;
-    private final FbPageRestaurantServices restaurant_services;
+    private final HashMap<String,Integer> restaurant_services;
     private final FbPageRestaurantSpecialties restaurant_specialties;
 
     private final String website;
@@ -52,7 +56,7 @@ public class FbPage implements LocalBusiness {
     public FbPage(String id, String about, String attire, String category, FbPageCategory[] category_list, FbCoverPhoto cover, String culinary_team,
                   String description, String[] food_styles, String general_info, HashMap<String, String> hours, boolean is_always_open, String link,
                   FbLocation location, String name, FbPageParking parking, FbPagePaymentOptions payment_options, String phone, FbPagePicture picture,
-                  String price_range, String public_transit, FbPageRestaurantServices restaurant_services, FbPageRestaurantSpecialties restaurant_specialties,
+                  String price_range, String public_transit, HashMap<String,Integer> restaurant_services, FbPageRestaurantSpecialties restaurant_specialties,
                   String website, int checkins, int likes) {
         this.id = id;
         this.about = about;
@@ -94,9 +98,9 @@ public class FbPage implements LocalBusiness {
                         "PriceRange:%s, Transit:%s, Services:%s, Specialties:%s, " +
                         "Website:%s, Checkins:%d, Likes:%d]}" ,
                 id, about, attire, category, Arrays.toString(category_list), cover, culinary_team,
-                description, Arrays.toString(food_styles), general_info, getHours(), is_always_open, link,
+                description, Arrays.toString(food_styles), general_info, Arrays.toString(getHours()), is_always_open, link,
                 location, name, parking, payment_options, phone, picture,
-                price_range, public_transit, restaurant_services, restaurant_specialties,
+                price_range, public_transit, Arrays.toString(getRestaurantServices()), restaurant_specialties,
                 website, checkins, likes);
     }
 
@@ -136,6 +140,19 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
+    public String[] getRestaurantServices() {
+        if (restaurant_services == null || restaurant_services.size() == 0) return null;
+
+        ArrayList<String> restaurantServicesArrayList = new ArrayList<>(restaurant_services.size());
+        for (Map.Entry<String,Integer> entry : restaurant_services.entrySet()) {
+            if (entry.getValue() == 1) {
+                restaurantServicesArrayList.add(FbPageRestaurantServices.MAP.get(entry.getKey()));
+            }
+        }
+        return restaurantServicesArrayList.toArray(new String[restaurantServicesArrayList.size()]);
+    }
+
+    @Override
     public String getMobileUrl() {
         return website;
     }
@@ -168,6 +185,7 @@ public class FbPage implements LocalBusiness {
     @Override
     public String[] getCategoryList() {
         if (category_list == null || category_list.length == 0) return null;
+
         String[] categoryArray = new String[category_list.length];
         for (int i=0; i<categoryArray.length; i++) {
             categoryArray[i] = category_list[i].getName();
@@ -197,8 +215,8 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public String[] getHours() {
-        if (hours != null) return buildHoursArray();
-        return null;
+        if (hours == null || hours.size() == 0) return null;
+        return buildHoursArray();
     }
 
     private String[] buildHoursArray() {

@@ -93,6 +93,11 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public String[] getRestaurantServices() {
+        return null;
+    }
+
+    @Override
     public String getMobileUrl() {
         return mobile_url;
     }

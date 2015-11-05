@@ -434,11 +434,25 @@ public class SuggestionDetailFragment
                 viewHolder.hoursRange.setText(R.string.not_available);
             } else {
                 StringBuilder builder = new StringBuilder(hoursArray.length);
-                for (int i = 0; i < hoursArray.length; i++) {
-                    builder.append(hoursArray[i] + "\n");
+                for (int i=0; i<hoursArray.length; i++) {
+                    builder.append(hoursArray[i]);
+                    if (i < hoursArray.length-1) builder.append("\n");
                 }
                 viewHolder.hoursRange.setText(builder.toString());
             }
+        }
+
+        //services
+        String[] servicesArray = business.getRestaurantServices();
+        if (servicesArray == null) {
+            viewHolder.services.setText(R.string.not_available);
+        } else {
+            StringBuilder builder = new StringBuilder(servicesArray.length);
+            for (int i=0; i<servicesArray.length; i++) {
+                builder.append(servicesArray[i]);
+                if (i < servicesArray.length-1) builder.append(", ");
+            }
+            viewHolder.services.setText(builder.toString());
         }
 
         //culinary team
@@ -529,6 +543,7 @@ public class SuggestionDetailFragment
         final TextView reviews;
         final TextView checkins;
         final TextView hoursRange;
+        final TextView services;
         final TextView culinaryTeam;
         final TextView description;
 
@@ -559,6 +574,7 @@ public class SuggestionDetailFragment
             reviews = (TextView) view.findViewById(R.id.detail_reviews);
             checkins = (TextView) view.findViewById(R.id.detail_checkins);
             hoursRange = (TextView) view.findViewById(R.id.detail_hours_range);
+            services = (TextView) view.findViewById(R.id.detail_services);
             culinaryTeam = (TextView) view.findViewById(R.id.detail_culinary_team);
             description = (TextView) view.findViewById(R.id.detail_description);
 
