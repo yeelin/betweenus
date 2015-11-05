@@ -458,8 +458,9 @@ public class SuggestionDetailFragment
         //culinary team
         viewHolder.culinaryTeam.setText(business.getCulinaryTeam() != null ? business.getCulinaryTeam() : getString(R.string.not_available));
 
-        //description
-        viewHolder.description.setText(business.getDescription() != null ? business.getDescription() : getString(R.string.not_available));
+        //description (if description is null, use about. if both are null, then show "not available")
+        final String description = business.getDescription() != null ? business.getDescription() : business.getAbout();
+        viewHolder.description.setText(description != null ? description : getString(R.string.not_available));
     }
 
     /**
