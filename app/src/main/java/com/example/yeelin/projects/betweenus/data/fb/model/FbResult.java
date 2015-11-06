@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.data.fb.model;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -46,5 +47,10 @@ public class FbResult implements LocalResult {
     @Override
     public double getResultLongitudeDelta() {
         return 0;
+    }
+
+    @Override
+    public int getDataSource() {
+        return LocalConstants.FACEBOOK;
     }
 }

@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -77,7 +76,7 @@ public class SuggestionsClusterMapFragment
     //allows us to retrieve data back later
     private ArrayMap<String, PlaceClusterItem> idToClusterItemMap = new ArrayMap<>(); //needed to toggle the marker color
     private SparseArray<String> clusterSizeToTitleMap = new SparseArray<>();
-    private SparseArray<String> placesWithHighRatingToSecondSnippetMap = new SparseArray<>();
+    private SparseArray<String> placesWithHighRatingToSnippetMap = new SparseArray<>();
 
     private OnSuggestionActionListener suggestionActionListener;
 
@@ -255,10 +254,13 @@ public class SuggestionsClusterMapFragment
                     business.getLocalBusinessLocation().getLatLng(),
                     business.getId(),
                     business.getName(),
-                    getString(R.string.review_count, business.getReviewCount()),
                     business.getRatingImageUrl(),
                     business.getRating(),
-                    i);
+                    business.getReviewCount(),
+                    business.getLikes(),
+                    business.getCheckins(),
+                    i,
+                    getContext());
 
             //put it in the idToClusterItemMap
             idToClusterItemMap.put(business.getId(), clusterItem);
@@ -616,7 +618,7 @@ public class SuggestionsClusterMapFragment
             Log.d(TAG, "onBeforeClusterItemRendered");
             //set the title, snippet and icon on the marker for the cluster item
             markerOptions.title(item.getTitle())
-                    .snippet(item.getSnippet())
+                    .snippet(item.getReviewsSnippet())
                     .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(item.getId()), item.getRating()));
         }
 
@@ -702,22 +704,55 @@ public class SuggestionsClusterMapFragment
             Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster marker so inflating a new map_info_place window");
             final View view = View.inflate(getContext(), R.layout.map_info_place, null);
 
-            //set the title
+            //retrieve the cluster item for the marker
+            final PlaceClusterItem placeClusterItem = clusterRenderer.getClusterItem(marker);
+
+            //get handles to all the textviews
             final TextView title = (TextView) view.findViewById(R.id.title);
+            final TextView reviews = (TextView) view.findViewById(R.id.reviews);
+            final TextView likes = (TextView) view.findViewById(R.id.likes);
+            final TextView checkins = (TextView) view.findViewById(R.id.checkins);
+
+            //set the title
             title.setText(marker.getTitle());
 
-            //set the snippet (i.e. # of reviews) text
-            final TextView snippet = (TextView) view.findViewById(R.id.snippet);
-            snippet.setText(marker.getSnippet());
+            if (placeClusterItem == null) {
+                reviews.setVisibility(View.GONE);
+                likes.setVisibility(View.GONE);
+                checkins.setVisibility(View.GONE);
+            }
+            else {
+                //set reviews
+                if (placeClusterItem.getReviews() < 0) {
+                    reviews.setVisibility(View.GONE);
+                }
+                else {
+                    reviews.setText(placeClusterItem.getReviewsSnippet());
+                    //note: picasso only keeps a weak ref to the target so it may be gc-ed
+                    //use setTag so that target will be alive as long as the view is alive
+                    final Target target = ImageUtils.newTarget(getContext(), reviews, marker, true);
+                    reviews.setTag(target);
+                    ImageUtils.loadImage(getContext(),
+                            placeClusterItem.getRatingUrl(), //TODO: provide placeholder rating image
+                            target);
+                }
 
-            //note: picasso only keeps a weak ref to the target so it may be gc-ed
-            //use setTag so that target will be alive as long as the view is alive
-            final PlaceClusterItem placeClusterItem = clusterRenderer.getClusterItem(marker);
-            final Target target = ImageUtils.newTarget(getContext(), snippet, marker, true);
-            snippet.setTag(target);
-            ImageUtils.loadImage(getContext(),
-                    placeClusterItem != null ? placeClusterItem.getRatingUrl() : null, //TODO: provide placeholder image
-                    target);
+                //set likes
+                if (placeClusterItem.getLikes() < 0) {
+                    likes.setVisibility(View.GONE);
+                }
+                else {
+                    likes.setText(placeClusterItem.getLikesSnippet());
+                }
+
+                //set checkins
+                if (placeClusterItem.getCheckins() < 0) {
+                    checkins.setVisibility(View.GONE);
+                }
+                else {
+                    checkins.setText(placeClusterItem.getCheckinsSnippet());
+                }
+            }
 
             //store the info window view so that we can return it if requested again
             clusterItemMarkerToInfoWindowMap.put(marker, view);
@@ -783,62 +818,93 @@ public class SuggestionsClusterMapFragment
             Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster marker so inflating a new map_info_cluster window");
             final View view = View.inflate(getContext(), R.layout.map_info_cluster, null);
 
-            //set the title
+            //retrieve the cluster for the marker
+            final Cluster<PlaceClusterItem> cluster = clusterRenderer.getCluster(marker);
+
+            //get handles to all the textviews
             final TextView title = (TextView) view.findViewById(R.id.title);
+            final TextView highRating = (TextView) view.findViewById(R.id.high_rating);
+            final TextView bestRating = (TextView) view.findViewById(R.id.best_rating);
+            final TextView mostLikes = (TextView) view.findViewById(R.id.most_likes);
+            final TextView mostCheckins = (TextView) view.findViewById(R.id.most_checkins);
+
+            //set title
             title.setText(marker.getTitle());
 
-            //set first and second snippets
-            final Cluster<PlaceClusterItem> cluster = clusterRenderer.getCluster(marker);
-            final TextView firstSnippet = (TextView) view.findViewById(R.id.first_snippet);
-            final TextView secondSnippet = (TextView) view.findViewById(R.id.second_snippet);
+            //set highRating and bestRating
             if (cluster == null) {
-                firstSnippet.setVisibility(View.GONE);
-                secondSnippet.setVisibility(View.GONE);
+                highRating.setVisibility(View.GONE);
+                bestRating.setVisibility(View.GONE);
+                mostLikes.setVisibility(View.GONE);
+                mostCheckins.setVisibility(View.GONE);
             }
             else {
                 //compute the best rating in the cluster and the places with high ratings, i.e. >= 4
                 double bestRatingSoFar = 0.0;
                 String bestRatingSoFarUrl = "";
                 int numWithHighRating = 0;
+                int mostLikesSoFar = 0;
+                int mostCheckinsSoFar = 0;
 
                 for (PlaceClusterItem clusterItem : cluster.getItems()) {
-                    if (clusterItem.getRating() >= MIN_HIGH_RATING) {
-                        ++numWithHighRating;
-                    }
+                    //high rating
+                    if (clusterItem.getRating() >= MIN_HIGH_RATING) ++numWithHighRating;
+
+                    //best rating
                     if (clusterItem.getRating() > bestRatingSoFar) {
                         bestRatingSoFar = clusterItem.getRating();
                         bestRatingSoFarUrl = clusterItem.getRatingUrl();
                     }
+
+                    //most likes
+                    if (clusterItem.getLikes() > mostLikesSoFar) mostLikesSoFar = clusterItem.getLikes();
+
+                    //most checkins
+                    if (clusterItem.getCheckins() > mostCheckinsSoFar) mostCheckinsSoFar = clusterItem.getCheckins();
                 }
 
-                //first snippet: load the rating image using the best rating url
-                final Target target = ImageUtils.newTarget(getContext(), firstSnippet, marker, false);
-                firstSnippet.setTag(target);
-                ImageUtils.loadImage(getContext(), bestRatingSoFarUrl, target);
-
-                //check if the best rating place has less than 4 stars
-                //if so no need to report numWithHighRating
-                if (bestRatingSoFar < MIN_HIGH_RATING) {
-                    secondSnippet.setVisibility(View.GONE);
+                //show bestRatingSoFar only if it's greater than its original value
+                if (bestRatingSoFar == 0.0) {
+                    //hide ratings-related UX
+                    highRating.setVisibility(View.GONE);
+                    bestRating.setVisibility(View.GONE);
                 }
                 else {
-                    //check if the second snippet string already exists for number with high ratings
-                    //reuse it if it does, so that we don't do another resource read
-                    String clusterSecondSnippet = placesWithHighRatingToSecondSnippetMap.get(numWithHighRating);
-                    if (clusterSecondSnippet == null) {
-                        clusterSecondSnippet = getResources().getQuantityString(
-                                R.plurals.map_cluster_infoWindow_second_snippet,
-                                numWithHighRating,
-                                numWithHighRating);
-                        placesWithHighRatingToSecondSnippetMap.put(numWithHighRating, clusterSecondSnippet);
+                    //show bestRating: load the rating image using the best rating url
+                    final Target target = ImageUtils.newTarget(getContext(), bestRating, marker, false);
+                    bestRating.setTag(target);
+                    ImageUtils.loadImage(getContext(), bestRatingSoFarUrl, target);
+
+                    //check if the best rating place has less than 4 stars
+                    //if so no need to report numWithHighRating
+                    if (bestRatingSoFar < MIN_HIGH_RATING) {
+                        highRating.setVisibility(View.GONE);
+                    } else {
+                        //check if the highRating snippet string already exists for number with high ratings
+                        //reuse it if it does, so that we don't do another resource read
+                        String highRatingSnippet = placesWithHighRatingToSnippetMap.get(numWithHighRating);
+                        if (highRatingSnippet == null) {
+                            highRatingSnippet = getResources().getQuantityString(
+                                    R.plurals.map_cluster_infoWindow_high_rating,
+                                    numWithHighRating,
+                                    numWithHighRating);
+                            placesWithHighRatingToSnippetMap.put(numWithHighRating, highRatingSnippet);
+                        }
+                        highRating.setText(highRatingSnippet);
                     }
-                    secondSnippet.setText(clusterSecondSnippet);
                 }
+
+                //show mostLikesSoFar only if it's greater than its original value
+                if (mostLikesSoFar == 0) mostLikes.setVisibility(View.GONE);
+                else mostLikes.setText(getResources().getQuantityString(R.plurals.most_likes, mostLikesSoFar, mostLikesSoFar));
+
+                //show mostCheckinsSoFar only if it's greater than its original value
+                if (mostCheckinsSoFar == 0) mostCheckins.setVisibility(View.GONE);
+                else mostCheckins.setText(getResources().getQuantityString(R.plurals.most_checkins, mostCheckinsSoFar, mostCheckinsSoFar));
             }
 
             //store the info window view in a map so that we can return it if requested again
             clusterMarkerToInfoWindowMap.put(marker, view);
-
             return view;
         }
     }

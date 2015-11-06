@@ -103,6 +103,8 @@
     <string name="not_available">Not available</string>
     <string name="detail_container_not_available">Sorry, details are not available at this time.</string>
     <string name="image_placeholder_content_description">Image not available</string>
+    <string name="no_likes">0 likes</string>
+    <string name="no_checkins">0 checkins</string>
     <string name="no_reviews">0 reviews</string>
     <string name="always_open">Open 24/7</string>
 
@@ -121,12 +123,20 @@
     <string name="map_marker_you">You</string>
     <string name="map_marker_friend">Friend</string>
 
-    <!-- Map info window strings -->
+    <!-- Map cluster info window strings -->
     <string name="map_cluster_infoWindow_title">%1$d Results</string>
-    <string name="map_cluster_infoWindow_first_snippet">Best rating:</string>
-    <plurals name="map_cluster_infoWindow_second_snippet">
+    <string name="map_cluster_infoWindow_best_rating">Best rating:</string>
+    <plurals name="map_cluster_infoWindow_high_rating">
         <item quantity="one">4+ stars: %1$d result</item>
         <item quantity="other">4+ stars: %1$d results</item>
+    </plurals>
+    <plurals name="most_likes">
+        <item quantity="one">Most likes: %1$d person</item>
+        <item quantity="other">Most likes: %1$d people</item>
+    </plurals>
+    <plurals name="most_checkins">
+        <item quantity="one">Most checkins: %1$d person</item>
+        <item quantity="other">Most checkins: %1$d people</item>
     </plurals>
 
     <!-- Send activity strings -->

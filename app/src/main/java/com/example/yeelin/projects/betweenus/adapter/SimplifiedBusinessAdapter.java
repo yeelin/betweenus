@@ -82,26 +82,44 @@ public class SimplifiedBusinessAdapter
             viewHolder.categories.setText(builder.toString());
         }
 
-        //ratings and reviews OR likes and checkins
-        if (simplifiedBusiness.getReviews() != -1) {
-            //we have yelp data
-            viewHolder.reviews.setText(parent.getContext().getString(R.string.review_count, simplifiedBusiness.getReviews()));
-
-            //load the rating stars
-            final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
-            viewHolder.reviews.setTag(target);
-            ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getRatingImageUrl(), target);
-
-            //no likes or checkins
-            viewHolder.checkins.setVisibility(View.GONE);
+        //ratings and reviews
+        if (simplifiedBusiness.getReviews() < 0 || simplifiedBusiness.getRating() < 0) {
+            //we have fb data, so hide ratings and reviews
+            viewHolder.ratingAndReviews.setVisibility(View.GONE);
         }
         else {
-            //we most likely have fb data
-            viewHolder.checkins.setVisibility(View.VISIBLE);
-            viewHolder.reviews.setText(getContext().getResources().getQuantityString(
+            //we have yelp data
+            viewHolder.ratingAndReviews.setVisibility(View.VISIBLE);
+            viewHolder.ratingAndReviews.setText(parent.getContext().getString(R.string.review_count, simplifiedBusiness.getReviews()));
+
+            //load the rating stars
+            final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.ratingAndReviews);
+            viewHolder.ratingAndReviews.setTag(target);
+            ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getRatingImageUrl(), target);
+        }
+
+        //likes
+        if (simplifiedBusiness.getLikes() < 0) {
+            //we have yelp data, so hide likes
+            viewHolder.likes.setVisibility(View.GONE);
+        }
+        else {
+            //we have fb data
+            viewHolder.likes.setVisibility(View.VISIBLE);
+            viewHolder.likes.setText(getContext().getResources().getQuantityString(
                     R.plurals.short_like_count,
                     simplifiedBusiness.getLikes(),
                     simplifiedBusiness.getLikes()));
+        }
+
+        //checkins
+        if (simplifiedBusiness.getCheckins() < 0) {
+            //we have yelp data, so hide checkins
+            viewHolder.checkins.setVisibility(View.GONE);
+        }
+        else {
+            //we have fb data
+            viewHolder.checkins.setVisibility(View.VISIBLE);
             viewHolder.checkins.setText(getContext().getResources().getQuantityString(
                     R.plurals.short_checkin_count,
                     simplifiedBusiness.getCheckins(),
@@ -119,7 +137,8 @@ public class SimplifiedBusinessAdapter
         final TextView name;
         final TextView address;
         final TextView categories;
-        final TextView reviews;
+        final TextView ratingAndReviews;
+        final TextView likes;
         final TextView checkins;
 
         ViewHolder(View view) {
@@ -127,7 +146,8 @@ public class SimplifiedBusinessAdapter
             name = (TextView) view.findViewById(R.id.item_name);
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
-            reviews = (TextView) view.findViewById(R.id.item_reviews);
+            ratingAndReviews = (TextView) view.findViewById(R.id.item_rating_and_reviews);
+            likes = (TextView) view.findViewById(R.id.item_likes);
             checkins = (TextView) view.findViewById(R.id.item_checkins);
         }
     }

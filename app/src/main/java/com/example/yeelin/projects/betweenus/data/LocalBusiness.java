@@ -37,4 +37,6 @@ public interface LocalBusiness {
     int getReviewCount();
     int getCheckins();
     int getLikes();
+
+    int getDataSource();
 }

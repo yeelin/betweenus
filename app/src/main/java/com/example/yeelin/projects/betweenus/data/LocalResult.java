@@ -15,4 +15,6 @@ public interface LocalResult {
     double getResultLatitudeDelta();
 
     double getResultLongitudeDelta();
+
+    int getDataSource();
 }

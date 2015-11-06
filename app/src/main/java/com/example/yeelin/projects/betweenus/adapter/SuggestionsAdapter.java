@@ -149,32 +149,52 @@ public class SuggestionsAdapter
             viewHolder.categories.setText(builder.toString());
         }
 
-        //ratings and reviews OR likes and checkins
-        if (business.getReviewCount() != -1) {
+        //ratings and reviews
+        if (business.getReviewCount() < 0 || business.getRating() < 0) {
+            //we have fb data, so hide ratings and reviews
+            viewHolder.ratingAndReviews.setVisibility(View.GONE);
+        }
+        else {
             //we have yelp data
-            viewHolder.reviews.setText(getContext().getString(R.string.review_count, business.getReviewCount()));
+            viewHolder.ratingAndReviews.setVisibility(View.VISIBLE);
+            viewHolder.ratingAndReviews.setText(getContext().getString(R.string.review_count, business.getReviewCount()));
             //note: picasso only keeps a weak ref to the target so it may be gc-ed
             //use setTag so that target will be alive as long as the view is alive
             if (business.getRatingImageUrl() != null) {
-                final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
-                viewHolder.reviews.setTag(target);
+                final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.ratingAndReviews);
+                viewHolder.ratingAndReviews.setTag(target);
                 ImageUtils.loadImage(parent.getContext(), business.getRatingImageUrl(), target);
             }
-            //no likes or checkins
-            viewHolder.checkins.setVisibility(View.GONE);
+        }
+
+        //likes
+        if (business.getLikes() < 0) {
+            //we have yelp data, so hide likes
+            viewHolder.likes.setVisibility(View.GONE);
         }
         else {
-            //we most likely have fb data
-            viewHolder.checkins.setVisibility(View.VISIBLE);
-            viewHolder.reviews.setText(getContext().getResources().getQuantityString(
+            //we have fb data
+            viewHolder.likes.setVisibility(View.VISIBLE);
+            viewHolder.likes.setText(getContext().getResources().getQuantityString(
                     R.plurals.short_like_count,
                     business.getLikes(),
                     business.getLikes()));
+        }
+
+        //checkins
+        if (business.getCheckins() < 0) {
+            //we have yelp data, so hide checkins
+            viewHolder.checkins.setVisibility(View.GONE);
+        }
+        else {
+            //we have fb data
+            viewHolder.checkins.setVisibility(View.VISIBLE);
             viewHolder.checkins.setText(getContext().getResources().getQuantityString(
                     R.plurals.short_checkin_count,
                     business.getCheckins(),
                     business.getCheckins()));
         }
+
         //price range
         final String priceRange = business.getPriceRange();
         if (priceRange == null) {
@@ -317,7 +337,8 @@ public class SuggestionsAdapter
         final TextView name;
         final TextView address;
         final TextView categories;
-        final TextView reviews;
+        final TextView ratingAndReviews;
+        final TextView likes;
         final TextView checkins;
         final TextView priceRange;
 
@@ -332,7 +353,8 @@ public class SuggestionsAdapter
             name = (TextView) view.findViewById(R.id.item_name);
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
-            reviews = (TextView) view.findViewById(R.id.item_reviews);
+            ratingAndReviews = (TextView) view.findViewById(R.id.item_rating_and_reviews);
+            likes = (TextView) view.findViewById(R.id.item_likes);
             checkins = (TextView) view.findViewById(R.id.item_checkins);
             priceRange = (TextView) view.findViewById(R.id.item_price_range);
             //third column

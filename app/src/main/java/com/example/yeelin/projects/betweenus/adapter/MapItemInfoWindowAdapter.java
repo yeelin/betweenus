@@ -95,7 +95,7 @@ public class MapItemInfoWindowAdapter
             view = View.inflate(context, R.layout.map_info_place, null);
 
             //set the snippet (i.e. # of reviews) text
-            TextView snippet = (TextView) view.findViewById(R.id.snippet);
+            TextView snippet = (TextView) view.findViewById(R.id.reviews);
             snippet.setText(marker.getSnippet());
 
             //set the rating image

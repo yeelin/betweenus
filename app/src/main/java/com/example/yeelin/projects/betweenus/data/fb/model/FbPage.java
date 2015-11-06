@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -214,7 +215,7 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public int getReviewCount() {
-        return -1;
+        return LocalConstants.NO_DATA_INTEGER;
     }
 
     @Override
@@ -225,6 +226,11 @@ public class FbPage implements LocalBusiness {
     @Override
     public int getLikes() {
         return likes;
+    }
+
+    @Override
+    public int getDataSource() {
+        return LocalConstants.FACEBOOK;
     }
 
     @Override
@@ -327,7 +333,7 @@ public class FbPage implements LocalBusiness {
 
     @Override
     public double getRating() {
-        return -1;
+        return LocalConstants.NO_DATA_DOUBLE;
     }
 
     @Override

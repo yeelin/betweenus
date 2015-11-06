@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.data.yelp.model;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -76,5 +77,10 @@ public class YelpResult implements LocalResult {
     public double getResultLongitudeDelta() {
         YelpResultRegion.Span span = region.getSpan();
         return span != null ? span.getLongitude_delta() : 0.0;
+    }
+
+    @Override
+    public int getDataSource() {
+        return LocalConstants.YELP;
     }
 }

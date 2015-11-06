@@ -25,7 +25,7 @@
         tools:text="10 Results"/>
 
     <TextView
-        android:id="@+id/second_snippet"
+        android:id="@+id/high_rating"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -35,7 +35,7 @@
         tools:text="4+ stars: 2 results"/>
 
     <TextView
-        android:id="@+id/first_snippet"
+        android:id="@+id/best_rating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
@@ -44,7 +44,27 @@
         android:drawableRight="@drawable/stars_small_4"
         android:drawablePadding="3dp"
         android:paddingTop="2dp"
-        android:text="@string/map_cluster_infoWindow_first_snippet"
+        android:text="@string/map_cluster_infoWindow_best_rating"
         android:gravity="center_vertical" />
+
+    <TextView
+        android:id="@+id/most_likes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:gravity="center_vertical"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="12sp"
+        tools:text="Most likes: 2056"/>
+
+    <TextView
+        android:id="@+id/most_checkins"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start"
+        android:gravity="center_vertical"
+        android:textColor="@color/textColorSecondary"
+        android:textSize="12sp"
+        tools:text="Most checkins: 20078"/>
 
 </LinearLayout>

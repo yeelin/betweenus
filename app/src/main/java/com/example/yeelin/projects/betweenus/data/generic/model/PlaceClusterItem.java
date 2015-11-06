@@ -1,5 +1,9 @@
 package com.example.yeelin.projects.betweenus.data.generic.model;
 
+import android.content.Context;
+
+import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -10,25 +14,35 @@ public class PlaceClusterItem implements ClusterItem {
     private final LatLng position;
     private final String id;
     private final String title;
-    private final String snippet;
-    private final String ratingUrl;
 
+    private final String ratingUrl;
     private final double rating;
+    private final int reviews;
+    private final int likes;
+    private final int checkins;
+
+    private String reviewsSnippet;
+    private String likesSnippet;
+    private String checkinsSnippet;
+
     private final int resultPosition;
+    private final Context context;
 
     public PlaceClusterItem(LatLng position, String id, String title,
-                            String snippet, String ratingUrl, double rating,
-                            int resultPosition) {
+                            String ratingUrl, double rating, int reviews, int likes, int checkins,
+                            int resultPosition, Context context) {
         this.position = position;
-
         this.id = id;
         this.title = title;
 
-        this.snippet = snippet;
         this.ratingUrl = ratingUrl;
         this.rating = rating;
+        this.reviews = reviews;
+        this.likes = likes;
+        this.checkins = checkins;
 
         this.resultPosition = resultPosition;
+        this.context = context;
     }
 
     @Override
@@ -44,10 +58,6 @@ public class PlaceClusterItem implements ClusterItem {
         return title;
     }
 
-    public String getSnippet() {
-        return snippet;
-    }
-
     public String getRatingUrl() {
         return ratingUrl;
     }
@@ -56,7 +66,40 @@ public class PlaceClusterItem implements ClusterItem {
         return rating;
     }
 
+    public int getReviews() {
+        return reviews;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public int getCheckins() {
+        return checkins;
+    }
+
     public int getResultPosition() {
         return resultPosition;
+    }
+
+    public String getReviewsSnippet() {
+        if (reviews != LocalConstants.NO_DATA_INTEGER && reviewsSnippet == null) {
+            reviewsSnippet = context.getString(R.string.review_count, reviews);
+        }
+        return reviewsSnippet;
+    }
+
+    public String getLikesSnippet() {
+        if (likes != LocalConstants.NO_DATA_INTEGER && likesSnippet == null) {
+            likesSnippet = context.getResources().getQuantityString(R.plurals.short_like_count, likes, likes);
+        }
+        return likesSnippet;
+    }
+
+    public String getCheckinsSnippet() {
+        if (checkins != LocalConstants.NO_DATA_INTEGER && checkinsSnippet == null) {
+            checkinsSnippet = context.getResources().getQuantityString(R.plurals.short_checkin_count, checkins, checkins);
+        }
+        return checkinsSnippet;
     }
 }

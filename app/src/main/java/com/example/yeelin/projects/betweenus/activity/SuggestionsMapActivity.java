@@ -316,10 +316,13 @@ public class SuggestionsMapActivity
                     business.getLocalBusinessLocation().getLatLng(),
                     business.getId(),
                     business.getName(),
-                    getString(R.string.review_count, business.getReviewCount()),
                     business.getRatingImageUrl(),
                     business.getRating(),
-                    i);
+                    business.getReviewCount(),
+                    business.getLikes(),
+                    business.getCheckins(),
+                    i,
+                    this);
 
             //put it in the idToClusterItemMap
             idToClusterItemMap.put(business.getId(), clusterItem);
@@ -534,7 +537,7 @@ public class SuggestionsMapActivity
             Log.d(TAG, "onBeforeClusterItemRendered");
             //set the title, snippet and icon on the marker for the cluster item
             markerOptions.title(item.getTitle())
-                    .snippet(item.getSnippet())
+                    .snippet(item.getReviewsSnippet())
                     .icon(MapColorUtils.determineMarkerIcon(SuggestionsMapActivity.this, selectedIdsMap.containsKey(item.getId())));
         }
 
@@ -620,22 +623,61 @@ public class SuggestionsMapActivity
             Log.d(TAG, "getInfoContents: Map doesn't have infoWindow for cluster marker so inflating a new map_info_place window");
             final View view = View.inflate(SuggestionsMapActivity.this, R.layout.map_info_place, null);
 
+            //retrieve the cluster item for the marker
+            final PlaceClusterItem placeClusterItem = clusterRenderer.getClusterItem(marker);
+
             //set the title
             final TextView title = (TextView) view.findViewById(R.id.title);
             title.setText(marker.getTitle());
 
             //set the snippet (i.e. # of reviews) text
-            final TextView snippet = (TextView) view.findViewById(R.id.snippet);
-            snippet.setText(marker.getSnippet());
+            final TextView reviews = (TextView) view.findViewById(R.id.reviews);
+            if (placeClusterItem == null) {
+                reviews.setVisibility(View.GONE);
+            }
+            else if (placeClusterItem.getReviews() < 0) {
+                reviews.setVisibility(View.GONE);
+            }
+            else {
+                reviews.setText(marker.getSnippet());
+                //note: picasso only keeps a weak ref to the target so it may be gc-ed
+                //use setTag so that target will be alive as long as the view is alive
+                final Target target = ImageUtils.newTarget(SuggestionsMapActivity.this, reviews, marker, true);
+                reviews.setTag(target);
+                ImageUtils.loadImage(SuggestionsMapActivity.this,
+                        placeClusterItem.getRatingUrl(), //TODO: provide placeholder image
+                        target);
+            }
 
-            //note: picasso only keeps a weak ref to the target so it may be gc-ed
-            //use setTag so that target will be alive as long as the view is alive
-            final PlaceClusterItem placeclusterItem = clusterRenderer.getClusterItem(marker);
-            final Target target = ImageUtils.newTarget(SuggestionsMapActivity.this, snippet, marker, true);
-            snippet.setTag(target);
-            ImageUtils.loadImage(SuggestionsMapActivity.this,
-                    placeclusterItem != null ? placeclusterItem.getRatingUrl() : null, //TODO: provide placeholder image
-                    target);
+            //set the likes
+            final TextView likes = (TextView) view.findViewById(R.id.likes);
+            if (placeClusterItem == null) {
+                likes.setVisibility(View.GONE);
+            }
+            else if (placeClusterItem.getLikes() < 0) {
+                likes.setVisibility(View.GONE);
+            }
+            else {
+                likes.setText(getResources().getQuantityString(
+                        R.plurals.short_like_count,
+                        placeClusterItem.getLikes(),
+                        placeClusterItem.getLikes()));
+            }
+
+            //set the checkins
+            final TextView checkins = (TextView) view.findViewById(R.id.checkins);
+            if (placeClusterItem == null) {
+                checkins.setVisibility(View.GONE);
+            }
+            else if (placeClusterItem.getLikes() < 0) {
+                checkins.setVisibility(View.GONE);
+            }
+            else {
+                checkins.setText(getResources().getQuantityString(
+                        R.plurals.short_checkin_count,
+                        placeClusterItem.getCheckins(),
+                        placeClusterItem.getCheckins()));
+            }
 
             //store the info window view so that we can return it if requested again
             clusterItemMarkerToInfoWindowMap.put(marker, view);
@@ -707,8 +749,8 @@ public class SuggestionsMapActivity
 
             //set first and second snippets
             final Cluster<PlaceClusterItem> cluster = clusterRenderer.getCluster(marker);
-            final TextView firstSnippet = (TextView) view.findViewById(R.id.first_snippet);
-            final TextView secondSnippet = (TextView) view.findViewById(R.id.second_snippet);
+            final TextView firstSnippet = (TextView) view.findViewById(R.id.high_rating);
+            final TextView secondSnippet = (TextView) view.findViewById(R.id.best_rating);
             if (cluster == null) {
                 firstSnippet.setVisibility(View.GONE);
                 secondSnippet.setVisibility(View.GONE);
@@ -745,7 +787,7 @@ public class SuggestionsMapActivity
                     String clusterSecondSnippet = placesWithHighRatingToSecondSnippetMap.get(numWithHighRating);
                     if (clusterSecondSnippet == null) {
                         clusterSecondSnippet = getResources().getQuantityString(
-                                R.plurals.map_cluster_infoWindow_second_snippet,
+                                R.plurals.map_cluster_infoWindow_high_rating,
                                 numWithHighRating,
                                 numWithHighRating);
                         placesWithHighRatingToSecondSnippetMap.put(numWithHighRating, clusterSecondSnippet);

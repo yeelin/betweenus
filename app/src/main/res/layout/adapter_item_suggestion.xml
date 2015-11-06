@@ -70,7 +70,7 @@
             tools:text="Categories"/>
 
         <TextView
-            android:id="@+id/item_reviews"
+            android:id="@+id/item_rating_and_reviews"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:drawableLeft="@drawable/stars_small_4"
@@ -83,13 +83,22 @@
             tools:text="123 reviews"/>
 
         <TextView
+            android:id="@+id/item_likes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="456 likes"/>
+
+        <TextView
             android:id="@+id/item_checkins"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:textSize="12sp"
             android:textColor="@color/textColorSecondary"
-            tools:text="456 checkins"/>
+            tools:text="789 checkins"/>
     </LinearLayout>
 
     <LinearLayout

@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.data.yelp.model;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -129,12 +130,17 @@ public class YelpBusiness implements LocalBusiness {
 
     @Override
     public int getCheckins() {
-        return 0;
+        return LocalConstants.NO_DATA_INTEGER;
     }
 
     @Override
     public int getLikes() {
-        return 0;
+        return LocalConstants.NO_DATA_INTEGER;
+    }
+
+    @Override
+    public int getDataSource() {
+        return LocalConstants.YELP;
     }
 
     @Override
