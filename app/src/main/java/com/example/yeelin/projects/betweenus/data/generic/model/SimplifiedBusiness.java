@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -16,34 +15,18 @@ public class SimplifiedBusiness implements Parcelable {
     private String name;
     private LatLng latLng;
     private String address;
-    private String categories;
+    private String[] categoryList;
     private int reviews;
     private double rating;
+    private int likes;
+    private int checkins;
 
     private String webUrl;
     private String imageUrl;
-    private String ratingUrl;
-
-    public static SimplifiedBusiness newInstance(@NonNull YelpBusiness business) {
-        return new SimplifiedBusiness(business);
-    }
+    private String ratingImageUrl;
 
     public static SimplifiedBusiness newInstance(@NonNull LocalBusiness business) {
         return new SimplifiedBusiness(business);
-    }
-
-    private SimplifiedBusiness(@NonNull YelpBusiness business) {
-        id = business.getId();
-        name = business.getName();
-        latLng = new LatLng(business.getLocation().getCoordinate().getLatitude(), business.getLocation().getCoordinate().getLongitude());
-        address = business.getLocation().getShortDisplayAddress();
-        categories = business.getDisplayCategories();
-        reviews = business.getReview_count();
-        rating = business.getRating();
-
-        webUrl = business.getMobile_url();
-        imageUrl = business.getImage_url();
-        ratingUrl = business.getRating_img_url_large();
     }
 
     private SimplifiedBusiness(@NonNull LocalBusiness business) {
@@ -51,13 +34,15 @@ public class SimplifiedBusiness implements Parcelable {
         name = business.getName();
         latLng = new LatLng(business.getLocalBusinessLocation().getLatLng().latitude, business.getLocalBusinessLocation().getLatLng().longitude);
         address = business.getLocalBusinessLocation().getShortDisplayAddress();
-        categories = business.getCategory();
+        categoryList = business.getCategoryList();
         reviews = business.getReviewCount();
         rating = business.getRating();
+        likes = business.getLikes();
+        checkins = business.getCheckins();
 
         webUrl = business.getMobileUrl();
         imageUrl = business.getImageUrl();
-        ratingUrl = business.getRatingImageUrl();
+        ratingImageUrl = business.getRatingImageUrl();
     }
 
     /**
@@ -69,13 +54,15 @@ public class SimplifiedBusiness implements Parcelable {
         name = in.readString();
         latLng = in.readParcelable(LatLng.class.getClassLoader());
         address = in.readString();
-        categories = in.readString();
+        categoryList = in.createStringArray();
         reviews = in.readInt();
         rating = in.readDouble();
+        likes = in.readInt();
+        checkins = in.readInt();
 
         webUrl = in.readString();
         imageUrl = in.readString();
-        ratingUrl = in.readString();
+        ratingImageUrl = in.readString();
     }
 
     /**
@@ -114,13 +101,15 @@ public class SimplifiedBusiness implements Parcelable {
         dest.writeString(name);
         dest.writeParcelable(latLng, flags);
         dest.writeString(address);
-        dest.writeString(categories);
+        dest.writeStringArray(categoryList);
         dest.writeInt(reviews);
         dest.writeDouble(rating);
+        dest.writeInt(likes);
+        dest.writeInt(checkins);
 
         dest.writeString(webUrl);
         dest.writeString(imageUrl);
-        dest.writeString(ratingUrl);
+        dest.writeString(ratingImageUrl);
     }
 
     public String getId() {
@@ -139,8 +128,8 @@ public class SimplifiedBusiness implements Parcelable {
         return address;
     }
 
-    public String getCategories() {
-        return categories;
+    public String[] getCategoryList() {
+        return categoryList;
     }
 
     public int getReviews() {
@@ -151,6 +140,14 @@ public class SimplifiedBusiness implements Parcelable {
         return rating;
     }
 
+    public int getLikes() {
+        return likes;
+    }
+
+    public int getCheckins() {
+        return checkins;
+    }
+
     public String getWebUrl() {
         return webUrl;
     }
@@ -159,7 +156,7 @@ public class SimplifiedBusiness implements Parcelable {
         return imageUrl;
     }
 
-    public String getRatingUrl() {
-        return ratingUrl;
+    public String getRatingImageUrl() {
+        return ratingImageUrl;
     }
 }

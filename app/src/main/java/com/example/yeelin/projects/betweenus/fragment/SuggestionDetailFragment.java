@@ -416,11 +416,11 @@ public class SuggestionDetailFragment
             //we most likely have fb data
             viewHolder.checkins.setVisibility(View.VISIBLE);
             viewHolder.reviews.setText(getContext().getResources().getQuantityString(
-                    R.plurals.like_count,
+                    R.plurals.detail_like_count,
                     business.getLikes(),
                     business.getLikes()));
             viewHolder.checkins.setText(getContext().getResources().getQuantityString(
-                    R.plurals.checkin_count,
+                    R.plurals.detail_checkin_count,
                     business.getCheckins(),
                     business.getCheckins()));
         }

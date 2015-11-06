@@ -45,25 +45,68 @@ public class SimplifiedBusinessAdapter
             view.setTag(new ViewHolder(view));
         }
 
-        SimplifiedBusiness business = getItem(position);
+        SimplifiedBusiness simplifiedBusiness = getItem(position);
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         //set the views
-        viewHolder.name.setText(business.getName());
-        viewHolder.address.setText(business.getAddress());
-        viewHolder.categories.setText(business.getCategories());
-        viewHolder.reviews.setText(parent.getContext().getString(R.string.review_count, business.getReviews()));
-
         //load the image
         //don't worry about imageUrl being null since Picasso will handle it and use the placeholder instead
-        //checking business.getImageUrl() != null causes an issue here because if the view is recycled and the imageUrl
-        //for the current business is null, then the imageView will not be cleared.
-        ImageUtils.loadImage(parent.getContext(), business.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
+        //checking simplifiedBusiness.getImageUrl() != null causes an issue here because if the view is recycled and the imageUrl
+        //for the current simplifiedBusiness is null, then the imageView will not be cleared.
+        ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
 
-        //load the rating stars
-        final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
-        viewHolder.reviews.setTag(target);
-        ImageUtils.loadImage(parent.getContext(), business.getRatingUrl(), target);
+        //name
+        viewHolder.name.setText(simplifiedBusiness.getName());
+
+        //short address
+        if (simplifiedBusiness.getAddress() == null) {
+            viewHolder.address.setVisibility(View.GONE);
+        }
+        else {
+            viewHolder.address.setVisibility(View.VISIBLE);
+            viewHolder.address.setText(simplifiedBusiness.getAddress());
+        }
+
+        //category list
+        final String[] categoryList = simplifiedBusiness.getCategoryList();
+        if (categoryList == null) {
+            viewHolder.categories.setVisibility(View.GONE);
+        }
+        else {
+            viewHolder.categories.setVisibility(View.VISIBLE);
+            StringBuilder builder = new StringBuilder(categoryList.length);
+            for (int i=0; i<categoryList.length; i++) {
+                builder.append(categoryList[i]);
+                if (i < categoryList.length-1) builder.append(", ");
+            }
+            viewHolder.categories.setText(builder.toString());
+        }
+
+        //ratings and reviews OR likes and checkins
+        if (simplifiedBusiness.getReviews() != -1) {
+            //we have yelp data
+            viewHolder.reviews.setText(parent.getContext().getString(R.string.review_count, simplifiedBusiness.getReviews()));
+
+            //load the rating stars
+            final Target target = ImageUtils.newTarget(parent.getContext(), viewHolder.reviews);
+            viewHolder.reviews.setTag(target);
+            ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getRatingImageUrl(), target);
+
+            //no likes or checkins
+            viewHolder.checkins.setVisibility(View.GONE);
+        }
+        else {
+            //we most likely have fb data
+            viewHolder.checkins.setVisibility(View.VISIBLE);
+            viewHolder.reviews.setText(getContext().getResources().getQuantityString(
+                    R.plurals.short_like_count,
+                    simplifiedBusiness.getLikes(),
+                    simplifiedBusiness.getLikes()));
+            viewHolder.checkins.setText(getContext().getResources().getQuantityString(
+                    R.plurals.short_checkin_count,
+                    simplifiedBusiness.getCheckins(),
+                    simplifiedBusiness.getCheckins()));
+        }
 
         return view;
     }
@@ -77,6 +120,7 @@ public class SimplifiedBusinessAdapter
         final TextView address;
         final TextView categories;
         final TextView reviews;
+        final TextView checkins;
 
         ViewHolder(View view) {
             image = (ImageView) view.findViewById(R.id.item_image);
@@ -84,6 +128,7 @@ public class SimplifiedBusinessAdapter
             address = (TextView) view.findViewById(R.id.item_address);
             categories = (TextView) view.findViewById(R.id.item_categories);
             reviews = (TextView) view.findViewById(R.id.item_reviews);
+            checkins = (TextView) view.findViewById(R.id.item_checkins);
         }
     }
 }

@@ -121,12 +121,12 @@ public class SuggestionsAdapter
 
         //short address
         if (business.getLocalBusinessLocation() == null) {
-            viewHolder.address.setVisibility(View.INVISIBLE);
+            viewHolder.address.setVisibility(View.GONE);
         }
         else {
             final String shortAddress = business.getLocalBusinessLocation().getShortDisplayAddress();
             if (shortAddress == null) {
-                viewHolder.address.setVisibility(View.INVISIBLE);
+                viewHolder.address.setVisibility(View.GONE);
             }
             else {
                 viewHolder.address.setVisibility(View.VISIBLE);
@@ -167,11 +167,11 @@ public class SuggestionsAdapter
             //we most likely have fb data
             viewHolder.checkins.setVisibility(View.VISIBLE);
             viewHolder.reviews.setText(getContext().getResources().getQuantityString(
-                    R.plurals.like_count,
+                    R.plurals.short_like_count,
                     business.getLikes(),
                     business.getLikes()));
             viewHolder.checkins.setText(getContext().getResources().getQuantityString(
-                    R.plurals.checkin_count,
+                    R.plurals.short_checkin_count,
                     business.getCheckins(),
                     business.getCheckins()));
         }

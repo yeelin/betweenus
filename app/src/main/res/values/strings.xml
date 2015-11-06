@@ -73,13 +73,21 @@
     <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
     <string name="review_count">%1$d reviews</string>
-    <plurals name="like_count">
+    <plurals name="detail_like_count">
         <item quantity="one">%1$d person likes this</item>
         <item quantity="other">%1$d people like this</item>
     </plurals>
-    <plurals name="checkin_count">
+    <plurals name="detail_checkin_count">
         <item quantity="one">%1$d person has been here</item>
         <item quantity="other">%1$d people have been here</item>
+    </plurals>
+    <plurals name="short_like_count">
+        <item quantity="one">%1$d like</item>
+        <item quantity="other">%1$d likes</item>
+    </plurals>
+    <plurals name="short_checkin_count">
+        <item quantity="one">%1$d checkin</item>
+        <item quantity="other">%1$d checkins</item>
     </plurals>
     <string name="detail_website">Website</string>
     <string name="detail_hours">Hours</string>

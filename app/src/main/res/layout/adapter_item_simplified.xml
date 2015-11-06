@@ -17,12 +17,11 @@
         android:id="@+id/item_image"
         app:layout_row="0"
         app:layout_column="0"
+        app:layout_gravity="start|top"
+        app:layout_columnWeight=".2"
 
         android:layout_width="@dimen/profile_image_size"
         android:layout_height="@dimen/profile_image_size"
-
-        app:layout_gravity="start|top"
-        app:layout_columnWeight=".2"
 
         android:contentDescription="@string/image_placeholder_content_description"
         android:background="@drawable/image_placeholder_border"
@@ -31,13 +30,12 @@
     <LinearLayout
         app:layout_row="0"
         app:layout_column="1"
+        app:layout_gravity="center_vertical"
+        app:layout_columnWeight=".8"
 
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="start"
-
-        app:layout_gravity="center_vertical"
-        app:layout_columnWeight=".8"
 
         android:orientation="vertical">
 
@@ -76,6 +74,15 @@
             android:textSize="12sp"
             android:textColor="@color/textColorSecondary"
             tools:text="123 reviews"/>
+
+        <TextView
+            android:id="@+id/item_checkins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="456 checkins"/>
     </LinearLayout>
 
 </android.support.v7.widget.GridLayout>
