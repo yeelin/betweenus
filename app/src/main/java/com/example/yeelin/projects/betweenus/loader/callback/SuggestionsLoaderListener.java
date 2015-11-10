@@ -12,6 +12,6 @@ public interface SuggestionsLoaderListener {
     /**
      * Listener interface. The loader's listener is usually the ui.
      */
-    void onLoadComplete(LoaderId loaderId, @Nullable LocalResult yelpResult);
+    void onLoadComplete(LoaderId loaderId, @Nullable LocalResult localResult);
 
 }

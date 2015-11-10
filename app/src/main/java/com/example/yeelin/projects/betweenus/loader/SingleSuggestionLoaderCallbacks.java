@@ -6,7 +6,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 
 import java.lang.ref.WeakReference;
@@ -15,12 +15,13 @@ import java.lang.ref.WeakReference;
  * Created by ninjakiki on 7/31/15.
  */
 public class SingleSuggestionLoaderCallbacks
-        implements LoaderManager.LoaderCallbacks<YelpBusiness> {
+        implements LoaderManager.LoaderCallbacks<LocalBusiness> {
     //logcat
     private static final String TAG = SingleSuggestionLoaderCallbacks.class.getCanonicalName();
 
     //bundle args
-    public static final String ARG_SEARCH_ID = SingleSuggestionLoaderCallbacks.class.getSimpleName() + ".searchId";
+    private static final String ARG_SEARCH_ID = SingleSuggestionLoaderCallbacks.class.getSimpleName() + ".searchId";
+    private static final String ARG_DATASOURCE = SingleSuggestionLoaderCallbacks.class.getSimpleName() + ".dataSource";
 
     //member variables
     private Context applicationContext;
@@ -34,9 +35,10 @@ public class SingleSuggestionLoaderCallbacks
      * @param searchId
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
-                                  String searchId) {
+                                  String searchId, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
+        args.putInt(ARG_DATASOURCE, dataSource);
 
         //call LoaderManager's init loader
         loaderManager.initLoader(
@@ -53,9 +55,10 @@ public class SingleSuggestionLoaderCallbacks
      * @param searchId
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
-                                     String searchId) {
+                                     String searchId, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
+        args.putInt(ARG_DATASOURCE, dataSource);
 
         loaderManager.restartLoader(
                 LoaderId.SINGLE_PLACE.getValue(),
@@ -88,24 +91,25 @@ public class SingleSuggestionLoaderCallbacks
      * @return
      */
     @Override
-    public Loader<YelpBusiness> onCreateLoader(int id, Bundle args) {
+    public Loader<LocalBusiness> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader");
         //read bundle args
         String searchId = args.getString(ARG_SEARCH_ID, "");
-        return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId);
+        int dataSource = args.getInt(ARG_DATASOURCE, 0);
+        return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId, dataSource);
     }
 
     /**
      * Loader has finished. Called when a previously created loader has finished its load. Notify listeners.
      * @param loader
-     * @param yelpBusiness
+     * @param localBusiness
      */
     @Override
-    public void onLoadFinished(Loader<YelpBusiness> loader, YelpBusiness yelpBusiness) {
+    public void onLoadFinished(Loader<LocalBusiness> loader, LocalBusiness localBusiness) {
         Log.d(TAG, "onLoadFinished");
         SingleSuggestionLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), yelpBusiness);
+            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localBusiness);
         }
     }
 
@@ -115,7 +119,7 @@ public class SingleSuggestionLoaderCallbacks
      * @param loader
      */
     @Override
-    public void onLoaderReset(Loader<YelpBusiness> loader) {
+    public void onLoaderReset(Loader<LocalBusiness> loader) {
         Log.d(TAG, "onLoaderReset");
         SingleSuggestionLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {

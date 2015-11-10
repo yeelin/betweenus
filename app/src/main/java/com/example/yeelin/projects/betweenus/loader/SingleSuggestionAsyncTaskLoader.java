@@ -4,27 +4,31 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
 
 /**
  * Created by ninjakiki on 7/31/15.
  */
-public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusiness> {
+public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusiness> {
     //logcat
     private static final String TAG = SingleSuggestionAsyncTaskLoader.class.getCanonicalName();
 
     //member variables
     private final String id;
-    private YelpBusiness yelpBusiness;
+    private final int dataSource;
+    private LocalBusiness localBusiness;
 
     /**
      * Constructor. Creates a fully specified async task loader
      * @param context
      * @param id
      */
-    public SingleSuggestionAsyncTaskLoader(Context context, String id) {
+    public SingleSuggestionAsyncTaskLoader(Context context, String id, int dataSource) {
         super(context);
         this.id = id;
+        this.dataSource = dataSource;
     }
 
     /**
@@ -33,10 +37,12 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
      * @return
      */
     @Override
-    public YelpBusiness loadInBackground() {
+    public LocalBusiness loadInBackground() {
         Log.d(TAG, "loadInBackground");
-        YelpBusiness yelpBusiness = SingleSuggestionLoaderHelper.fetchFromNetwork(getContext(), id);
-        return yelpBusiness;
+        if (dataSource == LocalConstants.YELP) {
+            return YelpLoaderHelper.fetchFromNetwork(getContext(), id);
+        }
+        return null;
     }
 
     /**
@@ -44,35 +50,35 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
      * delivering it, the implementation here just adds a little logic.  After this, onLoadFinished
      * in LoaderCallbacks is called.
      * Runs on UI thread.
-     * @param yelpBusiness
+     * @param localBusiness
      */
     @Override
-    public void deliverResult(YelpBusiness yelpBusiness) {
+    public void deliverResult(LocalBusiness localBusiness) {
         Log.d(TAG, "deliverResult");
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (yelpBusiness != null) {
-                releaseResources(yelpBusiness);
+            if (localBusiness != null) {
+                releaseResources(localBusiness);
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
         }
 
         //reassign old data reference
-        YelpBusiness oldBusiness = this.yelpBusiness;
-        this.yelpBusiness = yelpBusiness;
+        LocalBusiness oldBusiness = this.localBusiness;
+        this.localBusiness = localBusiness;
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
             Log.d(TAG, "deliverResult: isStarted");
-            super.deliverResult(yelpBusiness);
+            super.deliverResult(localBusiness);
         }
 
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
-        if (oldBusiness != null && oldBusiness != yelpBusiness) {
+        if (oldBusiness != null && oldBusiness != localBusiness) {
             releaseResources(oldBusiness);
         }
     }
@@ -87,13 +93,13 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
     @Override
     protected void onStartLoading() {
         Log.d(TAG, "onStartLoading");
-        if (yelpBusiness != null) {
+        if (localBusiness != null) {
             //we currently have a result available so deliver it immediately
             Log.d(TAG, "onStartLoading: Suggested items not null, so delivering results immediately");
-            deliverResult(yelpBusiness);
+            deliverResult(localBusiness);
         }
 
-        if (takeContentChanged() || yelpBusiness == null) {
+        if (takeContentChanged() || localBusiness == null) {
             //data is not currently available, or the data has changed since the last time it was loaded
             //start a load
             Log.d(TAG, "onStartLoading: Force load");
@@ -117,15 +123,15 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
      * Handles a request to cancel a load. Called after data loading when it turns out that the data is no
      * longer needed.  For example, when the async task executing the loadInBackground is cancelled. Clean up and
      * release resources
-     * @param yelpBusiness
+     * @param localBusiness
      */
     @Override
-    public void onCanceled(YelpBusiness yelpBusiness) {
+    public void onCanceled(LocalBusiness localBusiness) {
         Log.d(TAG, "onCanceled");
 
-        if (yelpBusiness != null) {
+        if (localBusiness != null) {
             //release resources
-            releaseResources(yelpBusiness);
+            releaseResources(localBusiness);
         }
     }
 
@@ -143,8 +149,8 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
         onStopLoading();
 
         //release resources
-        if (yelpBusiness != null) {
-            releaseResources(yelpBusiness);
+        if (localBusiness != null) {
+            releaseResources(localBusiness);
         }
     }
 
@@ -152,10 +158,10 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<YelpBusines
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    private void releaseResources(YelpBusiness yelpBusiness) {
+    private void releaseResources(LocalBusiness localBusiness) {
         Log.d(TAG, "releaseResources");
-        if (yelpBusiness != null) {
-            yelpBusiness = null;
+        if (localBusiness != null) {
+            localBusiness = null;
         }
     }
 }

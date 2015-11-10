@@ -4,7 +4,9 @@ import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -13,7 +15,7 @@ import com.google.android.gms.maps.model.LatLng;
  * Created by ninjakiki on 7/20/15.
  * http://chalup.github.io/blog/2014/06/12/android-loaders/
  */
-public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
+public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
     //logcat
     private static final String TAG = SuggestionsAsyncTaskLoader.class.getCanonicalName();
 
@@ -22,7 +24,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     private final LatLng userLatLng;
     private final LatLng friendLatLng;
     private final LatLng midLatLng;
-    private YelpResult yelpResult;
+    private final int dataSource;
+    private LocalResult localResult;
 
     /**
      * Constructor. Creates a fully specified async task loader
@@ -32,13 +35,15 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
      * @param friendLatLng
      * @param midLatLng
      */
-    public SuggestionsAsyncTaskLoader(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+    public SuggestionsAsyncTaskLoader(Context context,
+                                      String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                      int dataSource) {
         super(context);
-
         this.searchTerm = searchTerm;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+        this.dataSource = dataSource;
     }
 
     /**
@@ -47,10 +52,12 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
      * @return
      */
     @Override
-    public YelpResult loadInBackground() {
+    public LocalResult loadInBackground() {
         Log.d(TAG, "loadInBackground");
-        YelpResult yelpResult = YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
-        return yelpResult;
+        if (dataSource == LocalConstants.YELP) {
+            return YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
+        }
+        return null;
     }
 
     /**
@@ -58,35 +65,35 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
      * delivering it, the implementation here just adds a little logic.  After this, onLoadFinished
      * in LoaderCallbacks is called.
      * Runs on UI thread.
-     * @param yelpResult
+     * @param localResult
      */
     @Override
-    public void deliverResult(YelpResult yelpResult) {
+    public void deliverResult(LocalResult localResult) {
         Log.d(TAG, "deliverResult");
         if (isReset()) {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
-            if (yelpResult != null) {
-                releaseResources(yelpResult);
+            if (localResult != null) {
+                releaseResources(localResult);
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
         }
 
         //reassign old data reference
-        YelpResult oldResult = this.yelpResult;
-        this.yelpResult = yelpResult;
+        LocalResult oldResult = this.localResult;
+        this.localResult = localResult;
 
         if (isStarted()) {
             // If the Loader is currently started, we can immediately
             // deliver its results.
             Log.d(TAG, "deliverResult: isStarted");
-            super.deliverResult(yelpResult);
+            super.deliverResult(localResult);
         }
 
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
-        if (oldResult != null && oldResult != yelpResult) {
+        if (oldResult != null && oldResult != localResult) {
             releaseResources(oldResult);
         }
     }
@@ -101,13 +108,13 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
     @Override
     protected void onStartLoading() {
         Log.d(TAG, "onStartLoading");
-        if (yelpResult != null) {
+        if (localResult != null) {
             //we currently have a result available so deliver it immediately
             Log.d(TAG, "onStartLoading: Suggested items not null, so delivering results immediately");
-            deliverResult(yelpResult);
+            deliverResult(localResult);
         }
 
-        if (takeContentChanged() || yelpResult == null) {
+        if (takeContentChanged() || localResult == null) {
             //data is not currently available, or the data has changed since the last time it was loaded
             //start a load
             Log.d(TAG, "onStartLoading: Force load");
@@ -131,15 +138,15 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
      * Handles a request to cancel a load. Called after data loading when it turns out that the data is no
      * longer needed.  For example, when the async task executing the loadInBackground is cancelled. Clean up and
      * release resources
-     * @param yelpResult
+     * @param localResult
      */
     @Override
-    public void onCanceled(YelpResult yelpResult) {
+    public void onCanceled(LocalResult localResult) {
         Log.d(TAG, "onCanceled");
 
-        if (yelpResult != null) {
+        if (localResult != null) {
             //release resources
-            releaseResources(yelpResult);
+            releaseResources(localResult);
         }
     }
 
@@ -157,8 +164,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
         onStopLoading();
 
         //release resources
-        if (yelpResult != null) {
-            releaseResources(yelpResult);
+        if (localResult != null) {
+            releaseResources(localResult);
         }
     }
 
@@ -166,10 +173,10 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<YelpResult> {
      * Helper function to take care of releasing resources associated
      * with an actively loaded data set.
      */
-    private void releaseResources(YelpResult yelpResult) {
+    private void releaseResources(LocalResult localResult) {
         Log.d(TAG, "releaseResources");
-        if (yelpResult != null) {
-            yelpResult = null;
+        if (localResult != null) {
+            localResult = null;
         }
     }
 }

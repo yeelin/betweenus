@@ -6,7 +6,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.data.yelp.model.YelpResult;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -15,7 +15,7 @@ import java.lang.ref.WeakReference;
 /**
  * Created by ninjakiki on 7/20/15.
  */
-public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<YelpResult> {
+public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks<LocalResult> {
     //logcat
     private static final String TAG = SuggestionsLoaderCallbacks.class.getCanonicalName();
 
@@ -24,6 +24,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     private static final String ARG_USER_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".midLatLng";
+    private static final String ARG_DATASOURCE = SuggestionsLoaderCallbacks.class.getSimpleName() + ".dataSource";
 
     //member variables
     private Context applicationContext;
@@ -40,12 +41,13 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param midLatLng midpoint between userLatLng and friendLatLng
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's initLoader
         loaderManager.initLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -64,12 +66,13 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param midLatLng midpoint between userLatLng and friendLatLng
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's restart loader
         loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -110,22 +113,23 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
         LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
         LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
+        int dataSource = args.getInt(ARG_DATASOURCE, 0);
 
         //create a new loader
-        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng);
+        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng, dataSource);
     }
 
     /**
      * Loader has finished. Called when a previously created loader has finished its load. Notify listeners.
      * @param loader
-     * @param yelpResult
+     * @param localResult
      */
     @Override
-    public void onLoadFinished(Loader<YelpResult> loader, YelpResult yelpResult) {
+    public void onLoadFinished(Loader<LocalResult> loader, LocalResult localResult) {
         Log.d(TAG, "onLoadFinished");
         SuggestionsLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), yelpResult);
+            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localResult);
         }
     }
 
@@ -135,7 +139,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loader
      */
     @Override
-    public void onLoaderReset(Loader<YelpResult> loader) {
+    public void onLoaderReset(Loader<LocalResult> loader) {
         Log.d(TAG, "onLoaderReset");
         //let the listener know
         onLoadFinished(loader, null);

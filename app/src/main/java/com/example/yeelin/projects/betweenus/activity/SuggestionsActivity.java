@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
@@ -167,7 +168,7 @@ public class SuggestionsActivity
         }
         else {
             //latlngs are not null so initialize the loader to fetch suggestions from the network
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng, LocalConstants.YELP);
         }
     }
 
@@ -630,7 +631,7 @@ public class SuggestionsActivity
         }
         else {
             //initializing the loader to fetch suggestions from the network
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng);
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng, LocalConstants.YELP);
         }
     }
 
