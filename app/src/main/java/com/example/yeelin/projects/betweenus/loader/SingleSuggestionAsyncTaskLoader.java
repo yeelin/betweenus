@@ -6,7 +6,9 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
+import com.facebook.AccessToken;
 
 /**
  * Created by ninjakiki on 7/31/15.
@@ -17,6 +19,8 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
 
     //member variables
     private final String id;
+    private final int imageHeightPx;
+    private final int imageWidthPx;
     private final int dataSource;
     private LocalBusiness localBusiness;
 
@@ -25,9 +29,11 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
      * @param context
      * @param id
      */
-    public SingleSuggestionAsyncTaskLoader(Context context, String id, int dataSource) {
+    public SingleSuggestionAsyncTaskLoader(Context context, String id, int imageHeightPx, int imageWidthPx, int dataSource) {
         super(context);
         this.id = id;
+        this.imageHeightPx = imageHeightPx;
+        this.imageWidthPx = imageWidthPx;
         this.dataSource = dataSource;
     }
 
@@ -38,11 +44,22 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
      */
     @Override
     public LocalBusiness loadInBackground() {
-        Log.d(TAG, "loadInBackground");
         if (dataSource == LocalConstants.YELP) {
+            Log.d(TAG, "loadInBackground: Loading from Yelp. Id:" + id);
             return YelpLoaderHelper.fetchFromNetwork(getContext(), id);
         }
-        return null;
+        else if (dataSource == LocalConstants.FACEBOOK) {
+            Log.d(TAG, "loadInBackground: Loading from Facebook. Id:" + id);
+            return FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
+        }
+        else if (dataSource == LocalConstants.GOOGLE) {
+            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+            return null;
+        }
+        else {
+            Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
+            return null;
+        }
     }
 
     /**

@@ -15,7 +15,6 @@ import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
@@ -168,7 +167,7 @@ public class SuggestionsActivity
         }
         else {
             //latlngs are not null so initialize the loader to fetch suggestions from the network
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng, LocalConstants.YELP);
+            fetchSuggestions();
         }
     }
 
@@ -615,23 +614,32 @@ public class SuggestionsActivity
         this.friendLatLng = friendLatLng;
         midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
 
+        fetchSuggestions();
+    }
+
+    /**
+     * Helper method that initializes the loader to fetch suggestions from either Yelp or Facebook
+     */
+    private void fetchSuggestions() {
+        int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
+
         if (FbConstants.USE_FB) {
             //check if user is currently logged into fb
             if (AccessToken.getCurrentAccessToken() != null) {
-                Log.d(TAG, "onPlacesSuccess: User is logged in");
-
-                //create fb graph request for searching places
-                //provide SuggestionsLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
-                int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
-                FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, imageSizePx, imageSizePx, this);
+                //initialize the loader to fetch suggestions from fb
+                SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
+                        searchTerm, userLatLng, friendLatLng, midLatLng,
+                        imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
             }
             else {
                 Log.d(TAG, "onPlacesSuccess: User is not logged in");
             }
         }
         else {
-            //initializing the loader to fetch suggestions from the network
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, searchTerm, userLatLng, friendLatLng, midLatLng, LocalConstants.YELP);
+            //initialize the loader to fetch suggestions from Yelp
+            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
+                    searchTerm, userLatLng, friendLatLng, midLatLng,
+                    imageSizePx, imageSizePx, LocalConstants.YELP);
         }
     }
 

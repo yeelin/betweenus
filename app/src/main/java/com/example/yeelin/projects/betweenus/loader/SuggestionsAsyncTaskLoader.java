@@ -6,7 +6,9 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
+import com.facebook.AccessToken;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -24,6 +26,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
     private final LatLng userLatLng;
     private final LatLng friendLatLng;
     private final LatLng midLatLng;
+    private final int imageHeightPx;
+    private final int imageWidthPx;
     private final int dataSource;
     private LocalResult localResult;
 
@@ -34,15 +38,20 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param dataSource
      */
     public SuggestionsAsyncTaskLoader(Context context,
                                       String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
-                                      int dataSource) {
+                                      int imageHeightPx, int imageWidthPx, int dataSource) {
         super(context);
         this.searchTerm = searchTerm;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+        this.imageHeightPx = imageHeightPx;
+        this.imageWidthPx = imageWidthPx;
         this.dataSource = dataSource;
     }
 
@@ -53,11 +62,22 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      */
     @Override
     public LocalResult loadInBackground() {
-        Log.d(TAG, "loadInBackground");
         if (dataSource == LocalConstants.YELP) {
+            Log.d(TAG, "loadInBackground: Searching Yelp");
             return YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
         }
-        return null;
+        else if (dataSource == LocalConstants.FACEBOOK) {
+            Log.d(TAG, "loadInBackground: Searching Facebook");
+            return FbApiHelper.searchForPlaces(AccessToken.getCurrentAccessToken(), midLatLng, imageHeightPx, imageWidthPx);
+        }
+        else if (dataSource == LocalConstants.GOOGLE) {
+            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+            return null;
+        }
+        else {
+            Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
+            return null;
+        }
     }
 
     /**

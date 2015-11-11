@@ -21,6 +21,8 @@ public class SingleSuggestionLoaderCallbacks
 
     //bundle args
     private static final String ARG_SEARCH_ID = SingleSuggestionLoaderCallbacks.class.getSimpleName() + ".searchId";
+    private static final String ARG_IMAGE_HEIGHT = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageHeight";
+    private static final String ARG_IMAGE_WIDTH = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageWidth";
     private static final String ARG_DATASOURCE = SingleSuggestionLoaderCallbacks.class.getSimpleName() + ".dataSource";
 
     //member variables
@@ -33,11 +35,17 @@ public class SingleSuggestionLoaderCallbacks
      * @param loaderManager
      * @param loaderListener
      * @param searchId
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param dataSource
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
-                                  String searchId, int dataSource) {
+                                  String searchId, int imageHeightPx, int imageWidthPx,
+                                  int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
+        args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
+        args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call LoaderManager's init loader
@@ -53,11 +61,17 @@ public class SingleSuggestionLoaderCallbacks
      * @param loaderManager
      * @param loaderListener
      * @param searchId
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param dataSource
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
-                                     String searchId, int dataSource) {
+                                     String searchId, int imageHeightPx, int imageWidthPx,
+                                     int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
+        args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
+        args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
 
         loaderManager.restartLoader(
@@ -95,8 +109,11 @@ public class SingleSuggestionLoaderCallbacks
         Log.d(TAG, "onCreateLoader");
         //read bundle args
         String searchId = args.getString(ARG_SEARCH_ID, "");
+        int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
+        int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
         int dataSource = args.getInt(ARG_DATASOURCE, 0);
-        return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId, dataSource);
+
+        return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId, imageHeightPx, imageWidthPx, dataSource);
     }
 
     /**

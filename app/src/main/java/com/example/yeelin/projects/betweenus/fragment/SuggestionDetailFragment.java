@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
@@ -252,25 +252,32 @@ public class SuggestionDetailFragment
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        fetchPlaceDetails();
+    }
+
+    /**
+     * Helper method that initializes the loader to fetch details for a particular
+     * id from either Yelp or Facebook
+     */
+    private void fetchPlaceDetails() {
+        int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
 
         if (FbConstants.USE_FB) {
             //check if user is currently logged into fb
             if (AccessToken.getCurrentAccessToken() != null) {
                 Log.d(TAG, "onActivityCreated: User is logged in");
-
-                //create fb graph request for searching places
-                //provide SingleSuggestionLoaderListener as a callback (onLoadComplete) -- TODO: remove hack
-                int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
-                FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, imageSizePx, imageSizePx, this);
+                //initialize the loader to fetch details for this particular id from fb
+                SingleSuggestionLoaderCallbacks.initLoader(getActivity(), getLoaderManager(), this,
+                        id, imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
+            }
+            else {
+                Log.d(TAG, "onActivityCreated: User is not logged in");
             }
         }
         else {
-            //initialize the loader to fetch details for this particular id from the network
-            SingleSuggestionLoaderCallbacks.initLoader(
-                    getActivity(),
-                    getLoaderManager(),
-                    this,
-                    id);
+            //initialize the loader to fetch details for this particular id from Yelp
+            SingleSuggestionLoaderCallbacks.initLoader(getActivity(), getLoaderManager(), this,
+                    id, imageSizePx, imageSizePx, LocalConstants.YELP);
         }
     }
 
@@ -527,7 +534,7 @@ public class SuggestionDetailFragment
                         viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
-                    marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));
+                    marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, id));
                 }
                 listener.onToggle(id, position, toggleState);
                 break;
@@ -553,7 +560,7 @@ public class SuggestionDetailFragment
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
-                .icon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, rating));
+                .icon(MapColorUtils.determineMarkerIcon(toggleState, id));
         marker = googleMap.addMarker(markerOptions);
     }
 

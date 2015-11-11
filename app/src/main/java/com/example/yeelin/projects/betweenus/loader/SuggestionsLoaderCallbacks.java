@@ -24,6 +24,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     private static final String ARG_USER_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".midLatLng";
+    private static final String ARG_IMAGE_HEIGHT = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageHeight";
+    private static final String ARG_IMAGE_WIDTH = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageWidth";
     private static final String ARG_DATASOURCE = SuggestionsLoaderCallbacks.class.getSimpleName() + ".dataSource";
 
     //member variables
@@ -39,14 +41,21 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param dataSource
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int dataSource) {
+                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                  int imageHeightPx, int imageWidthPx,
+                                  int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
+        args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's initLoader
@@ -64,15 +73,23 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param dataSource
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int dataSource) {
+                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                     int imageHeightPx, int imageWidthPx,
+                                     int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
+        args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
+
 
         //call loaderManager's restart loader
         loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -113,10 +130,13 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
         LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
         LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
+        int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
+        int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
         int dataSource = args.getInt(ARG_DATASOURCE, 0);
 
         //create a new loader
-        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng, dataSource);
+        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng,
+                imageHeightPx, imageWidthPx, dataSource);
     }
 
     /**
