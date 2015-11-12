@@ -53,7 +53,11 @@ public class SuggestionDetailFragment
     private static final String ARG_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".latLng";
     private static final String ARG_POSITION = SuggestionDetailFragment.class.getSimpleName() + ".position";
     private static final String ARG_TOGGLE_STATE = SuggestionDetailFragment.class.getSimpleName() + ".toggleState";
+
     private static final String ARG_RATING = SuggestionDetailFragment.class.getSimpleName() + ".rating";
+    private static final String ARG_LIKES = SuggestionDetailFragment.class.getSimpleName() + ".likes";
+    private static final String ARG_NORMALIZED_LIKES = SuggestionDetailFragment.class.getSimpleName() + ".normalizedLikes";
+
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
@@ -70,6 +74,8 @@ public class SuggestionDetailFragment
     private int position = 0;
     private boolean toggleState;
     private double rating;
+    private int likes;
+    private double normalizedLikes;
 
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -87,13 +93,15 @@ public class SuggestionDetailFragment
      * @param position
      * @param toggleState
      * @param rating
+     * @param likes
+     * @param normalizedLikes
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
     public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
-                                                       int position, boolean toggleState, double rating,
+                                                       int position, boolean toggleState, double rating, int likes, double normalizedLikes,
                                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
@@ -103,6 +111,8 @@ public class SuggestionDetailFragment
         args.putInt(ARG_POSITION, position);
         args.putBoolean(ARG_TOGGLE_STATE, toggleState);
         args.putDouble(ARG_RATING, rating);
+        args.putInt(ARG_LIKES, likes);
+        args.putDouble(ARG_NORMALIZED_LIKES, normalizedLikes);
 
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
@@ -163,7 +173,9 @@ public class SuggestionDetailFragment
             position = args.getInt(ARG_POSITION, position);
             FRAGMENT_TAG_LITEMAP = String.format("%s.%d", FRAGMENT_TAG_LITEMAP, position);
             toggleState = args.getBoolean(ARG_TOGGLE_STATE, false);
-            rating = args.getDouble(ARG_RATING);
+            rating = args.getDouble(ARG_RATING, LocalConstants.NO_DATA_DOUBLE);
+            likes = args.getInt(ARG_LIKES, LocalConstants.NO_DATA_INTEGER);
+            normalizedLikes = args.getDouble(ARG_NORMALIZED_LIKES, LocalConstants.NO_DATA_DOUBLE);
 
             //user and friend related info
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
@@ -534,7 +546,7 @@ public class SuggestionDetailFragment
                         viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
                     viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
                     //update the marker color
-                    marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, id));
+                    marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
                 }
                 listener.onToggle(id, position, toggleState);
                 break;
@@ -560,7 +572,7 @@ public class SuggestionDetailFragment
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
-                .icon(MapColorUtils.determineMarkerIcon(toggleState, id));
+                .icon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
         marker = googleMap.addMarker(markerOptions);
     }
 

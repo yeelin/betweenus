@@ -49,6 +49,7 @@ public class FbPage implements LocalBusiness {
     private final String website;
     private final int checkins;
     private final int likes;
+    private double normalizedLikes;
 
     public FbPage(String id, String about, String attire, String category, FbPageCategory[] category_list, FbCoverPhoto cover, String culinary_team,
                   String description, String[] food_styles, String general_info, HashMap<String, String> hours, boolean is_always_open, String link,
@@ -85,6 +86,10 @@ public class FbPage implements LocalBusiness {
         this.website = website;
         this.checkins = checkins;
         this.likes = likes;
+    }
+
+    public void setNormalizedLikes(double normalizedLikes) {
+         this.normalizedLikes = normalizedLikes;
     }
 
     @Override
@@ -226,6 +231,11 @@ public class FbPage implements LocalBusiness {
     @Override
     public int getLikes() {
         return likes;
+    }
+
+    @Override
+    public double getNormalizedLikes() {
+        return normalizedLikes;
     }
 
     @Override

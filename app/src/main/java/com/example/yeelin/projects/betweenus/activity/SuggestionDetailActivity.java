@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -34,6 +35,8 @@ public class SuggestionDetailActivity
     public static final String EXTRA_POSITION = SuggestionDetailActivity.class.getSimpleName() + ".position";
     public static final String EXTRA_TOGGLE_STATE = SuggestionDetailActivity.class.getSimpleName() + ".toggleState";
     private static final String EXTRA_RATING = SuggestionDetailActivity.class.getSimpleName() + ".rating";
+    private static final String EXTRA_LIKES = SuggestionDetailActivity.class.getSimpleName() + ".likes";
+    private static final String EXTRA_NORMALIZED_LIKES = SuggestionDetailActivity.class.getSimpleName() + ".normalizedLikes";
 
     //member variables
     private String id;
@@ -49,13 +52,15 @@ public class SuggestionDetailActivity
      * @param position
      * @param toggleState
      * @param rating
+     * @param likes
+     * @param normalizedLikes
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
      * @return
      */
     public static Intent buildIntent(Context context, String id, String name, LatLng latLng,
-                                     int position, boolean toggleState, double rating,
+                                     int position, boolean toggleState, double rating, int likes, double normalizedLikes,
                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionDetailActivity.class);
         //put extras
@@ -66,6 +71,8 @@ public class SuggestionDetailActivity
         intent.putExtra(EXTRA_POSITION, position);
         intent.putExtra(EXTRA_TOGGLE_STATE, toggleState);
         intent.putExtra(EXTRA_RATING, rating);
+        intent.putExtra(EXTRA_LIKES, likes);
+        intent.putExtra(EXTRA_NORMALIZED_LIKES, normalizedLikes);
 
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
         intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
@@ -93,7 +100,9 @@ public class SuggestionDetailActivity
 
         String name = intent.getStringExtra(EXTRA_NAME);
         LatLng latLng = intent.getParcelableExtra(EXTRA_LATLNG);
-        double rating = intent.getDoubleExtra(EXTRA_RATING, 0);
+        double rating = intent.getDoubleExtra(EXTRA_RATING, LocalConstants.NO_DATA_DOUBLE);
+        int likes = intent.getIntExtra(EXTRA_LIKES, LocalConstants.NO_DATA_INTEGER);
+        double normalizedLikes = intent.getDoubleExtra(EXTRA_NORMALIZED_LIKES, LocalConstants.NO_DATA_DOUBLE);
 
         LatLng userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
         LatLng friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
@@ -106,8 +115,9 @@ public class SuggestionDetailActivity
                 Log.d(TAG, "onCreate: Creating a new detail fragment");
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(id, name, latLng,
-                                position, toggleState, rating,
+                        .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(
+                                id, name, latLng,
+                                position, toggleState, rating, likes, normalizedLikes,
                                 userLatLng, friendLatLng, midLatLng))
                         .commit();
             }

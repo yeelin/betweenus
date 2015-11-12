@@ -1,12 +1,15 @@
 package com.example.yeelin.projects.betweenus.data.fb.query;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.fb.json.FbJsonDeserializerHelper;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbResult;
 
+import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -67,7 +70,7 @@ public class FbApiHelper {
 
         //Remove any pages that are not Restaurant/cafe or Local business categories
         //This is needed to cleanup fb data
-        return sanitizeFbPlacesResponse(result);
+        return normalizeLikes(sanitizeFbPlacesResponse(result));
     }
 
     /**
@@ -75,7 +78,7 @@ public class FbApiHelper {
      * @param result
      * @return
      */
-    private static FbResult sanitizeFbPlacesResponse(FbResult result) {
+    private static FbResult sanitizeFbPlacesResponse(@Nullable FbResult result) {
         if (result != null) {
             for (Iterator<FbPage> iterator = result.getPages().iterator(); iterator.hasNext();) {
                 FbPage page = iterator.next();
@@ -108,6 +111,39 @@ public class FbApiHelper {
                             page.getName(), page.getCategory(), Arrays.toString(page.getCategoryList())));
                     iterator.remove();
                 }
+            }
+        }
+        return result;
+    }
+
+    private static FbResult normalizeLikes(@Nullable FbResult result) {
+        Log.d(TAG, "normalizeLikes: Normalizing likes");
+
+        if (result != null) {
+            int minLikes = 0;
+            int maxLikes = 0;
+
+            //loop through result to find min and max of dataset
+            for (int i = 0; i < result.getLocalBusinesses().size(); i++) {
+                final LocalBusiness business = result.getLocalBusinesses().get(i);
+                if (business.getLikes() < minLikes) minLikes = business.getLikes();
+                if (business.getLikes() > maxLikes) maxLikes = business.getLikes();
+            }
+
+            //compute diff, number of buckets, and bucket width
+            int diff = maxLikes - minLikes;
+            int buckets = MapColorUtils.NUM_RATING_BUCKETS-1;
+            double bucketWidth = 1.0 * diff / buckets;
+            Log.d(TAG, String.format("normalizeLikes: Min:%d, Max:%d, Diff:%d, BucketWidth:%f", minLikes, maxLikes, diff, bucketWidth));
+
+            //normalize data
+            for (int i = 0; i < result.getLocalBusinesses().size(); i++) {
+                final FbPage page = (FbPage) result.getLocalBusinesses().get(i);
+                double normalizedLikesOn10PointScale = (page.getLikes() - minLikes) / bucketWidth;
+                long roundedNormalizedLikesOn10PointScale = Math.round(normalizedLikesOn10PointScale);
+                double normalizedLikesOn5PointScale = roundedNormalizedLikesOn10PointScale / 2.0;
+                page.setNormalizedLikes(normalizedLikesOn5PointScale);
+                Log.d(TAG, String.format("normalizeLikes: Name:%s, Likes:%d, 10PtScale:%.2f, 5PtScale:%.2f", page.getName(), page.getLikes(), normalizedLikesOn10PointScale, normalizedLikesOn5PointScale));
             }
         }
         return result;

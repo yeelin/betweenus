@@ -76,6 +76,8 @@ public class SuggestionsStatePagerAdapter
                 position,
                 selectedIdsMap.containsKey(business.getId()),
                 business.getRating(),
+                business.getLikes(),
+                business.getNormalizedLikes(),
                 userLatLng,
                 friendLatLng,
                 midLatLng);

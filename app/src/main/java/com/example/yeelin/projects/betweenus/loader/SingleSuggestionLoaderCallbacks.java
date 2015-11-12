@@ -7,6 +7,7 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 
 import java.lang.ref.WeakReference;
@@ -111,7 +112,7 @@ public class SingleSuggestionLoaderCallbacks
         String searchId = args.getString(ARG_SEARCH_ID, "");
         int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
         int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
-        int dataSource = args.getInt(ARG_DATASOURCE, 0);
+        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
 
         return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId, imageHeightPx, imageWidthPx, dataSource);
     }

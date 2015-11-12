@@ -139,6 +139,11 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public double getNormalizedLikes() {
+        return LocalConstants.NO_DATA_DOUBLE;
+    }
+
+    @Override
     public int getDataSource() {
         return LocalConstants.YELP;
     }

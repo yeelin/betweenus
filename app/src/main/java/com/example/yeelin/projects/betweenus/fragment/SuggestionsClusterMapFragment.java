@@ -4,11 +4,11 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.support.v4.util.Pair;
 import android.support.v4.util.SimpleArrayMap;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.TextView;
@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChangedCallback;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
@@ -33,6 +34,8 @@ import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.squareup.picasso.Target;
+
+import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/28/15.
@@ -214,11 +217,6 @@ public class SuggestionsClusterMapFragment
 
         //check if result is null
         if (result != null && result.getLocalBusinesses().size() > 0) {
-            Log.d(TAG, "updateMap: Adding cluster items to map. Count:" + result.getLocalBusinesses().size());
-
-            //make sure the idToClusterItemMap has enough space
-            idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
-
             //add cluster items and call cluster!
             addClusterItemsToClusterManager();
             clusterManager.cluster();
@@ -241,10 +239,16 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
-     * Loops through business result and creates a cluster item for each business.
-     * Stores references to cluster item in the idToClusterItemMap.
+     * Loops through businesses in result and does the following:
+     * 1. Creates a cluster item for each business.
+     * 2. Stores reference to cluster item in the idToClusterItemMap.g
      */
     private void addClusterItemsToClusterManager() {
+        Log.d(TAG, "addClusterItemsToClusterManager: Count:" + result.getLocalBusinesses().size());
+
+        //make sure the idToClusterItemMap has enough space
+        idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
+
         //loop through result
         for (int i=0; i<result.getLocalBusinesses().size(); i++) {
             final LocalBusiness business = result.getLocalBusinesses().get(i);
@@ -258,6 +262,7 @@ public class SuggestionsClusterMapFragment
                     business.getRating(),
                     business.getReviewCount(),
                     business.getLikes(),
+                    business.getNormalizedLikes(),
                     business.getCheckins(),
                     i,
                     getContext());
@@ -577,7 +582,8 @@ public class SuggestionsClusterMapFragment
             else {
                 //found marker, so change the icon
                 Log.d(TAG, "onSelectionChanged: Success retrieving marker from cluster item. Cluster item title: " + clusterItem.getTitle());
-                marker.setIcon(MapColorUtils.determineMarkerIcon(getContext(), toggleState, clusterItem.getRating()));
+                marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState,
+                        clusterItem.getRating() != LocalConstants.NO_DATA_DOUBLE ? clusterItem.getRating() : clusterItem.getNormalizedLikes()));
             }
         }
     }
@@ -619,7 +625,8 @@ public class SuggestionsClusterMapFragment
             //set the title, snippet and icon on the marker for the cluster item
             markerOptions.title(item.getTitle())
                     .snippet(item.getReviewsSnippet())
-                    .icon(MapColorUtils.determineMarkerIcon(getContext(), selectedIdsMap.containsKey(item.getId()), item.getRating()));
+                    .icon(MapColorUtils.determineMarkerIcon(selectedIdsMap.containsKey(item.getId()),
+                            item.getRating()!= LocalConstants.NO_DATA_DOUBLE ? item.getRating() : item.getNormalizedLikes()));
         }
 
         /**
@@ -723,7 +730,7 @@ public class SuggestionsClusterMapFragment
             }
             else {
                 //set reviews
-                if (placeClusterItem.getReviews() < 0) {
+                if (placeClusterItem.getRating() == LocalConstants.NO_DATA_DOUBLE) {
                     reviews.setVisibility(View.GONE);
                 }
                 else {
@@ -738,7 +745,7 @@ public class SuggestionsClusterMapFragment
                 }
 
                 //set likes
-                if (placeClusterItem.getLikes() < 0) {
+                if (placeClusterItem.getLikes() == LocalConstants.NO_DATA_INTEGER) {
                     likes.setVisibility(View.GONE);
                 }
                 else {
@@ -746,7 +753,7 @@ public class SuggestionsClusterMapFragment
                 }
 
                 //set checkins
-                if (placeClusterItem.getCheckins() < 0) {
+                if (placeClusterItem.getCheckins() == LocalConstants.NO_DATA_INTEGER) {
                     checkins.setVisibility(View.GONE);
                 }
                 else {

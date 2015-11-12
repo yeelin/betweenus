@@ -19,6 +19,7 @@ public class PlaceClusterItem implements ClusterItem {
     private final double rating;
     private final int reviews;
     private final int likes;
+    private final double normalizedLikes;
     private final int checkins;
 
     private String reviewsSnippet;
@@ -28,8 +29,22 @@ public class PlaceClusterItem implements ClusterItem {
     private final int resultPosition;
     private final Context context;
 
+    /**
+     * Constructor
+     * @param position
+     * @param id
+     * @param title
+     * @param ratingUrl
+     * @param rating
+     * @param reviews
+     * @param likes
+     * @param normalizedLikes
+     * @param checkins
+     * @param resultPosition
+     * @param context
+     */
     public PlaceClusterItem(LatLng position, String id, String title,
-                            String ratingUrl, double rating, int reviews, int likes, int checkins,
+                            String ratingUrl, double rating, int reviews, int likes, double normalizedLikes, int checkins,
                             int resultPosition, Context context) {
         this.position = position;
         this.id = id;
@@ -39,6 +54,7 @@ public class PlaceClusterItem implements ClusterItem {
         this.rating = rating;
         this.reviews = reviews;
         this.likes = likes;
+        this.normalizedLikes = normalizedLikes;
         this.checkins = checkins;
 
         this.resultPosition = resultPosition;
@@ -72,6 +88,10 @@ public class PlaceClusterItem implements ClusterItem {
 
     public int getLikes() {
         return likes;
+    }
+
+    public double getNormalizedLikes() {
+        return normalizedLikes;
     }
 
     public int getCheckins() {

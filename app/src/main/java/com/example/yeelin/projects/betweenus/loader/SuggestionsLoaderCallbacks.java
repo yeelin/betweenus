@@ -6,6 +6,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.google.android.gms.maps.model.LatLng;
@@ -132,7 +133,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
         int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
         int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
-        int dataSource = args.getInt(ARG_DATASOURCE, 0);
+        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
 
         //create a new loader
         return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng,

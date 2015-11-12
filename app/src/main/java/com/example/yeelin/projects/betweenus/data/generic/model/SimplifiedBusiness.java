@@ -19,6 +19,7 @@ public class SimplifiedBusiness implements Parcelable {
     private int reviews;
     private double rating;
     private int likes;
+    private double normalizedLikes;
     private int checkins;
 
     private String webUrl;
@@ -38,6 +39,7 @@ public class SimplifiedBusiness implements Parcelable {
         reviews = business.getReviewCount();
         rating = business.getRating();
         likes = business.getLikes();
+        normalizedLikes = business.getNormalizedLikes();
         checkins = business.getCheckins();
 
         webUrl = business.getMobileUrl();
@@ -58,6 +60,7 @@ public class SimplifiedBusiness implements Parcelable {
         reviews = in.readInt();
         rating = in.readDouble();
         likes = in.readInt();
+        normalizedLikes = in.readDouble();
         checkins = in.readInt();
 
         webUrl = in.readString();
@@ -105,6 +108,7 @@ public class SimplifiedBusiness implements Parcelable {
         dest.writeInt(reviews);
         dest.writeDouble(rating);
         dest.writeInt(likes);
+        dest.writeDouble(normalizedLikes);
         dest.writeInt(checkins);
 
         dest.writeString(webUrl);
@@ -142,6 +146,10 @@ public class SimplifiedBusiness implements Parcelable {
 
     public int getLikes() {
         return likes;
+    }
+
+    public double getNormalizedLikes() {
+        return normalizedLikes;
     }
 
     public int getCheckins() {
