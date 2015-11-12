@@ -44,7 +44,8 @@ public class SuggestionDetailFragment
         implements
         SingleSuggestionLoaderListener,
         View.OnClickListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback,
+        GoogleMap.OnMapClickListener {
     //logcat
     private static final String TAG = SuggestionDetailFragment.class.getCanonicalName();
     //bundle args
@@ -219,6 +220,7 @@ public class SuggestionDetailFragment
         viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
 
         //set up click listeners
+        viewHolder.image.setOnClickListener(this);
         viewHolder.websiteButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
         viewHolder.selectButton.setOnClickListener(this);
@@ -249,11 +251,7 @@ public class SuggestionDetailFragment
                     .commit();
         }
 
-        if (mapFragment != null && mapFragment.getView() != null) {
-            Log.d(TAG, "onViewCreated: Disable map click");
-            mapFragment.getView().setClickable(false);
-        }
-
+        //load the map asynchronously
         mapFragment.getMapAsync(this);
     }
 
@@ -529,6 +527,9 @@ public class SuggestionDetailFragment
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.detail_image:
+                Log.d(TAG, "onClick: Detail image clicked"); //TODO: Open picture pager
+                break;
             case R.id.detail_website_button:
                 listener.onOpenWebsite(business.getMobileUrl());
                 break;
@@ -562,18 +563,25 @@ public class SuggestionDetailFragment
     public void onMapReady(GoogleMap googleMap) {
         Log.d(TAG, "onMapReady");
 
-        //disable click listener
-        final SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentByTag(FRAGMENT_TAG_LITEMAP);
-        if (mapFragment != null && mapFragment.getView() != null) {
-            Log.d(TAG, "onMapReady: Disable map click");
-            mapFragment.getView().setClickable(false);
-        }
+        //intercept clicks on the map
+        googleMap.setOnMapClickListener(this);
 
         //add marker
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
         marker = googleMap.addMarker(markerOptions);
+    }
+
+    /**
+     * GoogleMap.OnMapClickListener callback.
+     * Override the default behavior of opening the google maps app.
+     * TODO: Open an interactive map within the app.
+     * @param latLng
+     */
+    @Override
+    public void onMapClick(LatLng latLng) {
+        Log.d(TAG, "onMapClick: The map was clicked");
     }
 
     /**
