@@ -35,8 +35,6 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.squareup.picasso.Target;
 
-import java.util.ArrayList;
-
 /**
  * Created by ninjakiki on 7/28/15.
  * TODO: Need to include map attribution in about page
@@ -112,7 +110,7 @@ public class SuggestionsClusterMapFragment
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
     }
-
+    
     /**
      * Nullify the click listener
      */
@@ -164,7 +162,11 @@ public class SuggestionsClusterMapFragment
         //if the results had come in first before the map was ready and the map needs updating immediately, then do it.
         // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
         if (mapNeedsUpdate) {
+            Log.d(TAG, "onMapReady: Map needs update");
             updateMap();
+        }
+        else {
+            Log.d(TAG, "onMapReady: Map doesn't need update yet");
         }
     }
 
@@ -190,7 +192,7 @@ public class SuggestionsClusterMapFragment
         }
         else {
             //result is different so save a reference to it
-            Log.d(TAG, "updateMap: Result is different");
+            Log.d(TAG, String.format("updateMap: Result is different. Previous result:%s, New result:%s", this.result, result));
             this.result = result;
             this.userLatLng = userLatLng;
             this.friendLatLng = friendLatLng;
@@ -199,7 +201,7 @@ public class SuggestionsClusterMapFragment
 
         //check if map is null
         if (map == null) {
-            Log.d(TAG, "onSuggestionsLoaded: Map is null, so nothing to do now");
+            Log.d(TAG, "onSuggestionsLoaded: Map is null, so nothing to do now. Map will update later when it is ready");
             mapNeedsUpdate = true; //tell ourselves that we need to update the map later when it is ready
             return;
         }
@@ -223,19 +225,13 @@ public class SuggestionsClusterMapFragment
 
             //update people location markers
             updatePeopleLocationMarkers();
+
+            //zoom map to new bounds since we just added new cluster items
+            zoomMapToBounds(true, false); //true = base it on display size, false = don't animate transition
         }
 
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
-
-        //if we don't have a saved camera position then zoom to bounds using the approx map size
-        if (cameraPosition == null) {
-            Log.d(TAG, "updateMap: Camera position is null so zooming map based on approx display size");
-            zoomMapToBounds(true, false); //true = base it on display size, false = don't animate transition
-        }
-        else {
-            Log.d(TAG, "updateMap: Camera position is not null so it would be restored in onResume");
-        }
     }
 
     /**
@@ -543,9 +539,6 @@ public class SuggestionsClusterMapFragment
             //hide friend's marker
             if (friendLocationMarker != null) friendLocationMarker.setVisible(false);
         }
-
-        //recalculate map bounds and change camera
-        //zoomMapToBounds(showingPeopleLocation, useDisplaySize, shouldAnimate); //show = include or don't include people, false = don't use display size, true = animate transition
     }
 
     /**
