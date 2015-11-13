@@ -192,6 +192,11 @@ public class SuggestionDetailActivity
         return resultIntent;
     }
 
+    @Override
+    public void onOpenMap(int position, boolean toggleState) {
+
+    }
+
     /**
      * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
      * Starts an activity to open the given url

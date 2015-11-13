@@ -7,6 +7,7 @@
     <string name="title_map">Cluster Map Test</string>
     <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
+    <string name="title_detail_map">Map</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
     <string name="title_invitation">Invite your friend</string>
@@ -118,6 +119,7 @@
 
     <!-- Map strings -->
     <string name="map_contentDescription">Map view of search results</string>
+    <string name="detail_map_contentDescription">Map view of %1$s</string>
     <string name="map_marker_user_location">Your location</string>
     <string name="map_marker_friend_location">"Friend's location"</string>
     <string name="map_marker_you">You</string>

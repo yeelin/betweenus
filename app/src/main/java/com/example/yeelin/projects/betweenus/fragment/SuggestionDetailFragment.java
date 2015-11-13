@@ -65,8 +65,6 @@ public class SuggestionDetailFragment
 
     //child fragment tags
     private static String FRAGMENT_TAG_LITEMAP = SupportMapFragment.class.getSimpleName();
-    //constants
-    private static final int DEFAULT_ZOOM = 13;
 
     //member variables
     private String id;
@@ -128,6 +126,7 @@ public class SuggestionDetailFragment
      * Interface for activities or parent fragments interested in events from this fragment
      */
     public interface SuggestionDetailFragmentListener {
+        void onOpenMap(int position, boolean toggleState);
         void onOpenWebsite(String url);
         void onDialPhone(String phone);
         void onToggle(String id, int position, boolean toggleState);
@@ -234,7 +233,7 @@ public class SuggestionDetailFragment
         if (mapFragment == null) {
             Log.d(TAG, "onViewCreated: LiteMap fragment is null");
             GoogleMapOptions googleMapOptions = new GoogleMapOptions()
-                    .camera(new CameraPosition(latLng, DEFAULT_ZOOM, 0, 0))
+                    .camera(new CameraPosition(latLng, getResources().getInteger(R.integer.default_detail_map_zoom), 0, 0))
                     .compassEnabled(false)
                     .liteMode(true)
                     .mapToolbarEnabled(false)
@@ -299,11 +298,11 @@ public class SuggestionDetailFragment
         super.onResume();
 
         //shimmer while we are loading
-        ViewHolder viewHolder = getViewHolder();
-        if (viewHolder != null) {
-            viewHolder.shimmerContainer.setDuration(400);
-            viewHolder.shimmerContainer.startShimmerAnimation();
-        }
+//        ViewHolder viewHolder = getViewHolder();
+//        if (viewHolder != null) {
+//            viewHolder.shimmerContainer.setDuration(400);
+//            viewHolder.shimmerContainer.startShimmerAnimation();
+//        }
     }
 
     /**
@@ -336,7 +335,7 @@ public class SuggestionDetailFragment
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailEmpty.getVisibility() != View.VISIBLE) {
                 //stop shimmering
-                viewHolder.shimmerContainer.stopShimmerAnimation();
+                //viewHolder.shimmerContainer.stopShimmerAnimation();
 
                 viewHolder.detailContainer.setVisibility(View.GONE); //make sure container doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmpty, viewHolder.detailProgressBar);
@@ -349,7 +348,7 @@ public class SuggestionDetailFragment
             ViewHolder viewHolder = getViewHolder();
             if (viewHolder != null && viewHolder.detailContainer.getVisibility() != View.VISIBLE) {
                 //stop shimmering
-                viewHolder.shimmerContainer.stopShimmerAnimation();
+                //viewHolder.shimmerContainer.stopShimmerAnimation();
 
                 viewHolder.detailEmpty.setVisibility(View.GONE); //make sure empty view doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailContainer, viewHolder.detailProgressBar);
@@ -582,6 +581,8 @@ public class SuggestionDetailFragment
     @Override
     public void onMapClick(LatLng latLng) {
         Log.d(TAG, "onMapClick: The map was clicked");
+        //notify the activity listener that the map was clicked to start the interactive map activity
+        listener.onOpenMap(position, toggleState);
     }
 
     /**

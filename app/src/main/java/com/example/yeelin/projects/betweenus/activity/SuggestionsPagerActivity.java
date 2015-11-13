@@ -255,6 +255,14 @@ public class SuggestionsPagerActivity
     @Override
     public void onPageScrollStateChanged(int state) {}
 
+    @Override
+    public void onOpenMap(int position, boolean toggleState) {
+        final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
+        startActivity(MapActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getName(), simplifiedBusiness.getLatLng(), toggleState,
+                simplifiedBusiness.getRating(), simplifiedBusiness.getRatingImageUrl(), simplifiedBusiness.getReviews(),
+                simplifiedBusiness.getLikes(), simplifiedBusiness.getNormalizedLikes(), simplifiedBusiness.getCheckins()));
+    }
+
     /**
      * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
      * Starts an activity to open the given url

@@ -89,6 +89,14 @@
                 android:value=".activity.SuggestionsActivity"/>
         </activity>
 
+        <activity android:name=".activity.MapActivity"
+            android:label="@string/title_detail_map"
+            android:parentActivityName=".activity.SuggestionsPagerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.SuggestionsPagerActivity"/>
+        </activity>
+
         <activity android:name=".activity.SuggestionDetailActivity"
             android:label="@string/title_detail"
             android:parentActivityName=".activity.SuggestionsActivity">
