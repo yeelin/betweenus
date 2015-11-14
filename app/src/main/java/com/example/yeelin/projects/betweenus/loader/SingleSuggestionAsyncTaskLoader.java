@@ -50,7 +50,7 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
         }
         else if (dataSource == LocalConstants.FACEBOOK) {
             Log.d(TAG, "loadInBackground: Loading from Facebook. Id:" + id);
-            return FbApiHelper.getPlaceDetails(AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
+            return FbApiHelper.getPlaceDetails(getContext(), AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
         }
         else if (dataSource == LocalConstants.GOOGLE) {
             Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");

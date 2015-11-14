@@ -1,9 +1,11 @@
 package com.example.yeelin.projects.betweenus.data.fb.query;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.fb.json.FbJsonDeserializerHelper;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
@@ -29,12 +31,13 @@ public class FbApiHelper {
     /**
      * Creates a fb graph api request to search for places around the given latlng.
      * The request is made synchronously so caller must make sure this method runs on a background thread.
+     * @param context
      * @param accessToken
      * @param midLatLng
      * @param imageHeightPx
      * @param imageWidthPx
      */
-    public static FbResult searchForPlaces(AccessToken accessToken, LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
+    public static FbResult searchForPlaces(Context context, AccessToken accessToken, LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
         parameters.putString(FbConstants.ParamNames.QUERY, FbConstants.ParamValues.QUERY_RESTAURANT);
@@ -49,7 +52,9 @@ public class FbApiHelper {
                 accessToken,
                 FbConstants.Endpoints.SEARCH,
                 parameters,
-                HttpMethod.GET);
+                HttpMethod.GET,
+                null,
+                context.getString(R.string.facebook_api_version));
 
         //execute the request and wait (ok since we are on a bg thread)
         final GraphResponse response = request.executeAndWait();
@@ -65,7 +70,7 @@ public class FbApiHelper {
      * @return
      */
     private static FbResult processFbPlacesResponse(GraphResponse response) {
-        Log.d(TAG, String.format("processFbPlacesResponse: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
+        Log.d(TAG, String.format("processFbPlacesResponse: Query:%s", response.getRequest()));
         final FbResult result = FbJsonDeserializerHelper.deserializeFbResponse(response.getRawResponse());
 
         //Remove any pages that are not Restaurant/cafe or Local business categories
@@ -116,6 +121,11 @@ public class FbApiHelper {
         return result;
     }
 
+    /**
+     * Helper method that computes the normalized likes so that it's on the same scale as Yelp ratings [0, 0.5, ..., 4.5, 5.0] inclusive.
+     * @param result
+     * @return
+     */
     private static FbResult normalizeLikes(@Nullable FbResult result) {
         Log.d(TAG, "normalizeLikes: Normalizing likes");
 
@@ -152,10 +162,13 @@ public class FbApiHelper {
     /**
      * Creates a fb graph api request to retrieve the details about a single place given its id.
      * The request is made synchronously so caller must make sure this method runs on a background thread.
+     * @param context 
      * @param accessToken
      * @param id
+     * @param imageHeightPx
+     * @param imageWidthPx
      */
-    public static FbPage getPlaceDetails(AccessToken accessToken, String id, int imageHeightPx, int imageWidthPx) {
+    public static FbPage getPlaceDetails(Context context, AccessToken accessToken, String id, int imageHeightPx, int imageWidthPx) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
         parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildDetailFields(imageHeightPx, imageWidthPx));
@@ -165,7 +178,9 @@ public class FbApiHelper {
                 accessToken,
                 "/" + id,
                 parameters,
-                HttpMethod.GET);
+                HttpMethod.GET,
+                null,
+                context.getString(R.string.facebook_api_version));
         //execute the request and wait (ok since we are on a bg thread)
         final GraphResponse response = GraphRequest.executeAndWait(request);
         return processFbPlaceDetailsResponse(response);
@@ -177,7 +192,7 @@ public class FbApiHelper {
      * @return
      */
     private static FbPage processFbPlaceDetailsResponse(GraphResponse response) {
-        Log.d(TAG, String.format("processFbPlaceDetailsResponse: Raw:%s, Query:%s", response.getRawResponse(), response.getRequest()));
+        Log.d(TAG, String.format("processFbPlaceDetailsResponse: Query:%s", response.getRequest()));
         return FbJsonDeserializerHelper.deserializeFbSingleResponse(response.getRawResponse());
     }
 }

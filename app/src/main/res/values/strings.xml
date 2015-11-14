@@ -176,5 +176,6 @@
 
     <!-- facebook sdk -->
     <string name="facebook_app_id">711402509003581</string>
+    <string name="facebook_api_version">v2.5</string>
 
 </resources>
