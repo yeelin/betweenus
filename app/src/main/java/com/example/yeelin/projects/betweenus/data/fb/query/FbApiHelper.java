@@ -9,6 +9,8 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.fb.json.FbJsonDeserializerHelper;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
+import com.example.yeelin.projects.betweenus.data.fb.model.FbPagePhotos;
+import com.example.yeelin.projects.betweenus.data.fb.model.FbPhoto;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbResult;
 
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
@@ -162,7 +164,7 @@ public class FbApiHelper {
     /**
      * Creates a fb graph api request to retrieve the details about a single place given its id.
      * The request is made synchronously so caller must make sure this method runs on a background thread.
-     * @param context 
+     * @param context
      * @param accessToken
      * @param id
      * @param imageHeightPx
@@ -194,5 +196,45 @@ public class FbApiHelper {
     private static FbPage processFbPlaceDetailsResponse(GraphResponse response) {
         Log.d(TAG, String.format("processFbPlaceDetailsResponse: Query:%s", response.getRequest()));
         return FbJsonDeserializerHelper.deserializeFbSingleResponse(response.getRawResponse());
+    }
+
+    /**
+     * Creates a fb graph api request to retrieve the photo urls for a single place given its id.
+     * This request is made synchronously so caller must make sure that this method runs on a background thread.
+     * @param context
+     * @param accessToken
+     * @param id
+     * @return
+     */
+    public static FbPhoto[] getPlacePhotos(Context context, AccessToken accessToken, String id) {
+        Log.d(TAG, "getPlacePhotos: Id:" + id);
+        Bundle parameters = new Bundle();
+        parameters.putString(FbConstants.ParamNames.TYPE, FbConstants.ParamValues.TYPE_UPLOADED);
+        parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildPhotosFields());
+
+        //create te graph request
+        final GraphRequest request = new GraphRequest(
+                accessToken,
+                "/" + id + FbConstants.Endpoints.PHOTOS,
+                parameters,
+                HttpMethod.GET,
+                null,
+                context.getString(R.string.facebook_api_version));
+
+        //execute the request and wait (ok since we are on a bg thread)
+        final GraphResponse response = GraphRequest.executeAndWait(request);
+        return processFbPlacePhotosResponse(response);
+    }
+
+    /**
+     * Helper method that deserializes the response from a graph api photos request into an
+     * array of photo urls.
+     * @param response
+     * @return
+     */
+    private static FbPhoto[] processFbPlacePhotosResponse(GraphResponse response) {
+        Log.d(TAG, String.format("processFbPlacePhotosResponse: Query:%s", response.getRequest()));
+        final FbPagePhotos fbPagePhotos = FbJsonDeserializerHelper.deserializeFbPhotosResponse(response.getRawResponse());
+        return fbPagePhotos.getPhotos();
     }
 }

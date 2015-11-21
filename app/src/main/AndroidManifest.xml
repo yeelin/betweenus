@@ -97,6 +97,14 @@
                 android:value=".activity.SuggestionsPagerActivity"/>
         </activity>
 
+        <activity android:name=".activity.PhotosPagerActivity"
+            android:label="@string/title_detail_photos"
+            android:parentActivityName=".activity.SuggestionsPagerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.SuggestionsPagerActivity"/>
+        </activity>
+
         <activity android:name=".activity.SuggestionDetailActivity"
             android:label="@string/title_detail"
             android:parentActivityName=".activity.SuggestionsActivity">

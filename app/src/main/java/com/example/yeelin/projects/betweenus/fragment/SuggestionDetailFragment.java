@@ -126,6 +126,7 @@ public class SuggestionDetailFragment
      * Interface for activities or parent fragments interested in events from this fragment
      */
     public interface SuggestionDetailFragmentListener {
+        void onOpenPhotos(int position);
         void onOpenMap(int position, boolean toggleState);
         void onOpenWebsite(String url);
         void onDialPhone(String phone);
@@ -527,7 +528,8 @@ public class SuggestionDetailFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.detail_image:
-                Log.d(TAG, "onClick: Detail image clicked"); //TODO: Open picture pager
+                Log.d(TAG, "onClick: Detail image clicked");
+                listener.onOpenPhotos(position);
                 break;
             case R.id.detail_website_button:
                 listener.onOpenWebsite(business.getMobileUrl());

@@ -255,6 +255,24 @@ public class SuggestionsPagerActivity
     @Override
     public void onPageScrollStateChanged(int state) {}
 
+    /**
+     * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
+     * Starts the photo pager
+     * @param position
+     */
+    @Override
+    public void onOpenPhotos(int position) {
+        Log.d(TAG, "onOpenPhotos: Position:" + position);
+        final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
+        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId()));
+    }
+
+    /**
+     * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
+     * Starts the interactive map
+     * @param position
+     * @param toggleState
+     */
     @Override
     public void onOpenMap(int position, boolean toggleState) {
         final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);

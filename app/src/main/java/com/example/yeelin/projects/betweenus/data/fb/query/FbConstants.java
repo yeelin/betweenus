@@ -14,6 +14,7 @@ public abstract class FbConstants {
      */
     static class Endpoints {
         public static final String SEARCH = "/search";
+        public static final String PHOTOS = "/photos";
     }
 
     /**
@@ -43,6 +44,7 @@ public abstract class FbConstants {
 
         //type
         public static final String TYPE_PLACE = "place";
+        public static final String TYPE_UPLOADED = "uploaded";
 
         //distance
         public static final String DISTANCE_THREE_MILE_RADIUS = "4828"; //3 miles == 4848 meters
@@ -84,8 +86,21 @@ public abstract class FbConstants {
         private static final String WEBSITE = "website";
         private static final String CHECKINS = "checkins";
         private static final String LIKES = "likes";
-        private static final String PHOTOS = "photos"; //TODO
 
+        private static final String PHOTOS = "photos";
+        private static final String PHOTO_WIDTH = "width";
+        private static final String PHOTO_HEIGHT = "height";
+        private static final String IMAGES = "images";
+        private static final String CREATED_TIME = "created_time";
+        private static final String ORDER = "order";
+        private static final String ORDER_REVERSE_CHRONO = "reverse_chronological";
+
+        /**
+         * Build fields parameters for list/map query.
+         * @param pictureHeightPx
+         * @param pictureWidthPx
+         * @return
+         */
         public static String buildSimpleFields(int pictureHeightPx, int pictureWidthPx) {
             String pictureWithParams = String.format("%s.%s(%d).%s(%d)",
                     PICTURE, PICTURE_HEIGHT, pictureHeightPx, PICTURE_WIDTH, pictureWidthPx);
@@ -96,9 +111,20 @@ public abstract class FbConstants {
                             PRICE_RANGE, WEBSITE, CHECKINS, LIKES});
         }
 
+        /**
+         * Build fields parameters for detail page query.
+         * @param pictureHeightPx
+         * @param pictureWidthPx
+         * @return
+         */
         public static String buildDetailFields(int pictureHeightPx, int pictureWidthPx) {
             String pictureWithParams = String.format("%s.%s(%d).%s(%d)",
                     PICTURE, PICTURE_HEIGHT, pictureHeightPx, PICTURE_WIDTH, pictureWidthPx);
+
+//            String photosWithParamsAndFields = String.format("%s.%s(%s){%s.%s(%s)}",
+//                    PHOTOS, ParamNames.TYPE, TYPE_UPLOADED,
+//                    TextUtils.join(",", new String[]{ID, NAME, PHOTO_HEIGHT, PHOTO_WIDTH, IMAGES, CREATED_TIME}),
+//                    ORDER, ORDER_REVERSE_CHRONO);
 
             return TextUtils.join(",",
                     new String[]{ID, ABOUT, ATTIRE, CATEGORY, CATEGORY_LIST, COVER, CULINARY_TEAM,
@@ -107,6 +133,18 @@ public abstract class FbConstants {
                             pictureWithParams,
                             PRICE_RANGE, PUBLIC_TRANSIT, RESTAURANT_SERVICES, RESTAURANT_SPECIALTIES,
                             WEBSITE, CHECKINS, LIKES});
+                            //photosWithParamsAndFields});
+        }
+
+        /**
+         * Build fields parameters for photos pager query
+         * @return
+         */
+        public static String buildPhotosFields() {
+            return String.format("%s.%s(%s)",
+                    TextUtils.join(",", new String[]{ID, NAME, PHOTO_HEIGHT, PHOTO_WIDTH, IMAGES, CREATED_TIME}),
+                    ORDER,
+                    ORDER_REVERSE_CHRONO);
         }
     }
 

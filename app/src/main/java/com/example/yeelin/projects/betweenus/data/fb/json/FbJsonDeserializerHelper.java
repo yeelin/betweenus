@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.data.fb.json;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
+import com.example.yeelin.projects.betweenus.data.fb.model.FbPagePhotos;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by ninjakiki on 10/27/15.
@@ -54,6 +54,15 @@ public class FbJsonDeserializerHelper {
         final FbPage fbPage = gson.fromJson(rawJson, FbPage.class);
         Log.d(TAG, "deserializeFbSingleResponse: FbPage:" + fbPage);
         return fbPage;
+    }
+
+    public static FbPagePhotos deserializeFbPhotosResponse(String rawJson) {
+        //create a gson object
+        final Gson gson = new GsonBuilder().create();
+
+        //deserialize json into java
+        final FbPagePhotos fbPagePhotos = gson.fromJson(rawJson, FbPagePhotos.class);
+        return fbPagePhotos;
     }
 
     /**

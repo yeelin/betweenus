@@ -24,7 +24,9 @@ public interface LocalBusiness {
     String[] getParking();
     String[] getPaymentOptions();
     String getPhoneNumber();
+
     String getImageUrl();
+    //LocalPhoto[] getPhotos();
 
     String getPriceRange();
     String getPublicTransit();

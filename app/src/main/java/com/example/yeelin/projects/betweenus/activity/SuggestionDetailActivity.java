@@ -193,8 +193,13 @@ public class SuggestionDetailActivity
     }
 
     @Override
-    public void onOpenMap(int position, boolean toggleState) {
+    public void onOpenPhotos(int position) {
+        Log.d(TAG, "onOpenPhotos: Not implemented");
+    }
 
+    @Override
+    public void onOpenMap(int position, boolean toggleState) {
+        Log.d(TAG, "onOpenMap: Not implemented");
     }
 
     /**
