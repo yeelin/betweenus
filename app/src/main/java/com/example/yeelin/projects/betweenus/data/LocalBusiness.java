@@ -25,7 +25,7 @@ public interface LocalBusiness {
     String[] getPaymentOptions();
     String getPhoneNumber();
 
-    String getImageUrl();
+    String getProfilePictureUrl();
     //LocalPhoto[] getPhotos();
 
     String getPriceRange();

@@ -159,10 +159,10 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
-    public String getImageUrl() {
+    public String getProfilePictureUrl() {
         if (picture.getData().isSilhouette()) {
             //if it's just the fb silhouette, we don't want it
-            Log.d(TAG, "getImageUrl: FbSilhouette found. Name:" + name);
+            Log.d(TAG, "getProfilePictureUrl: FbSilhouette found. Name:" + name);
             return null;
         }
         return picture.getData().getUrl();

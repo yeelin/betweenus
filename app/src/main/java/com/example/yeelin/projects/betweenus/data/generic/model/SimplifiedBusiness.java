@@ -23,7 +23,7 @@ public class SimplifiedBusiness implements Parcelable {
     private int checkins;
 
     private String webUrl;
-    private String imageUrl;
+    private String profilePictureUrl;
     private String ratingImageUrl;
 
     public static SimplifiedBusiness newInstance(@NonNull LocalBusiness business) {
@@ -43,7 +43,7 @@ public class SimplifiedBusiness implements Parcelable {
         checkins = business.getCheckins();
 
         webUrl = business.getMobileUrl();
-        imageUrl = business.getImageUrl();
+        profilePictureUrl = business.getProfilePictureUrl();
         ratingImageUrl = business.getRatingImageUrl();
     }
 
@@ -64,7 +64,7 @@ public class SimplifiedBusiness implements Parcelable {
         checkins = in.readInt();
 
         webUrl = in.readString();
-        imageUrl = in.readString();
+        profilePictureUrl = in.readString();
         ratingImageUrl = in.readString();
     }
 
@@ -112,7 +112,7 @@ public class SimplifiedBusiness implements Parcelable {
         dest.writeInt(checkins);
 
         dest.writeString(webUrl);
-        dest.writeString(imageUrl);
+        dest.writeString(profilePictureUrl);
         dest.writeString(ratingImageUrl);
     }
 
@@ -160,8 +160,8 @@ public class SimplifiedBusiness implements Parcelable {
         return webUrl;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
     }
 
     public String getRatingImageUrl() {

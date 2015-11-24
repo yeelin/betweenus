@@ -31,6 +31,7 @@ public class PhotosPagerActivity
 
     //intent extras
     private static final String EXTRA_ID = PhotosPagerActivity.class.getSimpleName() + ".id";
+    private static final String EXTRA_PROFILE_PIC_URL = PhotosPagerActivity.class.getSimpleName() + ".profilePictureUrl";
 
     //saved instance state
     private static final String STATE_PAGER_POSITION = PhotosPagerActivity.class.getSimpleName() + ".pagerPosition";
@@ -40,17 +41,19 @@ public class PhotosPagerActivity
 
     private int viewPagerPosition = 0;
     private String id;
-    //private LocalPhoto[] localPhotos;
+    private String profilePictureUrl;
 
     /**
      * Builds intent to start this activity
      * @param context
      * @param id
+     * @param profilePictureUrl
      * @return
      */
-    public static Intent buildIntent(Context context, String id) {
+    public static Intent buildIntent(Context context, String id, String profilePictureUrl) {
         Intent intent = new Intent(context, PhotosPagerActivity.class);
         intent.putExtra(EXTRA_ID, id);
+        intent.putExtra(EXTRA_PROFILE_PIC_URL, profilePictureUrl);
         return intent;
     }
 
@@ -72,10 +75,24 @@ public class PhotosPagerActivity
         //read intent extras
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
+        profilePictureUrl = intent.getStringExtra(EXTRA_PROFILE_PIC_URL);
+
+        //set up pager adapter
+        final LocalPhoto localPhoto = new LocalPhoto() {
+            @Override
+            public String getSourceUrl() {
+                return profilePictureUrl;
+            }
+
+            @Override
+            public String getCaption() {
+                return null;
+            }
+        };
+        PhotosStatePagerAdapter pagerAdapter = new PhotosStatePagerAdapter(getSupportFragmentManager(), new LocalPhoto[] {localPhoto});
 
         //set up view pager
         viewPager = (ViewPager) findViewById(R.id.picture_viewPager);
-        PhotosStatePagerAdapter pagerAdapter = new PhotosStatePagerAdapter(getSupportFragmentManager(), null);
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(this);
         viewPager.setCurrentItem(viewPagerPosition);
@@ -164,11 +181,8 @@ public class PhotosPagerActivity
             return;
         }
 
-        //this.localPhotos = localPhotos;
-
-        //PhotosStatePagerAdapter pagerAdapter = new PhotosStatePagerAdapter(getSupportFragmentManager(), localPhotos);
         PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
-        pagerAdapter.swapData(localPhotos);
+        pagerAdapter.updateItems(localPhotos);
     }
 
     /**

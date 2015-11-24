@@ -264,7 +264,7 @@ public class SuggestionsPagerActivity
     public void onOpenPhotos(int position) {
         Log.d(TAG, "onOpenPhotos: Position:" + position);
         final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
-        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId()));
+        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getProfilePictureUrl()));
     }
 
     /**

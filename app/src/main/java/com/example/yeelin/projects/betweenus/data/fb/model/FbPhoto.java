@@ -16,6 +16,15 @@ public class FbPhoto implements LocalPhoto {
     private String sourceUrl;
     private String highResSourceUrl;
 
+    public FbPhoto(String sourceUrl) {
+        id = null;
+        name = null;
+        height = 0;
+        width = 0;
+        images = null;
+        this.sourceUrl = sourceUrl;
+    }
+
     public FbPhoto(String id, String name, int height, int width, FbPhotoImages[] images) {
         this.id = id;
         this.name = name;

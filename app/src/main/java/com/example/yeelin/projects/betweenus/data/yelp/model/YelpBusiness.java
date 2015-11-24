@@ -89,7 +89,7 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
-    public String getImageUrl() {
+    public String getProfilePictureUrl() {
         return image_url;
     }
 

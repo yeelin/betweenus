@@ -51,9 +51,9 @@ public class SimplifiedBusinessAdapter
         //set the views
         //load the image
         //don't worry about imageUrl being null since Picasso will handle it and use the placeholder instead
-        //checking simplifiedBusiness.getImageUrl() != null causes an issue here because if the view is recycled and the imageUrl
+        //checking simplifiedBusiness.getProfilePictureUrl() != null causes an issue here because if the view is recycled and the imageUrl
         //for the current simplifiedBusiness is null, then the imageView will not be cleared.
-        ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getImageUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
+        ImageUtils.loadImage(parent.getContext(), simplifiedBusiness.getProfilePictureUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
 
         //name
         viewHolder.name.setText(simplifiedBusiness.getName());
