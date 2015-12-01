@@ -33,6 +33,8 @@ public abstract class FbConstants {
         public static final String LIMIT = "limit";
         //fields
         public static final String FIELDS = "fields";
+        //after
+        public static final String AFTER = "after";
     }
 
     /**

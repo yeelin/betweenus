@@ -10,7 +10,6 @@ import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.fb.json.FbJsonDeserializerHelper;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPagePhotos;
-import com.example.yeelin.projects.betweenus.data.fb.model.FbPhoto;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbResult;
 
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
@@ -204,13 +203,15 @@ public class FbApiHelper {
      * @param context
      * @param accessToken
      * @param id
+     * @param afterId
      * @return
      */
-    public static FbPhoto[] getPlacePhotos(Context context, AccessToken accessToken, String id) {
-        Log.d(TAG, "getPlacePhotos: Id:" + id);
+    public static FbPagePhotos getPlacePhotos(Context context, AccessToken accessToken, String id, @Nullable String afterId) {
+        Log.d(TAG, String.format("getPlacePhotos: Id:%s, AfterId:%s", id, afterId));
         Bundle parameters = new Bundle();
         parameters.putString(FbConstants.ParamNames.TYPE, FbConstants.ParamValues.TYPE_UPLOADED);
         parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildPhotosFields());
+        if (afterId != null) parameters.putString(FbConstants.ParamNames.AFTER, afterId);
 
         //create te graph request
         final GraphRequest request = new GraphRequest(
@@ -228,13 +229,16 @@ public class FbApiHelper {
 
     /**
      * Helper method that deserializes the response from a graph api photos request into an
-     * array of photo urls.
+     * array of photo urls and processes the photo urls.
      * @param response
      * @return
      */
-    private static FbPhoto[] processFbPlacePhotosResponse(GraphResponse response) {
+    private static FbPagePhotos processFbPlacePhotosResponse(GraphResponse response) {
         Log.d(TAG, String.format("processFbPlacePhotosResponse: Query:%s", response.getRequest()));
+        //deserialize response
         final FbPagePhotos fbPagePhotos = FbJsonDeserializerHelper.deserializeFbPhotosResponse(response.getRawResponse());
-        return fbPagePhotos.getPhotos();
+        //process photos
+        fbPagePhotos.processPhotos();
+        return fbPagePhotos;
     }
 }

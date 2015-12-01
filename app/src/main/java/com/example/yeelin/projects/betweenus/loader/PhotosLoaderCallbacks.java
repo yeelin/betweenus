@@ -2,12 +2,14 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
-import com.example.yeelin.projects.betweenus.data.LocalPhoto;
+import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.loader.callback.PhotosLoaderListener;
 
 import java.lang.ref.WeakReference;
@@ -15,13 +17,13 @@ import java.lang.ref.WeakReference;
 /**
  * Created by ninjakiki on 11/13/15.
  */
-public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<LocalPhoto[]> {
+public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<LocalPhotosResult> {
     //logcat
     private static final String TAG = PhotosLoaderCallbacks.class.getCanonicalName();
-    //budle args
+    //bundle args
     private static final String ARG_SEARCH_ID = PhotosLoaderCallbacks.class.getSimpleName() + ".searchId";
     private static final String ARG_DATASOURCE = PhotosLoaderCallbacks.class.getSimpleName() + ".dataSource";
-
+    private static final String ARG_AFTER_ID = PhotosLoaderCallbacks.class.getSimpleName() + ".after";
 
     //member variables
     private final Context applicationContext;
@@ -33,13 +35,15 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @param loaderManager
      * @param loaderListener
      * @param searchId
+     * @param afterId
      * @param dataSource
      */
     public static void initLoader(Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
-                                  String searchId, int dataSource) {
+                                  @NonNull String searchId, @Nullable String afterId, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
         args.putInt(ARG_DATASOURCE, dataSource);
+        if (afterId != null) args.putString(ARG_AFTER_ID, afterId);
 
         //call loader manager's init loader
         loaderManager.initLoader(LoaderId.PHOTOS.getValue(),
@@ -53,13 +57,15 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @param loaderManager
      * @param loaderListener
      * @param searchId
+     * @param afterId
      * @param dataSource
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
-                                     String searchId, int dataSource) {
+                                     @NonNull String searchId, @Nullable String afterId, int dataSource) {
         Bundle args = new Bundle();
         args.putString(ARG_SEARCH_ID, searchId);
         args.putInt(ARG_DATASOURCE, dataSource);
+        if (afterId != null) args.putString(ARG_AFTER_ID, afterId);
 
         //call loader manager's restart loader
         loaderManager.restartLoader(LoaderId.PHOTOS.getValue(),
@@ -93,27 +99,28 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @return
      */
     @Override
-    public Loader<LocalPhoto[]> onCreateLoader(int id, Bundle args) {
+    public Loader<LocalPhotosResult> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader:");
         //read bundle args
         String searchId = args.getString(ARG_SEARCH_ID);
         int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.FACEBOOK);
+        String afterId = args.getString(ARG_AFTER_ID, null);
 
-        return new PhotosAsyncTaskLoader(applicationContext, searchId, dataSource);
+        return new PhotosAsyncTaskLoader(applicationContext, searchId, afterId, dataSource);
     }
 
     /**
-     * Loader has finished. Caled when a previously created loader has finished its load.
+     * Loader has finished. Called when a previously created loader has finished its load.
      * Notify listener
      * @param loader
-     * @param localPhotos
+     * @param localPhotosResult
      */
     @Override
-    public void onLoadFinished(Loader<LocalPhoto[]> loader, LocalPhoto[] localPhotos) {
+    public void onLoadFinished(Loader<LocalPhotosResult> loader, LocalPhotosResult localPhotosResult) {
         Log.d(TAG, "onLoadFinished:");
         PhotosLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localPhotos);
+            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localPhotosResult);
         }
     }
 
@@ -123,7 +130,7 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @param loader
      */
     @Override
-    public void onLoaderReset(Loader<LocalPhoto[]> loader) {
+    public void onLoaderReset(Loader<LocalPhotosResult> loader) {
         Log.d(TAG, "onLoaderReset:");
         onLoadFinished(loader, null);
     }

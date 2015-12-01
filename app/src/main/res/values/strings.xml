@@ -8,7 +8,9 @@
     <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
     <string name="title_detail_map">Map</string>
-    <string name="title_detail_photos">Photos</string>
+    <string name="title_detail_photos">Photo</string>
+    <string name="title_detail_photos_parameterized">Photo %1$s of %2$s</string>
+    <string name="title_detail_photos_parameterized_more">Photo %1$s of %2$s+</string>
     <string name="title_search">Search</string>
     <string name="title_dummy_search">Dummy Search</string>
     <string name="title_invitation">Invite your friend</string>

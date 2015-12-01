@@ -2,7 +2,7 @@ package com.example.yeelin.projects.betweenus.loader.callback;
 
 import android.support.annotation.Nullable;
 
-import com.example.yeelin.projects.betweenus.data.LocalPhoto;
+import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.loader.LoaderId;
 
 /**
@@ -12,7 +12,7 @@ public interface PhotosLoaderListener {
     /**
      * Listener interface. The listener is usually the ui.
      * @param loaderId
-     * @param localPhotos
+     * @param localPhotosResult
      */
-    void onLoadComplete(LoaderId loaderId, @Nullable LocalPhoto[] localPhotos);
+    void onLoadComplete(LoaderId loaderId, @Nullable LocalPhotosResult localPhotosResult);
 }

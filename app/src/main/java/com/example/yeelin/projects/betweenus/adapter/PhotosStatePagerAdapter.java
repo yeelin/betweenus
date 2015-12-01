@@ -61,7 +61,7 @@ public class PhotosStatePagerAdapter
             return null;
         }
 
-        Log.d(TAG, String.format("getItem: Position:%d, Photo url:%s", position, localPhoto.getSourceUrl()));
+        Log.d(TAG, String.format("getItem: Position:%d", position));
         return PhotoFragment.newInstance(localPhoto.getSourceUrl(), localPhoto.getCaption());
     }
 
@@ -107,17 +107,20 @@ public class PhotosStatePagerAdapter
      * Notifies the listeners that the data has changed which causes the current view to be refreshed.
      * @param newPhotos
      */
-    public void updateItems(@Nullable LocalPhoto[] newPhotos) {
+    public void updateItems(@Nullable ArrayList<LocalPhoto> newPhotos) {
         if (newPhotos == null) {
             Log.d(TAG, "updateItems: New data is null, so do nothing. Not calling notifyDataSetChanged");
             return;
         }
 
         //Add the new photos to the end of the array
-        Log.d(TAG, "updateItems: New data is not null, so adding new photos to the end of arrayList. Calling notifyDataSetChanged");
+        Log.d(TAG, String.format("updateItems: Current size:%d, New size:%d", localPhotoArrayList.size(), newPhotos.size()));
+
         int startIndexOfNewPhotos = localPhotoArrayList.size();
-        localPhotoArrayList.ensureCapacity(localPhotoArrayList.size() + newPhotos.length);
-        localPhotoArrayList.addAll(startIndexOfNewPhotos, Arrays.asList(newPhotos));
+        localPhotoArrayList.ensureCapacity(localPhotoArrayList.size() + newPhotos.size());
+        localPhotoArrayList.addAll(startIndexOfNewPhotos, newPhotos);
+
+        Log.d(TAG, "updateItems: After update size:" + localPhotoArrayList.size());
         notifyDataSetChanged();
     }
 }

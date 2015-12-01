@@ -5,31 +5,36 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
-import com.example.yeelin.projects.betweenus.data.LocalPhoto;
+import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
 import com.facebook.AccessToken;
 
 /**
  * Created by ninjakiki on 11/13/15.
  */
-public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
+public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
     //logcat
     private static final String TAG = PhotosAsyncTaskLoader.class.getCanonicalName();
 
     //member variables
     private final String id;
+    private final String afterId;
     private final int dataSource;
 
     //cached result
-    private LocalPhoto[] localPhotos;
+    private LocalPhotosResult localPhotosResult;
 
     /**
      * Constructor
      * @param context
+     * @param id
+     * @param afterId
+     * @param dataSource
      */
-    public PhotosAsyncTaskLoader(Context context, String id, int dataSource) {
+    public PhotosAsyncTaskLoader(Context context, String id, String afterId, int dataSource) {
         super(context);
         this.id = id;
+        this.afterId = afterId;
         this.dataSource = dataSource;
     }
 
@@ -39,10 +44,10 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
      * @return
      */
     @Override
-    public LocalPhoto[] loadInBackground() {
+    public LocalPhotosResult loadInBackground() {
         if (dataSource == LocalConstants.FACEBOOK) {
             Log.d(TAG, "loadInBackground: Loading place photos from Facebook. Id:" + id);
-            return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id);
+            return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id, afterId);
         }
         else {
             Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
@@ -54,36 +59,36 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
      * Called when there is new data to deliver to the client.  The super class will take care of
      * the delivery, the implementation here just adds a little logic. After this, onLoadFinished in
      * LoaderCallbacks is called.  This method runs on the UI thread.
-     * @param localPhotos
+     * @param localPhotosResult
      */
     @Override
-    public void deliverResult(LocalPhoto[] localPhotos) {
+    public void deliverResult(LocalPhotosResult localPhotosResult) {
         Log.d(TAG, "deliverResult:");
         //an async query came in while the loader is stopped. we don't need the result so toss it
         if (isReset()) {
-            if (localPhotos != null) {
+            if (localPhotosResult != null) {
                 Log.d(TAG, "deliverResult: isReset. Releasing local photos");
-                releaseResources(localPhotos);
+                releaseResources(localPhotosResult);
             }
             return;
         }
 
         //reassign the old data reference
-        LocalPhoto[] oldPhotos = this.localPhotos;
-        this.localPhotos = localPhotos;
+        LocalPhotosResult oldPhotos = this.localPhotosResult;
+        this.localPhotosResult = localPhotosResult;
 
         //if the loader is currently started, we can immediately deliver its results
         if (isStarted()) {
             Log.d(TAG, "deliverResult: isStarted. Delivering results");
-            super.deliverResult(localPhotos);
+            super.deliverResult(localPhotosResult);
         }
 
         //release old data
         //very important to check that old data != new data, otherwise we will get no results when
         //the loader reloads
-        if (oldPhotos != null && oldPhotos != localPhotos) {
+        if (oldPhotos != null && oldPhotos != localPhotosResult) {
             Log.d(TAG, "deliverResult: Releasing old photos");
-            if (localPhotos == null) {
+            if (localPhotosResult == null) {
                 Log.d(TAG, "deliverResult: New photos are null");
             }
             releaseResources(oldPhotos);
@@ -100,13 +105,13 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
     @Override
     protected void onStartLoading() {
         Log.d(TAG, "onStartLoading:");
-        if (localPhotos != null) {
+        if (localPhotosResult != null) {
             //we currently have a result available so deliver it immediately
             Log.d(TAG, "onStartLoading: Delivering results immediately");
-            deliverResult(localPhotos);
+            deliverResult(localPhotosResult);
         }
 
-        if (takeContentChanged() || localPhotos == null) {
+        if (takeContentChanged() || localPhotosResult == null) {
             //data is not currently available, or the data has changed since the last time it was loaded
             //so start a load
             Log.d(TAG, "onStartLoading: Forcing a new load");
@@ -130,14 +135,14 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
      * Handles a request to cancel a load.  This is called after data loading when it turns out that the
      * data is no longer needed.  For example, when the async task executing the loadInBackground is
      * cancelled. Clean up and release resources
-     * @param localPhotos
+     * @param localPhotosResult
      */
     @Override
-    public void onCanceled(LocalPhoto[] localPhotos) {
-        if (localPhotos != null) {
+    public void onCanceled(LocalPhotosResult localPhotosResult) {
+        if (localPhotosResult != null) {
             //release resources
             Log.d(TAG, "onCanceled: Releasing local photos");
-            releaseResources(localPhotos);
+            releaseResources(localPhotosResult);
         }
     }
 
@@ -155,19 +160,19 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhoto[]> {
         onStopLoading();
 
         //release resources
-        if (localPhotos != null) {
+        if (localPhotosResult != null) {
             Log.d(TAG, "onReset: Releasing local photos member variable");
-            releaseResources(localPhotos);
+            releaseResources(localPhotosResult);
         }
     }
 
     /**
      * Helper method to take care of releasing resources
-     * @param localPhotos
+     * @param localPhotosResult
      */
-    private void releaseResources(LocalPhoto[] localPhotos) {
-        if (localPhotos != null) {
-            localPhotos = null;
+    private void releaseResources(LocalPhotosResult localPhotosResult) {
+        if (localPhotosResult != null) {
+            localPhotosResult = null;
         }
     }
 }
