@@ -195,8 +195,8 @@ public class PhotosPagerActivity
 
         //keep a reference to the result
         this.localPhotosResult = localPhotosResult;
-        //take note if there's more data to fetch
-        hasMoreData = localPhotosResult != null && localPhotosResult.getAfterId() != null;
+        //check if there's more data to fetch
+        hasMoreData = isThereMoreData();
 
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -246,6 +246,15 @@ public class PhotosPagerActivity
 
     }
 
+    /**
+     * According to fb documentation, we should stop paging when 'next' is no longer available.
+     * Note: AfterId should not be used because it is the cursor that points to the end of the
+     * page of data that has been returned.
+     * @return
+     */
+    private boolean isThereMoreData() {
+        return localPhotosResult != null && localPhotosResult.getNextUrl() != null;
+    }
 
     /**
      * Updates the toolbar title using the current photo number (zero-index + 1) and the count of photos
