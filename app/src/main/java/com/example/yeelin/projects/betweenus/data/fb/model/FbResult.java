@@ -1,5 +1,7 @@
 package com.example.yeelin.projects.betweenus.data.fb.model;
 
+import android.support.annotation.Nullable;
+
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
@@ -12,9 +14,11 @@ import java.util.ArrayList;
  */
 public class FbResult implements LocalResult {
     private final ArrayList<FbPage> data;
+    private final FbPagination paging;
 
-    public FbResult(ArrayList<FbPage> pages) {
+    public FbResult(ArrayList<FbPage> pages, FbPagination paging) {
         data = pages;
+        this.paging = paging;
     }
 
     public ArrayList<FbPage> getPages() {
@@ -22,7 +26,7 @@ public class FbResult implements LocalResult {
     }
 
     public String toString() {
-        return String.format("Size:%d, Data:%s", data.size(), data);
+        return String.format("Paging:%s, Size:%d, Data:%s", paging, data.size(), data);
     }
 
     @Override
@@ -33,6 +37,23 @@ public class FbResult implements LocalResult {
         }
         return localBusinesses;
     }
+
+    @Nullable
+    public FbPagination getPaging() { return paging; }
+
+    @Nullable
+    public String getPreviousUrl() { return paging != null ? paging.getPrevious() : null; }
+
+    @Nullable
+    @Override
+    public String getNextUrl() { return paging != null ? paging.getNext() : null; }
+
+    @Nullable
+    @Override
+    public String getAfterId() { return paging != null ? paging.getCursors().getAfter() : null; }
+
+    @Nullable
+    public String getBeforeId() { return paging != null ? paging.getCursors().getBefore() : null; }
 
     @Override
     public LatLng getResultCenter() {

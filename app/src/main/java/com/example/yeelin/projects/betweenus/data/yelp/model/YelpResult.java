@@ -1,5 +1,7 @@
 package com.example.yeelin.projects.betweenus.data.yelp.model;
 
+import android.support.annotation.Nullable;
+
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
@@ -59,6 +61,18 @@ public class YelpResult implements LocalResult {
             localBusinesses.add(businesses.get(i));
         }
         return localBusinesses;
+    }
+
+    @Nullable
+    @Override
+    public String getAfterId() {
+        return null;
+    }
+
+    @Nullable
+    @Override
+    public String getNextUrl() {
+        return null;
     }
 
     @Override

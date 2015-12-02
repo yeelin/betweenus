@@ -104,23 +104,23 @@ public class PhotosPagerActivity
         viewPager.setCurrentItem(viewPagerPosition);
 
         //fetch photo urls for the given place id.
-        fetchPlacePhotos(null); //since this is the initial call, nextId is null
+        fetchPlacePhotos(null); //since this is the initial call, afterId is null
     }
 
     /**
      * Fetch photo urls for this place/detail page using a loader
-     * @param nextId the next id to start from, if any
+     * @param afterId the end id of the page of data that has been returned, if any
      */
-    private void fetchPlacePhotos(@Nullable String nextId) {
+    private void fetchPlacePhotos(@Nullable String afterId) {
         Log.d(TAG, "fetchPlacePhotos");
         if (FbConstants.USE_FB) {
             if (AccessToken.getCurrentAccessToken() != null) {
                 Log.d(TAG, "fetchPlacePhotos: User is logged in");
-                if (nextId == null) {
-                    PhotosLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, id, nextId, LocalConstants.FACEBOOK);
+                if (afterId == null) {
+                    PhotosLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, id, afterId, LocalConstants.FACEBOOK);
                 }
                 else {
-                    PhotosLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this, id, nextId, LocalConstants.FACEBOOK);
+                    PhotosLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this, id, afterId, LocalConstants.FACEBOOK);
                 }
             }
             else {
@@ -196,7 +196,7 @@ public class PhotosPagerActivity
         //keep a reference to the result
         this.localPhotosResult = localPhotosResult;
         //take note if there's more data to fetch
-        hasMoreData = localPhotosResult != null && localPhotosResult.getNextId() != null;
+        hasMoreData = localPhotosResult != null && localPhotosResult.getAfterId() != null;
 
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -219,9 +219,9 @@ public class PhotosPagerActivity
         updateToolbarTitle(position);
 
         //figure out if:
-        // 1) we have more data to fetch, i.e. nextId != null (hasMoreData == true)
+        // 1) we have more data to fetch, i.e. afterId != null (hasMoreData == true)
         // 2) we have hit the halfway point
-        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, NextId:%s", hasMoreData, localPhotosResult.getNextId()));
+        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, AfterId:%s", hasMoreData, localPhotosResult.getAfterId()));
         if (!hasMoreData) return;
 
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -231,8 +231,8 @@ public class PhotosPagerActivity
 
         if (position == halfwayPoint) {
             //we are equal to the halfway point of data, so try to get more data
-            Log.d(TAG, "onPageSelected: Fetching new data with nextId:" + localPhotosResult.getNextId());
-            fetchPlacePhotos(localPhotosResult.getNextId());
+            Log.d(TAG, "onPageSelected: Fetching new data with afterId:" + localPhotosResult.getAfterId());
+            fetchPlacePhotos(localPhotosResult.getAfterId());
         }
     }
 

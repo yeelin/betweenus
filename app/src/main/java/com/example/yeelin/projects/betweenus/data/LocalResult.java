@@ -10,6 +10,10 @@ import java.util.ArrayList;
 public interface LocalResult {
     ArrayList<LocalBusiness> getLocalBusinesses();
 
+    String getAfterId();
+
+    String getNextUrl();
+
     LatLng getResultCenter();
 
     double getResultLatitudeDelta();

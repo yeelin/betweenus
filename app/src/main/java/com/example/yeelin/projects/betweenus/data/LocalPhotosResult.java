@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public interface LocalPhotosResult {
     ArrayList<LocalPhoto> getLocalPhotos();
 
-    String getNextId();
+    String getAfterId();
 
     String getNextUrl();
 }

@@ -80,21 +80,44 @@ public class FbPagePhotos implements LocalPhotosResult {
         return paging;
     }
 
+    /**
+     * The Graph API endpoint that will return the previous page of data.
+     * If not included, this is the first page of data.
+     * @return
+     */
     @Nullable
-    public String getPreviousPhotosUrl() {
+    public String getPreviousUrl() {
         return paging != null ? paging.getPrevious() : null;
     }
 
+    /**
+     * The Graph API endpoint that will return the next page of data.
+     * If not included, this is the last page of data.
+     * Due to how pagination works with visibility and privacy it is possible that a page
+     * may be empty but contain a 'next' paging link - you should stop paging
+     * when the 'next' link no longer appears.
+     * @return
+     */
     @Nullable
-    public String getNextPhotosUrl() {
+    @Override
+    public String getNextUrl() {
         return paging != null ? paging.getNext() : null;
     }
 
+    /**
+     * This is the cursor that points to the end of the page of data that has been returned.
+     * @return
+     */
     @Nullable
+    @Override
     public String getAfterId() {
         return paging != null ? paging.getCursors().getAfter() : null;
     }
 
+    /**
+     * This is the cursor that points to the start of the page of data that has been returned.
+     * @return
+     */
     @Nullable
     public String getBeforeId() {
         return paging != null ? paging.getCursors().getBefore() : null;
@@ -103,63 +126,5 @@ public class FbPagePhotos implements LocalPhotosResult {
     @Override
     public ArrayList<LocalPhoto> getLocalPhotos() {
         return new ArrayList<LocalPhoto>(Arrays.asList(data)); //TODO: Change base data structure to Arraylist
-    }
-
-    @Override
-    public String getNextId() {
-        return getAfterId();
-    }
-
-    @Override
-    public String getNextUrl() {
-        return getNextPhotosUrl();
-    }
-
-    /**
-     * FbPagination class
-     */
-    public static class FbPagination {
-        private final FbCursor cursors;
-        private final String previous;
-        private final String next;
-
-        public FbPagination(FbCursor cursors, String previous, String next) {
-            this.cursors = cursors;
-            this.previous = previous;
-            this.next = next;
-        }
-
-        public FbCursor getCursors() {
-            return cursors;
-        }
-
-        public String getPrevious() {
-            return previous;
-        }
-
-        public String getNext() {
-            return next;
-        }
-    }
-
-    /**
-     * FbCursor class
-     */
-    public static class FbCursor {
-        private final String after;
-        private final String before;
-
-        public FbCursor(String after, String before) {
-            this.after = after;
-            this.before = before;
-        }
-
-        public String getAfter() {
-            return after;
-        }
-
-        public String getBefore() {
-            return before;
-        }
     }
 }
