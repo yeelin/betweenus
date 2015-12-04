@@ -460,7 +460,8 @@ public class SuggestionsActivity
      * If the data is from Yelp: The new result is assigned to the member variable directly.
      * @param newResult
      */
-    private void updateLocalResult(@NonNull LocalResult newResult) {
+    private void updateLocalResult(@Nullable LocalResult newResult) {
+        if (newResult == null) return;
         if (newResult.getDataSource() == LocalConstants.FACEBOOK) {
             if (result == null) {
                 //we don't have any previous results
