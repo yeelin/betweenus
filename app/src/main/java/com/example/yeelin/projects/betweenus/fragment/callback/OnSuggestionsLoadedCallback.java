@@ -15,10 +15,13 @@ public interface OnSuggestionsLoadedCallback {
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * To be implemented by fragments interested in the result.
      * @param result
+     * @param newResult
      * @param selectedIdsMap
      * @param userLatLng
      * @param friendLatLng
-     * @param midLatLng 
+     * @param midLatLng
+     * @param hasMoreData
      */
-    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng);
+    void onSuggestionsLoaded(@Nullable LocalResult result, @Nullable LocalResult newResult, @NonNull ArrayMap<String, Integer> selectedIdsMap,
+                             LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean hasMoreData);
 }

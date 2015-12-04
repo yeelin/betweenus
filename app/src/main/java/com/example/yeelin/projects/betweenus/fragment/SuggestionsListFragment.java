@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -11,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -23,6 +23,8 @@ import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActio
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 7/13/15.
@@ -37,10 +39,13 @@ public class SuggestionsListFragment
     private static final String TAG = SuggestionsListFragment.class.getCanonicalName();
 
     //member variables
+    private boolean hasMoreData;
+    private boolean isLoading = false;
     private OnSuggestionActionListener suggestionActionListener;
 
     /**
      * Creates a new instance of the list fragment
+     *
      * @return
      */
     public static SuggestionsListFragment newInstance() {
@@ -50,10 +55,12 @@ public class SuggestionsListFragment
     /**
      * Required empty constructor
      */
-    public SuggestionsListFragment() {}
+    public SuggestionsListFragment() {
+    }
 
     /**
      * Make sure the parent fragment or activity implements the suggestion click listener
+     *
      * @param context
      */
     @Override
@@ -63,14 +70,14 @@ public class SuggestionsListFragment
         Object objectToCast = getParentFragment() != null ? getParentFragment() : context;
         try {
             suggestionActionListener = (OnSuggestionActionListener) objectToCast;
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
     }
 
     /**
      * Configure the fragment
+     *
      * @param savedInstanceState
      */
     @Override
@@ -80,6 +87,7 @@ public class SuggestionsListFragment
 
     /**
      * Inflate the fragment's view
+     *
      * @param inflater
      * @param container
      * @param savedInstanceState
@@ -93,6 +101,7 @@ public class SuggestionsListFragment
 
     /**
      * Configure the fragment's view
+     *
      * @param view
      * @param savedInstanceState
      */
@@ -107,10 +116,20 @@ public class SuggestionsListFragment
         //set up the listview
         viewHolder.suggestionsListView.setOnItemClickListener(this);
         viewHolder.suggestionsListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        viewHolder.suggestionsListView.setOnScrollListener(new InfiniteScrollListener());
 
         //initially make the listcontainer invisible and show the progress bar
         viewHolder.suggestionsListContainer.setVisibility(View.GONE);
         viewHolder.suggestionsProgressBar.setVisibility(View.VISIBLE);
+
+        //setup the adapter
+        SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(
+                    viewHolder.suggestionsListView.getContext(),
+                    new ArrayList<LocalBusiness>(),
+                    null,
+                    null, null, null,
+                    this);
+        viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
     }
 
     /**
@@ -125,6 +144,7 @@ public class SuggestionsListFragment
     /**
      * AdapterView.OnItemClickListener
      * Item click callback when an item in the listview is clicked.  Notify listener
+     *
      * @param parent
      * @param view
      * @param position
@@ -145,8 +165,9 @@ public class SuggestionsListFragment
     /**
      * SuggestionsAdapter.OnItemToggleListener
      * Handles toggling of item in listview. Notify listener i.e. SuggestionsActivity.
-     * @param id business id
-     * @param position position of item in list
+     *
+     * @param id          business id
+     * @param position    position of item in list
      * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
@@ -159,13 +180,18 @@ public class SuggestionsListFragment
      * OnSuggestionsLoadedCallback implementation
      * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
      * @param result
+     * @param newResult always treat result as additive
      * @param selectedIdsMap
      * @param userLatLng
      * @param friendLatLng
-     * @param midLatLng 
+     * @param midLatLng
+     * @param hasMoreData
      */
-    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
-                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @Nullable LocalResult newResult, @NonNull ArrayMap<String, Integer> selectedIdsMap,
+                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean hasMoreData) {
+        //reset isLoading
+        isLoading = false;
+
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
@@ -174,26 +200,15 @@ public class SuggestionsListFragment
             return;
         }
 
-        //views are not null, so update it
+        //views are not null
+        //save the value of hasMoreData
+        this.hasMoreData = hasMoreData;
+
         //first: update the adapter
-        SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
-        if (suggestionsAdapter == null) {
-            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is null, so creating a new one.");
-            suggestionsAdapter = new SuggestionsAdapter(
-                    viewHolder.suggestionsListView.getContext(),
-                    result != null ? result.getLocalBusinesses() : null,
-                    selectedIdsMap,
-                    userLatLng, friendLatLng, midLatLng,
-                    this);
-            viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
-        }
-        else {
-            Log.d(TAG, "onSuggestionsLoaded: Suggestions adapter is not null, so updating.");
-            suggestionsAdapter.updateAllItems(
-                    result != null ? result.getLocalBusinesses() : null,
-                    selectedIdsMap,
-                    userLatLng, friendLatLng, midLatLng);
-        }
+        final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+        suggestionsAdapter.updateItems(newResult != null ? newResult.getLocalBusinesses() : null,
+                selectedIdsMap,
+                userLatLng, friendLatLng, midLatLng);
 
         //second: animate in the list, and animate out the progress bar
         if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
@@ -207,7 +222,7 @@ public class SuggestionsListFragment
      * Check if the changed item is currently visible in the listview.  If it is, only update that item.
      * Otherwise, do nothing.
      *
-     * @param id id of the item whose selection has changed.
+     * @param id          id of the item whose selection has changed.
      * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
     @Override
@@ -231,18 +246,17 @@ public class SuggestionsListFragment
             int lastVisiblePosition = viewHolder.suggestionsListView.getLastVisiblePosition();
             Log.d(TAG, String.format("onSelectionChanged: First visible:%d, Last visible:%d", firstVisiblePosition, lastVisiblePosition));
 
-            for (int i=firstVisiblePosition; i<=lastVisiblePosition; i++) {
+            for (int i = firstVisiblePosition; i <= lastVisiblePosition; i++) {
                 //second: check if the business id is the same as the one we are looking for
                 LocalBusiness business = (LocalBusiness) viewHolder.suggestionsListView.getItemAtPosition(i);
                 if (id.equalsIgnoreCase(business.getId())) { //found it
                     Log.d(TAG, "onSelectionChanged: Found matching business id. Position:" + i);
                     //get the view corresponding to that row
-                    View view = viewHolder.suggestionsListView.getChildAt(i-firstVisiblePosition);
+                    View view = viewHolder.suggestionsListView.getChildAt(i - firstVisiblePosition);
                     //third: ask the adapter to update the selection state in the view to match the given toggleState
                     suggestionsAdapter.onSelectionChanged(view, toggleState);
                     break;
-                }
-                else {
+                } else {
                     Log.d(TAG, "onSelectionChanged: Not a match. Position:" + i);
                 }
             }
@@ -271,6 +285,37 @@ public class SuggestionsListFragment
             suggestionsListView = (ListView) view.findViewById(R.id.suggestions_listView);
             suggestionsListView.setEmptyView(view.findViewById(R.id.suggestions_empty));
             suggestionsProgressBar = view.findViewById(R.id.suggestions_progressBar);
+        }
+    }
+
+    /**
+     * Listener for scroll events
+     */
+    private class InfiniteScrollListener implements AbsListView.OnScrollListener {
+        /**
+         * @param view
+         * @param scrollState
+         */
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+        }
+
+        /**
+         * @param view
+         * @param firstVisibleItem
+         * @param visibleItemCount
+         * @param totalItemCount
+         */
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            if (hasMoreData && !isLoading) {
+                if ((totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleItemCount)) {
+                    //we have at less than 1 screenful of data left to show, so go fetch more
+                    isLoading = true;
+                    suggestionActionListener.onMoreDataFetch();
+                }
+            }
         }
     }
 }

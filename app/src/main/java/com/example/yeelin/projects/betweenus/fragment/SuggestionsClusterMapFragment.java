@@ -35,6 +35,8 @@ import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
+
 /**
  * Created by ninjakiki on 7/28/15.
  * TODO: Need to include map attribution in about page
@@ -68,6 +70,8 @@ public class SuggestionsClusterMapFragment
     private boolean showingPeopleLocation = false;
 
     private LocalResult result;
+    private ArrayList<LocalBusiness> localBusinesses;
+    private boolean hasMoreData; //unused at the moment
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -163,7 +167,7 @@ public class SuggestionsClusterMapFragment
         // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
         if (mapNeedsUpdate) {
             Log.d(TAG, "onMapReady: Map needs update");
-            updateMap();
+            updateMap(result);
         }
         else {
             Log.d(TAG, "onMapReady: Map doesn't need update yet");
@@ -174,30 +178,28 @@ public class SuggestionsClusterMapFragment
      * OnSuggestionsLoadedCallback implementation
      * The loader has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
      * @param result
+     * @param newResult always treat result as additive
      * @param selectedIdsMap
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
+     * @param hasMoreData
      */
-    public void onSuggestionsLoaded(@Nullable LocalResult result, @NonNull ArrayMap<String,Integer> selectedIdsMap,
-                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
-        Log.d(TAG, "onSuggestionsLoaded");
-        this.selectedIdsMap = selectedIdsMap;
+    public void onSuggestionsLoaded(@Nullable LocalResult result, @Nullable LocalResult newResult, @NonNull ArrayMap<String,Integer> selectedIdsMap,
+                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean hasMoreData) {
 
-        //if it's the same items, do nothing. Otherwise, you end up clearing the map only to add
-        //the same markers back
-        if (this.result == result) {
-            Log.d(TAG, "updateMap: this.result == result. Nothing to do");
+        if (newResult == null) {
+            Log.d(TAG, "onSuggestionsLoaded: New result is null so nothing to do.");
             return;
         }
-        else {
-            //result is different so save a reference to it
-            Log.d(TAG, String.format("updateMap: Result is different. Previous result:%s, New result:%s", this.result, result));
-            this.result = result;
-            this.userLatLng = userLatLng;
-            this.friendLatLng = friendLatLng;
-            this.midLatLng = midLatLng;
-        }
+
+        this.result = result;
+        this.hasMoreData = hasMoreData;
+
+        this.selectedIdsMap = selectedIdsMap;
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
+        this.midLatLng = midLatLng;
 
         //check if map is null
         if (map == null) {
@@ -207,39 +209,42 @@ public class SuggestionsClusterMapFragment
         }
 
         //map is not null and the result is different so update the map
-        updateMap();
+        updateMap(newResult);
     }
 
     /**
      * Updates the map with the result
-     * This is similar to what the SuggestionsAdapter does in updateAllItems().
+     * This is similar to what the SuggestionsAdapter does in updateItems().
+     * @param result
      */
-    private void updateMap() {
-        Log.d(TAG, "updateMap");
-
-        //check if result is null
-        if (result != null && result.getLocalBusinesses().size() > 0) {
-            //add cluster items and call cluster!
-            addClusterItemsToClusterManager();
-            clusterManager.cluster();
-
-            //update people location markers
-            updatePeopleLocationMarkers();
-
-            //zoom map to new bounds since we just added new cluster items
-            zoomMapToBounds(true, false); //true = base it on display size, false = don't animate transition
-        }
-
+    private void updateMap(@Nullable LocalResult result) {
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
+
+        //check if result is null
+        if (result == null) {
+            Log.d(TAG, "updateMap: Result is null so nothing to do");
+            return;
+        }
+
+        //add new cluster items and call cluster!
+        addClusterItemsToClusterManager(result);
+        clusterManager.cluster();
+
+        //update people location markers
+        updatePeopleLocationMarkers();
+
+        //zoom map to new bounds since we just added new cluster items
+        zoomMapToBounds(true, false); //true = base it on display size, false = don't animate transition
     }
 
     /**
      * Loops through businesses in result and does the following:
      * 1. Creates a cluster item for each business.
-     * 2. Stores reference to cluster item in the idToClusterItemMap.g
+     * 2. Stores reference to cluster item in the idToClusterItemMap
+     * @param result
      */
-    private void addClusterItemsToClusterManager() {
+    private void addClusterItemsToClusterManager(@NonNull LocalResult result) {
         Log.d(TAG, "addClusterItemsToClusterManager: Count:" + result.getLocalBusinesses().size());
 
         //make sure the idToClusterItemMap has enough space

@@ -2,11 +2,13 @@ package com.example.yeelin.projects.betweenus.data.fb.query;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.json.FbJsonDeserializerHelper;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
 import com.example.yeelin.projects.betweenus.data.fb.model.FbPagePhotos;
@@ -28,6 +30,10 @@ import java.util.Iterator;
 public class FbApiHelper {
     //logcat
     private static final String TAG = FbApiHelper.class.getCanonicalName();
+    private static GraphRequest nextPlacesRequest;
+    private static GraphRequest previousPlacesRequest;
+    private static GraphRequest nextPhotosRequest;
+    private static GraphRequest previousPhotosRequest;
 
     /**
      * Creates a fb graph api request to search for places around the given latlng.
@@ -38,7 +44,7 @@ public class FbApiHelper {
      * @param imageHeightPx
      * @param imageWidthPx
      */
-    public static FbResult searchForPlaces(Context context, AccessToken accessToken, LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
+    public static FbResult searchForPlaces(Context context, AccessToken accessToken, @NonNull LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
         parameters.putString(FbConstants.ParamNames.QUERY, FbConstants.ParamValues.QUERY_RESTAURANT);
@@ -59,6 +65,36 @@ public class FbApiHelper {
 
         //execute the request and wait (ok since we are on a bg thread)
         final GraphResponse response = request.executeAndWait();
+
+        //store the next/previous places requests in case we need it later
+        nextPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+        previousPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.PREVIOUS);
+
+        //deserialize the response into a FbResult
+        return processFbPlacesResponse(response);
+    }
+
+    /**
+     * Creates a fb graph api request to get the next page of search results given a url and a paging direction
+     * The request is made synchronously so caller must make sure this method runs on a background thread.
+     * @param context
+     * @param accessToken
+     * @param url
+     * @param pagingDirection
+     * @return
+     */
+    public static FbResult searchForMorePlaces(Context context, AccessToken accessToken, @NonNull String url, int pagingDirection) {
+        //use paging direction to determine which request to use
+        GraphRequest request;
+        if (pagingDirection == LocalConstants.NEXT_PAGE) request = nextPlacesRequest;
+        else request = previousPlacesRequest;
+
+        //execute the request and wait (ok since we are on a bg thread)
+        final GraphResponse response = request.executeAndWait();
+
+        //store the next/previous places request in case we need it later
+        nextPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+        previousPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.PREVIOUS);
 
         //deserialize the response into a FbResult
         return processFbPlacesResponse(response);
@@ -203,15 +239,13 @@ public class FbApiHelper {
      * @param context
      * @param accessToken
      * @param id
-     * @param afterId
      * @return
      */
-    public static FbPagePhotos getPlacePhotos(Context context, AccessToken accessToken, String id, @Nullable String afterId) {
-        Log.d(TAG, String.format("getPlacePhotos: Id:%s, AfterId:%s", id, afterId));
-        Bundle parameters = new Bundle();
+    public static FbPagePhotos getPlacePhotos(Context context, AccessToken accessToken, @NonNull String id) {
+
+        Bundle parameters = new Bundle(2);
         parameters.putString(FbConstants.ParamNames.TYPE, FbConstants.ParamValues.TYPE_UPLOADED);
         parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildPhotosFields());
-        if (afterId != null) parameters.putString(FbConstants.ParamNames.AFTER, afterId);
 
         //create te graph request
         final GraphRequest request = new GraphRequest(
@@ -222,8 +256,39 @@ public class FbApiHelper {
                 null,
                 context.getString(R.string.facebook_api_version));
 
+
         //execute the request and wait (ok since we are on a bg thread)
         final GraphResponse response = GraphRequest.executeAndWait(request);
+
+        //store the next/previous photos requests in case we need it later
+        nextPhotosRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+        previousPhotosRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.PREVIOUS);
+
+        return processFbPlacePhotosResponse(response);
+    }
+
+    /**
+     * Creates a fb graph api request to get the next page of search results given a url and a paging direction.
+     * The request is made synchronously so caller must make sure this method runs on a background thread.
+     * @param context
+     * @param accessToken
+     * @param url
+     * @param pagingDirection
+     * @return
+     */
+    public static FbPagePhotos getMorePlacePhotos(Context context, AccessToken accessToken, @NonNull String url, int pagingDirection) {
+        //use paging direction to determine which request to use
+        GraphRequest request;
+        if (pagingDirection == LocalConstants.NEXT_PAGE) request = nextPhotosRequest;
+        else request = previousPhotosRequest;
+
+        //execute the request and wait (ok since we are on a bg thread)
+        final GraphResponse response = GraphRequest.executeAndWait(request);
+
+        //store the next/previous photos requests in case we need it later
+        nextPhotosRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+        previousPhotosRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.PREVIOUS);
+
         return processFbPlacePhotosResponse(response);
     }
 

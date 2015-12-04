@@ -18,7 +18,8 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
 
     //member variables
     private final String id;
-    private final String afterId;
+    private final String url;
+    private final int pagingDirection;
     private final int dataSource;
 
     //cached result
@@ -28,13 +29,36 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
      * Constructor
      * @param context
      * @param id
-     * @param afterId
      * @param dataSource
      */
-    public PhotosAsyncTaskLoader(Context context, String id, String afterId, int dataSource) {
+    public PhotosAsyncTaskLoader(Context context, String id, int dataSource) {
+        this(context, id, null, 0, dataSource);
+    }
+
+    /**
+     * Constructor
+     * @param context
+     * @param url
+     * @param pagingDirection
+     * @param dataSource
+     */
+    public PhotosAsyncTaskLoader(Context context, String url, int pagingDirection, int dataSource) {
+        this(context, null, url, pagingDirection, dataSource);
+    }
+
+    /**
+     * Private Constructor
+     * @param context
+     * @param id
+     * @param url
+     * @param pagingDirection
+     * @param dataSource
+     */
+    private PhotosAsyncTaskLoader(Context context, String id, String url, int pagingDirection, int dataSource) {
         super(context);
         this.id = id;
-        this.afterId = afterId;
+        this.url = url;
+        this.pagingDirection = pagingDirection;
         this.dataSource = dataSource;
     }
 
@@ -45,9 +69,23 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
      */
     @Override
     public LocalPhotosResult loadInBackground() {
-        if (dataSource == LocalConstants.FACEBOOK) {
-            Log.d(TAG, "loadInBackground: Loading place photos from Facebook. Id:" + id);
-            return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id, afterId);
+        if (dataSource == LocalConstants.YELP) {
+            Log.d(TAG, "loadInBackground: Yelp data source has not been implemented yet");
+            return null;
+        }
+        else if (dataSource == LocalConstants.FACEBOOK) {
+            if (id != null) {
+                Log.d(TAG, "loadInBackground: getPlacePhotos with id:" + id);
+                return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id);
+            }
+            else {
+                Log.d(TAG, "loadInBackground: getMorePlacePhotos with url:" + url);
+                return FbApiHelper.getMorePlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
+            }
+        }
+        else if (dataSource == LocalConstants.GOOGLE) {
+            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+            return null;
         }
         else {
             Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);

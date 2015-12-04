@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -28,6 +29,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     private static final String ARG_IMAGE_HEIGHT = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageHeight";
     private static final String ARG_IMAGE_WIDTH = SuggestionsLoaderCallbacks.class.getSimpleName() + ".imageWidth";
     private static final String ARG_DATASOURCE = SuggestionsLoaderCallbacks.class.getSimpleName() + ".dataSource";
+    private static final String ARG_PAGE_URL = SuggestionsLoaderCallbacks.class.getSimpleName() + ".pageUrl";
+    private static final String ARG_PAGING_DIRECTION = SuggestionsLoaderCallbacks.class.getSimpleName() + ".pagingDirection";
 
     //member variables
     private Context applicationContext;
@@ -48,9 +51,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      */
     public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
                                   String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
-                                  int imageHeightPx, int imageWidthPx,
-                                  int dataSource) {
-        Bundle args = new Bundle();
+                                  int imageHeightPx, int imageWidthPx, int dataSource) {
+        Bundle args = new Bundle(7);
         args.putString(ARG_SEARCH_TERM, searchTerm);
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
@@ -66,31 +68,20 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     }
 
     /**
-     * Helper method to restart the loader
+     * Helper method to restart the loader with the nextUrl for the next page of data
      * @param context
      * @param loaderManager
      * @param loaderListener
-     * @param searchTerm
-     * @param userLatLng
-     * @param friendLatLng
-     * @param midLatLng midpoint between userLatLng and friendLatLng
-     * @param imageHeightPx
-     * @param imageWidthPx
+     * @param url
+     * @param pagingDirection
      * @param dataSource
      */
     public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                     String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
-                                     int imageHeightPx, int imageWidthPx,
-                                     int dataSource) {
-        Bundle args = new Bundle();
-        args.putString(ARG_SEARCH_TERM, searchTerm);
-        args.putParcelable(ARG_USER_LATLNG, userLatLng);
-        args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
-        args.putParcelable(ARG_MID_LATLNG, midLatLng);
-        args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
-        args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
+                                     @NonNull String url, int pagingDirection, int dataSource) {
+        Bundle args = new Bundle(3);
+        args.putString(ARG_PAGE_URL, url);
+        args.putInt(ARG_PAGING_DIRECTION, pagingDirection);
         args.putInt(ARG_DATASOURCE, dataSource);
-
 
         //call loaderManager's restart loader
         loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
@@ -126,18 +117,26 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     @Override
     public Loader onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "onCreateLoader");
-        //read bundle args
-        String searchTerm = args.getString(ARG_SEARCH_TERM, "");
-        LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
-        LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
-        LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
-        int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
-        int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
-        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
 
-        //create a new loader
-        return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng,
-                imageHeightPx, imageWidthPx, dataSource);
+        //read bundle args
+        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
+        String searchTerm = args.getString(ARG_SEARCH_TERM, null);
+        if (searchTerm != null) {
+            LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
+            LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
+            LatLng midLatLng = args.getParcelable(ARG_MID_LATLNG);
+            int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
+            int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
+
+            //create a new loader for the initial search request
+            return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng,
+                    imageHeightPx, imageWidthPx, dataSource);
+        }
+
+        //create a new loader for the next page of results
+        String url = args.getString(ARG_PAGE_URL, null);
+        int pagingDirection = args.getInt(ARG_PAGING_DIRECTION, LocalConstants.NEXT_PAGE); //default is the next page of results
+        return new SuggestionsAsyncTaskLoader(applicationContext, url, pagingDirection, dataSource);
     }
 
     /**

@@ -38,7 +38,7 @@ public class SuggestionsAdapter
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
     //member variables
-    private List<LocalBusiness> businessList;
+    //private List<LocalBusiness> businessList;
     private ArrayMap<String,Integer> selectedIdsMap;
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -79,7 +79,7 @@ public class SuggestionsAdapter
                               OnItemToggleListener listener) {
         super(context, 0, businessList);
 
-        this.businessList = businessList;
+        //this.businessList = businessList;
         this.selectedIdsMap = selectedIdsMap;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
@@ -227,32 +227,28 @@ public class SuggestionsAdapter
 
     /**
      * Updates the adapter with a new list of businessList
-     * @param businessList
+     * @param newbusinessList
      * @param newSelectedIdsMap
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
      */
-    public void updateAllItems(@Nullable List<LocalBusiness> businessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
-                               LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
-        //if it's the same businessList, do nothing. Otherwise, you end up clearing out businessList
-        if (this.businessList == businessList) {
-            Log.d(TAG, "updateAllItems: this.businessList == businessList. Nothing to do");
+    public void updateItems(@Nullable List<LocalBusiness> newbusinessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
+                            LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+        if (newbusinessList == null) {
+            Log.d(TAG, "updateItems: businessList is null so nothing to do.");
             return;
         }
 
-        //remove all from the current list
-        clear();
         this.selectedIdsMap = newSelectedIdsMap;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
 
         //add all new businessList to the end of the array
-        if (businessList != null) {
-            this.businessList = businessList;
-            addAll(businessList);
-        }
+        Log.d(TAG, String.format("updateItems: Current size:%d, New size:%d", getCount(), newbusinessList.size()));
+        addAll(newbusinessList);
+        Log.d(TAG, "updateItems: After update size:" + getCount());
     }
 
     /**

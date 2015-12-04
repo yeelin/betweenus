@@ -21,6 +21,14 @@ public class FbResult implements LocalResult {
         this.paging = paging;
     }
 
+    public FbResult(ArrayList<FbPage> currentPages, ArrayList<FbPage> newPages, String previous, String next, String before, String after) {
+        data = new ArrayList<>(currentPages.size() + newPages.size());
+        data.addAll(currentPages);
+        data.addAll(newPages);
+
+        paging = new FbPagination(previous, next, before, after);
+    }
+
     public ArrayList<FbPage> getPages() {
         return data;
     }
@@ -50,10 +58,10 @@ public class FbResult implements LocalResult {
 
     @Nullable
     @Override
-    public String getAfterId() { return paging != null ? paging.getCursors().getAfter() : null; }
+    public String getAfterId() { return paging != null && paging.getCursors() != null ? paging.getCursors().getAfter() : null; }
 
     @Nullable
-    public String getBeforeId() { return paging != null ? paging.getCursors().getBefore() : null; }
+    public String getBeforeId() { return paging != null && paging.getCursors() != null ? paging.getCursors().getBefore() : null; }
 
     @Override
     public LatLng getResultCenter() {

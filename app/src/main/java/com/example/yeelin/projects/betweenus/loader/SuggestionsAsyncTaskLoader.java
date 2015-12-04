@@ -29,10 +29,13 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
     private final int imageHeightPx;
     private final int imageWidthPx;
     private final int dataSource;
+    private final String url;
+    private final int pagingDirection;
+
     private LocalResult localResult;
 
     /**
-     * Constructor. Creates a fully specified async task loader
+     * Constructor
      * @param context
      * @param searchTerm
      * @param userLatLng
@@ -45,6 +48,36 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
     public SuggestionsAsyncTaskLoader(Context context,
                                       String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                       int imageHeightPx, int imageWidthPx, int dataSource) {
+        this(context, searchTerm, userLatLng, friendLatLng, midLatLng, imageHeightPx, imageWidthPx, null, 0, dataSource);
+    }
+
+    /**
+     * Constructor with url and paging direction specified
+     * @param context
+     * @param url
+     * @param pagingDirection
+     * @param dataSource
+     */
+    public SuggestionsAsyncTaskLoader(Context context, String url, int pagingDirection, int dataSource) {
+        this(context, null, null, null, null, 0, 0, url, pagingDirection, dataSource);
+    }
+
+    /**
+     * Private constructor
+     * @param context
+     * @param searchTerm
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
+     * @param imageHeightPx
+     * @param imageWidthPx
+     * @param url
+     * @param pagingDirection
+     * @param dataSource
+     */
+    private SuggestionsAsyncTaskLoader(Context context,
+                                       String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int imageHeightPx, int imageWidthPx,
+                                       String url, int pagingDirection, int dataSource) {
         super(context);
         this.searchTerm = searchTerm;
         this.userLatLng = userLatLng;
@@ -52,6 +85,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
         this.midLatLng = midLatLng;
         this.imageHeightPx = imageHeightPx;
         this.imageWidthPx = imageWidthPx;
+        this.url = url;
+        this.pagingDirection = pagingDirection;
         this.dataSource = dataSource;
     }
 
@@ -63,12 +98,20 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
     @Override
     public LocalResult loadInBackground() {
         if (dataSource == LocalConstants.YELP) {
-            Log.d(TAG, "loadInBackground: Searching Yelp");
+            Log.d(TAG, "loadInBackground: Searching Yelp with latlng:" + midLatLng);
             return YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
         }
         else if (dataSource == LocalConstants.FACEBOOK) {
-            Log.d(TAG, "loadInBackground: Searching Facebook");
-            return FbApiHelper.searchForPlaces(getContext(), AccessToken.getCurrentAccessToken(), midLatLng, imageHeightPx, imageWidthPx);
+            if (url == null) {
+                //this is the initial search request
+                Log.d(TAG, "loadInBackground: searchForPlaces with latlng:" + midLatLng);
+                return FbApiHelper.searchForPlaces(getContext(), AccessToken.getCurrentAccessToken(), midLatLng, imageHeightPx, imageWidthPx);
+            }
+            else {
+                //request the next page of results
+                Log.d(TAG, "loadInBackground: searchForMorePlaces with url:" + url);
+                return FbApiHelper.searchForMorePlaces(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
+            }
         }
         else if (dataSource == LocalConstants.GOOGLE) {
             Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");

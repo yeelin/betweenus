@@ -104,23 +104,23 @@ public class PhotosPagerActivity
         viewPager.setCurrentItem(viewPagerPosition);
 
         //fetch photo urls for the given place id.
-        fetchPlacePhotos(null); //since this is the initial call, afterId is null
+        fetchPlacePhotos(null); //since this is the initial call, nextUrl is null
     }
 
     /**
      * Fetch photo urls for this place/detail page using a loader
-     * @param afterId the end id of the page of data that has been returned, if any
+     * @param nextUrl url for the next page, if any
      */
-    private void fetchPlacePhotos(@Nullable String afterId) {
-        Log.d(TAG, "fetchPlacePhotos");
+    private void fetchPlacePhotos(@Nullable String nextUrl) {
         if (FbConstants.USE_FB) {
             if (AccessToken.getCurrentAccessToken() != null) {
-                Log.d(TAG, "fetchPlacePhotos: User is logged in");
-                if (afterId == null) {
-                    PhotosLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, id, afterId, LocalConstants.FACEBOOK);
+                if (nextUrl == null) {
+                    Log.d(TAG, "fetchPlacePhotos: Calling initLoader");
+                    PhotosLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, id, LocalConstants.FACEBOOK);
                 }
                 else {
-                    PhotosLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this, id, afterId, LocalConstants.FACEBOOK);
+                    Log.d(TAG, "fetchPlacePhotos: Calling restartLoader");
+                    PhotosLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
                 }
             }
             else {
@@ -151,7 +151,7 @@ public class PhotosPagerActivity
     }
 
     /**
-     * Save paget position in case of rotation or backgrounding
+     * Save page position in case of rotation or backgrounding
      * @param outState
      */
     @Override
@@ -182,7 +182,7 @@ public class PhotosPagerActivity
     }
 
     /**
-     *
+     * PhotosLoaderListener callback
      * @param loaderId
      * @param localPhotosResult
      */
@@ -219,9 +219,9 @@ public class PhotosPagerActivity
         updateToolbarTitle(position);
 
         //figure out if:
-        // 1) we have more data to fetch, i.e. afterId != null (hasMoreData == true)
+        // 1) we have more data to fetch, i.e. hasMoreData is true
         // 2) we have hit the halfway point
-        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, AfterId:%s", hasMoreData, localPhotosResult.getAfterId()));
+        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, NextUrl:%s", hasMoreData, localPhotosResult.getNextUrl()));
         if (!hasMoreData) return;
 
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -231,8 +231,8 @@ public class PhotosPagerActivity
 
         if (position == halfwayPoint) {
             //we are equal to the halfway point of data, so try to get more data
-            Log.d(TAG, "onPageSelected: Fetching new data with afterId:" + localPhotosResult.getAfterId());
-            fetchPlacePhotos(localPhotosResult.getAfterId());
+            Log.d(TAG, "onPageSelected: Fetching new data with nextUrl:" + localPhotosResult.getNextUrl());
+            fetchPlacePhotos(localPhotosResult.getNextUrl());
         }
     }
 

@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.fb.model.FbResult;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
@@ -77,6 +79,7 @@ public class SuggestionsActivity
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
     private boolean showingMap = false;
     private LocalResult result;
+    private boolean hasMoreData;
     private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
 
@@ -167,7 +170,7 @@ public class SuggestionsActivity
         }
         else {
             //latlngs are not null so initialize the loader to fetch suggestions from the network
-            fetchSuggestions();
+            fetchSuggestions(null); //null because this is the initial search request
         }
     }
 
@@ -193,7 +196,8 @@ public class SuggestionsActivity
         return super.onCreateOptionsMenu(menu);
     }
 
-    /** Create a broadcast receiver and register for place broadcasts (success and failures)
+    /**
+     * Create a broadcast receiver and register for place broadcasts (success and failures)
      */
     @Override
     protected void onResume() {
@@ -391,17 +395,17 @@ public class SuggestionsActivity
             SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
             mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
 
-            if (shouldLoadData) {
-                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
-            }
+//            if (shouldLoadData) {
+//                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
+//            }
         }
         else {
             Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
             showListFragment(addToBackStack);
 
-            if (shouldLoadData) {
-                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
-            }
+//            if (shouldLoadData) {
+//                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
+//            }
         }
     }
 
@@ -410,46 +414,86 @@ public class SuggestionsActivity
      * When the loader delivers the results, this method would be called.  Depending on which fragment is in view,
      * the data would be passed to the appropriate fragment.
      * @param loaderId
-     * @param result
+     * @param newResult
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable LocalResult result) {
+    public void onLoadComplete(LoaderId loaderId, @Nullable LocalResult newResult) {
         if (loaderId != LoaderId.MULTI_PLACES) {
             Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
             return;
         }
 
         //debugging purposes
-        if (result == null) {
-            Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
+//        if (newResult == null) {
+//            Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
+//            return;
+//        }
+
+//        Log.d(TAG, "onLoadComplete: New result count:" + newResult.getLocalBusinesses().size());
+
+        //update the result member variable with the new result
+        updateLocalResult(newResult);
+        //check if there's more data to fetch
+        hasMoreData = isThereMoreData();
+
+        //update the respective fragments
+        Log.d(TAG, "onLoadComplete: Notifying list fragment");
+        if (fragments[LIST] != null) {
+            Log.d(TAG, "onLoadComplete: List fragment is not null");
+            ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(this.result, newResult,
+                    selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
         }
-        else {
-            Log.d(TAG, "onLoadComplete: Item count:" + result.getLocalBusinesses().size());
+
+        Log.d(TAG, "onLoadComplete: Notifying map fragment");
+        if (fragments[MAP] != null) {
+            SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
+            //mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
+            mapFragment.onSuggestionsLoaded(this.result, newResult,
+                    selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
         }
+    }
 
-        //reset the member variables
-        this.result = result;
-
-        if (showingMap) {
-            Log.d(TAG, "onLoadComplete: Notifying map fragment");
-
-            if (fragments[MAP] != null) {
-                SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
-                mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
-                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
-            }
-        }
-        else {
-            Log.d(TAG, "onLoadComplete: Notifying list fragment");
-
-            if (fragments[LIST] != null) {
-                Log.d(TAG, "onLoadComplete: List fragment is not null");
-                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng);
+    /**
+     * Updates the local result member variable with the new result we just retrieved.
+     * If the data is from FB: The new pages are appended to the end, while the next/previous urls or ids
+     * are replacecd with the new ones.
+     * If the data is from Yelp: The new result is assigned to the member variable directly.
+     * @param newResult
+     */
+    private void updateLocalResult(@NonNull LocalResult newResult) {
+        if (newResult.getDataSource() == LocalConstants.FACEBOOK) {
+            if (result == null) {
+                //we don't have any previous results
+                result = newResult;
             }
             else {
-                Log.d(TAG, "onLoadComplete: List fragment is null");
+                //combine previous results with the new result
+                final FbResult fbResult = (FbResult) newResult; //safe cast since we know that it's fb data
+                result = new FbResult(
+                        ((FbResult) this.result).getPages(),
+                        fbResult.getPages(),
+                        fbResult.getPreviousUrl(),
+                        fbResult.getNextUrl(),
+                        fbResult.getBeforeId(),
+                        fbResult.getAfterId());
             }
         }
+        else {
+            result = newResult;
+        }
+    }
+
+    /**
+     * According to fb documentation, we should stop paging when 'next' is no longer available.
+     * Note: AfterId should not be used because it is the cursor that points to the end of the
+     * page of data that has been returned.
+     * @return
+     */
+    private boolean isThereMoreData() {
+        if (result != null) {
+            Log.d(TAG, "isThereMoreData: NextUrl:" + result.getNextUrl());
+        }
+        return result != null && result.getNextUrl() != null;
     }
 
     /**
@@ -527,6 +571,24 @@ public class SuggestionsActivity
             Log.d(TAG, "onSuggestionToggle: Notifying list fragment that a selection has changed");
             ((SuggestionsListFragment) fragments[LIST]).onSelectionChanged(id, toggleState);
         }
+    }
+
+    /**
+     * This helper method is called by fragments to load more data.
+     * Fragments would typically have checked if there is more data to load before calling this, but
+     * just in case they didn't, this method checks again.
+     * It is the responsibility of the fragment to determine when to call this method.  That is, this
+     * method will immediately go fetch more data with the nextUrl without any further checks on visible
+     * indexes, etc.
+     */
+    @Override
+    public void onMoreDataFetch() {
+        Log.d(TAG, "onMoreDataFetch: hasMoreData:" + hasMoreData);
+        //figure out if we have more data to fetch, i.e. hasMoreData == true
+        if (!hasMoreData) return;
+
+        //fetch more data by restarting the loader
+        fetchSuggestions(result.getNextUrl());
     }
 
     /**
@@ -614,22 +676,34 @@ public class SuggestionsActivity
         this.friendLatLng = friendLatLng;
         midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
 
-        fetchSuggestions();
+        //search for places
+        fetchSuggestions(null); //null because this is the initial search request
     }
 
     /**
      * Helper method that initializes the loader to fetch suggestions from either Yelp or Facebook
+     * @param nextUrl url for the next page, if any
      */
-    private void fetchSuggestions() {
+    private void fetchSuggestions(@Nullable String nextUrl) {
         int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
 
         if (FbConstants.USE_FB) {
             //check if user is currently logged into fb
             if (AccessToken.getCurrentAccessToken() != null) {
                 //initialize the loader to fetch suggestions from fb
-                SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
-                        searchTerm, userLatLng, friendLatLng, midLatLng,
-                        imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
+                if (nextUrl == null) {
+                    //initial request
+                    Log.d(TAG, "fetchSuggestions: Calling initLoader");
+                    SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
+                            searchTerm, userLatLng, friendLatLng, midLatLng,
+                            imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
+                }
+                else {
+                    //request next page of results
+                    Log.d(TAG, "fetchSuggestions: Calling restartLoader");
+                    SuggestionsLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this,
+                            nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
+                }
             }
             else {
                 Log.d(TAG, "onPlacesSuccess: User is not logged in");

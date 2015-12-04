@@ -19,7 +19,7 @@ public interface OnSuggestionActionListener {
      * @param latLng latlng of the business
      * @param position position in the list or pager
      */
-    public void onSuggestionClick(String id, String name, LatLng latLng, int position);
+    void onSuggestionClick(String id, String name, LatLng latLng, int position);
 
     /**
      * A suggestion was toggled in either the list or map fragment.  Since it is a toggle
@@ -31,5 +31,12 @@ public interface OnSuggestionActionListener {
      * @param position position in the list or pager
      * @param toggleState resulting toggle state (true means selected, false means not selected)
      */
-    public void onSuggestionToggle(String id, int position, boolean toggleState);
+    void onSuggestionToggle(String id, int position, boolean toggleState);
+
+    /**
+     * This is called by the list or map fragment when they need more data.
+     * To be implemented by activities or parent fragments interested in handling
+     * this event.
+     */
+    void onMoreDataFetch();
 }

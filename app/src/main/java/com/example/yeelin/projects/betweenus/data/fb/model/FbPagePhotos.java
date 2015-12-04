@@ -67,8 +67,7 @@ public class FbPagePhotos implements LocalPhotosResult {
                     }
                 }
 
-                Log.d(TAG, String.format("DesiredHeight:%d, DesiredWidth:%d",
-                        desiredHeight, desiredWidth));
+                //Log.d(TAG, String.format("DesiredHeight:%d, DesiredWidth:%d", desiredHeight, desiredWidth));
                 data[i].setHighResSourceUrl(photoImages[index].getSource());
                 data[i].setSourceUrl(photoImages[index].getSource());
             }

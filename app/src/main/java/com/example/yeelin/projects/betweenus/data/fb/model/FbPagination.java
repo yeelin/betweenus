@@ -17,6 +17,12 @@ public class FbPagination {
         this.next = next;
     }
 
+    public FbPagination(String previous, String next, String before, String after) {
+        this.cursors = new FbCursor(after, before);
+        this.previous = previous;
+        this.next = next;
+    }
+
     public FbCursor getCursors() {
         return cursors;
     }
