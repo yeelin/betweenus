@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -11,6 +12,8 @@ import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.loader.callback.PhotosLoaderListener;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
@@ -30,28 +33,50 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
     private final Context applicationContext;
     private final WeakReference<PhotosLoaderListener> loaderListenerWeakRef;
 
+    //List of accepted loader id constants
+    @IntDef({PHOTOS_INITIAL, PHOTOS_SUBSEQUENT})
+    @Retention(RetentionPolicy.SOURCE) //tell the compiler not to store annotation in the .class file
+    public @interface PhotosLoaderId {} //declare the PhotosLoaderId annotation
+    public static final int PHOTOS_INITIAL = 0; //declare the actual constants
+    public static final int PHOTOS_SUBSEQUENT = 1;
+
     /**
      * Helper method to initialize the loader and callbacks using searchId
+     *
+     * If the loader doesn't already exist, one is created and (if the activity/fragment is currently
+     * started) starts the loader.  Otherwise the last created loader with that id is re-used.
+     *
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
      * @param searchId
      * @param dataSource
      */
-    public static void initLoader(Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
+    public static void initLoader(@PhotosLoaderId int loaderId, Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
                                   @NonNull String searchId, int dataSource) {
         Bundle args = new Bundle(2);
         args.putInt(ARG_DATASOURCE, dataSource);
         args.putString(ARG_SEARCH_ID, searchId);
 
         //call loader manager's init loader
-        loaderManager.initLoader(LoaderId.PHOTOS.getValue(),
+        loaderManager.initLoader(loaderId,
                 args,
                 new PhotosLoaderCallbacks(context, loaderListener));
     }
 
     /**
-     * Helper method to restart the loader for the next page of data
+     * Helper method to restart the loader for the next page of data.
+     *
+     * Starts a new or restarts an existing {@link android.content.Loader} in
+     * this manager, registers the callbacks to it,
+     * and (if the activity/fragment is currently started) starts loading it.
+     * If a loader with the same id has previously been
+     * started it will automatically be destroyed when the new loader completes
+     * its work. The callback will be delivered before the old loader
+     * is destroyed.
+     *
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
@@ -59,7 +84,7 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @param pagingDirection
      * @param dataSource
      */
-    public static void restartLoader(Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
+    public static void restartLoader(@PhotosLoaderId int loaderId, Context context, LoaderManager loaderManager, PhotosLoaderListener loaderListener,
                                      @NonNull String url, int pagingDirection, int dataSource) {
         Bundle args = new Bundle(3);
         args.putInt(ARG_DATASOURCE, dataSource);
@@ -67,7 +92,7 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
         args.putInt(ARG_PAGING_DIRECTION, pagingDirection);
 
         //call loader manager's restart loader
-        loaderManager.restartLoader(LoaderId.PHOTOS.getValue(),
+        loaderManager.restartLoader(loaderId,
                 args,
                 new PhotosLoaderCallbacks(context, loaderListener));
     }
@@ -77,8 +102,8 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
      * @param context
      * @param loaderManager
      */
-    public static void destroyLoader(Context context, LoaderManager loaderManager) {
-        loaderManager.destroyLoader(LoaderId.PHOTOS.getValue());
+    public static void destroyLoader(@PhotosLoaderId int loaderId, Context context, LoaderManager loaderManager) {
+        loaderManager.destroyLoader(loaderId);
     }
 
     /**
@@ -128,7 +153,7 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
         Log.d(TAG, "onLoadFinished:");
         PhotosLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localPhotosResult);
+            loaderListener.onLoadComplete(loader.getId(), localPhotosResult);
         }
     }
 

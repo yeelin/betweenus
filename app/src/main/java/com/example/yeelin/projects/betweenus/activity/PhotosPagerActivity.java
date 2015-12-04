@@ -80,6 +80,11 @@ public class PhotosPagerActivity
         id = intent.getStringExtra(EXTRA_ID);
         profilePictureUrl = intent.getStringExtra(EXTRA_PROFILE_PIC_URL);
 
+        //read savedInstanceState
+        if (savedInstanceState != null) {
+            viewPagerPosition = savedInstanceState.getInt(STATE_PAGER_POSITION, viewPagerPosition);
+        }
+
         //set up pager adapter
         final LocalPhoto localPhoto = new LocalPhoto() {
             @Override
@@ -115,12 +120,12 @@ public class PhotosPagerActivity
         if (FbConstants.USE_FB) {
             if (AccessToken.getCurrentAccessToken() != null) {
                 if (nextUrl == null) {
-                    Log.d(TAG, "fetchPlacePhotos: Calling initLoader");
-                    PhotosLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this, id, LocalConstants.FACEBOOK);
+                    Log.d(TAG, "fetchPlacePhotos: Calling initLoader with id");
+                    PhotosLoaderCallbacks.initLoader(PhotosLoaderCallbacks.PHOTOS_INITIAL, this, getSupportLoaderManager(), this, id, LocalConstants.FACEBOOK);
                 }
                 else {
-                    Log.d(TAG, "fetchPlacePhotos: Calling restartLoader");
-                    PhotosLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
+                    Log.d(TAG, "fetchPlacePhotos: Calling restartLoader with nextUrl");
+                    PhotosLoaderCallbacks.restartLoader(PhotosLoaderCallbacks.PHOTOS_SUBSEQUENT, this, getSupportLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
                 }
             }
             else {
@@ -161,18 +166,6 @@ public class PhotosPagerActivity
     }
 
     /**
-     * Restore pager position in case of rotation or backgrounding
-     * @param savedInstanceState
-     */
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState != null) {
-            viewPagerPosition = savedInstanceState.getInt(STATE_PAGER_POSITION, viewPagerPosition);
-        }
-    }
-
-    /**
      * Remove self as listener. Previously added via addOnPageChangeListener(OnPageChangeListener)
      */
     @Override
@@ -187,12 +180,7 @@ public class PhotosPagerActivity
      * @param localPhotosResult
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable LocalPhotosResult localPhotosResult) {
-        if (loaderId != LoaderId.PHOTOS) {
-            Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
-            return;
-        }
-
+    public void onLoadComplete(@PhotosLoaderCallbacks.PhotosLoaderId int loaderId, @Nullable LocalPhotosResult localPhotosResult) {
         //keep a reference to the result
         this.localPhotosResult = localPhotosResult;
         //check if there's more data to fetch
@@ -201,7 +189,7 @@ public class PhotosPagerActivity
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
         pagerAdapter.updateItems(localPhotosResult != null ? localPhotosResult.getLocalPhotos() : null);
-
+        
         //update the toolbar with the new count
         updateToolbarTitle(viewPagerPosition);
     }
