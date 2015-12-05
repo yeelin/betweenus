@@ -14,7 +14,6 @@ import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
-import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.PhotosLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.PhotosLoaderListener;
 import com.facebook.AccessToken;
@@ -189,7 +188,7 @@ public class PhotosPagerActivity
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
         pagerAdapter.updateItems(localPhotosResult != null ? localPhotosResult.getLocalPhotos() : null);
-        
+
         //update the toolbar with the new count
         updateToolbarTitle(viewPagerPosition);
     }

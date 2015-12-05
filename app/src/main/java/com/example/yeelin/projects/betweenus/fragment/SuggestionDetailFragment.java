@@ -17,7 +17,6 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
-import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
@@ -277,7 +276,7 @@ public class SuggestionDetailFragment
             if (AccessToken.getCurrentAccessToken() != null) {
                 Log.d(TAG, "onActivityCreated: User is logged in");
                 //initialize the loader to fetch details for this particular id from fb
-                SingleSuggestionLoaderCallbacks.initLoader(getActivity(), getLoaderManager(), this,
+                SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
                         id, imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
             }
             else {
@@ -286,7 +285,7 @@ public class SuggestionDetailFragment
         }
         else {
             //initialize the loader to fetch details for this particular id from Yelp
-            SingleSuggestionLoaderCallbacks.initLoader(getActivity(), getLoaderManager(), this,
+            SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
                     id, imageSizePx, imageSizePx, LocalConstants.YELP);
         }
     }
@@ -322,12 +321,7 @@ public class SuggestionDetailFragment
      * @param business
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable LocalBusiness business) {
-        if (loaderId != LoaderId.SINGLE_PLACE) {
-            Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
-            return;
-        }
-
+    public void onLoadComplete(@SingleSuggestionLoaderCallbacks.SinglePlaceLoaderId int loaderId, @Nullable LocalBusiness business) {
         this.business = business;
 
         if (business == null) {

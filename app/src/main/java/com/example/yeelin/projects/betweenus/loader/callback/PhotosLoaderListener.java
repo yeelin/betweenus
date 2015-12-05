@@ -3,8 +3,6 @@ package com.example.yeelin.projects.betweenus.loader.callback;
 import android.support.annotation.Nullable;
 
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
-import com.example.yeelin.projects.betweenus.loader.LoaderId;
-import com.example.yeelin.projects.betweenus.loader.PhotosLoaderCallbacks;
 
 /**
  * Created by ninjakiki on 11/13/15.

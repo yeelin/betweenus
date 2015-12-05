@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -12,6 +13,8 @@ import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
@@ -36,8 +39,16 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
     private Context applicationContext;
     private WeakReference<SuggestionsLoaderListener> loaderListenerWeakRef;
 
+    //list of accepted loader id constants
+    @IntDef({MULTI_PLACES_INITIAL, MULTI_PLACES_SUBSEQUENT})
+    @Retention(RetentionPolicy.SOURCE) //tell compiler not to store annotation in .class files
+    public @interface MultiPlacesLoaderId {} //declare the MultiPlacesLoaderId annotation
+    public static final int MULTI_PLACES_INITIAL = 100; //declare the actual constants
+    public static final int MULTI_PLACES_SUBSEQUENT = 101;
+
     /**
      * Helper method to initialize the loader and callbacks
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
@@ -49,7 +60,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param imageWidthPx
      * @param dataSource
      */
-    public static void initLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
+    public static void initLoader(@MultiPlacesLoaderId int loaderId, Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
                                   String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                   int imageHeightPx, int imageWidthPx, int dataSource) {
         Bundle args = new Bundle(7);
@@ -62,13 +73,14 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's initLoader
-        loaderManager.initLoader(LoaderId.MULTI_PLACES.getValue(),
+        loaderManager.initLoader(loaderId,
                 args,
                 new SuggestionsLoaderCallbacks(context, loaderListener));
     }
 
     /**
      * Helper method to restart the loader with the nextUrl for the next page of data
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
@@ -76,7 +88,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param pagingDirection
      * @param dataSource
      */
-    public static void restartLoader(Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
+    public static void restartLoader(@MultiPlacesLoaderId int loaderId, Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
                                      @NonNull String url, int pagingDirection, int dataSource) {
         Bundle args = new Bundle(3);
         args.putString(ARG_PAGE_URL, url);
@@ -84,18 +96,19 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's restart loader
-        loaderManager.restartLoader(LoaderId.MULTI_PLACES.getValue(),
+        loaderManager.restartLoader(loaderId,
                 args,
                 new SuggestionsLoaderCallbacks(context, loaderListener));
     }
 
     /**
      * Helper method to destroy the loader
+     * @param loaderId
      * @param loaderManager
      */
-    public static void destroyLoader(LoaderManager loaderManager) {
+    public static void destroyLoader(@MultiPlacesLoaderId int loaderId, LoaderManager loaderManager) {
         //call loaderManager's destroy loader
-        loaderManager.destroyLoader(LoaderId.MULTI_PLACES.getValue());
+        loaderManager.destroyLoader(loaderId);
     }
 
     /**
@@ -149,7 +162,7 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         Log.d(TAG, "onLoadFinished");
         SuggestionsLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localResult);
+            loaderListener.onLoadComplete(loader.getId(), localResult);
         }
     }
 

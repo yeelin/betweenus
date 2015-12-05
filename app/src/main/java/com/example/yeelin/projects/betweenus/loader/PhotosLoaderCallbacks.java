@@ -37,8 +37,8 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
     @IntDef({PHOTOS_INITIAL, PHOTOS_SUBSEQUENT})
     @Retention(RetentionPolicy.SOURCE) //tell the compiler not to store annotation in the .class file
     public @interface PhotosLoaderId {} //declare the PhotosLoaderId annotation
-    public static final int PHOTOS_INITIAL = 0; //declare the actual constants
-    public static final int PHOTOS_SUBSEQUENT = 1;
+    public static final int PHOTOS_INITIAL = 300; //declare the actual constants
+    public static final int PHOTOS_SUBSEQUENT = 301;
 
     /**
      * Helper method to initialize the loader and callbacks using searchId
@@ -99,10 +99,10 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
 
     /**
      * Helper method to destroy the loader
-     * @param context
+     * @param loaderId
      * @param loaderManager
      */
-    public static void destroyLoader(@PhotosLoaderId int loaderId, Context context, LoaderManager loaderManager) {
+    public static void destroyLoader(@PhotosLoaderId int loaderId, LoaderManager loaderManager) {
         loaderManager.destroyLoader(loaderId);
     }
 

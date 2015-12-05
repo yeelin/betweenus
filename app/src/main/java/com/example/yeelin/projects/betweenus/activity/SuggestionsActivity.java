@@ -3,7 +3,6 @@ package com.example.yeelin.projects.betweenus.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -24,7 +23,6 @@ import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
-import com.example.yeelin.projects.betweenus.loader.LoaderId;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
@@ -417,12 +415,7 @@ public class SuggestionsActivity
      * @param newResult
      */
     @Override
-    public void onLoadComplete(LoaderId loaderId, @Nullable LocalResult newResult) {
-        if (loaderId != LoaderId.MULTI_PLACES) {
-            Log.d(TAG, "onLoadComplete: Unknown loaderId:" + loaderId);
-            return;
-        }
-
+    public void onLoadComplete(@SuggestionsLoaderCallbacks.MultiPlacesLoaderId int loaderId, @Nullable LocalResult newResult) {
         //debugging purposes
 //        if (newResult == null) {
 //            Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
@@ -694,15 +687,15 @@ public class SuggestionsActivity
                 //initialize the loader to fetch suggestions from fb
                 if (nextUrl == null) {
                     //initial request
-                    Log.d(TAG, "fetchSuggestions: Calling initLoader");
-                    SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
+                    Log.d(TAG, "fetchSuggestions: Calling initLoader with id");
+                    SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL, this, getSupportLoaderManager(), this,
                             searchTerm, userLatLng, friendLatLng, midLatLng,
                             imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
                 }
                 else {
                     //request next page of results
-                    Log.d(TAG, "fetchSuggestions: Calling restartLoader");
-                    SuggestionsLoaderCallbacks.restartLoader(this, getSupportLoaderManager(), this,
+                    Log.d(TAG, "fetchSuggestions: Calling restartLoader with nextUrl");
+                    SuggestionsLoaderCallbacks.restartLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_SUBSEQUENT, this, getSupportLoaderManager(), this,
                             nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
                 }
             }
@@ -712,7 +705,7 @@ public class SuggestionsActivity
         }
         else {
             //initialize the loader to fetch suggestions from Yelp
-            SuggestionsLoaderCallbacks.initLoader(this, getSupportLoaderManager(), this,
+            SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL, this, getSupportLoaderManager(), this,
                     searchTerm, userLatLng, friendLatLng, midLatLng,
                     imageSizePx, imageSizePx, LocalConstants.YELP);
         }

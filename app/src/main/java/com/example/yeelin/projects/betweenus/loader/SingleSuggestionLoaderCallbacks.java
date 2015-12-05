@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.loader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -10,6 +11,8 @@ import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 
 /**
@@ -30,8 +33,15 @@ public class SingleSuggestionLoaderCallbacks
     private Context applicationContext;
     private WeakReference<SingleSuggestionLoaderListener> loaderListenerWeakRef;
 
+    //list of accepted loader id constants
+    @IntDef({SINGLE_PLACE})
+    @Retention(RetentionPolicy.SOURCE) //tell compiler not to store annotation in .class files
+    public @interface SinglePlaceLoaderId {} //declare the SinglePlaceLoaderId annotation
+    public static final int SINGLE_PLACE = 200; //declare the actual constants
+
     /**
      * Helper method to initialize the loader and callbacks
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
@@ -40,24 +50,24 @@ public class SingleSuggestionLoaderCallbacks
      * @param imageWidthPx
      * @param dataSource
      */
-    public static void initLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
+    public static void initLoader(@SinglePlaceLoaderId int loaderId, Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
                                   String searchId, int imageHeightPx, int imageWidthPx,
                                   int dataSource) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(4);
         args.putString(ARG_SEARCH_ID, searchId);
         args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
         args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call LoaderManager's init loader
-        loaderManager.initLoader(
-                LoaderId.SINGLE_PLACE.getValue(),
+        loaderManager.initLoader(loaderId,
                 args,
                 new SingleSuggestionLoaderCallbacks(context, loaderListener));
     }
 
     /**
      * Helper method to restart the loader
+     * @param loaderId
      * @param context
      * @param loaderManager
      * @param loaderListener
@@ -66,27 +76,28 @@ public class SingleSuggestionLoaderCallbacks
      * @param imageWidthPx
      * @param dataSource
      */
-    public static void restartLoader(Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
+    public static void restartLoader(@SinglePlaceLoaderId int loaderId, Context context, LoaderManager loaderManager, SingleSuggestionLoaderListener loaderListener,
                                      String searchId, int imageHeightPx, int imageWidthPx,
                                      int dataSource) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(4);
         args.putString(ARG_SEARCH_ID, searchId);
         args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
         args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
         args.putInt(ARG_DATASOURCE, dataSource);
 
-        loaderManager.restartLoader(
-                LoaderId.SINGLE_PLACE.getValue(),
+        //call loaderManager's restart loader
+        loaderManager.restartLoader(loaderId,
                 args,
                 new SingleSuggestionLoaderCallbacks(context, loaderListener));
     }
 
     /**
      * Helper method to destroy the loader
+     * @param loaderId
      * @param loaderManager
      */
-    public static void destroyLoader(LoaderManager loaderManager) {
-        loaderManager.destroyLoader(LoaderId.SINGLE_PLACE.getValue());
+    public static void destroyLoader(@SinglePlaceLoaderId int loaderId, LoaderManager loaderManager) {
+        loaderManager.destroyLoader(loaderId);
     }
 
     /**
@@ -127,7 +138,7 @@ public class SingleSuggestionLoaderCallbacks
         Log.d(TAG, "onLoadFinished");
         SingleSuggestionLoaderListener loaderListener = loaderListenerWeakRef.get();
         if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), localBusiness);
+            loaderListener.onLoadComplete(loader.getId(), localBusiness);
         }
     }
 
@@ -139,9 +150,6 @@ public class SingleSuggestionLoaderCallbacks
     @Override
     public void onLoaderReset(Loader<LocalBusiness> loader) {
         Log.d(TAG, "onLoaderReset");
-        SingleSuggestionLoaderListener loaderListener = loaderListenerWeakRef.get();
-        if (loaderListener != null) {
-            loaderListener.onLoadComplete(LoaderId.getLoaderIdForInt(loader.getId()), null);
-        }
+        onLoadFinished(loader, null);
     }
 }
