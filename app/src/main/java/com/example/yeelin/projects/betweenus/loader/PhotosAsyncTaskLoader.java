@@ -106,7 +106,7 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
         if (isReset()) {
             if (localPhotosResult != null) {
                 Log.d(TAG, "deliverResult: isReset. Releasing local photos");
-                releaseResources(localPhotosResult);
+                localPhotosResult = null;
             }
             return;
         }
@@ -129,7 +129,7 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
             if (localPhotosResult == null) {
                 Log.d(TAG, "deliverResult: New photos are null");
             }
-            releaseResources(oldPhotos);
+            oldPhotos = null;
         }
     }
 
@@ -180,7 +180,7 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
         if (localPhotosResult != null) {
             //release resources
             Log.d(TAG, "onCanceled: Releasing local photos");
-            releaseResources(localPhotosResult);
+            localPhotosResult = null;
         }
     }
 
@@ -200,16 +200,6 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
         //release resources
         if (localPhotosResult != null) {
             Log.d(TAG, "onReset: Releasing local photos member variable");
-            releaseResources(localPhotosResult);
-        }
-    }
-
-    /**
-     * Helper method to take care of releasing resources
-     * @param localPhotosResult
-     */
-    private void releaseResources(LocalPhotosResult localPhotosResult) {
-        if (localPhotosResult != null) {
             localPhotosResult = null;
         }
     }

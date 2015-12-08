@@ -76,7 +76,7 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
             // An async query came in while the loader is stopped.  We
             // don't need the result.
             if (localBusiness != null) {
-                releaseResources(localBusiness);
+                localBusiness = null;
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
@@ -96,7 +96,7 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
         if (oldBusiness != null && oldBusiness != localBusiness) {
-            releaseResources(oldBusiness);
+            oldBusiness = null;
         }
     }
 
@@ -148,7 +148,7 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
 
         if (localBusiness != null) {
             //release resources
-            releaseResources(localBusiness);
+            localBusiness = null;
         }
     }
 
@@ -166,17 +166,6 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
         onStopLoading();
 
         //release resources
-        if (localBusiness != null) {
-            releaseResources(localBusiness);
-        }
-    }
-
-    /**
-     * Helper function to take care of releasing resources associated
-     * with an actively loaded data set.
-     */
-    private void releaseResources(LocalBusiness localBusiness) {
-        Log.d(TAG, "releaseResources");
         if (localBusiness != null) {
             localBusiness = null;
         }

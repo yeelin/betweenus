@@ -137,7 +137,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
             // An async query came in while the loader is stopped.  We
             // don't need the result.
             if (localResult != null) {
-                releaseResources(localResult);
+                localResult = null;
             }
             Log.d(TAG, "deliverResult: isReset");
             return;
@@ -157,7 +157,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
         //release old data
         //very important to check oldItems != suggestedItems, otherwise we will get no results when the loader reloads
         if (oldResult != null && oldResult != localResult) {
-            releaseResources(oldResult);
+            oldResult = null;
         }
     }
 
@@ -209,7 +209,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
 
         if (localResult != null) {
             //release resources
-            releaseResources(localResult);
+            localResult = null;
         }
     }
 
@@ -227,17 +227,6 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
         onStopLoading();
 
         //release resources
-        if (localResult != null) {
-            releaseResources(localResult);
-        }
-    }
-
-    /**
-     * Helper function to take care of releasing resources associated
-     * with an actively loaded data set.
-     */
-    private void releaseResources(LocalResult localResult) {
-        Log.d(TAG, "releaseResources");
         if (localResult != null) {
             localResult = null;
         }
