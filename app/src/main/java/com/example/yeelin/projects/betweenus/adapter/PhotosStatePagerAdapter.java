@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalPhoto;
+import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.fragment.PhotoFragment;
 
 import java.util.ArrayList;
@@ -121,6 +122,39 @@ public class PhotosStatePagerAdapter
         localPhotoArrayList.addAll(startIndexOfNewPhotos, newPhotos);
 
         Log.d(TAG, "updateItems: After update size:" + localPhotoArrayList.size());
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Given an array of photo result objects which can be thought of as pages, this method adds the photos
+     * from each page to the end of the arraylist member variable.
+     * After all has been added, it notifies the listeners that the data has changed which causes the current
+     * view to be refreshed
+     * @param newResults
+     */
+    public void updateAllItems(@Nullable ArrayList<LocalPhotosResult> newResults) {
+        if (newResults == null) {
+            Log.d(TAG, "updateAllItems: New data is null, so do nothing. Not calling notifyDataSetChanged");
+            return;
+        }
+
+        //Add the new photos to the end of the array
+        //first, increase size of arraylist
+        int totalNew = 0;
+        for (int i=0; i<newResults.size(); i++) {
+            totalNew += newResults.get(i).getLocalPhotos().size();
+        }
+        localPhotoArrayList.ensureCapacity(localPhotoArrayList.size() + totalNew);
+        Log.d(TAG, String.format("updateAllItems: Current size:%d, New size:%d",
+                localPhotoArrayList.size(), totalNew));
+
+        //add the photos
+        for (int i=0; i<newResults.size(); i++) {
+            localPhotoArrayList.addAll(newResults.get(i).getLocalPhotos());
+        }
+
+        //notify that data set has changed
+        Log.d(TAG, "updateAllItems: After update size:" + localPhotoArrayList.size());
         notifyDataSetChanged();
     }
 }

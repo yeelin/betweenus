@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -13,10 +14,9 @@ import com.example.yeelin.projects.betweenus.adapter.PhotosStatePagerAdapter;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
-import com.example.yeelin.projects.betweenus.loader.PhotosLoaderCallbacks;
-import com.example.yeelin.projects.betweenus.loader.callback.PhotosLoaderListener;
-import com.facebook.AccessToken;
+import com.example.yeelin.projects.betweenus.fragment.PhotoDataFragment;
+
+import java.util.ArrayList;
 
 
 /**
@@ -25,7 +25,8 @@ import com.facebook.AccessToken;
 public class PhotosPagerActivity
         extends BaseActivity
         implements ViewPager.OnPageChangeListener,
-        PhotosLoaderListener {
+        PhotoDataFragment.PhotoDataListener {
+        //PhotosLoaderListener {
     //logcat
     private static final String TAG = PhotosPagerActivity.class.getCanonicalName();
 
@@ -35,6 +36,12 @@ public class PhotosPagerActivity
 
     //saved instance state
     private static final String STATE_PAGER_POSITION = PhotosPagerActivity.class.getSimpleName() + ".pagerPosition";
+    private static final String STATE_HAS_MORE_DATA = PhotosPagerActivity.class.getSimpleName() + ".hasMoreData";
+    private static final String STATE_NEXT_URL = PhotosPagerActivity.class.getSimpleName() + ".nextUrl";
+    private static final String STATE_PAGE_NUMBER = PhotosPagerActivity.class.getSimpleName() + ".pageNumber";
+
+    //fragment tag
+    private static final String FRAGMENT_TAG_PHOTO_DATA = PhotosPagerActivity.class.getSimpleName() + ".photoData";
 
     //member variables
     private ViewPager viewPager;
@@ -42,8 +49,11 @@ public class PhotosPagerActivity
     private String id;
     private String profilePictureUrl;
 
+    private PhotoDataFragment photoDataFragment;
     private LocalPhotosResult localPhotosResult;
     private boolean hasMoreData;
+    private String nextUrl;
+    private int pageNumber;
 
     /**
      * Builds intent to start this activity
@@ -82,6 +92,12 @@ public class PhotosPagerActivity
         //read savedInstanceState
         if (savedInstanceState != null) {
             viewPagerPosition = savedInstanceState.getInt(STATE_PAGER_POSITION, viewPagerPosition);
+            pageNumber = savedInstanceState.getInt(STATE_PAGE_NUMBER, pageNumber);
+            hasMoreData = savedInstanceState.getBoolean(STATE_HAS_MORE_DATA, hasMoreData);
+            nextUrl = savedInstanceState.getString(STATE_NEXT_URL, nextUrl);
+
+            Log.d(TAG, String.format("onCreate: savedInstanceState != null. PagerPosition:%d, PageNumber:%d, HasMoreData:%s, NextUrl:%s",
+                    viewPagerPosition, pageNumber, hasMoreData, nextUrl));
         }
 
         //set up pager adapter
@@ -97,9 +113,10 @@ public class PhotosPagerActivity
             }
         };
 
-        PhotosStatePagerAdapter pagerAdapter = new PhotosStatePagerAdapter(
+        //set up adapter for view pager
+        final PhotosStatePagerAdapter pagerAdapter = new PhotosStatePagerAdapter(
                 getSupportFragmentManager(),
-                new LocalPhoto[] {localPhoto}); //the current profile picture is the first photo in the view pager
+                new LocalPhoto[]{localPhoto}); //the current profile picture is the first photo in the view pager
 
         //set up view pager
         viewPager = (ViewPager) findViewById(R.id.picture_viewPager);
@@ -108,33 +125,43 @@ public class PhotosPagerActivity
         viewPager.setCurrentItem(viewPagerPosition);
 
         //fetch photo urls for the given place id.
-        fetchPlacePhotos(null); //since this is the initial call, nextUrl is null
+        FragmentManager fm = getSupportFragmentManager();
+        photoDataFragment = (PhotoDataFragment) fm.findFragmentByTag(FRAGMENT_TAG_PHOTO_DATA);
+        if (photoDataFragment == null) {
+            photoDataFragment = PhotoDataFragment.newInstance(id, LocalConstants.FACEBOOK);
+            fm.beginTransaction()
+                    .add(photoDataFragment, FRAGMENT_TAG_PHOTO_DATA)
+                    .disallowAddToBackStack()
+                    .commit();
+        } else {
+            photoDataFragment.fetchPlacePhotos(pageNumber, nextUrl); //since this is the initial call, nextUrl is null
+        }
     }
 
-    /**
-     * Fetch photo urls for this place/detail page using a loader
-     * @param nextUrl url for the next page, if any
-     */
-    private void fetchPlacePhotos(@Nullable String nextUrl) {
-        if (FbConstants.USE_FB) {
-            if (AccessToken.getCurrentAccessToken() != null) {
-                if (nextUrl == null) {
-                    Log.d(TAG, "fetchPlacePhotos: Calling initLoader with id");
-                    PhotosLoaderCallbacks.initLoader(PhotosLoaderCallbacks.PHOTOS_INITIAL, this, getSupportLoaderManager(), this, id, LocalConstants.FACEBOOK);
-                }
-                else {
-                    Log.d(TAG, "fetchPlacePhotos: Calling restartLoader with nextUrl");
-                    PhotosLoaderCallbacks.restartLoader(PhotosLoaderCallbacks.PHOTOS_SUBSEQUENT, this, getSupportLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
-                }
-            }
-            else {
-                Log.d(TAG, "fetchPlacePhotos: User is not logged in");
-            }
-        }
-        else {
-            Log.d(TAG, "fetchPlacePhotos: No photo paging since we are not using FB");
-        }
-    }
+//    /**
+//     * Fetch photo urls for this place/detail page using a loader
+//     * @param nextUrl url for the next page, if any
+//     */
+//    private void fetchPlacePhotos(@Nullable String nextUrl) {
+//        if (FbConstants.USE_FB) {
+//            if (AccessToken.getCurrentAccessToken() != null) {
+//                if (nextUrl == null) {
+//                    Log.d(TAG, "fetchPlacePhotos: Calling initLoader with id");
+//                    PhotosLoaderCallbacks.initLoader(PhotosLoaderCallbacks.PHOTOS_INITIAL, this, getSupportLoaderManager(), this, id, LocalConstants.FACEBOOK);
+//                }
+//                else {
+//                    Log.d(TAG, "fetchPlacePhotos: Calling restartLoader with nextUrl");
+//                    PhotosLoaderCallbacks.restartLoader(PhotosLoaderCallbacks.PHOTOS_SUBSEQUENT, this, getSupportLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, LocalConstants.FACEBOOK);
+//                }
+//            }
+//            else {
+//                Log.d(TAG, "fetchPlacePhotos: User is not logged in");
+//            }
+//        }
+//        else {
+//            Log.d(TAG, "fetchPlacePhotos: No photo paging since we are not using FB");
+//        }
+//    }
 
     /**
      * Handle user clicks on toolbar
@@ -162,6 +189,9 @@ public class PhotosPagerActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_PAGER_POSITION, viewPagerPosition);
+        outState.putInt(STATE_PAGE_NUMBER, pageNumber);
+        outState.putBoolean(STATE_HAS_MORE_DATA, hasMoreData);
+        outState.putString(STATE_NEXT_URL, nextUrl);
     }
 
     /**
@@ -173,21 +203,74 @@ public class PhotosPagerActivity
         super.onDestroy();
     }
 
+//    /**
+//     * PhotosLoaderListener callback
+//     * @param loaderId
+//     * @param localPhotosResult
+//     */
+//    @Override
+//    public void onLoadComplete(@PhotosLoaderCallbacks.PhotosLoaderId int loaderId, @Nullable LocalPhotosResult localPhotosResult) {
+//        //keep a reference to the result
+//        this.localPhotosResult = localPhotosResult;
+//        //check if there's more data to fetch
+//        hasMoreData = isThereMoreData();
+//
+//        //update the view pager's adapter
+//        final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
+//        pagerAdapter.updateItems(localPhotosResult != null ? localPhotosResult.getLocalPhotos() : null);
+//
+//        //update the toolbar with the new count
+//        updateToolbarTitle(viewPagerPosition);
+//    }
+
     /**
-     * PhotosLoaderListener callback
-     * @param loaderId
+     * PhotoDataListener callback
+     * This method is called when the single requested page is returned by the PhotoDataFragment.
      * @param localPhotosResult
+     * @param pageNumber
      */
     @Override
-    public void onLoadComplete(@PhotosLoaderCallbacks.PhotosLoaderId int loaderId, @Nullable LocalPhotosResult localPhotosResult) {
+    public void onSinglePageLoad(@Nullable LocalPhotosResult localPhotosResult, int pageNumber) {
+        if (localPhotosResult == null) return;
+
         //keep a reference to the result
         this.localPhotosResult = localPhotosResult;
+        //update page number
+        this.pageNumber = pageNumber;
         //check if there's more data to fetch
         hasMoreData = isThereMoreData();
+        //update next url
+        nextUrl = localPhotosResult.getNextUrl();
 
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
-        pagerAdapter.updateItems(localPhotosResult != null ? localPhotosResult.getLocalPhotos() : null);
+        pagerAdapter.updateItems(localPhotosResult.getLocalPhotos());
+
+        //update the toolbar with the new count
+        updateToolbarTitle(viewPagerPosition);
+    }
+
+    /**
+     * PhotoDataListener callback
+     * This method is called when the multi pages are loaded by the PhotoDataFragment.
+     * @param localPhotosResultArrayList
+     */
+    @Override
+    public void onMultiPageLoad(ArrayList<LocalPhotosResult> localPhotosResultArrayList) {
+        if (localPhotosResultArrayList == null) return;
+
+        //update page number
+        this.pageNumber = localPhotosResultArrayList.size()-1;
+        //keep a reference to the latest result
+        localPhotosResult = localPhotosResultArrayList.get(pageNumber);
+        //check if there's more data to fetch
+        hasMoreData = isThereMoreData();
+        //update next url
+        nextUrl = localPhotosResult.getNextUrl();
+
+        //update the view pager's adapter
+        final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
+        pagerAdapter.updateAllItems(localPhotosResultArrayList);
 
         //update the toolbar with the new count
         updateToolbarTitle(viewPagerPosition);
@@ -219,7 +302,7 @@ public class PhotosPagerActivity
         if (position == halfwayPoint) {
             //we are equal to the halfway point of data, so try to get more data
             Log.d(TAG, "onPageSelected: Fetching new data with nextUrl:" + localPhotosResult.getNextUrl());
-            fetchPlacePhotos(localPhotosResult.getNextUrl());
+            photoDataFragment.fetchPlacePhotos(pageNumber + 1, localPhotosResult.getNextUrl());
         }
     }
 
