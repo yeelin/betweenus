@@ -2,20 +2,12 @@ package com.example.yeelin.projects.betweenus.utils;
 
 import android.content.Context;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.ArrayMap;
-import android.support.v4.util.Pair;
 import android.util.SparseArray;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.data.LocalBusiness;
-import com.example.yeelin.projects.betweenus.data.LocalResult;
-import com.example.yeelin.projects.betweenus.data.fb.model.FbPage;
-import com.example.yeelin.projects.betweenus.data.generic.model.PlaceClusterItem;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.maps.android.ui.IconGenerator;
-
-import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 8/18/15.
