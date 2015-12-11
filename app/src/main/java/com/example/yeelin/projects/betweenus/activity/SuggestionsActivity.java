@@ -57,7 +57,6 @@ public class SuggestionsActivity
 
     //saved instance state
     private static final String STATE_SHOWING_MAP = SuggestionsActivity.class.getSimpleName() + ".showingMap";
-    private static final String STATE_SHOWING_PEOPLE_LOCATION = SuggestionsActivity.class.getSimpleName() + ".showingPeopleLocation";
     private static final String STATE_USER_LATLNG = SuggestionsActivity.class.getSimpleName() + ".userLatLng";
     private static final String STATE_FRIEND_LATLNG = SuggestionsActivity.class.getSimpleName() + ".friendLatLng";
     private static final String STATE_MID_LATLNG = SuggestionsActivity.class.getSimpleName() + ".midLatLng";
@@ -80,9 +79,6 @@ public class SuggestionsActivity
     private boolean hasMoreData;
     private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
-
-    private MenuItem peopleLocationMenuItem;
-    private boolean showingPeopleLocation = false;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -131,11 +127,9 @@ public class SuggestionsActivity
         fragments[MAP] = fm.findFragmentById(R.id.map_fragment);
 
         if (savedInstanceState != null) {
-            Log.d(TAG, "onCreate: Saved instance state is not null");
-
             //restore last shown state
             showingMap = savedInstanceState.getBoolean(STATE_SHOWING_MAP, false);
-            showingPeopleLocation = savedInstanceState.getBoolean(STATE_SHOWING_PEOPLE_LOCATION, false);
+            Log.d(TAG, "onCreate: Saved instance state is not null. ShowingMap:" + showingMap);
 
             //restore latlngs
             userLatLng = savedInstanceState.getParcelable(STATE_USER_LATLNG);
@@ -157,7 +151,8 @@ public class SuggestionsActivity
 
         //show the list fragment if this is the first time (i.e. no savedInstanceState) or
         //restore the view to the last fragment when we last left the activity (either showing map or list)
-        toggleListAndMapFragments(false, false); //false == don't add to backstack, false == don't load data since it's not ready
+        if (showingMap) showMapFragment(false); //false == don't add to backstack
+        else showListFragment(false);
 
         //check to make sure latlngs are not null
         //note: even in configuration change, it's possible that the activity was destroyed before the latlngs were set with values
@@ -180,17 +175,6 @@ public class SuggestionsActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_suggestions, menu);
-
-        //configure the list/map toggle to show the correct icon and title depending on boolean showingMap
-        final MenuItem toggleItem = menu.findItem(R.id.action_toggle);
-        toggleMapMenuIcon(toggleItem);
-        toggleMapMenuTitle(toggleItem);
-
-        //configure the people toggle to show the correct icon and title depending on boolean showingPeopleLocation
-        peopleLocationMenuItem = menu.findItem(R.id.action_show_people_location);
-        togglePeopleMenuIcon();
-        togglePeopleMenuTitle();
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -212,6 +196,28 @@ public class SuggestionsActivity
         Log.d(TAG, "onPause: Unregistering for broadcasts");
         placesBroadcastReceiver.unregister();
         super.onPause();
+    }
+
+    /**
+     * Saves out
+     * 1. the boolean showingMap so that we know which fragment is being displayed
+     * 2. the latlngs (user, friend, mid) so that we don't have to requery the service
+     * 3. the selected ids map so that we know which results were selected by the user
+     * 4. the selected positions in the list/pager corresponding to the selected ids
+     *
+     * @param outState
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_SHOWING_MAP, showingMap);
+
+        if (userLatLng != null) outState.putParcelable(STATE_USER_LATLNG, userLatLng);
+        if (friendLatLng != null) outState.putParcelable(STATE_FRIEND_LATLNG, friendLatLng);
+        if (midLatLng != null) outState.putParcelable(STATE_MID_LATLNG, midLatLng);
+
+        outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.keySet()));
+        outState.putIntegerArrayList(STATE_SELECTED_POSITIONS, new ArrayList<>(selectedIdsMap.values()));
     }
 
     /**
@@ -239,36 +245,6 @@ public class SuggestionsActivity
                 }
                 return true;
 
-            //toggle list/map view was clicked
-            case R.id.action_toggle:
-                Log.d(TAG, String.format("onOptionsItemSelected: Toggle clicked. Current:%s, Next:%s", showingMap ? "map" : "list", !showingMap ? "map" : "list"));
-                showingMap = !showingMap;
-
-                //toggle list/map icon and title
-                toggleMapMenuIcon(item);
-                toggleMapMenuTitle(item);
-                //toggle list/map fragments
-                toggleListAndMapFragments(true, true); //true, true == add to backstack and load data
-
-                //toggle people location item on/off
-                togglePeopleMenuIcon();
-                togglePeopleMenuTitle();
-                return true;
-
-            //toggle people location on/off
-            case R.id.action_show_people_location:
-                Log.d(TAG, String.format("onOptionsItemSelected: People toggle clicked. Current:%s, Next:%s", showingPeopleLocation ? "people" : "no people", !showingPeopleLocation ? "people" : "no people"));
-                showingPeopleLocation = !showingPeopleLocation;
-
-                //toggle people location item on/off
-                togglePeopleMenuIcon();
-                togglePeopleMenuTitle();
-
-                //notify map fragment to toggle the people markers
-                if (fragments[MAP] != null)
-                    ((SuggestionsClusterMapFragment) fragments[MAP]).togglePeopleLocation(showingPeopleLocation, true); //true = update UI immediately
-                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -294,120 +270,6 @@ public class SuggestionsActivity
     }
 
     /**
-     * Saves out
-     * 1. the boolean showingMap so that we know which fragment is being displayed
-     * 2. the boolean showingPeopleLocation so that we know if people location were being displayed
-     * 3. the latlngs (user, friend, mid) so that we don't have to requery the service
-     * 4. the selected ids map so that we know which results were selected by the user
-     * 5. the selected positions in the list/pager corresponding to the selected ids
-     *
-     * @param outState
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(STATE_SHOWING_MAP, showingMap);
-        outState.putBoolean(STATE_SHOWING_PEOPLE_LOCATION, showingPeopleLocation);
-
-        if (userLatLng != null) outState.putParcelable(STATE_USER_LATLNG, userLatLng);
-        if (friendLatLng != null) outState.putParcelable(STATE_FRIEND_LATLNG, friendLatLng);
-        if (midLatLng != null) outState.putParcelable(STATE_MID_LATLNG, midLatLng);
-
-        outState.putStringArrayList(STATE_SELECTED_IDS, new ArrayList<>(selectedIdsMap.keySet()));
-        outState.putIntegerArrayList(STATE_SELECTED_POSITIONS, new ArrayList<>(selectedIdsMap.values()));
-    }
-
-    /**
-     * Depending on the boolean showingMap, this method toggles the icon of the given menu item
-     * @param item
-     */
-    private void toggleMapMenuIcon(MenuItem item) {
-        item.setIcon(showingMap ? R.drawable.ic_action_view_list : R.drawable.ic_action_maps_map);
-    }
-
-    /**
-     * Depending on the boolean showingMap, this method toggles the title of the given menu item
-     * @param item
-     */
-    private void toggleMapMenuTitle(MenuItem item) {
-        item.setTitle(showingMap ? R.string.action_view_as_list : R.string.action_view_as_map);
-    }
-
-    /**
-     * Depending on the boolean showingPeopleLocation, this method toggles the icon of the
-     * people menu item
-     */
-    private void togglePeopleMenuIcon() {
-        if (showingMap) {
-            peopleLocationMenuItem.setIcon(showingPeopleLocation ?
-                    R.drawable.ic_action_social_people : R.drawable.ic_action_social_people_outline);
-            peopleLocationMenuItem.setVisible(true);
-        }
-        else {
-            peopleLocationMenuItem.setVisible(false);
-        }
-    }
-
-    /**
-     * Depending on the boolean showingPeopleLocation, this method toggles the title of the
-     * people menu item
-     */
-    private void togglePeopleMenuTitle() {
-        if (showingMap) {
-            peopleLocationMenuItem.setTitle(showingPeopleLocation ?
-                    R.string.action_hide_people_location : R.string.action_show_people_location);
-        }
-    }
-
-    /**
-     * Helper method for showing the list fragment
-     * @param addToBackStack
-     */
-    private void showListFragment(boolean addToBackStack) {
-        showFragment(fragments, LIST, addToBackStack);
-    }
-
-    /**
-     * Helper method for showing the map fragment
-     * @param addToBackStack
-     */
-    private void showMapFragment(boolean addToBackStack) {
-        showFragment(fragments, MAP, addToBackStack);
-    }
-
-    /**
-     * Depending on the boolean showingMap, this method toggles the visibility of the list and map fragments.
-     * If shouldLoadData is true, then the current result along with the selectedIdsMap is passed
-     * to the fragment.
-     * If selectionsChanged is true, then the id of the changed item is passed to the fragment.
-     *
-     * @param addToBackStack
-     * @param shouldLoadData
-     */
-    private void toggleListAndMapFragments(boolean addToBackStack, boolean shouldLoadData) {
-        if (showingMap) {
-            Log.d(TAG, "toggleListAndMapFragments: Showing map fragment");
-            showMapFragment(addToBackStack);
-
-            //tell the map fragment if we should be showing people location, but only update when the rest of the data is ready
-            SuggestionsClusterMapFragment mapFragment = (SuggestionsClusterMapFragment) fragments[MAP];
-            mapFragment.togglePeopleLocation(showingPeopleLocation, false); //false = don't update immediately
-
-//            if (shouldLoadData) {
-//                mapFragment.onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
-//            }
-        }
-        else {
-            Log.d(TAG, "toggleListAndMapFragments: Showing list fragment");
-            showListFragment(addToBackStack);
-
-//            if (shouldLoadData) {
-//                ((SuggestionsListFragment) fragments[LIST]).onSuggestionsLoaded(result, selectedIdsMap, userLatLng, friendLatLng, midLatLng, hasMoreData);
-//            }
-        }
-    }
-
-    /**
      * SuggestionsLoaderCallbacks.SuggestionsLoaderListener callback
      * When the loader delivers the results, this method would be called.  Depending on which fragment is in view,
      * the data would be passed to the appropriate fragment.
@@ -416,14 +278,6 @@ public class SuggestionsActivity
      */
     @Override
     public void onLoadComplete(@SuggestionsLoaderCallbacks.MultiPlacesLoaderId int loaderId, @Nullable LocalResult newResult) {
-        //debugging purposes
-//        if (newResult == null) {
-//            Log.d(TAG, "onLoadComplete: Result is null. Loader must be resetting");
-//            return;
-//        }
-
-//        Log.d(TAG, "onLoadComplete: New result count:" + newResult.getLocalBusinesses().size());
-
         //update the result member variable with the new result
         updateLocalResult(newResult);
         //check if there's more data to fetch
@@ -502,12 +356,6 @@ public class SuggestionsActivity
     public void onSuggestionClick(String id, String name, LatLng latLng, int position) {
         Log.d(TAG, String.format("onSuggestionClick: BusinessId:%s, Name:%s, Position:%d", id, name, position));
 
-//        Intent detailIntent = SuggestionDetailActivity.buildIntent(this,
-//                id, name, latLng,
-//                position, selectedIdsMap.containsKey(id),
-//                userLatLng, friendLatLng, midLatLng);
-//        startActivityForResult(detailIntent, REQUEST_CODE_DETAIL_VIEW);
-
         Intent pagerIntent = SuggestionsPagerActivity.buildIntent(this,
                 position,
                 buildSimplifiedBusinessList(),
@@ -568,6 +416,7 @@ public class SuggestionsActivity
     }
 
     /**
+     * OnSuggestionActionListener implementation
      * This helper method is called by fragments to load more data.
      * Fragments would typically have checked if there is more data to load before calling this, but
      * just in case they didn't, this method checks again.
@@ -583,6 +432,44 @@ public class SuggestionsActivity
 
         //fetch more data by restarting the loader
         fetchSuggestions(result.getNextUrl());
+    }
+
+    /**
+     * OnSuggestionActionListener implementation
+     */
+    @Override
+    public void showList() {
+        Log.d(TAG, "showList");
+
+        showingMap = false;
+        showListFragment(true);
+    }
+
+    /**
+     * OnSuggestionActionListener implementation
+     */
+    @Override
+    public void showMap() {
+        Log.d(TAG, "showMap");
+
+        showingMap = true;
+        showMapFragment(true);
+    }
+
+    /**
+     * Helper method for showing the list fragment
+     * @param addToBackStack
+     */
+    private void showListFragment(boolean addToBackStack) {
+        showFragment(fragments, LIST, addToBackStack);
+    }
+
+    /**
+     * Helper method for showing the map fragment
+     * @param addToBackStack
+     */
+    private void showMapFragment(boolean addToBackStack) {
+        showFragment(fragments, MAP, addToBackStack);
     }
 
     /**

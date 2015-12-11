@@ -8,6 +8,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -76,13 +79,14 @@ public class SuggestionsListFragment
     }
 
     /**
-     * Configure the fragment
+     * Configure the fragment. Request that onCreateOptionsMenu be called later.
      *
      * @param savedInstanceState
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     /**
@@ -97,6 +101,16 @@ public class SuggestionsListFragment
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_suggestions_list, container, false);
+    }
+
+    /**
+     * Inflate the fragment's menus items
+     * @param menu
+     * @param inflater
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_suggestions_list_fragment, menu);
     }
 
     /**
@@ -139,6 +153,26 @@ public class SuggestionsListFragment
     public void onDetach() {
         suggestionActionListener = null;
         super.onDetach();
+    }
+
+    /**
+     * Handles user selection of menu options that were added by this fragment.
+     * 1. Show as map
+     *
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_show_map:
+                Log.d(TAG, "onOptionsItemSelected: User wants to see results in a map");
+                suggestionActionListener.showMap();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**

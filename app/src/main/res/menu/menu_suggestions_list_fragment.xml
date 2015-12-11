@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".fragment.SuggestionsListFragment">
+
+    <item
+        android:id="@+id/action_show_map"
+        android:orderInCategory="101"
+        android:title="@string/action_view_as_map"
+        android:icon="@drawable/ic_action_maps_map"
+        app:showAsAction="ifRoom" />
+</menu>

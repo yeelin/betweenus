@@ -39,4 +39,14 @@ public interface OnSuggestionActionListener {
      * this event.
      */
     void onMoreDataFetch();
+
+    /**
+     * This is called by the map fragment when the user wants to view the results as a list.
+     */
+    void showList();
+
+    /**
+     * This is called by the list fragment when the user wants to view the results as a map.
+     */
+    void showMap();
 }

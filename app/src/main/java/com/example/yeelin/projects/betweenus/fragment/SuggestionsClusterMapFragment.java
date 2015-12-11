@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -10,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -54,6 +58,9 @@ public class SuggestionsClusterMapFragment
 
     //logcat
     private static final String TAG = SuggestionsClusterMapFragment.class.getCanonicalName();
+
+    //saved instance state
+    private static final String STATE_SHOWING_PEOPLE_LOCATION = SuggestionsClusterMapFragment.class.getSimpleName() + ".showingPeopleLocation";
 
     //constants
     private static final double MIN_HIGH_RATING = 3.9;
@@ -114,7 +121,47 @@ public class SuggestionsClusterMapFragment
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement OnSuggestionActionListener");
         }
     }
-    
+
+    /**
+     * Configure the fragment. Request that onCreateOptionsMenu be called later.
+     * @param savedInstanceState
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            //restore last shown state
+            showingPeopleLocation = savedInstanceState.getBoolean(STATE_SHOWING_PEOPLE_LOCATION, false);
+            Log.d(TAG, "onCreate: Saved instance state is not null. ShowingPeople:" + showingPeopleLocation);
+        }
+    }
+
+    /**
+     * Inflate the fragment's menus items.
+     * @param menu
+     * @param inflater
+     */
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_suggestions_map_fragment, menu);
+
+        //set the people menu item icon and title to match the showingPeopleLocation state
+        togglePeopleMenu(menu.findItem(R.id.action_show_people_location));
+    }
+
+    /**
+     * Save out the showingPeopleLocation boolean so that we remember if the people markers were
+     * being displayed or not at the time.
+     * @param outState
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_SHOWING_PEOPLE_LOCATION, showingPeopleLocation);
+    }
+
     /**
      * Nullify the click listener
      */
@@ -122,6 +169,67 @@ public class SuggestionsClusterMapFragment
     public void onDetach() {
         suggestionActionListener = null;
         super.onDetach();
+    }
+
+    /**
+     * Handles user selection of menu options that were added by this fragment.
+     * 1. Show as list
+     * 2. Show people location
+     *
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            //toggle over to the list view
+            case R.id.action_show_list:
+                Log.d(TAG, "onOptionsItemSelected: User wants to see results in a list");
+                suggestionActionListener.showList();
+                return true;
+
+            //toggle people location on/off
+            case R.id.action_show_people_location:
+                Log.d(TAG, String.format("onOptionsItemSelected: People toggle clicked. Current:%s, Next:%s",
+                        showingPeopleLocation ? "people" : "no people", !showingPeopleLocation ? "people" : "no people"));
+                //update the boolean state
+                showingPeopleLocation = !showingPeopleLocation;
+                togglePeople(item);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Updates the people toggle menu and markers.
+     * @param item
+     */
+    private void togglePeople(MenuItem item) {
+        //toggle people location menu item on/off
+        togglePeopleMenu(item);
+
+        //toggle the people markers
+        togglePeopleMarkers(true); //true = update UI immediately
+    }
+
+    /**
+     * Depending on the boolean showingPeopleLocation, this method toggles the icon and title of the
+     * people menu item
+     * @param item
+     */
+    private void togglePeopleMenu(MenuItem item) {
+        if (showingPeopleLocation) {
+            //showing people location, so menu should show the opposite state
+            item.setIcon(R.drawable.ic_action_social_people);
+            item.setTitle(R.string.action_hide_people_location);
+        }
+        else {
+            //not showing people location, so menu should show the opposite state
+            item.setIcon(R.drawable.ic_action_social_people_outline);
+            item.setTitle(R.string.action_show_people_location);
+        }
     }
 
     /**
@@ -488,13 +596,10 @@ public class SuggestionsClusterMapFragment
      * Toggles the people location markers on the map.
      * This method is called by SuggestionActivity when the people menu item is toggled.
      *
-     * @param toggleOn
      * @param updateImmediately if this is false, then only the member variable is set. the ui isn't updated until
      *                          the next time
      */
-    public void togglePeopleLocation(boolean toggleOn, boolean updateImmediately) {
-        showingPeopleLocation = toggleOn;
-
+    private void togglePeopleMarkers(boolean updateImmediately) {
         if (updateImmediately && map != null) {
             updatePeopleLocationMarkers();
             zoomMapToBounds(false, true); //false = don't use display size, true = animate transition
