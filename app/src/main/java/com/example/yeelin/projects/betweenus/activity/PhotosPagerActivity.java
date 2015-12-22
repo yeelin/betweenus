@@ -26,7 +26,6 @@ public class PhotosPagerActivity
         extends BaseActivity
         implements ViewPager.OnPageChangeListener,
         PhotoDataFragment.PhotoDataListener {
-        //PhotosLoaderListener {
     //logcat
     private static final String TAG = PhotosPagerActivity.class.getCanonicalName();
 
@@ -50,7 +49,6 @@ public class PhotosPagerActivity
     private String profilePictureUrl;
 
     private PhotoDataFragment photoDataFragment;
-    private LocalPhotosResult localPhotosResult;
     private boolean hasMoreData;
     private String nextUrl;
     private int pageNumber;
@@ -233,14 +231,12 @@ public class PhotosPagerActivity
     public void onSinglePageLoad(@Nullable LocalPhotosResult localPhotosResult, int pageNumber) {
         if (localPhotosResult == null) return;
 
-        //keep a reference to the result
-        this.localPhotosResult = localPhotosResult;
         //update page number
         this.pageNumber = pageNumber;
-        //check if there's more data to fetch
-        hasMoreData = isThereMoreData();
         //update next url
         nextUrl = localPhotosResult.getNextUrl();
+        //check if there's more data to fetch
+        hasMoreData = isThereMoreData();
 
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -260,13 +256,11 @@ public class PhotosPagerActivity
         if (localPhotosResultArrayList == null) return;
 
         //update page number
-        this.pageNumber = localPhotosResultArrayList.size()-1;
-        //keep a reference to the latest result
-        localPhotosResult = localPhotosResultArrayList.get(pageNumber);
+        pageNumber = localPhotosResultArrayList.size()-1;
+        //update next url
+        nextUrl = localPhotosResultArrayList.get(pageNumber).getNextUrl();
         //check if there's more data to fetch
         hasMoreData = isThereMoreData();
-        //update next url
-        nextUrl = localPhotosResult.getNextUrl();
 
         //update the view pager's adapter
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -291,7 +285,7 @@ public class PhotosPagerActivity
         //figure out if:
         // 1) we have more data to fetch, i.e. hasMoreData is true
         // 2) we have hit the halfway point
-        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, NextUrl:%s", hasMoreData, localPhotosResult.getNextUrl()));
+        Log.d(TAG, String.format("onPageSelected: HasMoreData:%s, NextUrl:%s", hasMoreData, nextUrl));
         if (!hasMoreData) return;
 
         final PhotosStatePagerAdapter pagerAdapter = (PhotosStatePagerAdapter) viewPager.getAdapter();
@@ -301,8 +295,8 @@ public class PhotosPagerActivity
 
         if (position == halfwayPoint) {
             //we are equal to the halfway point of data, so try to get more data
-            Log.d(TAG, "onPageSelected: Fetching new data with nextUrl:" + localPhotosResult.getNextUrl());
-            photoDataFragment.fetchPlacePhotos(pageNumber + 1, localPhotosResult.getNextUrl());
+            Log.d(TAG, "onPageSelected: Fetching new data with nextUrl:" + nextUrl);
+            photoDataFragment.fetchPlacePhotos(pageNumber + 1, nextUrl);
         }
     }
 
@@ -323,7 +317,7 @@ public class PhotosPagerActivity
      * @return
      */
     private boolean isThereMoreData() {
-        return localPhotosResult != null && localPhotosResult.getNextUrl() != null;
+        return nextUrl != null;
     }
 
     /**

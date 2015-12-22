@@ -41,7 +41,16 @@ public class SuggestionsListFragment
     //logcat
     private static final String TAG = SuggestionsListFragment.class.getCanonicalName();
 
+    //saved instance state
+    private static final String STATE_USER_LATLNG = SuggestionsListFragment.class.getSimpleName() + ".userLatLng";
+    private static final String STATE_FRIEND_LATLNG = SuggestionsListFragment.class.getSimpleName() + ".friendLatLng";
+    private static final String STATE_MID_LATLNG = SuggestionsListFragment.class.getSimpleName() + ".midLatLng";
+
     //member variables
+    private LatLng userLatLng;
+    private LatLng friendLatLng;
+    private LatLng midLatLng;
+
     private boolean hasMoreData;
     private boolean isLoading = false;
     private OnSuggestionActionListener suggestionActionListener;
@@ -87,6 +96,12 @@ public class SuggestionsListFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if (savedInstanceState != null) {
+            userLatLng = savedInstanceState.getParcelable(STATE_USER_LATLNG);
+            friendLatLng = savedInstanceState.getParcelable(STATE_FRIEND_LATLNG);
+            midLatLng = savedInstanceState.getParcelable(STATE_MID_LATLNG);
+        }
     }
 
     /**
@@ -141,9 +156,22 @@ public class SuggestionsListFragment
                     viewHolder.suggestionsListView.getContext(),
                     new ArrayList<LocalBusiness>(),
                     null,
-                    null, null, null,
+                    userLatLng, friendLatLng, midLatLng,
                     this);
         viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
+    }
+
+    /**
+     * Saves out the latlngs to save instance state so that they can be restored later.
+     * @param outState
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        if (userLatLng != null) outState.putParcelable(STATE_USER_LATLNG, userLatLng);
+        if (friendLatLng != null) outState.putParcelable(STATE_FRIEND_LATLNG, friendLatLng);
+        if (midLatLng != null) outState.putParcelable(STATE_MID_LATLNG, midLatLng);
     }
 
     /**
@@ -212,39 +240,108 @@ public class SuggestionsListFragment
 
     /**
      * OnSuggestionsLoadedCallback implementation
-     * The loader has finished fetching the data.  Called by SuggestionsActivity to update the view.
-     * @param result
-     * @param newResult always treat result as additive
-     * @param selectedIdsMap
+     * The service has finished fetching the latlngs.  Called by SuggestionsActivity to update the latlngs in
+     * this fragment
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
+     */
+    public void onLatLngLoad(LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+        setLatLng(userLatLng, friendLatLng, midLatLng);
+
+        //pass latlngs to adapter
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder !=  null) {
+            final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+            suggestionsAdapter.setLatLng(userLatLng, friendLatLng, midLatLng);
+        }
+    }
+
+    /**
+     * Setter for latlngs
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
+     */
+    private void setLatLng(LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+        this.userLatLng = userLatLng;
+        this.friendLatLng = friendLatLng;
+        this.midLatLng = midLatLng;
+    }
+
+    /**
+     * OnSuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching a page of data.  Called by SuggestionsActivity to update the view.
+     * @param localResult
+     * @param selectedIdsMap
      * @param hasMoreData
      */
-    public void onSuggestionsLoaded(@Nullable LocalResult result, @Nullable LocalResult newResult, @NonNull ArrayMap<String, Integer> selectedIdsMap,
-                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean hasMoreData) {
+    public void onSinglePageLoad(@Nullable LocalResult localResult,
+                                 @NonNull ArrayMap<String, Integer> selectedIdsMap,
+                                 boolean hasMoreData) {
         //reset isLoading
         isLoading = false;
+        if (localResult == null || localResult.getLocalBusinesses().size() == 0) {
+            Log.d(TAG, "onSinglePageLoad: Local result is null or empty, so nothing to do");
+            return;
+        }
 
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet
-            Log.d(TAG, "onSuggestionsLoaded: View holder is null, so nothing to do");
+            Log.d(TAG, "onSinglePageLoad: View holder is null, so nothing to do");
             return;
         }
 
-        //views are not null
-        //save the value of hasMoreData
+        //save the value of hasMoreData TODO: do we really need to?
         this.hasMoreData = hasMoreData;
 
         //first: update the adapter
         final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
-        suggestionsAdapter.updateItems(newResult != null ? newResult.getLocalBusinesses() : null,
-                selectedIdsMap,
-                userLatLng, friendLatLng, midLatLng);
+        suggestionsAdapter.updateItems(localResult.getLocalBusinesses(), selectedIdsMap);
 
         //second: animate in the list, and animate out the progress bar
+        if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
+            AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
+        }
+    }
+
+    /**
+     * SuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching multiple pages data.  Called by SuggestionsActivity to update the view.
+     * @param localResultArrayList
+     * @param selectedIdsMap
+     * @param hasMoreData
+     */
+    @Override
+    public void onMultiPageLoad(ArrayList<LocalResult> localResultArrayList,
+                                @NonNull ArrayMap<String, Integer> selectedIdsMap,
+                                boolean hasMoreData) {
+
+        //reset isLoading
+        isLoading = false;
+        if (localResultArrayList == null || localResultArrayList.size() == 0) {
+            Log.d(TAG, "onMultiPageLoad: Local result arraylist is null or empty, so nothing to do");
+            return;
+        }
+
+        //check if views are null
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) {
+            //nothing to do since views are not ready yet
+            Log.d(TAG, "onMultiPageLoad: View holder is null, so nothing to do");
+            return;
+        }
+
+        //save the value of hasMoreData TODO: should we really?
+        this.hasMoreData = hasMoreData;
+
+        //update the adapter
+        final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+        suggestionsAdapter.updateAllItems(localResultArrayList, selectedIdsMap);
+
+        //animation
         if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
             AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
         }
@@ -301,7 +398,7 @@ public class SuggestionsListFragment
      * Return the view holder for the fragment's view if one exists.
      * @return
      */
-    public ViewHolder getViewHolder() {
+    private ViewHolder getViewHolder() {
         View view = getView();
         return view != null ? (ViewHolder) view.getTag() : null;
     }

@@ -65,7 +65,7 @@ public class PhotoDataFragment
      * @return
      */
     public static PhotoDataFragment newInstance(String searchId, int dataSource) {
-        Bundle args = new Bundle();
+        Bundle args = new Bundle(2);
         args.putString(ARG_ID, searchId);
         args.putInt(ARG_DATA_SOURCE, dataSource);
 
@@ -192,7 +192,5 @@ public class PhotoDataFragment
             localResultArrayList.add(localPhotosResult);
             photoDataListener.onSinglePageLoad(localPhotosResult, localResultArrayList.size()-1);
         }
-
-
     }
 }

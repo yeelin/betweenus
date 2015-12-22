@@ -61,6 +61,9 @@ public class SuggestionsClusterMapFragment
 
     //saved instance state
     private static final String STATE_SHOWING_PEOPLE_LOCATION = SuggestionsClusterMapFragment.class.getSimpleName() + ".showingPeopleLocation";
+    private static final String STATE_USER_LATLNG = SuggestionsClusterMapFragment.class.getSimpleName() + ".userLatLng";
+    private static final String STATE_FRIEND_LATLNG = SuggestionsClusterMapFragment.class.getSimpleName() + ".friendLatLng";
+    private static final String STATE_MID_LATLNG = SuggestionsClusterMapFragment.class.getSimpleName() + ".midLatLng";
 
     //constants
     private static final double MIN_HIGH_RATING = 3.9;
@@ -75,10 +78,8 @@ public class SuggestionsClusterMapFragment
     private Marker friendLocationMarker; //for showing friend's location marker
     private boolean mapNeedsUpdate = false;
     private boolean showingPeopleLocation = false;
-
-    private LocalResult result;
-    private ArrayList<LocalBusiness> localBusinesses;
-    private boolean hasMoreData; //unused at the moment
+    
+    private ArrayList<LocalResult> localResultArrayList = new ArrayList<>();
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -132,9 +133,13 @@ public class SuggestionsClusterMapFragment
         setHasOptionsMenu(true);
 
         if (savedInstanceState != null) {
-            //restore last shown state
+            //restore last shown people state
             showingPeopleLocation = savedInstanceState.getBoolean(STATE_SHOWING_PEOPLE_LOCATION, false);
             Log.d(TAG, "onCreate: Saved instance state is not null. ShowingPeople:" + showingPeopleLocation);
+
+            userLatLng = savedInstanceState.getParcelable(STATE_USER_LATLNG);
+            friendLatLng = savedInstanceState.getParcelable(STATE_FRIEND_LATLNG);
+            midLatLng = savedInstanceState.getParcelable(STATE_MID_LATLNG);
         }
     }
 
@@ -160,6 +165,10 @@ public class SuggestionsClusterMapFragment
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(STATE_SHOWING_PEOPLE_LOCATION, showingPeopleLocation);
+
+        if (userLatLng != null) outState.putParcelable(STATE_USER_LATLNG, userLatLng);
+        if (friendLatLng != null) outState.putParcelable(STATE_FRIEND_LATLNG, friendLatLng);
+        if (midLatLng != null) outState.putParcelable(STATE_MID_LATLNG, midLatLng);
     }
 
     /**
@@ -275,7 +284,7 @@ public class SuggestionsClusterMapFragment
         // otherwise, when the results come in, onSuggestionsLoaded will be called and the map will be updated the usual way
         if (mapNeedsUpdate) {
             Log.d(TAG, "onMapReady: Map needs update");
-            updateMap(result);
+            updateMap();
         }
         else {
             Log.d(TAG, "onMapReady: Map doesn't need update yet");
@@ -284,59 +293,101 @@ public class SuggestionsClusterMapFragment
 
     /**
      * OnSuggestionsLoadedCallback implementation
-     * The loader has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
-     * @param result
-     * @param newResult always treat result as additive
-     * @param selectedIdsMap
+     * The service has finished fetching the latlngs.  Called by SuggestionsActivity to update the latlngs in
+     * this fragment.
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
-     * @param hasMoreData
      */
-    public void onSuggestionsLoaded(@Nullable LocalResult result, @Nullable LocalResult newResult, @NonNull ArrayMap<String,Integer> selectedIdsMap,
-                                    LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean hasMoreData) {
+    public void onLatLngLoad(LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+        setLatLng(userLatLng, friendLatLng, midLatLng);
+    }
 
-        if (newResult == null) {
-            Log.d(TAG, "onSuggestionsLoaded: New result is null so nothing to do.");
-            return;
-        }
-
-        this.result = result;
-        this.hasMoreData = hasMoreData;
-
-        this.selectedIdsMap = selectedIdsMap;
+    /**
+     * Setter for latlngs
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
+     */
+    private void setLatLng(LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+    }
+
+    /**
+     * OnSuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching the data.  This method is called by SuggestionsActivity to update the view.
+     * @param localResult
+     * @param selectedIdsMap
+     * @param hasMoreData
+     */
+    public void onSinglePageLoad(@Nullable LocalResult localResult,
+                                 @NonNull ArrayMap<String,Integer> selectedIdsMap,
+                                 boolean hasMoreData) {
+
+        if (localResult == null || localResult.getLocalBusinesses().size() == 0) {
+            Log.d(TAG, "onSinglePageLoad: Local result is null or empty, so nothing to do");
+            return;
+        }
+
+        localResultArrayList.add(localResult); //accumulate the result
+        this.selectedIdsMap = selectedIdsMap;
 
         //check if map is null
         if (map == null) {
-            Log.d(TAG, "onSuggestionsLoaded: Map is null, so nothing to do now. Map will update later when it is ready");
+            Log.d(TAG, "onSinglePageLoad: Map is null, so nothing to do now. Map will update later when it is ready");
             mapNeedsUpdate = true; //tell ourselves that we need to update the map later when it is ready
             return;
         }
 
-        //map is not null and the result is different so update the map
-        updateMap(newResult);
+        //map is not null so update the map
+        updateMap();
+    }
+
+    /**
+     * SuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching multiple pages data.  Called by SuggestionsActivity to update the view.
+     * @param localResultArrayList
+     * @param selectedIdsMap
+     * @param hasMoreData
+     */
+    @Override
+    public void onMultiPageLoad(ArrayList<LocalResult> localResultArrayList,
+                                @NonNull ArrayMap<String, Integer> selectedIdsMap,
+                                boolean hasMoreData) {
+        if (localResultArrayList == null || localResultArrayList.size() == 0) {
+            Log.d(TAG, "onMultiPageLoad: Local result arraylist is null or empty, so nothing to do");
+            return;
+        }
+
+        this.localResultArrayList = (ArrayList<LocalResult>) localResultArrayList.clone();
+        this.selectedIdsMap = selectedIdsMap;
+
+        //clear just in case there were things in it already
+        idToClusterItemMap.clear();
+
+        //check if map is null
+        if (map == null) {
+            Log.d(TAG, "onMultiPageLoad: Map is null, so nothing to do now. Map will update later when it is ready");
+            mapNeedsUpdate = true; //tell ourselves that we need to update the map later when it is ready
+            return;
+        }
+
+        //map is not null so update the map
+        updateMap();
     }
 
     /**
      * Updates the map with the result
      * This is similar to what the SuggestionsAdapter does in updateItems().
-     * @param result
      */
-    private void updateMap(@Nullable LocalResult result) {
+    private void updateMap() {
         //we have updated the map, so set this to false
         mapNeedsUpdate = false;
 
-        //check if result is null
-        if (result == null) {
-            Log.d(TAG, "updateMap: Result is null so nothing to do");
-            return;
-        }
-
         //add new cluster items and call cluster!
-        addClusterItemsToClusterManager(result);
+        addClusterItemsToClusterManager();
         clusterManager.cluster();
 
         //update people location markers
@@ -350,34 +401,35 @@ public class SuggestionsClusterMapFragment
      * Loops through businesses in result and does the following:
      * 1. Creates a cluster item for each business.
      * 2. Stores reference to cluster item in the idToClusterItemMap
-     * @param result
      */
-    private void addClusterItemsToClusterManager(@NonNull LocalResult result) {
-        Log.d(TAG, "addClusterItemsToClusterManager: Count:" + result.getLocalBusinesses().size());
-
+    private void addClusterItemsToClusterManager() {
         //make sure the idToClusterItemMap has enough space
-        idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
+        //idToClusterItemMap.ensureCapacity(result.getLocalBusinesses().size());
 
         //loop through result
-        for (int i=0; i<result.getLocalBusinesses().size(); i++) {
-            final LocalBusiness business = result.getLocalBusinesses().get(i);
+        for (int i=0; i<localResultArrayList.size(); i++) {
+            final LocalResult localResult = localResultArrayList.get(i);
 
-            //create a new cluster item
-            final PlaceClusterItem clusterItem = new PlaceClusterItem(
-                    business.getLocalBusinessLocation().getLatLng(),
-                    business.getId(),
-                    business.getName(),
-                    business.getRatingImageUrl(),
-                    business.getRating(),
-                    business.getReviewCount(),
-                    business.getLikes(),
-                    business.getNormalizedLikes(),
-                    business.getCheckins(),
-                    i,
-                    getContext());
+            for (int j = 0; j < localResult.getLocalBusinesses().size(); j++) {
+                final LocalBusiness business = localResult.getLocalBusinesses().get(j);
 
-            //put it in the idToClusterItemMap
-            idToClusterItemMap.put(business.getId(), clusterItem);
+                //create a new cluster item
+                final PlaceClusterItem clusterItem = new PlaceClusterItem(
+                        business.getLocalBusinessLocation().getLatLng(),
+                        business.getId(),
+                        business.getName(),
+                        business.getRatingImageUrl(),
+                        business.getRating(),
+                        business.getReviewCount(),
+                        business.getLikes(),
+                        business.getNormalizedLikes(),
+                        business.getCheckins(),
+                        j,
+                        getContext());
+
+                //put it in the idToClusterItemMap
+                idToClusterItemMap.put(business.getId(), clusterItem);
+            }
         }
 
         //add to the cluster manager in bulk
@@ -511,46 +563,47 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
-     * Helper method that either:
-     * 1. reads the yelp result region and returns the bounds for the map
-     * 2. iterates over the fb result and returns the map bounds based on the latlngs of the businesses in the result
+     * Helper method that iterates over the fb and yelp results and returns the map bounds based
+     * on the latlngs of the businesses in the result
      *
      * The map bounds are returned as a pair of points (sw, ne).
      * @return Pair<LatLng (sw), LatLng (ne)>
      */
     private Pair<LatLng, LatLng> computePairBoundsFromResult() {
         //get region center
-        final LatLng center = result.getResultCenter();
-
-        final LatLng ne;
-        final LatLng sw;
-        if (center != null) {
-            //note: we most likely have yelp data
-            //get delta of lat/long from the center
-            double latDelta = result.getResultLatitudeDelta();
-            double longDelta = result.getResultLongitudeDelta();
-
-            //compute ne and sw from center
-            ne = new LatLng(center.latitude + latDelta / 2, center.longitude + longDelta / 2);
-            sw = new LatLng(center.latitude - latDelta / 2, center.longitude - longDelta / 2);
-        }
-        else {
+//        final LatLng center = result.getResultCenter();
+//
+//        final LatLng ne;
+//        final LatLng sw;
+//        if (center != null) {
+//            //note: we most likely have yelp data
+//            //get delta of lat/long from the center
+//            double latDelta = result.getResultLatitudeDelta();
+//            double longDelta = result.getResultLongitudeDelta();
+//
+//            //compute ne and sw from center
+//            ne = new LatLng(center.latitude + latDelta / 2, center.longitude + longDelta / 2);
+//            sw = new LatLng(center.latitude - latDelta / 2, center.longitude - longDelta / 2);
+//        }
+//        else {
             //note: we most likely have fb data
             //build the bounds from all the latlngs in the result
-            final LatLngBounds.Builder mapBoundsBuilder = new LatLngBounds.Builder();
-            for (int i=0; i<result.getLocalBusinesses().size(); i++) {
-                final LocalBusinessLocation location = result.getLocalBusinesses().get(i).getLocalBusinessLocation();
+        final LatLngBounds.Builder mapBoundsBuilder = new LatLngBounds.Builder();
+
+        for (int i=0; i<localResultArrayList.size(); i++) {
+            final LocalResult localResult = localResultArrayList.get(i);
+
+            for (int j=0; j<localResult.getLocalBusinesses().size(); j++) {
+                final LocalBusinessLocation location = localResult.getLocalBusinesses().get(j).getLocalBusinessLocation();
                 if (location != null) {
                     mapBoundsBuilder.include(location.getLatLng());
                 }
             }
-
-            final LatLngBounds mapBounds = mapBoundsBuilder.build();
-            ne = mapBounds.northeast;
-            sw = mapBounds.southwest;
         }
+
         //create bounds object
-        return new Pair<>(sw, ne);
+        final LatLngBounds mapBounds = mapBoundsBuilder.build();
+        return new Pair<>(mapBounds.southwest, mapBounds.northeast);
     }
 
     /**

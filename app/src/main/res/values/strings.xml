@@ -171,8 +171,10 @@
     <string name="get_place_by_id_error">Oops! We failed to geocode you and your friend\'s locations. Please go back and try again.</string>
 
     <!-- Snackbar strings -->
+    <string name="snackbar_no_selections">Select at least one place before inviting your friend.</string>
     <string name="snackbar_go_back">Go back</string>
     <string name="snackbar_retry">Retry</string>
+    <string name="snackbar_ok">Got it!</string>
 
     <!-- google places api -->
     <string name="google_api_key">AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME</string>

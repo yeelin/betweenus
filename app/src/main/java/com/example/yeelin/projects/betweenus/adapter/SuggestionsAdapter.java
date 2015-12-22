@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.facebook.rebound.BaseSpringSystem;
@@ -26,6 +27,7 @@ import com.facebook.rebound.SpringUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Target;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -79,7 +81,6 @@ public class SuggestionsAdapter
                               OnItemToggleListener listener) {
         super(context, 0, businessList);
 
-        //this.businessList = businessList;
         this.selectedIdsMap = selectedIdsMap;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
@@ -226,29 +227,67 @@ public class SuggestionsAdapter
     }
 
     /**
-     * Updates the adapter with a new list of businessList
-     * @param newbusinessList
-     * @param newSelectedIdsMap
+     * Provide latlngs to the adapter.
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
      */
-    public void updateItems(@Nullable List<LocalBusiness> newbusinessList, @NonNull ArrayMap<String,Integer> newSelectedIdsMap,
-                            LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
-        if (newbusinessList == null) {
-            Log.d(TAG, "updateItems: businessList is null so nothing to do.");
-            return;
-        }
-
-        this.selectedIdsMap = newSelectedIdsMap;
+    public void setLatLng(LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+    }
 
-        //add all new businessList to the end of the array
-        Log.d(TAG, String.format("updateItems: Current size:%d, New size:%d", getCount(), newbusinessList.size()));
-        addAll(newbusinessList);
+    /**
+     * Adds the new array of businesses to the end of the adapter's collection.
+     * Notifies the listeners that the data has changed which causes the current view to be refreshed.
+     * @param newBusinesses
+     * @param newSelectedIdsMap
+     */
+    public void updateItems(@Nullable ArrayList<LocalBusiness> newBusinesses,
+                            @NonNull ArrayMap<String,Integer> newSelectedIdsMap) {
+        if (newBusinesses == null || newBusinesses.size() == 0) {
+            Log.d(TAG, "updateItems: businessList is null or empty, so nothing to do.");
+            return;
+        }
+
+        //update other member variables
+        this.selectedIdsMap = newSelectedIdsMap;
+
+        //add all new businesses to the end of the array
+        Log.d(TAG, String.format("updateItems: Current size:%d, New size:%d", getCount(), newBusinesses.size()));
+        addAll(newBusinesses);
         Log.d(TAG, "updateItems: After update size:" + getCount());
+    }
+
+    /**
+     * Given an array of local result objects which can be thought of as pages, this method adds the businesses
+     * from each page to the adapter's collection.
+     * After all has been added, it notifies the listeners that the data has changed which causes the current
+     * view to be refreshed.
+     * @param newResults
+     * @param newSelectedIdsMap
+     */
+    public void updateAllItems(@Nullable ArrayList<LocalResult> newResults,
+                               @NonNull ArrayMap<String,Integer> newSelectedIdsMap) {
+        if (newResults == null || newResults.size() == 0) {
+            Log.d(TAG, "updateAllItems: New data is null or empty, so do nothing.");
+            return;
+        }
+
+        //update other member variables
+        this.selectedIdsMap = newSelectedIdsMap;
+
+        Log.d(TAG, "updateAllItems: Current size:" + getCount());
+        //clear existing businesses if any
+        clear();
+
+        //add all the businesses
+        for (int i=0; i<newResults.size(); i++) {
+            addAll(newResults.get(i).getLocalBusinesses());
+        }
+
+        Log.d(TAG, "updateAllItems: After update size:" + getCount());
     }
 
     /**

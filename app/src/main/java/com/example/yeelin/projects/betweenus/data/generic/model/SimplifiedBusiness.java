@@ -3,9 +3,13 @@ package com.example.yeelin.projects.betweenus.data.generic.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v4.util.ArrayMap;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
 
 /**
  * Created by ninjakiki on 8/19/15.
@@ -26,10 +30,62 @@ public class SimplifiedBusiness implements Parcelable {
     private String profilePictureUrl;
     private String ratingImageUrl;
 
+    /**
+     * Creates a new SimplifiedBusiness given a LocalBusiness.
+     * @param business
+     * @return
+     */
     public static SimplifiedBusiness newInstance(@NonNull LocalBusiness business) {
         return new SimplifiedBusiness(business);
     }
+    /**
+     * Helper method to build the simplified business items array list for marshalling across to the
+     * detail pager activity.
+     * @return
+     */
+    public static ArrayList<SimplifiedBusiness> buildSimplifiedBusinessList(ArrayList<LocalResult> localResultArrayList) {
 
+        ArrayList<SimplifiedBusiness> simplifiedBusinesses = new ArrayList<>();
+
+        for (int i=0; i<localResultArrayList.size(); i++) {
+            final LocalResult localResult = localResultArrayList.get(i);
+
+            for (int j=0; j<localResult.getLocalBusinesses().size(); j++) {
+                final LocalBusiness localBusiness = localResult.getLocalBusinesses().get(j);
+                simplifiedBusinesses.add(SimplifiedBusiness.newInstance(localBusiness));
+            }
+        }
+        return simplifiedBusinesses;
+    }
+
+    /**
+     * Helper method to build the selected items array list for marshalling across to the
+     * invitation activity.
+     * TODO: See if we can change selectedIdsMap to HashMap<String,LocalBusiness>
+     * @return
+     */
+    public static ArrayList<SimplifiedBusiness> buildSelectedItemsList(ArrayList<LocalResult> localResultArrayList,
+                                                                       ArrayMap<String,Integer> selectedIdsMap) {
+
+        ArrayList<SimplifiedBusiness> selectedItems = new ArrayList<>(selectedIdsMap.size());
+
+        for (int i=0; i<localResultArrayList.size(); i++) {
+            final LocalResult localResult = localResultArrayList.get(i);
+
+            for (int j=0; j<localResult.getLocalBusinesses().size(); j++) {
+                final LocalBusiness localBusiness = localResult.getLocalBusinesses().get(j);
+                if (selectedIdsMap.containsKey(localBusiness.getId())) {
+                    selectedItems.add(SimplifiedBusiness.newInstance(localBusiness));
+                }
+            }
+        }
+        return selectedItems;
+    }
+
+    /**
+     * Private constructor
+     * @param business
+     */
     private SimplifiedBusiness(@NonNull LocalBusiness business) {
         id = business.getId();
         name = business.getName();

@@ -107,7 +107,6 @@ public class FbApiHelper {
      * @return
      */
     private static FbResult processFbPlacesResponse(GraphResponse response) {
-        Log.d(TAG, String.format("processFbPlacesResponse: Query:%s", response.getRequest()));
         final FbResult result = FbJsonDeserializerHelper.deserializeFbResponse(response.getRawResponse());
 
         //Remove any pages that are not Restaurant/cafe or Local business categories
@@ -145,7 +144,6 @@ public class FbApiHelper {
                     }
                 }
 
-
                 //if both validCategory and validCategoryList are true, this result is good, so don't remove.
                 //otherwise, remove the result
                 if (!(validCategory && validCategoryList)) {
@@ -181,7 +179,7 @@ public class FbApiHelper {
             int diff = maxLikes - minLikes;
             int buckets = MapColorUtils.NUM_RATING_BUCKETS-1;
             double bucketWidth = 1.0 * diff / buckets;
-            Log.d(TAG, String.format("normalizeLikes: Min:%d, Max:%d, Diff:%d, BucketWidth:%f", minLikes, maxLikes, diff, bucketWidth));
+//            Log.d(TAG, String.format("normalizeLikes: Min:%d, Max:%d, Diff:%d, BucketWidth:%f", minLikes, maxLikes, diff, bucketWidth));
 
             //normalize data
             for (int i = 0; i < result.getLocalBusinesses().size(); i++) {
@@ -190,7 +188,7 @@ public class FbApiHelper {
                 long roundedNormalizedLikesOn10PointScale = Math.round(normalizedLikesOn10PointScale);
                 double normalizedLikesOn5PointScale = roundedNormalizedLikesOn10PointScale / 2.0;
                 page.setNormalizedLikes(normalizedLikesOn5PointScale);
-                Log.d(TAG, String.format("normalizeLikes: Name:%s, Likes:%d, 10PtScale:%.2f, 5PtScale:%.2f", page.getName(), page.getLikes(), normalizedLikesOn10PointScale, normalizedLikesOn5PointScale));
+//                Log.d(TAG, String.format("normalizeLikes: Name:%s, Likes:%d, 10PtScale:%.2f, 5PtScale:%.2f", page.getName(), page.getLikes(), normalizedLikesOn10PointScale, normalizedLikesOn5PointScale));
             }
         }
         return result;
@@ -229,7 +227,7 @@ public class FbApiHelper {
      * @return
      */
     private static FbPage processFbPlaceDetailsResponse(GraphResponse response) {
-        Log.d(TAG, String.format("processFbPlaceDetailsResponse: Query:%s", response.getRequest()));
+//        Log.d(TAG, String.format("processFbPlaceDetailsResponse: Query:%s", response.getRequest()));
         return FbJsonDeserializerHelper.deserializeFbSingleResponse(response.getRawResponse());
     }
 
