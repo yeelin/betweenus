@@ -13,9 +13,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
@@ -73,7 +75,11 @@ public class LoginFragment extends Fragment {
         viewHolder.loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "onCancel: Login success.");
+                Log.d(TAG, "onSuccess: Login success.");
+
+                //log user logging in
+                AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+                logger.logEvent(EventConstants.EVENT_NAME_LOGIN);
             }
 
             @Override
@@ -82,7 +88,7 @@ public class LoginFragment extends Fragment {
 
                 //create a snackbar to inform the user
                 if (viewHolder != null) {
-                    final Snackbar snackbar = Snackbar.make(viewHolder.rootView, "Oops! Facebook login error.", Snackbar.LENGTH_LONG);
+                    final Snackbar snackbar = Snackbar.make(viewHolder.rootView, "Facebook login canceled.", Snackbar.LENGTH_LONG);
                 }
             }
 
@@ -102,6 +108,10 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (skipLoginCallback != null) {
+                    //log user skipping login
+                    AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+                    logger.logEvent(EventConstants.EVENT_NAME_LOGIN_SKIP);
+
                     skipLoginCallback.onSkipLoginClicked();
                 }
             }

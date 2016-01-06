@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.facebook.appevents.AppEventsLogger;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -106,5 +107,23 @@ public class LocationSearchActivity
 
         setResult(Activity.RESULT_OK, intent);
         finish();
+    }
+
+    /**
+     * Log activation
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    /**
+     * Log deactivation
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
     }
 }

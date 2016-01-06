@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
@@ -120,7 +121,9 @@ public class LocationEntryActivity
         startService(PlacesService.buildApiConnectIntent(this));
     }
 
-    /** Create a broadcast receiver and register for connection broadcasts (success and failures)
+    /**
+     * Create a broadcast receiver and register for connection broadcasts (success and failures).
+     * Log activation.
      */
     @Override
     protected void onResume() {
@@ -133,17 +136,17 @@ public class LocationEntryActivity
     }
 
     /**
-     * Unregister for connection broadcasts
+     * Unregister for connection broadcasts. Log deactivation.
      */
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: Unregistering for broadcasts");
         placesBroadcastReceiver.unregister();
 
+        super.onPause();
+
         //fb logs 'app deactivate' app event
         AppEventsLogger.deactivateApp(this);
-
-        super.onPause();
     }
 
     /**
@@ -196,6 +199,10 @@ public class LocationEntryActivity
     @Override
     public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId) {
         Log.d(TAG, String.format("onSearch: User PlaceId:%s, Friend PlaceId:%s", userPlaceId, friendPlaceId));
+
+        //log user launching search
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        logger.logEvent(EventConstants.EVENT_NAME_SEARCH);
 
         //start the suggestions activity that will host the list and map
         startActivity(SuggestionsActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));

@@ -28,7 +28,8 @@ public interface LocalBusiness {
     String getProfilePictureUrl();
     //LocalPhoto[] getPhotos();
 
-    String getPriceRange();
+    String getPriceRangeString();
+    int getPriceRange();
     String getPublicTransit();
     String[] getRestaurantServices();
     String[] getRestaurantSpecialities();

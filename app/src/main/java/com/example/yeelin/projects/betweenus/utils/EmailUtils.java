@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 
 import java.util.ArrayList;
@@ -52,14 +53,37 @@ public class EmailUtils {
     private static String buildSelectedItemString(final SimplifiedBusiness selectedItem) {
         final StringBuilder builder = new StringBuilder();
 
-        //name with link
-        builder.append(String.format("<p><a href=\"%s\" style=\"text-decoration:none\"><b>%s</b></a>",
-                selectedItem.getWebUrl(),
-                selectedItem.getName()));
-        //rating img and count of reviews
-        builder.append(String.format("<br>%s stars, %d reviews",
-                FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating()),
-                selectedItem.getReviews()));
+        switch (selectedItem.getDataSource()) {
+            case LocalConstants.FACEBOOK:
+                //name with link
+                builder.append(String.format("<p><a href=\"%s\" style=\"text-decoration:none\"><b>%s</b></a>",
+                        selectedItem.getFbUrl(),
+                        selectedItem.getName()));
+                //likes and count of checkins
+                builder.append(String.format("<br>%d likes, %d checkins",
+                        selectedItem.getLikes(),
+                        selectedItem.getCheckins()));
+                break;
+
+            case LocalConstants.YELP:
+                //name with link
+                builder.append(String.format("<p><a href=\"%s\" style=\"text-decoration:none\"><b>%s</b></a>",
+                        selectedItem.getWebUrl(),
+                        selectedItem.getName()));
+                //rating and count of reviews
+                builder.append(String.format("<br>%s stars, %d reviews",
+                        FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating()),
+                        selectedItem.getReviews()));
+                break;
+
+            case LocalConstants.GOOGLE:
+                break;
+
+            default:
+                break;
+        }
+
+
         //address
         builder.append(String.format("<br>%s", selectedItem.getAddress()));
 

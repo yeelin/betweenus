@@ -68,7 +68,7 @@ public class SuggestionsStatePagerAdapter
             return null;
         }
 
-        Log.d(TAG, String.format("getItem: Position:%d, Business:%s", position, business.getName()));
+        Log.d(TAG, String.format("getItem: Position:%d, Business:%s, Fblink:%s", position, business.getName(), business.getFbUrl()));
         return SuggestionDetailFragment.newInstance(
                 business.getId(),
                 business.getName(),

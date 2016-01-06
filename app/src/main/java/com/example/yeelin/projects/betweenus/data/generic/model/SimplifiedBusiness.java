@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
+import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
  * Created by ninjakiki on 8/19/15.
  */
 public class SimplifiedBusiness implements Parcelable {
+    //member variables
     private String id;
     private String name;
     private LatLng latLng;
@@ -25,8 +27,11 @@ public class SimplifiedBusiness implements Parcelable {
     private int likes;
     private double normalizedLikes;
     private int checkins;
+//    private int priceRange;
+    private int dataSource;
 
     private String webUrl;
+    private String fbUrl;
     private String profilePictureUrl;
     private String ratingImageUrl;
 
@@ -97,8 +102,11 @@ public class SimplifiedBusiness implements Parcelable {
         likes = business.getLikes();
         normalizedLikes = business.getNormalizedLikes();
         checkins = business.getCheckins();
+//        priceRange = business.getPriceRange();
+        dataSource = business.getDataSource();
 
         webUrl = business.getMobileUrl();
+        fbUrl = business.getFbLink();
         profilePictureUrl = business.getProfilePictureUrl();
         ratingImageUrl = business.getRatingImageUrl();
     }
@@ -118,8 +126,11 @@ public class SimplifiedBusiness implements Parcelable {
         likes = in.readInt();
         normalizedLikes = in.readDouble();
         checkins = in.readInt();
+//        priceRange = in.readInt();
+        dataSource = in.readInt();
 
         webUrl = in.readString();
+        fbUrl = in.readString();
         profilePictureUrl = in.readString();
         ratingImageUrl = in.readString();
     }
@@ -166,8 +177,11 @@ public class SimplifiedBusiness implements Parcelable {
         dest.writeInt(likes);
         dest.writeDouble(normalizedLikes);
         dest.writeInt(checkins);
+//        dest.writeInt(priceRange);
+        dest.writeInt(dataSource);
 
         dest.writeString(webUrl);
+        dest.writeString(fbUrl);
         dest.writeString(profilePictureUrl);
         dest.writeString(ratingImageUrl);
     }
@@ -216,11 +230,23 @@ public class SimplifiedBusiness implements Parcelable {
         return webUrl;
     }
 
+    public String getFbUrl() {
+        return fbUrl;
+    }
+
     public String getProfilePictureUrl() {
         return profilePictureUrl;
     }
 
     public String getRatingImageUrl() {
         return ratingImageUrl;
+    }
+
+//    public int getPriceRange() {
+//        return priceRange;
+//    }
+
+    public int getDataSource() {
+        return dataSource;
     }
 }

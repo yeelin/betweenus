@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
@@ -24,6 +26,12 @@ import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.facebook.AccessToken;
+import com.facebook.appevents.AppEventsLogger;
+import com.facebook.rebound.BaseSpringSystem;
+import com.facebook.rebound.SimpleSpringListener;
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringSystem;
+import com.facebook.rebound.SpringUtil;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMapOptions;
@@ -44,7 +52,7 @@ public class SuggestionDetailFragment
         SingleSuggestionLoaderListener,
         View.OnClickListener,
         OnMapReadyCallback,
-        GoogleMap.OnMapClickListener {
+        GoogleMap.OnMapClickListener, View.OnTouchListener {
     //logcat
     private static final String TAG = SuggestionDetailFragment.class.getCanonicalName();
     //bundle args
@@ -82,6 +90,11 @@ public class SuggestionDetailFragment
     private Marker marker;
     private LocalBusiness business;
     private SuggestionDetailFragmentListener listener;
+
+    //for rebound
+    private final BaseSpringSystem springSystem = SpringSystem.create();
+    private final ToggleSpringListener buttonSpringListener = new ToggleSpringListener();
+    private Spring scaleSpring;
 
     /**
      * Creates a new instance of this fragment
@@ -182,6 +195,10 @@ public class SuggestionDetailFragment
             friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
             midLatLng = args.getParcelable(ARG_MID_LATLNG);
         }
+
+        //init spring from Rebound Api
+        scaleSpring = springSystem.createSpring();
+        scaleSpring.addListener(buttonSpringListener);
     }
 
     /**
@@ -222,7 +239,8 @@ public class SuggestionDetailFragment
         viewHolder.image.setOnClickListener(this);
         viewHolder.websiteButton.setOnClickListener(this);
         viewHolder.phoneButton.setOnClickListener(this);
-        viewHolder.selectButton.setOnClickListener(this);
+//        viewHolder.selectButton.setOnClickListener(this); //use touch listener instead because of integration with Rebound Api
+        viewHolder.selectButton.setOnTouchListener(this);
 
         //initially make the detail container gone and show the progress bar
         viewHolder.detailContainer.setVisibility(View.GONE);
@@ -408,7 +426,7 @@ public class SuggestionDetailFragment
         else viewHolder.fbAddress.setText(business.getFbLink());
 
         //price range
-        viewHolder.priceRange.setText(business.getPriceRange() != null ? business.getPriceRange() : getString(R.string.not_available));
+        viewHolder.priceRange.setText(business.getPriceRangeString() != null ? business.getPriceRangeString() : getString(R.string.not_available));
 
         //ratings and reviews OR likes and checkins
         if (business.getReviewCount() != -1) {
@@ -531,22 +549,110 @@ public class SuggestionDetailFragment
             case R.id.detail_phone_button:
                 listener.onDialPhone(business.getPhoneNumber());
                 break;
-            case R.id.detail_select_button:
+//            case R.id.detail_select_button:
+//                toggleState = !toggleState;
+//
+//                final ViewHolder viewHolder = getViewHolder();
+//                if (viewHolder != null) {
+//                    //update the select button icon
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+//                        viewHolder.selectButton.setCompoundDrawablesRelativeWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+//                    else
+//                        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+//                    //update the select button text
+//                    viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
+//                    //update the marker color
+//                    marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
+//                }
+//
+//                //log user selection from the detail/pager view
+//                Log.d(TAG, "onClick: Start logging selection");
+//                AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+//                Bundle parameters = new Bundle();
+//                parameters.putString(EventConstants.EVENT_PARAM_SELECTION_VIEW, EventConstants.EVENT_PARAM_VIEW_PAGER);
+//                parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_DATA_SOURCE, business.getDataSource());
+//                switch (business.getDataSource()) {
+//                    case LocalConstants.FACEBOOK:
+//                        parameters.putString(EventConstants.EVENT_PARAM_SELECTION_PRICE, business.getPriceRangeString());
+//                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_LIKES, business.getLikes());
+//                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_CHECKINS, business.getCheckins());
+//                        break;
+//                    case LocalConstants.YELP:
+//                        parameters.putDouble(EventConstants.EVENT_PARAM_SELECTION_RATING, business.getRating());
+//                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_REVIEWS, business.getReviewCount());
+//                        break;
+//                    case LocalConstants.GOOGLE:
+//                        break;
+//                }
+//                logger.logEvent(EventConstants.EVENT_NAME_ADDED_TO_SELECTION, parameters);
+//                logger.flush();
+//                Log.d(TAG, "onClick: End logging selection");
+//
+//                listener.onToggle(id, position, toggleState);
+//                break;
+        }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        final Button selectButton = (Button)v;
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                //toggle the state
                 toggleState = !toggleState;
-                final ViewHolder viewHolder = getViewHolder();
-                if (viewHolder != null) {
-                    //update the select button icon and text
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
-                        viewHolder.selectButton.setCompoundDrawablesRelativeWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
-                    else
-                        viewHolder.selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
-                    viewHolder.selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
-                    //update the marker color
-                    marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
+
+                //when pressed start solving the spring to to 1
+                scaleSpring.setEndValue(1);
+
+                //update the select button icon
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
+                    selectButton.setCompoundDrawablesRelativeWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+                else
+                    selectButton.setCompoundDrawablesWithIntrinsicBounds(toggleState ? R.drawable.ic_action_detail_favorite_red300 : R.drawable.ic_action_detail_favorite, 0, 0, 0);
+                //update the select button text
+                selectButton.setText(toggleState ? R.string.selected_button : R.string.select_button);
+                //update the marker color
+                marker.setIcon(MapColorUtils.determineMarkerIcon(toggleState, rating != LocalConstants.NO_DATA_DOUBLE ? rating : normalizedLikes));
+                break;
+
+            case MotionEvent.ACTION_UP:
+                //when released start solving the spring to 0
+                scaleSpring.setEndValue(0);
+
+                //log user selection from the detail/pager view
+                AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+                Bundle parameters = new Bundle();
+                parameters.putString(EventConstants.EVENT_PARAM_SELECTION_VIEW, EventConstants.EVENT_PARAM_VIEW_PAGER);
+                parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_DATA_SOURCE, business.getDataSource());
+                switch (business.getDataSource()) {
+                    case LocalConstants.FACEBOOK:
+                        parameters.putString(EventConstants.EVENT_PARAM_SELECTION_PRICE, business.getPriceRangeString());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_LIKES, business.getLikes());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_CHECKINS, business.getCheckins());
+                        break;
+                    case LocalConstants.YELP:
+                        parameters.putDouble(EventConstants.EVENT_PARAM_SELECTION_RATING, business.getRating());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_REVIEWS, business.getReviewCount());
+                        break;
+                    case LocalConstants.GOOGLE:
+                        break;
                 }
+                logger.logEvent(EventConstants.EVENT_NAME_ADDED_TO_SELECTION, parameters);
+
+                //notify the parent activity
                 listener.onToggle(id, position, toggleState);
                 break;
+
+            case MotionEvent.ACTION_CANCEL:
+                //undo the earlier toggle state because it was a cancel
+                toggleState = !toggleState;
+
+                //when released start solving the spring to 0
+                scaleSpring.setEndValue(0);
+                break;
         }
+        return false;
     }
 
     /**
@@ -661,6 +767,55 @@ public class SuggestionDetailFragment
 
             //shimmer
             shimmerContainer = (ShimmerFrameLayout) view.findViewById(R.id.shimmerContainer);
+        }
+    }
+
+    /**
+     * Handles spring callbacks
+     */
+    private class ToggleSpringListener extends SimpleSpringListener {
+        /**
+         * called whenever the spring leaves its resting state
+         * @param spring
+         */
+        @Override
+        public void onSpringActivate(Spring spring) {
+        }
+
+        /**
+         * Called whenever the spring is updated
+         * @param spring
+         */
+        @Override
+        public void onSpringUpdate(Spring spring) {
+            // On each update of the spring value, we adjust the scale of the image view to match the
+            // springs new value. We use the SpringUtil linear interpolation function mapValueFromRangeToRange
+            // to translate the spring's 0 to 1 scale to a 100% to 50% scale range and apply that to the View
+            // with setScaleX/Y. Note that rendering is an implementation detail of the application and not
+            // Rebound itself. If you need Gingerbread compatibility consider using NineOldAndroids to update
+            // your view properties in a backwards compatible manner.
+            ViewHolder viewHolder = getViewHolder();
+            if (viewHolder == null) return;
+
+            float mappedValue = (float) SpringUtil.mapValueFromRangeToRange(spring.getCurrentValue(), 0, 1, 1, 0.5);
+            viewHolder.selectButton.setScaleX(mappedValue);
+            viewHolder.selectButton.setScaleY(mappedValue);
+        }
+
+        /**
+         * called whenever the spring notifies of displacement state changes
+         * @param spring
+         */
+        @Override
+        public void onSpringEndStateChange(Spring spring) {
+        }
+
+        /**
+         * called whenever the spring achieves a resting state
+         * @param spring
+         */
+        @Override
+        public void onSpringAtRest(Spring spring) {
         }
     }
 }

@@ -13,9 +13,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsStatePagerAdapter;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -152,7 +154,8 @@ public class SuggestionsPagerActivity
             case R.id.action_select:
                 Log.d(TAG, "onOptionsItemSelected: Invite button clicked");
                 if (selectedIdsMap.size() > 0) {
-                    startActivity(InvitationActivity.buildIntent(this, buildSelectedItemsList()));
+                    //start invite activity
+                    startActivity(InvitationActivity.buildIntent(this, buildSelectedItemsList(), EventConstants.EVENT_PARAM_VIEW_PAGER));
                 }
                 return true;
 
@@ -177,6 +180,24 @@ public class SuggestionsPagerActivity
             }
         }
         return selectedItems;
+    }
+
+    /**
+     * Log activation
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    /**
+     * Log deactivation
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
     }
 
     /**
@@ -279,6 +300,13 @@ public class SuggestionsPagerActivity
         startActivity(MapActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getName(), simplifiedBusiness.getLatLng(), toggleState,
                 simplifiedBusiness.getRating(), simplifiedBusiness.getRatingImageUrl(), simplifiedBusiness.getReviews(),
                 simplifiedBusiness.getLikes(), simplifiedBusiness.getNormalizedLikes(), simplifiedBusiness.getCheckins()));
+
+        //log user switch to detail map view
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_SOURCE_VIEW, EventConstants.EVENT_PARAM_VIEW_PAGER);
+        parameters.putString(EventConstants.EVENT_PARAM_DESTINATION_VIEW, EventConstants.EVENT_PARAM_VIEW_DETAIL_MAP);
+        logger.logEvent(EventConstants.EVENT_NAME_SWITCHED_VIEWS, parameters);
     }
 
     /**

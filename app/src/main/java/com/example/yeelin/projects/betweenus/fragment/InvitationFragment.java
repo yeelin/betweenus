@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -46,8 +45,8 @@ public class InvitationFragment
      * Listener interface for fragments or activities interested in events from this fragment
      */
     public interface InvitationFragmentListener {
-        void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems);
-        void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems);
+        void onInviteByTextMessage(String friendPhone);
+        void onInviteByEmail(String friendEmail);
     }
 
     /**
@@ -238,11 +237,11 @@ public class InvitationFragment
 
         if (inviteByText) {
             Log.d(TAG, "sendInvite: Text invite: " + selectedItems);
-            listener.onInviteByTextMessage(viewHolder.friendContact.getText().toString(), selectedItems);
+            listener.onInviteByTextMessage(viewHolder.friendContact.getText().toString());
         }
         else {
             Log.d(TAG, "sendInvite: Email invite: " + selectedItems);
-            listener.onInviteByEmail(viewHolder.friendContact.getText().toString(), selectedItems);
+            listener.onInviteByEmail(viewHolder.friendContact.getText().toString());
         }
     }
 

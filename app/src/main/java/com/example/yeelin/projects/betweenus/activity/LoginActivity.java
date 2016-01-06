@@ -13,6 +13,7 @@ import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 
 /**
  * Created by ninjakiki on 10/13/15.
@@ -106,16 +107,24 @@ public class LoginActivity
         navigateUpToParentActivity(this);
     }
 
+    /**
+     * Log activation
+     */
     @Override
     protected void onResume() {
         super.onResume();
         isResumed = true;
+        AppEventsLogger.activateApp(this);
     }
 
+    /**
+     * Log deactivation
+     */
     @Override
     protected void onPause() {
         super.onPause();
         isResumed = false;
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override

@@ -11,10 +11,12 @@ import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.PhotosStatePagerAdapter;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
 import com.example.yeelin.projects.betweenus.fragment.PhotoDataFragment;
+import com.facebook.appevents.AppEventsLogger;
 
 import java.util.ArrayList;
 
@@ -180,6 +182,24 @@ public class PhotosPagerActivity
     }
 
     /**
+     * Log activation
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+    }
+
+    /**
+     * Log deactivation
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
+    }
+
+    /**
      * Save page position in case of rotation or backgrounding
      * @param outState
      */
@@ -197,8 +217,20 @@ public class PhotosPagerActivity
      */
     @Override
     protected void onDestroy() {
+        //log user viewed photos
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        Bundle parameters = new Bundle();
+        parameters.putInt(EventConstants.EVENT_PARAM_NUM_PHOTOS_VIEWED, viewPagerPosition); //pager position is used to approximate the number of photos viewed
+        logger.logEvent(EventConstants.EVENT_NAME_VIEWED_PHOTOS, parameters);
+
         viewPager.removeOnPageChangeListener(this);
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Log.d(TAG, "onBackPressed");
     }
 
 //    /**

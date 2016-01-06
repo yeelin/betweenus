@@ -11,10 +11,12 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
 import com.example.yeelin.projects.betweenus.utils.EmailUtils;
 import com.example.yeelin.projects.betweenus.utils.SmsUtils;
+import com.facebook.appevents.AppEventsLogger;
 
 import java.util.ArrayList;
 
@@ -29,6 +31,7 @@ public class InvitationActivity
 
     //intent extras
     private static final String EXTRA_SELECTED_ITEMS = InvitationActivity.class.getSimpleName() + ".selectedItems";
+    private static final String EXTRA_ORIGINATING_VIEW = InvitationActivity.class.getSimpleName() + ".originatingView";
 
     //sms and email
     private static final String URI_SMSTO = "smsto:";
@@ -38,15 +41,22 @@ public class InvitationActivity
     private static final int REQUEST_CODE_COMPOSE_TEXT = 100;
     private static final int REQUEST_CODE_COMPOSE_EMAIL = 110;
 
+    //member variables
+    private ArrayList<SimplifiedBusiness> selectedItems;
+    private String originatingView;
+
     /**
      * Builds the appropriate intent to start this activity
+     * @param context
      * @param selectedItems
+     * @param originatingView
      * @return
      */
-    public static Intent buildIntent(Context context, ArrayList<SimplifiedBusiness> selectedItems) {
+    public static Intent buildIntent(Context context, ArrayList<SimplifiedBusiness> selectedItems, String originatingView) {
         Intent intent = new Intent(context, InvitationActivity.class);
         //put extras
         intent.putParcelableArrayListExtra(EXTRA_SELECTED_ITEMS, selectedItems);
+        intent.putExtra(EXTRA_ORIGINATING_VIEW, originatingView);
         return intent;
     }
 
@@ -64,7 +74,8 @@ public class InvitationActivity
 
         //read intent
         Intent intent = getIntent();
-        ArrayList<SimplifiedBusiness> selectedItems = intent.getParcelableArrayListExtra(EXTRA_SELECTED_ITEMS);
+        selectedItems = intent.getParcelableArrayListExtra(EXTRA_SELECTED_ITEMS);
+        originatingView = intent.getStringExtra(EXTRA_ORIGINATING_VIEW);
 
         //check if fragment exists and instantiate if it doesn't
         if (savedInstanceState == null) {
@@ -75,9 +86,6 @@ public class InvitationActivity
                         .add(R.id.invitation_fragmentContainer, InvitationFragment.newInstance(selectedItems))
                         .commit();
             }
-        }
-        else {
-            Log.d(TAG, "onCreate: Saved instance state is not null");
         }
     }
 
@@ -101,12 +109,36 @@ public class InvitationActivity
     }
 
     /**
-     * Sends an intent out to invite via SMS
-     * @param friendPhone
-     * @param selectedItems
+     * Log activation and initiation of invite process.
      */
     @Override
-    public void onInviteByTextMessage(String friendPhone, ArrayList<SimplifiedBusiness> selectedItems) {
+    protected void onResume() {
+        super.onResume();
+        AppEventsLogger.activateApp(this);
+
+        //log user initiated invite process
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
+        parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
+        logger.logEvent(EventConstants.EVENT_NAME_INITIATED_INVITE, parameters);
+    }
+
+    /**
+     * Log deactivation
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        AppEventsLogger.deactivateApp(this);
+    }
+
+    /**
+     * Sends an intent out to invite via SMS. Log completion of invite process.
+     * @param friendPhone
+     */
+    @Override
+    public void onInviteByTextMessage(String friendPhone) {
         //create sms intent
         //ACTION_SENDTO and smsto: ensures that intent will be handled only by a text messaging app
         String recipientUri = String.format("%s%s", URI_SMSTO, friendPhone);
@@ -119,6 +151,15 @@ public class InvitationActivity
         if(intent.resolveActivity(getPackageManager()) != null) {
             Log.d(TAG, "onInviteByTextMessage: Starting SMS activity");
             startActivityForResult(intent, REQUEST_CODE_COMPOSE_TEXT);
+
+            //log user completed invite
+            AppEventsLogger logger = AppEventsLogger.newLogger(this);
+            Bundle parameters = new Bundle();
+            parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
+            parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_TXT);
+            parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
+
+            logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
         }
         else {
             Log.d(TAG, "onInviteByTextMessage: There are no apps that can handle the SMS intent");
@@ -126,12 +167,11 @@ public class InvitationActivity
     }
 
     /**
-     * Sends an intent out to invite via email
+     * Sends an intent out to invite via email. Log completion of invite process.
      * @param friendEmail
-     * @param selectedItems
      */
     @Override
-    public void onInviteByEmail(String friendEmail, ArrayList<SimplifiedBusiness> selectedItems) {
+    public void onInviteByEmail(String friendEmail) {
         //create email intent
         //ACTION_SENDTO and mailto: ensures that intent will be handled only by an email app
         Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(URI_MAILTO));
@@ -147,6 +187,14 @@ public class InvitationActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             Log.d(TAG, "onInviteByEmail: Starting Email activity");
             startActivityForResult(intent, REQUEST_CODE_COMPOSE_EMAIL);
+
+            //log user completed invite
+            AppEventsLogger logger = AppEventsLogger.newLogger(this);
+            Bundle parameters = new Bundle();
+            parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
+            parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_EMAIL);
+            parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
+            logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
         }
         else {
             Log.d(TAG, "onInviteByEmail: There are no apps that can handle the email intent");

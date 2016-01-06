@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
@@ -25,6 +26,7 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -198,23 +200,26 @@ public class SuggestionsActivity
     }
 
     /**
-     * Create a broadcast receiver and register for place broadcasts (success and failures)
+     * Create a broadcast receiver and register for place broadcasts (success and failures).
+     * Log activation
      */
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume: Registering for broadcasts");
         placesBroadcastReceiver = new PlacesBroadcastReceiver(this, this); //we are a place broadcast listener
+        AppEventsLogger.activateApp(this);
     }
 
     /**
-     * Unregister for place broadcasts
+     * Unregister for place broadcasts. Log deactivation.
      */
     @Override
     protected void onPause() {
         Log.d(TAG, "onPause: Unregistering for broadcasts");
         placesBroadcastReceiver.unregister();
         super.onPause();
+        AppEventsLogger.deactivateApp(this);
     }
 
     /**
@@ -279,8 +284,10 @@ public class SuggestionsActivity
                     }
                 }
                 else {
+                    //start invite activity
                     startActivity(InvitationActivity.buildIntent(this,
-                            SimplifiedBusiness.buildSelectedItemsList(((SuggestionsDataFragment) fragments[DATA]).getAllResults(), selectedIdsMap)));
+                            SimplifiedBusiness.buildSelectedItemsList(((SuggestionsDataFragment) fragments[DATA]).getAllResults(), selectedIdsMap),
+                            showingMap ? EventConstants.EVENT_PARAM_VIEW_MAP : EventConstants.EVENT_PARAM_VIEW_LIST));
                 }
                 return true;
 
@@ -526,8 +533,8 @@ public class SuggestionsActivity
         midLatLng = LocationUtils.computeMidPoint(userLatLng, friendLatLng);
 
         //share latlngs with all fragments
-        ((SuggestionsListFragment)fragments[LIST]).onLatLngLoad(userLatLng, friendLatLng, midLatLng);
-        ((SuggestionsClusterMapFragment)fragments[MAP]).onLatLngLoad(userLatLng, friendLatLng, midLatLng);
+        ((SuggestionsListFragment) fragments[LIST]).onLatLngLoad(userLatLng, friendLatLng, midLatLng);
+        ((SuggestionsClusterMapFragment) fragments[MAP]).onLatLngLoad(userLatLng, friendLatLng, midLatLng);
         ((SuggestionsDataFragment) fragments[DATA]).onLatLngLoad(userLatLng, friendLatLng, midLatLng);
 
         //search for places with the latlngs we just got

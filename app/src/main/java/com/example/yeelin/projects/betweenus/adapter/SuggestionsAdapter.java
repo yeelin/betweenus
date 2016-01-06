@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -15,10 +16,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.facebook.appevents.AppEventsLogger;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
@@ -35,7 +39,7 @@ import java.util.List;
  */
 public class SuggestionsAdapter
         extends ArrayAdapter<LocalBusiness>
-        implements View.OnClickListener,
+        implements
         View.OnTouchListener {
     //logcat
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
@@ -197,7 +201,7 @@ public class SuggestionsAdapter
         }
 
         //price range
-        final String priceRange = business.getPriceRange();
+        final String priceRange = business.getPriceRangeString();
         if (priceRange == null) {
             viewHolder.priceRange.setVisibility(View.GONE);
         }
@@ -209,7 +213,7 @@ public class SuggestionsAdapter
         viewHolder.itemToggle.setChecked(selectedIdsMap.containsKey(business.getId()));
         viewHolder.itemToggle.setTag(R.id.business_id, business.getId());
         viewHolder.itemToggle.setTag(R.id.position, position);
-        viewHolder.itemToggle.setOnClickListener(this);
+        //viewHolder.itemToggle.setOnClickListener(this); //use touch listener instead because of integration with Rebound Api
         viewHolder.itemToggle.setOnTouchListener(this);
 
         //compute fairness and distance from center
@@ -291,25 +295,6 @@ public class SuggestionsAdapter
     }
 
     /**
-     * Handles the click on the checkedTextView. All we do here is toggle the view
-     * and then call the listener to let it know.
-     * @param v CheckedTextView that was clicked
-     */
-    @Override
-    public void onClick(View v) {
-        Log.d(TAG, "onClick: Toggle was clicked");
-
-        //toggle the view
-        CheckedTextView toggledView = (CheckedTextView) v;
-        toggledView.toggle();
-
-        //notify the list fragment, providing both business id and resulting toggle state
-        listener.onItemToggle((String) toggledView.getTag(R.id.business_id),
-                (Integer) toggledView.getTag(R.id.position),
-                toggledView.isChecked());
-    }
-
-    /**
      * Handles touch events for integrating with Rebound API
      * @param v
      * @param event
@@ -318,24 +303,51 @@ public class SuggestionsAdapter
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         toggledView = (CheckedTextView) v;
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                //when pressed start solving the spring to to 1
                 toggledView.toggle(); //toggle the state
+
+                //when pressed start solving the spring to to 1
                 scaleSpring.setEndValue(1);
                 break;
 
             case MotionEvent.ACTION_UP:
+                //when released start solving the spring to 0
+                scaleSpring.setEndValue(0);
+
+                //log user selection from the list view
+                LocalBusiness business = getItem((Integer)toggledView.getTag(R.id.position));
+                AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+                Bundle parameters = new Bundle();
+
+                parameters.putString(EventConstants.EVENT_PARAM_SELECTION_VIEW, EventConstants.EVENT_PARAM_VIEW_LIST);
+                parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_DATA_SOURCE, business.getDataSource());
+                switch (business.getDataSource()) {
+                    case LocalConstants.FACEBOOK:
+                        parameters.putString(EventConstants.EVENT_PARAM_SELECTION_PRICE, business.getPriceRangeString());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_LIKES, business.getLikes());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_CHECKINS, business.getCheckins());
+                        break;
+                    case LocalConstants.YELP:
+                        parameters.putDouble(EventConstants.EVENT_PARAM_SELECTION_RATING, business.getRating());
+                        parameters.putInt(EventConstants.EVENT_PARAM_SELECTION_REVIEWS, business.getReviewCount());
+                        break;
+                    case LocalConstants.GOOGLE:
+                        break;
+                }
+                logger.logEvent(EventConstants.EVENT_NAME_ADDED_TO_SELECTION, parameters);
+
                 //notify the list fragment, providing both business id and resulting toggle state
                 listener.onItemToggle((String) toggledView.getTag(R.id.business_id),
                         (Integer) toggledView.getTag(R.id.position),
                         toggledView.isChecked());
-                scaleSpring.setEndValue(0);
                 break;
 
             case MotionEvent.ACTION_CANCEL:
-                //when released start solving the spring to 0
                 toggledView.toggle(); //undo the earlier toggle state because it was a cancel
+
+                //when released start solving the spring to 0
                 scaleSpring.setEndValue(0);
                 break;
         }

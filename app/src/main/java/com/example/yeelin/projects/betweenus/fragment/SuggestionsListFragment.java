@@ -19,12 +19,14 @@ import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChangedCallback;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -196,6 +198,13 @@ public class SuggestionsListFragment
             case R.id.action_show_map:
                 Log.d(TAG, "onOptionsItemSelected: User wants to see results in a map");
                 suggestionActionListener.showMap();
+
+                //log user switch to map view from list view
+                AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+                Bundle parameters = new Bundle();
+                parameters.putString(EventConstants.EVENT_PARAM_SOURCE_VIEW, EventConstants.EVENT_PARAM_VIEW_LIST);
+                parameters.putString(EventConstants.EVENT_PARAM_DESTINATION_VIEW, EventConstants.EVENT_PARAM_VIEW_MAP);
+                logger.logEvent(EventConstants.EVENT_NAME_SWITCHED_VIEWS, parameters);
                 return true;
 
             default:
@@ -222,6 +231,13 @@ public class SuggestionsListFragment
                 business.getName(),
                 business.getLocalBusinessLocation().getLatLng(),
                 position);
+
+        //log user switch to detail pager view
+        AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_SOURCE_VIEW, EventConstants.EVENT_PARAM_VIEW_LIST);
+        parameters.putString(EventConstants.EVENT_PARAM_DESTINATION_VIEW, EventConstants.EVENT_PARAM_VIEW_PAGER);
+        logger.logEvent(EventConstants.EVENT_NAME_SWITCHED_VIEWS, parameters);
     }
 
     /**

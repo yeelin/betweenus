@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
@@ -28,6 +29,7 @@ import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoad
 import com.example.yeelin.projects.betweenus.data.generic.model.PlaceClusterItem;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -78,7 +80,7 @@ public class SuggestionsClusterMapFragment
     private Marker friendLocationMarker; //for showing friend's location marker
     private boolean mapNeedsUpdate = false;
     private boolean showingPeopleLocation = false;
-    
+
     private ArrayList<LocalResult> localResultArrayList = new ArrayList<>();
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -190,11 +192,19 @@ public class SuggestionsClusterMapFragment
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+        Bundle parameters = new Bundle();
+
         switch (item.getItemId()) {
             //toggle over to the list view
             case R.id.action_show_list:
                 Log.d(TAG, "onOptionsItemSelected: User wants to see results in a list");
                 suggestionActionListener.showList();
+
+                //log user switch to list view from map view
+                parameters.putString(EventConstants.EVENT_PARAM_SOURCE_VIEW, EventConstants.EVENT_PARAM_VIEW_MAP);
+                parameters.putString(EventConstants.EVENT_PARAM_DESTINATION_VIEW, EventConstants.EVENT_PARAM_VIEW_LIST);
+                logger.logEvent(EventConstants.EVENT_NAME_SWITCHED_VIEWS, parameters);
                 return true;
 
             //toggle people location on/off
@@ -204,6 +214,10 @@ public class SuggestionsClusterMapFragment
                 //update the boolean state
                 showingPeopleLocation = !showingPeopleLocation;
                 togglePeople(item);
+
+                //log user toggle people location on/off
+                parameters.putBoolean(EventConstants.EVENT_PARAM_SWITCHED_PEOPLE_LOCATION, showingPeopleLocation);
+                logger.logEvent(EventConstants.EVENT_NAME_VIEWED_PEOPLE_LOCATION, parameters);
                 return true;
 
             default:
@@ -560,6 +574,13 @@ public class SuggestionsClusterMapFragment
                 placeClusterItem.getTitle(),
                 placeClusterItem.getPosition(),
                 placeClusterItem.getResultPosition());
+
+        //log user switch to detail pager view
+        AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_SOURCE_VIEW, EventConstants.EVENT_PARAM_VIEW_LIST);
+        parameters.putString(EventConstants.EVENT_PARAM_DESTINATION_VIEW, EventConstants.EVENT_PARAM_VIEW_PAGER);
+        logger.logEvent(EventConstants.EVENT_NAME_SWITCHED_VIEWS, parameters);
     }
 
     /**

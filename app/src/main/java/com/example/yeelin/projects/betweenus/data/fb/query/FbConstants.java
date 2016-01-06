@@ -110,7 +110,7 @@ public abstract class FbConstants {
             return TextUtils.join(",",
                     new String[]{ID, CATEGORY, CATEGORY_LIST, LOCATION, NAME, PHONE,
                             pictureWithParams,
-                            PRICE_RANGE, WEBSITE, CHECKINS, LIKES});
+                            PRICE_RANGE, WEBSITE, LINK, CHECKINS, LIKES});
         }
 
         /**

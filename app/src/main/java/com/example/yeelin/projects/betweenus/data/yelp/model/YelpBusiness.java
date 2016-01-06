@@ -94,8 +94,13 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
-    public String getPriceRange() {
+    public String getPriceRangeString() {
         return null;
+    }
+
+    @Override
+    public int getPriceRange() {
+        return LocalConstants.NO_DATA_INTEGER;
     }
 
     @Override

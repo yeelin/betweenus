@@ -169,8 +169,19 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
-    public String getPriceRange() {
+    public String getPriceRangeString() {
         return price_range;
+    }
+
+    @Override
+    public int getPriceRange() {
+        switch (price_range) {
+            case "$": return 1;
+            case "$$": return 2;
+            case "$$$": return 3;
+            case "$$$$": return 4;
+            default: return 0;
+        }
     }
 
     @Override

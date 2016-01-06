@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 
 import java.util.ArrayList;
@@ -47,16 +48,33 @@ public class SmsUtils {
 
     /**
      * Helper method that builds a string for a selected item
-     * Format: Name (X stars, Y reviews, URL)
+     * FB format: Name (X likes, Y checkins, Z price, URL)
+     * Yelp format: Name (X stars, Y reviews, URL)
      *
      * @param selectedItem
      * @return
      */
     private static String buildSelectedItemString(final SimplifiedBusiness selectedItem) {
-        return String.format("%s (%s stars, %d reviews, %s)",
-                selectedItem.getName(),
-                FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating()),
-                selectedItem.getReviews(),
-                selectedItem.getWebUrl());
+        switch (selectedItem.getDataSource()) {
+            case LocalConstants.FACEBOOK:
+                return String.format("%s (%s likes, %d checkins, %s)",
+                        selectedItem.getName(),
+                        selectedItem.getLikes(),
+                        selectedItem.getCheckins(),
+                        selectedItem.getFbUrl());
+
+            case LocalConstants.YELP:
+                return String.format("%s (%s stars, %d reviews, %s)",
+                        selectedItem.getName(),
+                        FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating()),
+                        selectedItem.getReviews(),
+                        selectedItem.getWebUrl());
+
+            case LocalConstants.GOOGLE:
+                return "Not implemented yet";
+
+            default:
+                return "No data";
+        }
     }
 }
