@@ -121,8 +121,8 @@
             android:layout_height="wrap_content"
 
             android:checkMark="@null"
-            android:drawableLeft="@drawable/selector_list_favorite"
-            android:drawableStart="@drawable/selector_list_favorite"
+            android:drawableLeft="@drawable/ic_action_favorite"
+            android:drawableStart="@drawable/ic_action_favorite"
             android:drawableRight="@null"
             android:drawableEnd="@null"
             android:gravity="start"

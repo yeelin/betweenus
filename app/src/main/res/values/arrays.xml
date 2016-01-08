@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="drawer_images">
+        <item>@drawable/ic_maps_local_restaurant</item>
+        <item>@drawable/ic_action_account_circle</item>
+        <item>@drawable/ic_action_settings</item>
+    </array>
+</resources>

@@ -4,7 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- elevations -->
-    <dimen name="toolbar_elevation">8dp</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
 
     <!-- profile image -->
     <dimen name="profile_image_size">75dp</dimen>
@@ -17,4 +17,10 @@
 
     <!-- padding -->
     <dimen name="card_content_padding">16dp</dimen>
+
+    <!-- nav drawer -->
+    <dimen name="drawer_width">264dp</dimen>
+    <dimen name="drawer_item_paddingLeft">12dp</dimen>
+    <dimen name="drawer_item_paddingRight">16dp</dimen>
+    <dimen name="drawer_item_drawablePadding">28dp</dimen>
 </resources>

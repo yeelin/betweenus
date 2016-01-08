@@ -176,6 +176,15 @@
     <string name="snackbar_retry">Retry</string>
     <string name="snackbar_ok">Got it!</string>
 
+    <!-- Drawer strings -->
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string-array name="drawer_items">
+        <item>Search</item>
+        <item>Login</item>
+        <item>Preferences</item>
+    </string-array>
+
     <!-- google places api -->
     <string name="google_api_key">AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME</string>
 

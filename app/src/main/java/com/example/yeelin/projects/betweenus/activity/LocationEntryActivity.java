@@ -4,13 +4,21 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.res.Configuration;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.adapter.DrawerAdapter;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
@@ -23,7 +31,8 @@ import com.google.android.gms.common.ConnectionResult;
 public class LocationEntryActivity
         extends BasePlayServicesActivity
         implements LocationEntryFragment.LocationEntryFragmentListener,
-        PlacesBroadcastReceiver.PlacesConnectionBroadcastListener {
+        PlacesBroadcastReceiver.PlacesConnectionBroadcastListener,
+        AdapterView.OnItemClickListener {
 
     //logcat
     private static final String TAG = LocationEntryActivity.class.getCanonicalName();
@@ -40,6 +49,12 @@ public class LocationEntryActivity
     private PlacesBroadcastReceiver placesBroadcastReceiver;
     private String userPlaceId;
     private String friendPlaceId;
+
+    //drawer-related
+    private Toolbar toolbar;
+    private DrawerLayout drawerLayout;
+    private ListView drawerList;
+    private ActionBarDrawerToggle drawerToggle;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -69,6 +84,8 @@ public class LocationEntryActivity
         setContentView(R.layout.activity_location_entry);
         //setup toolbar
         setupToolbar(R.id.locationEntry_toolbar, false);
+        //setup navigation drawer
+        setupDrawer();
 
         //check if the fragment exists, otherwise, create it
         if (savedInstanceState == null) {
@@ -81,32 +98,60 @@ public class LocationEntryActivity
                         .add(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
                         .commit();
             }
-        }
-        else {
-            Log.d(TAG, "onCreate: Saved instance state is not null");
+            selectDrawerItem(0);
         }
     }
 
+    /**
+     *
+     * @param savedInstanceState
+     */
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_location_entry, menu);
-        return super.onCreateOptionsMenu(menu);
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        //sync toggle state
+        drawerToggle.syncState();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-//            case R.id.action_map_activity:
-//                //start the suggestions map activity that will host the cluster map
-//                if (userPlaceId != null && friendPlaceId != null) {
-//                    startActivity(SuggestionsMapActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));
-//                }
-//                return true;
-            case R.id.action_fb_login:
-                startActivity(LoginActivity.buildIntent(this));
-                return true;
+    /**
+     * Helper method to set up the navigation drawer layout and listview
+     */
+    private void setupDrawer() {
+        //set refs to toolbar and drawer layout
+        toolbar = (Toolbar) findViewById(R.id.locationEntry_toolbar);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        //enable action bar app icon to behave as toggle for nav drawer
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
         }
-        return super.onOptionsItemSelected(item);
+
+        //listen for drawer open and close events
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+            public void onDrawerClosed(View view) {
+                Log.d(TAG, "onDrawerClosed");
+            }
+            public void onDrawerOpened(View view) {
+                Log.d(TAG, "onDrawerOpened");
+            }
+        };
+        drawerLayout.setDrawerListener(drawerToggle);
+
+        //set up the list for the drawer
+        setupDrawerList();
+    }
+
+    /**
+     * Helper method to set up the navigation drawer list view
+     */
+    private void setupDrawerList() {
+        //set reference to drawer's listview
+        drawerList = (ListView) findViewById(R.id.drawer_listView);
+        //set the adapter for the listview
+        drawerList.setAdapter(new DrawerAdapter(this));
+        //set the list view's click listener
+        drawerList.setOnItemClickListener(this);
     }
 
     /**
@@ -157,6 +202,17 @@ public class LocationEntryActivity
         Log.d(TAG, "onDestroy: Destroying PlacesService");
         stopService(PlacesService.buildStopServiceIntent(this));
         super.onDestroy();
+    }
+
+    /**
+     *
+     * @param newConfig
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //pass any config change to drawer toggle
+        drawerToggle.onConfigurationChanged(newConfig);
     }
 
     /**
@@ -273,6 +329,61 @@ public class LocationEntryActivity
             Log.d(TAG, "onConnectFailure: No resolution so showing error dialog");
             // Show error dialog using GooglePlayServicesUtil.getErrorDialog()
             showPlayServicesErrorDialog(connectionResult.getErrorCode());
+        }
+    }
+
+    /**
+     * Handles menu item click. Since we have just the home button and it serves
+     * as the drawer toggle, we pass it to the drawer toggle.
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // The action bar home/up action should open or close the drawer.
+                // ActionBarDrawerToggle will take care of this.
+                return drawerToggle.onOptionsItemSelected(item);
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * AdapterView.OnItemClickListener implementation
+     * Handles clicks on items in the drawer list
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(TAG, "onItemClick: Position:" + position);
+        selectDrawerItem(position);
+    }
+
+    /**
+     * Helper method to handle the selection of a drawer item
+     * @param position
+     */
+    private void selectDrawerItem(int position) {
+        //update selected item and then close the drawer
+        drawerList.setItemChecked(position, true);
+        drawerLayout.closeDrawer(drawerList);
+
+        switch (position) {
+            case 0:
+                Log.d(TAG, "selectDrawerItem: Starting location entry activity");
+                break;
+            case 1:
+                Log.d(TAG, "selectDrawerItem: Starting login activity");
+                startActivity(LoginActivity.buildIntent(this));
+                break;
+            case 2:
+                Log.d(TAG, "selectDrawerItem: Settings activity has not been implemented");
+                break;
         }
     }
 }
