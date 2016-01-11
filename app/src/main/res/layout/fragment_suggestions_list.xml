@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.SuggestionsFragment">
+    tools:context=".fragment.SuggestionsListFragment">
 
     <FrameLayout
         android:id="@+id/suggestions_listContainer"
@@ -26,8 +26,10 @@
             android:id="@+id/suggestions_empty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
+            android:layout_alignParentTop="true"
+            android:layout_gravity="top|center_horizontal"
+            android:gravity="top|center_horizontal"
+            android:paddingTop="48dp"
             android:text="@string/no_suggestions"
             android:visibility="gone"/>
 

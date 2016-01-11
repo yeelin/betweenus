@@ -28,10 +28,12 @@ public interface OnSuggestionsLoadedCallback {
      * @param localResult
      * @param selectedIdsMap
      * @param hasMoreData
+     * @param pageNumber
      */
     void onSinglePageLoad(@Nullable LocalResult localResult,
                           @NonNull ArrayMap<String, Integer> selectedIdsMap,
-                          boolean hasMoreData);
+                          boolean hasMoreData,
+                          int pageNumber);
 
     /**
      * Multiple pages of data are ready.  Called by SuggestionsActivity.

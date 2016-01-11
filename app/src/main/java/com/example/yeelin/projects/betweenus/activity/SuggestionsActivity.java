@@ -315,11 +315,11 @@ public class SuggestionsActivity
 
         //update the respective fragments with one new page of data
         if (fragments[LIST] != null) {
-            ((SuggestionsListFragment) fragments[LIST]).onSinglePageLoad(localResult, selectedIdsMap, hasMoreData);
+            ((SuggestionsListFragment) fragments[LIST]).onSinglePageLoad(localResult, selectedIdsMap, hasMoreData, pageNumber);
         }
 
         if (fragments[MAP] != null) {
-            ((SuggestionsClusterMapFragment) fragments[MAP]).onSinglePageLoad(localResult, selectedIdsMap, hasMoreData);
+            ((SuggestionsClusterMapFragment) fragments[MAP]).onSinglePageLoad(localResult, selectedIdsMap, hasMoreData, pageNumber);
         }
     }
 

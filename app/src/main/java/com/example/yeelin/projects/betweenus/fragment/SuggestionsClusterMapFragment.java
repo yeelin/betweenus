@@ -338,10 +338,12 @@ public class SuggestionsClusterMapFragment
      */
     public void onSinglePageLoad(@Nullable LocalResult localResult,
                                  @NonNull ArrayMap<String,Integer> selectedIdsMap,
-                                 boolean hasMoreData) {
+                                 boolean hasMoreData,
+                                 int pageNumber) {
 
         if (localResult == null || localResult.getLocalBusinesses().size() == 0) {
             Log.d(TAG, "onSinglePageLoad: Local result is null or empty, so nothing to do");
+            //TODO: check if we need to do anything here like we did in list fragment
             return;
         }
 

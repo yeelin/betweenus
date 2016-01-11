@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
@@ -291,22 +292,43 @@ public class SuggestionsListFragment
      * @param localResult
      * @param selectedIdsMap
      * @param hasMoreData
+     * @param pageNumber
      */
     public void onSinglePageLoad(@Nullable LocalResult localResult,
                                  @NonNull ArrayMap<String, Integer> selectedIdsMap,
-                                 boolean hasMoreData) {
+                                 boolean hasMoreData,
+                                 int pageNumber) {
+        Log.d(TAG, "onSinglePageLoad: PageNumber:" + pageNumber);
         //reset isLoading
         isLoading = false;
-        if (localResult == null || localResult.getLocalBusinesses().size() == 0) {
-            Log.d(TAG, "onSinglePageLoad: Local result is null or empty, so nothing to do");
-            return;
-        }
 
         //check if views are null
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) {
             //nothing to do since views are not ready yet
             Log.d(TAG, "onSinglePageLoad: View holder is null, so nothing to do");
+            return;
+        }
+
+        if (localResult == null) {
+            //this usually happens when the loader is resetting
+            Log.d(TAG, "onSinglePageLoad: Local result is null, so nothing to do");
+            return;
+        }
+
+        if (localResult.getLocalBusinesses().size() == 0) {
+            if (pageNumber == 0) {
+                Log.d(TAG, "onSinglePageLoad: Local result is empty and page number is 0");
+                //animate in the list container, and animate out the progress bar,
+                viewHolder.suggestionsStatus.setVisibility(View.VISIBLE); //since this is page 0, show a message
+                AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
+            }
+            else {
+                //sometimes FB will provide a nextUrl even though it has no more data left, so this results in an empty data set
+                //on the next call which is what happened here.
+                //just ignore empty results if it's not page 0 as the user doesn't need to know about it
+                Log.d(TAG, "onSinglePageLoad: Local result is empty and page number is not 0");
+            }
             return;
         }
 
@@ -317,7 +339,7 @@ public class SuggestionsListFragment
         final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
         suggestionsAdapter.updateItems(localResult.getLocalBusinesses(), selectedIdsMap);
 
-        //second: animate in the list, and animate out the progress bar
+        //second: animate in the list container, and animate out the progress bar
         if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
             AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
         }
@@ -425,12 +447,14 @@ public class SuggestionsListFragment
     private class ViewHolder {
         final View suggestionsListContainer;
         final ListView suggestionsListView;
+        final TextView suggestionsStatus;
         final View suggestionsProgressBar;
 
         ViewHolder(View view) {
             suggestionsListContainer = view.findViewById(R.id.suggestions_listContainer);
             suggestionsListView = (ListView) view.findViewById(R.id.suggestions_listView);
-            suggestionsListView.setEmptyView(view.findViewById(R.id.suggestions_empty));
+            suggestionsStatus = (TextView) view.findViewById(R.id.suggestions_empty);
+            suggestionsListView.setEmptyView(suggestionsStatus);
             suggestionsProgressBar = view.findViewById(R.id.suggestions_progressBar);
         }
     }
