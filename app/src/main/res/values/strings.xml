@@ -7,6 +7,7 @@
     <string name="title_map">Cluster Map Test</string>
     <string name="title_suggested_places">Suggestions</string>
     <string name="title_detail">Details</string>
+    <string name="title_detail_parameterized">Place %1$s of %2$s</string>
     <string name="title_detail_map">Map</string>
     <string name="title_detail_photos">Photo</string>
     <string name="title_detail_photos_parameterized">Photo %1$s of %2$s</string>

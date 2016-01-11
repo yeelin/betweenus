@@ -120,6 +120,9 @@ public class SuggestionsPagerActivity
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(this);
         viewPager.setCurrentItem(viewPagerPosition);
+
+        //set toolbar title
+        updateToolbarTitle(viewPagerPosition);
     }
 
     /**
@@ -268,6 +271,34 @@ public class SuggestionsPagerActivity
 
         //update the current view pager position
         viewPagerPosition = position;
+
+        //set the toolbar title
+        updateToolbarTitle(position);
+    }
+
+    /**
+     * Updates the toolbar title using the current page number (zero-index + 1) and the count of places
+     * that we have fetched.
+     * There are 2 formats for titles:
+     * 1) %d of %d+ : Example: 3 of 25+.  This is used if we have loaded 25 places and we know there
+     *    are more to be fetched if requested. (TODO)
+     * 2) %d of %d : Example: 3 of 25.  This is used if we have loaded 25 places and we know the
+     *    server has no more data.
+     * @param position
+     */
+    private void updateToolbarTitle(int position) {
+        //no need to update title if the toolbar is null for some reason
+        if (getSupportActionBar() == null) return;
+
+        //figure out if we should use format 1 or 2 for the title and format the title accordingly
+        final SuggestionsStatePagerAdapter pagerAdapter = (SuggestionsStatePagerAdapter) viewPager.getAdapter();
+        final int count = pagerAdapter.getCount();
+
+        //set the title
+        getSupportActionBar().setTitle(
+                getString(R.string.title_detail_parameterized,
+                        String.valueOf(1+position), //add 1 since users are not used to seeing zero-based indexing
+                        String.valueOf(count)));
     }
 
     @Override
