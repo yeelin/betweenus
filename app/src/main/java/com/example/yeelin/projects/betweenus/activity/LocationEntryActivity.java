@@ -11,11 +11,14 @@ import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.DrawerAdapter;
@@ -24,9 +27,16 @@ import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.widget.ProfilePictureView;
 import com.google.android.gms.common.ConnectionResult;
+
+import org.json.JSONObject;
 
 public class LocationEntryActivity
         extends BasePlayServicesActivity
@@ -37,6 +47,9 @@ public class LocationEntryActivity
     //logcat
     private static final String TAG = LocationEntryActivity.class.getCanonicalName();
 
+    //save instance state
+    private static final String STATE_SELECTED_DRAWER_POSITION = LocationEntryActivity.class.getSimpleName() + ".drawerPosition";
+
     //request codes
     private static final int REQUEST_CODE_USER_LOCATION = 100;
     private static final int REQUEST_CODE_FRIEND_LOCATION = 110;
@@ -44,6 +57,9 @@ public class LocationEntryActivity
     //constants
     //TODO: remove hardcoded search term
     public static final String DEFAULT_SEARCH_TERM = "restaurants";
+    private static final int SEARCH = 1;
+    private static final int LOGIN = 2;
+    private static final int PREFERENCES = 3;
 
     //member variables
     private PlacesBroadcastReceiver placesBroadcastReceiver;
@@ -55,6 +71,21 @@ public class LocationEntryActivity
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
+    private int selectedDrawerPosition = SEARCH;
+
+    //drawer header
+    private ProfilePictureView userProfilePic;
+    private TextView userName;
+
+    //facebook login constants
+    private static final String NAME = "name";
+    private static final String ID = "id";
+    private static final String PICTURE = "picture";
+    private static final String FIELDS = "fields";
+    private static final String REQUEST_FIELDS = TextUtils.join(",", new String[]{ID, NAME, PICTURE});
+
+    //member variables
+    private JSONObject user;
 
     /**
      * Builds the appropriate intent to start this activity.
@@ -98,8 +129,12 @@ public class LocationEntryActivity
                         .add(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
                         .commit();
             }
-            selectDrawerItem(0);
         }
+        else {
+            //read last drawer position from savedInstanceState
+            selectedDrawerPosition = savedInstanceState.getInt(STATE_SELECTED_DRAWER_POSITION);
+        }
+        selectDrawerItem(selectedDrawerPosition);
     }
 
     /**
@@ -148,6 +183,13 @@ public class LocationEntryActivity
     private void setupDrawerList() {
         //set reference to drawer's listview
         drawerList = (ListView) findViewById(R.id.drawer_listView);
+
+        //setup list header
+        View header = LayoutInflater.from(this).inflate(R.layout.drawer_list_header, drawerList, false);
+        userProfilePic = (ProfilePictureView) header.findViewById(R.id.drawer_user_profile_pic);
+        userName = (TextView) header.findViewById(R.id.drawer_user_name);
+        drawerList.addHeaderView(header, null, false);
+
         //set the adapter for the listview
         drawerList.setAdapter(new DrawerAdapter(this));
         //set the list view's click listener
@@ -192,6 +234,16 @@ public class LocationEntryActivity
 
         //fb logs 'app deactivate' app event
         AppEventsLogger.deactivateApp(this);
+    }
+
+    /**
+     * Save the selected drawer position in case of configuration change.
+     * @param outState
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(STATE_SELECTED_DRAWER_POSITION, selectedDrawerPosition);
     }
 
     /**
@@ -369,21 +421,94 @@ public class LocationEntryActivity
      * @param position
      */
     private void selectDrawerItem(int position) {
+        fetchUserInfo();
+        updateUI();
+
         //update selected item and then close the drawer
         drawerList.setItemChecked(position, true);
         drawerLayout.closeDrawer(drawerList);
 
         switch (position) {
-            case 0:
+            case SEARCH:
                 Log.d(TAG, "selectDrawerItem: Starting location entry activity");
                 break;
-            case 1:
+            case LOGIN:
                 Log.d(TAG, "selectDrawerItem: Starting login activity");
                 startActivity(LoginActivity.buildIntent(this));
                 break;
-            case 2:
+            case PREFERENCES:
                 Log.d(TAG, "selectDrawerItem: Settings activity has not been implemented");
                 break;
         }
+    }
+
+    /**
+     * Fetches the user info (profile pic and name) from Facebook
+     */
+    private void fetchUserInfo() {
+        //check if we have an access token
+        if (AccessToken.getCurrentAccessToken() == null) {
+            //no, user is not logged in
+            Log.d(TAG, "fetchUserInfo: User is not logged in");
+            //TODO: ask user to login?
+            return;
+        }
+
+        //yes, user is logged in
+        Log.d(TAG, "fetchUserInfo: User is logged in");
+
+        //create the graph request
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        user = object;
+                        updateUI();
+                    }
+                });
+
+        //create the parameters for the request
+        Bundle parameters = new Bundle();
+        parameters.putString(FIELDS, REQUEST_FIELDS);
+        request.setParameters(parameters);
+        GraphRequest.executeBatchAsync(request);
+    }
+
+    /**
+     * Updates the UI with the profile pic and name.
+     */
+    private void updateUI() {
+        if (AccessToken.getCurrentAccessToken() == null || user == null) {
+            //no, user is not logged in
+            Log.d(TAG, "updateUI: User is not logged in");
+            userProfilePic.setProfileId(null);
+            userName.setVisibility(View.INVISIBLE);
+            return;
+        }
+
+        //yes, user is logged in
+        Log.d(TAG, "updateUI: User is logged in");
+
+        //read the Graph API Json result
+        String id = user.optString(ID);
+        String name = user.optString(NAME);
+        String picture = user.optString(PICTURE);
+        Log.d(TAG, String.format("updateUI: Id:%s, Name:%s, Pic:%s", id, name, picture));
+
+        //set the user's name
+        userName.setText(user.optString(NAME));
+        userName.setVisibility(View.VISIBLE);
+
+        //set the user's profile picture
+        final Profile profile = Profile.getCurrentProfile();
+        if (profile == null) {
+            userProfilePic.setProfileId(null);
+            return;
+        }
+
+        Log.d(TAG, String.format("Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
+                profile.getId(), profile.getFirstName(), profile.getMiddleName(), profile.getLastName(), profile.getName(), profile.getLinkUri().toString()));
+        userProfilePic.setProfileId(profile.getId());
     }
 }

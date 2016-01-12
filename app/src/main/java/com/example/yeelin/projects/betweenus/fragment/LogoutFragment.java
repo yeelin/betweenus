@@ -89,65 +89,74 @@ public class LogoutFragment extends Fragment {
         accessTokenTracker.stopTracking();
     }
 
+    /**
+     * Fetches the user info (profile pic and name) from  Facebook
+     */
     private void fetchUserInfo() {
         //check if we have an access token
-        if (AccessToken.getCurrentAccessToken() != null) {
-            //yes, user is logged in
-            Log.d(TAG, "fetchUserInfo: User is logged in");
-
-            //create the graph request
-            GraphRequest request = GraphRequest.newMeRequest(
-                    AccessToken.getCurrentAccessToken(),
-                    new GraphRequest.GraphJSONObjectCallback() {
-                        @Override
-                        public void onCompleted(JSONObject object, GraphResponse response) {
-                            user = object;
-                            updateUI();
-                        }
-                    });
-
-            //create the parameters for the request
-            Bundle parameters = new Bundle();
-            parameters.putString(FIELDS, REQUEST_FIELDS);
-            request.setParameters(parameters);
-            GraphRequest.executeBatchAsync(request);
-        }
-        else {
+        if (AccessToken.getCurrentAccessToken() == null) {
             //no, user is not logged in
             Log.d(TAG, "fetchUserInfo: User is not logged in");
+            return;
         }
+
+        //yes, user is logged in
+        Log.d(TAG, "fetchUserInfo: User is logged in");
+
+        //create the graph request
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        user = object;
+                        updateUI();
+                    }
+                });
+
+        //create the parameters for the request
+        Bundle parameters = new Bundle();
+        parameters.putString(FIELDS, REQUEST_FIELDS);
+        request.setParameters(parameters);
+        GraphRequest.executeBatchAsync(request);
     }
 
+    /**
+     * Updates the UI with the profile pic and name.
+     */
     private void updateUI() {
         if (!isAdded()) return;
 
-        if (AccessToken.getCurrentAccessToken() != null) {
-            ViewHolder viewHolder = getViewHolder();
-            if (user != null) {
-                //read the Graph API Json result
-                String id = user.optString(ID);
-                String name = user.optString(NAME);
-                String picture = user.optString(PICTURE);
-                Log.d(TAG, String.format("updateUI: Id:%s, Name:%s, Pic:%s", id, name, picture));
-
-                //set the user's name
-                viewHolder.userName.setText(user.optString(NAME));
-
-                //set the user's profile picture
-                Profile profile = Profile.getCurrentProfile();
-                if (profile != null) {
-                    Log.d(TAG, String.format("Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
-                            profile.getId(), profile.getFirstName(), profile.getMiddleName(), profile.getLastName(), profile.getName(), profile.getLinkUri().toString()));
-                    viewHolder.userProfilePic.setProfileId(profile.getId());
-                }
-                else {
-                    viewHolder.userProfilePic.setProfileId(null);
-                }
-            }
-            else {
-                viewHolder.userName.setText("User isn't logged in");
-            }
+        ViewHolder viewHolder = getViewHolder();
+        if (AccessToken.getCurrentAccessToken() == null || user == null) {
+            //no user is not logged in
+            viewHolder.userProfilePic.setProfileId(null);
+            viewHolder.userName.setText("User isn't logged in");
+            return;
         }
+
+        //yes, user is logged in
+        Log.d(TAG, "updateUI: User is logged in");
+
+        //read the Graph API Json result
+        String id = user.optString(ID);
+        String name = user.optString(NAME);
+        String picture = user.optString(PICTURE);
+        Log.d(TAG, String.format("updateUI: Id:%s, Name:%s, Pic:%s", id, name, picture));
+
+        //set the user's name
+        viewHolder.userName.setText(user.optString(NAME));
+
+        //set the user's profile picture
+        final Profile profile = Profile.getCurrentProfile();
+        if (profile == null) {
+            viewHolder.userProfilePic.setProfileId(null);
+            return;
+        }
+
+        Log.d(TAG, String.format("Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
+                profile.getId(), profile.getFirstName(), profile.getMiddleName(), profile.getLastName(), profile.getName(), profile.getLinkUri().toString()));
+        viewHolder.userProfilePic.setProfileId(profile.getId());
     }
 
     /**

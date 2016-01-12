@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/drawer_header_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@null"
+        android:minHeight="150dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/drawer_header_image"/>
+
+    <com.facebook.login.widget.ProfilePictureView
+        android:id="@+id/drawer_user_profile_pic"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+
+        android:layout_above="@+id/drawer_user_name"
+        android:gravity="bottom"
+
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:com_facebook_preset_size="normal"/>
+    
+    <TextView
+        android:id="@id/drawer_user_name"
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+
+        android:paddingTop="8dp"
+        android:layout_marginBottom="8dp"
+
+        android:layout_alignBottom="@id/drawer_header_background"
+        android:text="Butters The Crazy Dog"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        />
+</RelativeLayout>
