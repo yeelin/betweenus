@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:key="distance_unit"
+        android:title="@string/setting_use_metric"
+        android:defaultValue="false"
+
+        android:switchTextOff="@string/setting_imperial_on"
+        android:switchTextOn="@string/setting_metric_on"
+
+        android:summaryOff="@string/setting_imperial_description"
+        android:summaryOn="@string/setting_metric_description"/>
+</android.support.v7.preference.PreferenceScreen>

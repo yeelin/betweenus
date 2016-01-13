@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.DrawerAdapter;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
+import com.example.yeelin.projects.betweenus.fragment.SettingsFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
@@ -105,6 +107,9 @@ public class LocationEntryActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //ensure app is properly initialized with default settings
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false); //false = this method can be safely called without overriding user's saved prefs
+
         //initialize the fb sdk
         FacebookSdk.sdkInitialize(getApplicationContext());
 
@@ -169,6 +174,8 @@ public class LocationEntryActivity
             }
             public void onDrawerOpened(View view) {
                 Log.d(TAG, "onDrawerOpened");
+                fetchUserInfo();
+                updateUI();
             }
         };
         drawerLayout.setDrawerListener(drawerToggle);
@@ -421,23 +428,37 @@ public class LocationEntryActivity
      * @param position
      */
     private void selectDrawerItem(int position) {
-        fetchUserInfo();
-        updateUI();
-
         //update selected item and then close the drawer
         drawerList.setItemChecked(position, true);
         drawerLayout.closeDrawer(drawerList);
 
+        if (selectedDrawerPosition == position) {
+            Log.d(TAG, "selectDrawerItem: Same position selected, nothing to do");
+            return;
+        }
+
+        selectedDrawerPosition = position;
+
         switch (position) {
             case SEARCH:
-                Log.d(TAG, "selectDrawerItem: Starting location entry activity");
+                Log.d(TAG, "selectDrawerItem: Opening location entry");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
+                        .commit();
                 break;
+
             case LOGIN:
                 Log.d(TAG, "selectDrawerItem: Starting login activity");
                 startActivity(LoginActivity.buildIntent(this));
                 break;
+
             case PREFERENCES:
-                Log.d(TAG, "selectDrawerItem: Settings activity has not been implemented");
+                Log.d(TAG, "selectDrawerItem: Opening preferences");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.locationEntry_fragmentContainer, SettingsFragment.newInstance())
+                        .commit();
                 break;
         }
     }

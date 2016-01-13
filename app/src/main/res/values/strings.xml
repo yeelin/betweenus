@@ -186,6 +186,13 @@
         <item>Preferences</item>
     </string-array>
 
+    <!-- Preferences -->
+    <string name="setting_use_metric">Use metric units</string>
+    <string name="setting_metric_on">Metric</string>
+    <string name="setting_imperial_on">Imperial</string>
+    <string name="setting_metric_description">Distance is displayed in kilometers</string>
+    <string name="setting_imperial_description">Distance is displayed in miles</string>
+
     <!-- google places api -->
     <string name="google_api_key">AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME</string>
 
