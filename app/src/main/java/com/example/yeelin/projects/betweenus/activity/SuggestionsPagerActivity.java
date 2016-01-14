@@ -17,6 +17,7 @@ import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsStatePagerAdapter;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -116,7 +117,8 @@ public class SuggestionsPagerActivity
         viewPager = (ViewPager) findViewById(R.id.suggestions_viewPager);
         SuggestionsStatePagerAdapter pagerAdapter = new SuggestionsStatePagerAdapter(getSupportFragmentManager(),
                 simplifiedBusinesses, selectedIdsMap,
-                userLatLng, friendLatLng, midLatLng);
+                userLatLng, friendLatLng, midLatLng,
+                PreferenceUtils.useMetric(this));
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(this);
         viewPager.setCurrentItem(viewPagerPosition);

@@ -27,6 +27,7 @@ public class SuggestionsStatePagerAdapter
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+    private boolean useMetric;
 
     /**
      * Default constructor
@@ -36,17 +37,19 @@ public class SuggestionsStatePagerAdapter
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
+     * @param useMetric
      */
     public SuggestionsStatePagerAdapter(FragmentManager fm,
                                         ArrayList<SimplifiedBusiness> businesses, ArrayMap<String, Integer> selectedIdsMap,
-                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                        boolean useMetric) {
         super(fm);
         this.businesses = businesses;
         this.selectedIdsMap = selectedIdsMap;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
-
+        this.useMetric = useMetric;
     }
 
     /**
@@ -80,7 +83,8 @@ public class SuggestionsStatePagerAdapter
                 business.getNormalizedLikes(),
                 userLatLng,
                 friendLatLng,
-                midLatLng);
+                midLatLng,
+                useMetric);
     }
 
     /**

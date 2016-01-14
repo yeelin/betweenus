@@ -7,6 +7,7 @@ import com.example.yeelin.projects.betweenus.R;
 
 /**
  * Created by ninjakiki on 1/12/16.
+ * http://stackoverflow.com/questions/32070186/how-to-use-the-v7-v14-preference-support-library
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
 

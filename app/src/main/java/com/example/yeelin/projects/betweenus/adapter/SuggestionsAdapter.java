@@ -22,6 +22,7 @@ import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
@@ -49,6 +50,7 @@ public class SuggestionsAdapter
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+    private boolean useMetric;
 
     //listener
     private OnItemToggleListener listener;
@@ -78,10 +80,17 @@ public class SuggestionsAdapter
      * Constructor
      * @param context
      * @param businessList
+     * @param selectedIdsMap
+     * @param userLatLng
+     * @param friendLatLng
+     * @param midLatLng
+     * @param useMetric
+     * @param listener
      */
     public SuggestionsAdapter(Context context, @Nullable List<LocalBusiness> businessList,
                               ArrayMap<String,Integer> selectedIdsMap,
                               LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                              boolean useMetric,
                               OnItemToggleListener listener) {
         super(context, 0, businessList);
 
@@ -89,6 +98,7 @@ public class SuggestionsAdapter
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+        this.useMetric = useMetric;
 
         this.listener = listener;
 
@@ -219,10 +229,10 @@ public class SuggestionsAdapter
         //compute fairness and distance from center
         final LatLng businessLatLng = business.getLocalBusinessLocation().getLatLng();
         final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, businessLatLng);
-        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(businessLatLng, midLatLng, FairnessScoringUtils.IMPERIAL);
+        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(businessLatLng, midLatLng, useMetric);
 
         //set distance from center
-        viewHolder.distanceFromMidPoint.setText(FairnessScoringUtils.formatDistanceDelta(getContext(), distanceDelta, FairnessScoringUtils.IMPERIAL, false));
+        viewHolder.distanceFromMidPoint.setText(FairnessScoringUtils.formatDistanceDelta(getContext(), distanceDelta, useMetric, false));
 
         //set fairness score
         viewHolder.fairnessScore.setText(FairnessScoringUtils.formatFairnessScore(getContext(), fairness));

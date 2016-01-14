@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <android.support.v7.preference.SwitchPreferenceCompat
-        android:key="distance_unit"
+        android:key="use_metric"
         android:title="@string/setting_use_metric"
         android:defaultValue="false"
 

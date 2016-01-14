@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 /**
@@ -118,7 +119,7 @@ public class SuggestionDetailActivity
                         .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(
                                 id, name, latLng,
                                 position, toggleState, rating, likes, normalizedLikes,
-                                userLatLng, friendLatLng, midLatLng))
+                                userLatLng, friendLatLng, midLatLng, PreferenceUtils.useMetric(this)))
                         .commit();
             }
         }

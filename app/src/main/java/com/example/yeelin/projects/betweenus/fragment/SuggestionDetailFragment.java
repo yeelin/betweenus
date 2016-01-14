@@ -69,6 +69,7 @@ public class SuggestionDetailFragment
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
+    private static final String ARG_USE_METRIC = SuggestionDetailFragment.class.getSimpleName() + ".useMetric";
 
     //child fragment tags
     private static String FRAGMENT_TAG_LITEMAP = SupportMapFragment.class.getSimpleName();
@@ -86,6 +87,7 @@ public class SuggestionDetailFragment
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+    private boolean useMetric;
 
     private Marker marker;
     private LocalBusiness business;
@@ -113,7 +115,7 @@ public class SuggestionDetailFragment
      */
     public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
                                                        int position, boolean toggleState, double rating, int likes, double normalizedLikes,
-                                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+                                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean useMetric) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
@@ -128,6 +130,7 @@ public class SuggestionDetailFragment
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putBoolean(ARG_USE_METRIC, useMetric);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
         fragment.setArguments(args);
@@ -194,6 +197,7 @@ public class SuggestionDetailFragment
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
             friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
             midLatLng = args.getParcelable(ARG_MID_LATLNG);
+            useMetric = args.getBoolean(ARG_USE_METRIC);
         }
 
         //init spring from Rebound Api
@@ -405,8 +409,8 @@ public class SuggestionDetailFragment
 
         //compute who is closer
         final int fairness = FairnessScoringUtils.computeFairnessScore(userLatLng, friendLatLng, latLng);
-        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(latLng, midLatLng, FairnessScoringUtils.IMPERIAL);
-        final String displayString = FairnessScoringUtils.formatDistanceDeltaAndFairness(getActivity(), distanceDelta, fairness, FairnessScoringUtils.IMPERIAL, true);
+        final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(latLng, midLatLng, useMetric);
+        final String displayString = FairnessScoringUtils.formatDistanceDeltaAndFairness(getActivity(), distanceDelta, fairness, useMetric, true);
         viewHolder.distanceFromMidPoint.setText(displayString);
 
         //address

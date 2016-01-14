@@ -27,6 +27,7 @@ import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChange
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -156,11 +157,12 @@ public class SuggestionsListFragment
 
         //setup the adapter
         SuggestionsAdapter suggestionsAdapter = new SuggestionsAdapter(
-                    viewHolder.suggestionsListView.getContext(),
-                    new ArrayList<LocalBusiness>(),
-                    null,
-                    userLatLng, friendLatLng, midLatLng,
-                    this);
+                viewHolder.suggestionsListView.getContext(),
+                new ArrayList<LocalBusiness>(),
+                null,
+                userLatLng, friendLatLng, midLatLng,
+                PreferenceUtils.useMetric(getContext()),
+                this);
         viewHolder.suggestionsListView.setAdapter(suggestionsAdapter);
     }
 
