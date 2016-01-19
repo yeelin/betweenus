@@ -14,6 +14,7 @@ import android.view.MenuItem;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsStatePagerAdapter;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
@@ -41,6 +42,7 @@ public class SuggestionsPagerActivity
     private static final String EXTRA_USER_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".userLatLng";
     private static final String EXTRA_FRIEND_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".friendLatLng";
     private static final String EXTRA_MID_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".midLatLng";
+    private static final String EXTRA_DATA_SOURCE = SuggestionsPagerActivity.class.getSimpleName() + ".dataSource";
 
     //saved instance state
     private static final String STATE_PAGER_POSITION = SuggestionsPagerActivity.class.getSimpleName() + ".pagerPosition";
@@ -54,10 +56,16 @@ public class SuggestionsPagerActivity
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+    private int preferredDataSource;
 
     /**
      * Builds the appropriate intent to start this activity
      * @param context
+     * @param position
+     * @param simplifiedBusinesses
+     * @param selectedIdsList
+     * @param selectedPositionsList
+     * @param dataSource
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
@@ -66,6 +74,7 @@ public class SuggestionsPagerActivity
     public static Intent buildIntent(Context context, int position,
                                      ArrayList<SimplifiedBusiness> simplifiedBusinesses,
                                      ArrayList<String> selectedIdsList, ArrayList<Integer> selectedPositionsList,
+                                     @LocalConstants.DataSourceId int dataSource,
                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionsPagerActivity.class);
         //put extras
@@ -74,6 +83,7 @@ public class SuggestionsPagerActivity
         intent.putExtra(EXTRA_SELECTED_IDS, selectedIdsList);
         intent.putExtra(EXTRA_SELECTED_POSITIONS, selectedPositionsList);
 
+        intent.putExtra(EXTRA_DATA_SOURCE, dataSource);
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
         intent.putExtra(EXTRA_FRIEND_LATLNG, friendLatLng);
         intent.putExtra(EXTRA_MID_LATLNG, midLatLng);
@@ -107,6 +117,7 @@ public class SuggestionsPagerActivity
         userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
         friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
         midLatLng = intent.getParcelableExtra(EXTRA_MID_LATLNG);
+        preferredDataSource = intent.getIntExtra(EXTRA_DATA_SOURCE, LocalConstants.FACEBOOK);
 
         //read saved instance state
         if (savedInstanceState != null) {
@@ -118,7 +129,7 @@ public class SuggestionsPagerActivity
         SuggestionsStatePagerAdapter pagerAdapter = new SuggestionsStatePagerAdapter(getSupportFragmentManager(),
                 simplifiedBusinesses, selectedIdsMap,
                 userLatLng, friendLatLng, midLatLng,
-                PreferenceUtils.useMetric(this));
+                preferredDataSource, PreferenceUtils.useMetric(this));
         viewPager.setAdapter(pagerAdapter);
         viewPager.addOnPageChangeListener(this);
         viewPager.setCurrentItem(viewPagerPosition);

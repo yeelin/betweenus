@@ -27,12 +27,7 @@ public class YelpApiHelper {
      * Constructor
      */
     public YelpApiHelper() {
-        this.service = new ServiceBuilder()
-                        .provider(TwoStepOAuth.class)
-                        .apiKey(YelpConstants.CONSUMER_KEY)
-                        .apiSecret(YelpConstants.CONSUMER_SECRET)
-                        .build();
-        this.accessToken = new Token(YelpConstants.TOKEN, YelpConstants.TOKEN_SECRET);
+        this(YelpConstants.CONSUMER_KEY, YelpConstants.CONSUMER_SECRET, YelpConstants.TOKEN, YelpConstants.TOKEN_SECRET);
     }
 
     /**
@@ -56,17 +51,20 @@ public class YelpApiHelper {
      * Creates and sends a request to the Search API by term and location.
      *
      * @param searchTerm String of the search term to be queried
+     * @param searchLimit
      * @param location String of the location
+     * @param latitude
+     * @param longitude
      * @return JSON Response
      */
-    public InputStream searchForBusinessesByLocation(String searchTerm,
+    public InputStream searchForBusinessesByLocation(String searchTerm, int searchLimit,
                                                      String location, double latitude, double longitude) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
         request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
         request.addQuerystringParameter(YelpConstants.LOCATION, location);
         request.addQuerystringParameter(YelpConstants.LATLNG, String.format("%f,%f", latitude, longitude));
-        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(searchLimit));
 
         return sendRequestAndGetResponse(request);
     }
@@ -75,19 +73,20 @@ public class YelpApiHelper {
      * Search API: Specify location by geographical bounding box
      * Creates and sends a request to the Search API by term and bounding box
      * @param searchTerm
+     * @param searchLimit
      * @param latitudeSW
      * @param longitudeSW
      * @param latitudeNE
      * @param longitudeNE
      * @return
      */
-    public InputStream searchForBusinessesByBoundingBox(String searchTerm,
+    public InputStream searchForBusinessesByBoundingBox(String searchTerm, int searchLimit,
                                                         double latitudeSW, double longitudeSW, double latitudeNE, double longitudeNE) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
         request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
         request.addQuerystringParameter(YelpConstants.BOUNDS, String.format("%f,%f|%f,%f", latitudeSW, longitudeSW, latitudeNE, longitudeNE));
-        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(searchLimit));
 
         return sendRequestAndGetResponse(request);
     }
@@ -96,17 +95,20 @@ public class YelpApiHelper {
      * Search API: Specify location by geographical coordinate
      * Creates and sends a request to the Search API by term and lat/long center
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param latitude
      * @param longitude
      * @return
      */
-    public InputStream searchForBusinessesByGeoCoords(String searchTerm,
+    public InputStream searchForBusinessesByGeoCoords(String searchTerm, int searchRadius, int searchLimit,
                                                       double latitude, double longitude) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
         request.addQuerystringParameter(YelpConstants.TERM, searchTerm);
         request.addQuerystringParameter(YelpConstants.LATLNG, String.format("%f,%f", latitude, longitude));
-        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(YelpConstants.SEARCH_LIMIT));
+        request.addQuerystringParameter(YelpConstants.RADIUS_FILTER, String.valueOf(searchRadius));
+        request.addQuerystringParameter(YelpConstants.LIMIT, String.valueOf(searchLimit));
 
         return sendRequestAndGetResponse(request);
     }

@@ -29,12 +29,15 @@ public class YelpLoaderHelper {
      *
      * @param context
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
      */
     @Nullable
-    public static YelpResult fetchFromNetwork(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
+    public static YelpResult fetchFromNetwork(Context context, String searchTerm, int searchRadius, int searchLimit,
+                                              LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Log.d(TAG, "fetchFromNetwork");
 
         //make sure we have network connection and latest SSL
@@ -44,7 +47,7 @@ public class YelpLoaderHelper {
 
         try {
             //fetch data from Yelp
-            YelpResult yelpResult = fetchFromYelp(context, searchTerm, userLatLng, friendLatLng, midLatLng);
+            YelpResult yelpResult = fetchFromYelp(context, searchTerm, searchRadius, searchLimit, userLatLng, friendLatLng, midLatLng);
             CacheUtils.logCache();
             return yelpResult;
         }
@@ -62,12 +65,16 @@ public class YelpLoaderHelper {
      * 3. parses the JSON response
      * 4. returns an arraylist of YelpBusiness
      *
+     * @param context
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
      */
-    private static YelpResult fetchFromYelp(Context context, String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng)
+    private static YelpResult fetchFromYelp(Context context, String searchTerm, int searchRadius, int searchLimit,
+                                            LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng)
             throws IOException {
         Log.d(TAG, "fetchFromYelp");
 
@@ -75,7 +82,7 @@ public class YelpLoaderHelper {
         //open a http url connection to get data
         //build the result and return
         YelpApiHelper yelpApiHelper = new YelpApiHelper();
-        InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, midLatLng.latitude, midLatLng.longitude);
+        InputStream yelpResponseJSON = yelpApiHelper.searchForBusinessesByGeoCoords(searchTerm, searchRadius, searchLimit, midLatLng.latitude, midLatLng.longitude);
 
         //deserialize the json response
         YelpResult yelpResult = YelpJsonDeserializerHelper.deserializeYelpResponse(yelpResponseJSON);

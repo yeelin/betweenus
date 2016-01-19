@@ -23,6 +23,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
 
     //member variables
     private final String searchTerm;
+    private final int searchRadius;
+    private final int searchLimit;
     private final LatLng userLatLng;
     private final LatLng friendLatLng;
     private final LatLng midLatLng;
@@ -38,6 +40,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      * Constructor
      * @param context
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
@@ -46,9 +50,12 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      * @param dataSource
      */
     public SuggestionsAsyncTaskLoader(Context context,
-                                      String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                      String searchTerm, int searchRadius, int searchLimit,
+                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                       int imageHeightPx, int imageWidthPx, int dataSource) {
-        this(context, searchTerm, userLatLng, friendLatLng, midLatLng, imageHeightPx, imageWidthPx, null, 0, dataSource);
+        this(context, searchTerm, searchRadius, searchLimit,
+                userLatLng, friendLatLng, midLatLng, imageHeightPx, imageWidthPx,
+                null, 0, dataSource);
     }
 
     /**
@@ -59,13 +66,17 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      * @param dataSource
      */
     public SuggestionsAsyncTaskLoader(Context context, String url, int pagingDirection, int dataSource) {
-        this(context, null, null, null, null, 0, 0, url, pagingDirection, dataSource);
+        this(context, null, 0, 0,
+                null, null, null, 0, 0,
+                url, pagingDirection, dataSource);
     }
 
     /**
      * Private constructor
      * @param context
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
@@ -76,17 +87,24 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      * @param dataSource
      */
     private SuggestionsAsyncTaskLoader(Context context,
-                                       String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int imageHeightPx, int imageWidthPx,
+                                       String searchTerm, int searchRadius, int searchLimit,
+                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, int imageHeightPx, int imageWidthPx,
                                        String url, int pagingDirection, int dataSource) {
         super(context);
         this.searchTerm = searchTerm;
+        this.searchRadius = searchRadius;
+        this.searchLimit = searchLimit;
+
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+
         this.imageHeightPx = imageHeightPx;
         this.imageWidthPx = imageWidthPx;
+
         this.url = url;
         this.pagingDirection = pagingDirection;
+
         this.dataSource = dataSource;
     }
 
@@ -97,29 +115,34 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
      */
     @Override
     public LocalResult loadInBackground() {
-        if (dataSource == LocalConstants.YELP) {
-            Log.d(TAG, "loadInBackground: Searching Yelp with latlng:" + midLatLng);
-            return YelpLoaderHelper.fetchFromNetwork(getContext(), searchTerm, userLatLng, friendLatLng, midLatLng);
-        }
-        else if (dataSource == LocalConstants.FACEBOOK) {
-            if (url == null) {
-                //this is the initial search request
-                Log.d(TAG, "loadInBackground: searchForPlaces with latlng:" + midLatLng);
-                return FbApiHelper.searchForPlaces(getContext(), AccessToken.getCurrentAccessToken(), midLatLng, imageHeightPx, imageWidthPx);
-            }
-            else {
-                //request the next page of results
-                Log.d(TAG, "loadInBackground: searchForMorePlaces with url:" + url);
-                return FbApiHelper.searchForMorePlaces(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
-            }
-        }
-        else if (dataSource == LocalConstants.GOOGLE) {
-            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
-            return null;
-        }
-        else {
-            Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
-            return null;
+        switch (dataSource) {
+            case LocalConstants.YELP:
+                Log.d(TAG, String.format("loadInBackground: Searching Yelp: Term:%s, Radius:%d, Limit:%d", searchTerm, searchRadius, searchLimit));
+                return YelpLoaderHelper.fetchFromNetwork(getContext(),
+                        searchTerm, searchRadius, searchLimit,
+                        userLatLng, friendLatLng, midLatLng);
+
+            case LocalConstants.FACEBOOK:
+                if (url == null) {
+                    //this is the initial search request
+                    Log.d(TAG, String.format("loadInBackground: Searching Facebook: Term:%s, Radius:%d, Limit:%d", searchTerm, searchRadius, searchLimit));
+                    return FbApiHelper.searchForPlaces(getContext(), AccessToken.getCurrentAccessToken(),
+                            searchTerm, searchRadius, searchLimit,
+                            midLatLng, imageHeightPx, imageWidthPx);
+                }
+                else {
+                    //request the next page of results
+                    Log.d(TAG, "loadInBackground: searchForMorePlaces with url:" + url);
+                    return FbApiHelper.searchForMorePlaces(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
+                }
+
+            case LocalConstants.GOOGLE:
+                Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+                return null;
+
+            default:
+                Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
+                return null;
         }
     }
 

@@ -26,6 +26,7 @@ import com.example.yeelin.projects.betweenus.fragment.SuggestionsListFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -161,8 +162,10 @@ public class SuggestionsActivity
         if (fragments[DATA] == null) {
             Log.d(TAG, "onCreate: Data fragment is null so creating a new one now");
             fragments[DATA] = SuggestionsDataFragment.newInstance(searchTerm,
+                    PreferenceUtils.getPreferredSearchRadiusInMeters(this),
+                    PreferenceUtils.getPreferredSearchLimit(this),
                     getResources().getDimensionPixelSize(R.dimen.profile_image_size),
-                    FbConstants.USE_FB ? LocalConstants.FACEBOOK : LocalConstants.YELP);
+                    PreferenceUtils.getPreferredDataSource(this));
             fm.beginTransaction()
                     .add(fragments[DATA], FRAGMENT_TAG_SUGGESTION_DATA)
                     .disallowAddToBackStack()
@@ -376,6 +379,7 @@ public class SuggestionsActivity
                 SimplifiedBusiness.buildSimplifiedBusinessList(((SuggestionsDataFragment) fragments[DATA]).getAllResults()),
                 new ArrayList<>(selectedIdsMap.keySet()),
                 new ArrayList<>(selectedIdsMap.values()),
+                PreferenceUtils.getPreferredDataSource(this),
                 userLatLng, friendLatLng, midLatLng);
         startActivityForResult(pagerIntent, REQUEST_CODE_PAGER_VIEW);
     }

@@ -119,7 +119,8 @@ public class SuggestionDetailActivity
                         .add(R.id.suggestionDetail_fragmentContainer, SuggestionDetailFragment.newInstance(
                                 id, name, latLng,
                                 position, toggleState, rating, likes, normalizedLikes,
-                                userLatLng, friendLatLng, midLatLng, PreferenceUtils.useMetric(this)))
+                                userLatLng, friendLatLng, midLatLng,
+                                PreferenceUtils.getPreferredDataSource(this), PreferenceUtils.useMetric(this)))
                         .commit();
             }
         }

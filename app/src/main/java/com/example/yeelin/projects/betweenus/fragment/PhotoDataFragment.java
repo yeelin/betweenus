@@ -143,11 +143,6 @@ public class PhotoDataFragment
      * @param nextUrl url for the next page, if any
      */
     public void fetchPlacePhotos(int pageNumber, @Nullable String nextUrl) {
-        if (!FbConstants.USE_FB) {
-            Log.d(TAG, "fetchPlacePhotos: No photo paging since we are not using FB");
-            return;
-        }
-
         if (AccessToken.getCurrentAccessToken() == null) {
             Log.d(TAG, "fetchPlacePhotos: User is not logged in");
             return;

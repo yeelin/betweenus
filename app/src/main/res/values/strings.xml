@@ -183,15 +183,76 @@
     <string-array name="drawer_items">
         <item>Search</item>
         <item>Login</item>
-        <item>Preferences</item>
+        <item>Settings</item>
     </string-array>
 
     <!-- Preferences -->
+    <!-- Use metric pref -->
     <string name="setting_use_metric">Use metric units</string>
     <string name="setting_metric_on">Metric</string>
     <string name="setting_imperial_on">Imperial</string>
-    <string name="setting_metric_description">Distance is displayed in kilometers</string>
-    <string name="setting_imperial_description">Distance is displayed in miles</string>
+    <string name="setting_metric_description">Show distance in kilometers</string>
+    <string name="setting_imperial_description">Show distance in kilometers</string>
+
+    <!-- Data source pref -->
+    <string name="setting_data_source">Data source</string>
+    <string name="data_source_fb">Facebook</string>
+    <string name="data_source_yelp">Yelp</string>
+    <string-array name="setting_data_source_titles">
+        <item>@string/data_source_fb</item>
+        <item>@string/data_source_yelp</item>
+    </string-array>
+    <string-array name="setting_data_source_values">
+        <item>@string/data_source_fb</item>
+        <item>@string/data_source_yelp</item>
+    </string-array>
+    <string name="setting_default_data_source">@string/data_source_fb</string>
+
+    <!-- Search radius pref -->
+    <string name="setting_search_radius">Search radius</string>
+    <string-array name="setting_search_radius_titles">
+        <item>1 mi</item>
+        <item>2 mi</item>
+        <item>3 mi</item>
+        <item>4 mi</item>
+        <item>5 mi</item>
+        <item>10 mi</item>
+    </string-array>
+    <string-array name="setting_search_radius_values">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>10</item>
+    </string-array>
+    <string name="setting_default_search_radius">3</string>
+    <plurals name="search_radius_in_km">
+        <item quantity="one">%1$d kilometer</item>
+        <item quantity="other">%1$d kilometers</item>
+    </plurals>
+    <plurals name="search_radius_in_miles">
+        <item quantity="one">%1$d mile</item>
+        <item quantity="other">%1$d miles</item>
+    </plurals>
+
+
+    <!-- Search term pref -->
+    <string name="setting_search_term">Type of places to search</string>
+    <string name="search_type_restaurants">Restaurant</string>
+    <string name="search_type_dessert">Dessert</string>
+    <string name="search_type_coffee">Coffee</string>
+    <string-array name="setting_search_term_titles">
+        <item>@string/search_type_restaurants</item>
+        <item>@string/search_type_dessert</item>
+        <item>@string/search_type_coffee</item>
+    </string-array>
+    <string-array name="setting_search_term_values">
+        <item>@string/search_type_restaurants</item>
+        <item>@string/search_type_dessert</item>
+        <item>@string/search_type_coffee</item>
+    </string-array>
+    <string name="setting_default_search_term">@string/search_type_restaurants</string>
 
     <!-- google places api -->
     <string name="google_api_key">AIzaSyB7Afq_dlzZxlZzvVvk88ZFJ6hYcKK_5ME</string>

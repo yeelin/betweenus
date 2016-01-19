@@ -57,8 +57,6 @@ public class LocationEntryActivity
     private static final int REQUEST_CODE_FRIEND_LOCATION = 110;
 
     //constants
-    //TODO: remove hardcoded search term
-    public static final String DEFAULT_SEARCH_TERM = "restaurants";
     private static final int SEARCH = 1;
     private static final int LOGIN = 2;
     private static final int PREFERENCES = 3;
@@ -313,14 +311,14 @@ public class LocationEntryActivity
      */
     @Override
     public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId) {
-        Log.d(TAG, String.format("onSearch: User PlaceId:%s, Friend PlaceId:%s", userPlaceId, friendPlaceId));
+        Log.d(TAG, String.format("onSearch: SearchTerm:%s, User PlaceId:%s, Friend PlaceId:%s", searchTerm, userPlaceId, friendPlaceId));
 
         //log user launching search
         AppEventsLogger logger = AppEventsLogger.newLogger(this);
         logger.logEvent(EventConstants.EVENT_NAME_SEARCH);
 
         //start the suggestions activity that will host the list and map
-        startActivity(SuggestionsActivity.buildIntent(this, DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId));
+        startActivity(SuggestionsActivity.buildIntent(this, searchTerm, userPlaceId, friendPlaceId));
     }
 
     /**

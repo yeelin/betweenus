@@ -31,13 +31,18 @@ public class SuggestionsDataFragment
 
     //bundle args
     private static final String ARG_SEARCH_TERM = SuggestionsDataFragment.class.getSimpleName() + ".searchTerm";
+    private static final String ARG_SEARCH_RADIUS = SuggestionsDataFragment.class.getSimpleName() + ".searchRadius";
+    private static final String ARG_SEARCH_LIMIT = SuggestionsDataFragment.class.getSimpleName() + ".searchLimit";
     private static final String ARG_IMAGE_SIZE = SuggestionsDataFragment.class.getSimpleName() + ".imageSize";
     private static final String ARG_DATA_SOURCE = SuggestionsDataFragment.class.getSimpleName() + ".dataSource";
 
     //member variables
     private String searchTerm;
+    private int searchRadius;
+    private int searchLimit;
     private int imageSizePx;
     private int dataSource;
+
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -72,13 +77,18 @@ public class SuggestionsDataFragment
     /**
      * Creates a new instance of this fragment with the given args in the bundle
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param imageSizePx
      * @param dataSource
      * @return
      */
-    public static SuggestionsDataFragment newInstance(String searchTerm, int imageSizePx, int dataSource) {
-        Bundle args = new Bundle(3);
+    public static SuggestionsDataFragment newInstance(String searchTerm, int searchRadius, int searchLimit,
+                                                      int imageSizePx, @LocalConstants.DataSourceId int dataSource) {
+        Bundle args = new Bundle(5);
         args.putString(ARG_SEARCH_TERM, searchTerm);
+        args.putInt(ARG_SEARCH_RADIUS, searchRadius);
+        args.putInt(ARG_SEARCH_LIMIT, searchLimit);
         args.putInt(ARG_IMAGE_SIZE, imageSizePx);
         args.putInt(ARG_DATA_SOURCE, dataSource);
 
@@ -121,8 +131,10 @@ public class SuggestionsDataFragment
         Bundle args = getArguments();
         if (args != null) {
             searchTerm = args.getString(ARG_SEARCH_TERM);
+            searchRadius = args.getInt(ARG_SEARCH_RADIUS);
+            searchLimit = args.getInt(ARG_SEARCH_LIMIT);
             imageSizePx = args.getInt(ARG_IMAGE_SIZE);
-            dataSource = args.getInt(ARG_DATA_SOURCE, LocalConstants.FACEBOOK);
+            dataSource = args.getInt(ARG_DATA_SOURCE);
         }
 
         //set retain instance to true so that this doesn't get destroyed during a configuration change
@@ -207,7 +219,8 @@ public class SuggestionsDataFragment
                     Log.d(TAG, "fetchSuggestions: Calling initLoader");
                     SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL,
                             getContext(), getLoaderManager(), this,
-                            searchTerm, userLatLng, friendLatLng, midLatLng,
+                            searchTerm, searchRadius, searchLimit,
+                            userLatLng, friendLatLng, midLatLng,
                             imageSizePx, imageSizePx, dataSource);
                 }
                 else if (pageNumber >= localResultArrayList.size()) {
@@ -229,7 +242,8 @@ public class SuggestionsDataFragment
                 //initialize the loader to fetch suggestions from Yelp
                 SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL,
                         getContext(), getLoaderManager(), this,
-                        searchTerm, userLatLng, friendLatLng, midLatLng,
+                        searchTerm, searchRadius, searchLimit,
+                        userLatLng, friendLatLng, midLatLng,
                         imageSizePx, imageSizePx, dataSource);
                 break;
 

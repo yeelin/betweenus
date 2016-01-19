@@ -34,24 +34,30 @@ public class FbApiHelper {
     private static GraphRequest previousPlacesRequest;
     private static GraphRequest nextPhotosRequest;
     private static GraphRequest previousPhotosRequest;
+    private static String searchTermUsed;
 
     /**
      * Creates a fb graph api request to search for places around the given latlng.
      * The request is made synchronously so caller must make sure this method runs on a background thread.
      * @param context
      * @param accessToken
+     * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param midLatLng
      * @param imageHeightPx
      * @param imageWidthPx
      */
-    public static FbResult searchForPlaces(Context context, AccessToken accessToken, @NonNull LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
+    public static FbResult searchForPlaces(Context context, AccessToken accessToken,
+                                           String searchTerm, int searchRadius, int searchLimit,
+                                           @NonNull LatLng midLatLng, int imageHeightPx, int imageWidthPx) {
         //create the parameters for the request
         Bundle parameters = new Bundle();
-        parameters.putString(FbConstants.ParamNames.QUERY, FbConstants.ParamValues.QUERY_RESTAURANT);
+        parameters.putString(FbConstants.ParamNames.QUERY, searchTerm);
         parameters.putString(FbConstants.ParamNames.TYPE, FbConstants.ParamValues.TYPE_PLACE);
         parameters.putString(FbConstants.ParamNames.CENTER, String.format("%f,%f", midLatLng.latitude, midLatLng.longitude));
-        parameters.putString(FbConstants.ParamNames.DISTANCE, FbConstants.ParamValues.DISTANCE_THREE_MILE_RADIUS);
-        parameters.putString(FbConstants.ParamNames.LIMIT, FbConstants.ParamValues.LIMIT_20);
+        parameters.putString(FbConstants.ParamNames.DISTANCE, String.valueOf(searchRadius));
+        parameters.putString(FbConstants.ParamNames.LIMIT, String.valueOf(searchLimit));
         parameters.putString(FbConstants.ParamNames.FIELDS, FbConstants.ParamValues.buildSimpleFields(imageHeightPx, imageWidthPx));
 
         //create the graph request
@@ -69,6 +75,9 @@ public class FbApiHelper {
         //store the next/previous places requests in case we need it later
         nextPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
         previousPlacesRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.PREVIOUS);
+
+        //store the search term
+        searchTermUsed = searchTerm;
 
         //deserialize the response into a FbResult
         return processFbPlacesResponse(response);
@@ -128,7 +137,9 @@ public class FbApiHelper {
 
                 //check category field to see if it contains "restaurant" or "local"
                 String category = page.getCategory().toLowerCase();
-                if (category.contains(FbConstants.Response.CATEGORY_RESTAURANT) || category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
+                if (category.contains(searchTermUsed.toLowerCase()) ||
+                        category.contains(FbConstants.Response.CATEGORY_RESTAURANT) ||
+                        category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
                     validCategory = true;
                 }
 
@@ -137,7 +148,9 @@ public class FbApiHelper {
                     String[] categoryArray = page.getCategoryList();
                     for (int i = 0; i < categoryArray.length; i++) {
                         category = categoryArray[i].toLowerCase();
-                        if (category.contains(FbConstants.Response.CATEGORY_RESTAURANT) || category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
+                        if (category.contains(searchTermUsed.toLowerCase()) ||
+                                category.contains(FbConstants.Response.CATEGORY_RESTAURANT) ||
+                                category.contains(FbConstants.Response.CATEGORY_LOCAL)) {
                             validCategoryList = true;
                             break;
                         }
@@ -147,7 +160,7 @@ public class FbApiHelper {
                 //if both validCategory and validCategoryList are true, this result is good, so don't remove.
                 //otherwise, remove the result
                 if (!(validCategory && validCategoryList)) {
-                    Log.d(TAG, String.format("searchForPlaces: Not one category is restaurant. Name:%s, Category:%s, CategoryList:%s",
+                    Log.d(TAG, String.format("searchForPlaces: Not one category is search term, restaurant, or local. Name:%s, Category:%s, CategoryList:%s",
                             page.getName(), page.getCategory(), Arrays.toString(page.getCategoryList())));
                     iterator.remove();
                 }

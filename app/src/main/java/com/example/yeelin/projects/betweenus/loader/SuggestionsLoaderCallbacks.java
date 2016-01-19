@@ -26,6 +26,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
 
     //bundle args
     private static final String ARG_SEARCH_TERM = SuggestionsLoaderCallbacks.class.getSimpleName() + ".searchTerm";
+    private static final String ARG_SEARCH_RADIUS = SuggestionsLoaderCallbacks.class.getSimpleName() + ".searchRadius";
+    private static final String ARG_SEARCH_LIMIT = SuggestionsLoaderCallbacks.class.getSimpleName() + ".searchLimit";
     private static final String ARG_USER_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionsLoaderCallbacks.class.getSimpleName() + ".midLatLng";
@@ -53,6 +55,8 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param loaderManager
      * @param loaderListener
      * @param searchTerm
+     * @param searchRadius
+     * @param searchLimit
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
@@ -61,15 +65,21 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
      * @param dataSource
      */
     public static void initLoader(@MultiPlacesLoaderId int loaderId, Context context, LoaderManager loaderManager, SuggestionsLoaderListener loaderListener,
-                                  String searchTerm, LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                  String searchTerm, int searchRadius, int searchLimit,
+                                  LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                   int imageHeightPx, int imageWidthPx, int dataSource) {
-        Bundle args = new Bundle(7);
+        Bundle args = new Bundle(9);
         args.putString(ARG_SEARCH_TERM, searchTerm);
+        args.putInt(ARG_SEARCH_RADIUS, searchRadius);
+        args.putInt(ARG_SEARCH_LIMIT, searchLimit);
+
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+
         args.putInt(ARG_IMAGE_HEIGHT, imageHeightPx);
         args.putInt(ARG_IMAGE_WIDTH, imageWidthPx);
+
         args.putInt(ARG_DATASOURCE, dataSource);
 
         //call loaderManager's initLoader
@@ -132,8 +142,11 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
         Log.d(TAG, "onCreateLoader");
 
         //read bundle args
-        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
-        String searchTerm = args.getString(ARG_SEARCH_TERM, null);
+        int dataSource = args.getInt(ARG_DATASOURCE);
+        String searchTerm = args.getString(ARG_SEARCH_TERM);
+        int searchRadius = args.getInt(ARG_SEARCH_RADIUS);
+        int searchLimit = args.getInt(ARG_SEARCH_LIMIT);
+
         if (searchTerm != null) {
             LatLng userLatLng = args.getParcelable(ARG_USER_LATLNG);
             LatLng friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
@@ -142,7 +155,9 @@ public class SuggestionsLoaderCallbacks implements LoaderManager.LoaderCallbacks
             int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
 
             //create a new loader for the initial search request
-            return new SuggestionsAsyncTaskLoader(applicationContext, searchTerm, userLatLng, friendLatLng, midLatLng,
+            return new SuggestionsAsyncTaskLoader(applicationContext,
+                    searchTerm, searchRadius, searchLimit,
+                    userLatLng, friendLatLng, midLatLng,
                     imageHeightPx, imageWidthPx, dataSource);
         }
 

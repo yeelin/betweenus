@@ -24,7 +24,5 @@ public class YelpConstants {
     public static final String LATLNG = "ll";
     public static final String LIMIT = "limit";
     public static final String BOUNDS = "bounds";
-
-    //values
-    public static final int SEARCH_LIMIT = 20;
+    public static final String RADIUS_FILTER = "radius_filter";
 }

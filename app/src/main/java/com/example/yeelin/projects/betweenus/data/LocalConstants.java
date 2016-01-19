@@ -1,5 +1,10 @@
 package com.example.yeelin.projects.betweenus.data;
 
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Created by ninjakiki on 11/6/15.
  */
@@ -7,6 +12,9 @@ public interface LocalConstants {
     /**
      * Possible data sources
      */
+    @IntDef({YELP, FACEBOOK, GOOGLE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DataSourceId {}
     int YELP = 0;
     int FACEBOOK = 1;
     int GOOGLE = 2;

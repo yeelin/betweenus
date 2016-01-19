@@ -27,6 +27,8 @@ public class SuggestionsStatePagerAdapter
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+
+    private int preferredDataSource;
     private boolean useMetric;
 
     /**
@@ -37,18 +39,21 @@ public class SuggestionsStatePagerAdapter
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
+     * @param dataSource
      * @param useMetric
      */
     public SuggestionsStatePagerAdapter(FragmentManager fm,
                                         ArrayList<SimplifiedBusiness> businesses, ArrayMap<String, Integer> selectedIdsMap,
                                         LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
-                                        boolean useMetric) {
+                                        int dataSource, boolean useMetric) {
         super(fm);
         this.businesses = businesses;
         this.selectedIdsMap = selectedIdsMap;
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
+
+        this.preferredDataSource = dataSource;
         this.useMetric = useMetric;
     }
 
@@ -84,7 +89,7 @@ public class SuggestionsStatePagerAdapter
                 userLatLng,
                 friendLatLng,
                 midLatLng,
-                useMetric);
+                preferredDataSource, useMetric);
     }
 
     /**

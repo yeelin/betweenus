@@ -2,6 +2,43 @@
 <android.support.v7.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- data source -->
+    <android.support.v7.preference.ListPreference
+        android:key="data_source"
+        android:title="@string/setting_data_source"
+        android:defaultValue="@string/setting_default_data_source"
+
+        android:entries="@array/setting_data_source_titles"
+        android:entryValues="@array/setting_data_source_values"
+
+        android:negativeButtonText="@android:string/cancel"
+        android:positiveButtonText="@android:string/ok"/>
+
+    <!-- searchable entities -->
+    <android.support.v7.preference.ListPreference
+        android:key="search_term"
+        android:title="@string/setting_search_term"
+        android:defaultValue="@string/setting_default_search_term"
+
+        android:entries="@array/setting_search_term_titles"
+        android:entryValues="@array/setting_search_term_values"
+
+        android:negativeButtonText="@android:string/cancel"
+        android:positiveButtonText="@android:string/ok"/>
+
+    <!--- Search radius -->
+    <android.support.v7.preference.ListPreference
+        android:key="search_radius"
+        android:title="@string/setting_search_radius"
+        android:defaultValue="@string/setting_default_search_radius"
+
+        android:entries="@array/setting_search_radius_titles"
+        android:entryValues="@array/setting_search_radius_values"
+
+        android:negativeButtonText="@android:string/cancel"
+        android:positiveButtonText="@android:string/ok"/>
+
+    <!-- unit preference -->
     <android.support.v7.preference.SwitchPreferenceCompat
         android:key="use_metric"
         android:title="@string/setting_use_metric"
@@ -12,4 +49,5 @@
 
         android:summaryOff="@string/setting_imperial_description"
         android:summaryOn="@string/setting_metric_description"/>
+
 </android.support.v7.preference.PreferenceScreen>

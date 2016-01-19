@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,8 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.activity.LocationEntryActivity;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
@@ -56,8 +55,8 @@ public class LocationEntryFragment
      * Listener interface. To be implemented by activity/fragment that is interested in events from this fragment
      */
     public interface LocationEntryFragmentListener {
-        public void onInputLocation(int locationType);
-        public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId);
+        void onInputLocation(int locationType);
+        void onSearch(String searchTerm, String userPlaceId, String friendPlaceId);
     }
 
     /**
@@ -139,6 +138,7 @@ public class LocationEntryFragment
         Log.d(TAG, String.format("onCreate: Before: Tension:%f, Friction:%f", springConfig.tension, springConfig.friction));
         scaleSpring.setSpringConfig(new SpringConfig(70, 15));
 
+        //read saved instance state
         if (savedInstanceState != null) {
             userPlaceId = savedInstanceState.getString(STATE_USER_PLACE_ID);
             friendPlaceId = savedInstanceState.getString(STATE_FRIEND_PLACE_ID);
@@ -240,11 +240,11 @@ public class LocationEntryFragment
             case R.id.friend_location:
                 listener.onInputLocation(LocationUtils.FRIEND_LOCATION);
                 break;
-            case R.id.search_button:
-                if (userPlaceId != null && friendPlaceId != null) {
-                    listener.onSearch(LocationEntryActivity.DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId);
-                }
-                break;
+//            case R.id.search_button:
+//                if (userPlaceId != null && friendPlaceId != null) {
+//                    listener.onSearch(searchTerm, userPlaceId, friendPlaceId);
+//                }
+//                break;
         }
     }
 
@@ -339,7 +339,7 @@ public class LocationEntryFragment
         public void onSpringAtRest(Spring spring) {
             if (spring.getEndValue() == 0) {
                 if (userPlaceId != null && friendPlaceId != null) {
-                    listener.onSearch(LocationEntryActivity.DEFAULT_SEARCH_TERM, userPlaceId, friendPlaceId);
+                    listener.onSearch(PreferenceUtils.getPreferredSearchTerm(getContext()), userPlaceId, friendPlaceId);
                 }
             }
         }

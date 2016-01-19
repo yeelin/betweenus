@@ -18,7 +18,6 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
@@ -69,6 +68,7 @@ public class SuggestionDetailFragment
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
     private static final String ARG_MID_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".midLatLng";
+    private static final String ARG_DATA_SOURCE = SuggestionDetailFragment.class.getSimpleName() + ".dataSource";
     private static final String ARG_USE_METRIC = SuggestionDetailFragment.class.getSimpleName() + ".useMetric";
 
     //child fragment tags
@@ -87,6 +87,7 @@ public class SuggestionDetailFragment
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
+    private int preferredDataSource;
     private boolean useMetric;
 
     private Marker marker;
@@ -111,11 +112,14 @@ public class SuggestionDetailFragment
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
+     * @param dataSource user pref
+     * @param useMetric user pref
      * @return
      */
     public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
                                                        int position, boolean toggleState, double rating, int likes, double normalizedLikes,
-                                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng, boolean useMetric) {
+                                                       LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
+                                                       @LocalConstants.DataSourceId int dataSource, boolean useMetric) {
         Bundle args = new Bundle();
         args.putString(ARG_ID, id);
         args.putString(ARG_NAME, name);
@@ -130,6 +134,7 @@ public class SuggestionDetailFragment
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
         args.putParcelable(ARG_MID_LATLNG, midLatLng);
+        args.putInt(ARG_DATA_SOURCE, dataSource);
         args.putBoolean(ARG_USE_METRIC, useMetric);
 
         SuggestionDetailFragment fragment = new SuggestionDetailFragment();
@@ -197,6 +202,9 @@ public class SuggestionDetailFragment
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
             friendLatLng = args.getParcelable(ARG_FRIEND_LATLNG);
             midLatLng = args.getParcelable(ARG_MID_LATLNG);
+
+            //user preferences
+            preferredDataSource = args.getInt(ARG_DATA_SOURCE);
             useMetric = args.getBoolean(ARG_USE_METRIC);
         }
 
@@ -293,22 +301,32 @@ public class SuggestionDetailFragment
     private void fetchPlaceDetails() {
         int imageSizePx = getResources().getDimensionPixelSize(R.dimen.profile_image_size);
 
-        if (FbConstants.USE_FB) {
-            //check if user is currently logged into fb
-            if (AccessToken.getCurrentAccessToken() != null) {
-                Log.d(TAG, "onActivityCreated: User is logged in");
-                //initialize the loader to fetch details for this particular id from fb
+        switch (preferredDataSource) {
+            case LocalConstants.FACEBOOK:
+                //check if user is currently logged into fb
+                if (AccessToken.getCurrentAccessToken() != null) {
+                    Log.d(TAG, "fetchPlaceDetails: User is logged in");
+                    //initialize the loader to fetch details for this particular id from fb
+                    SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
+                            id, imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
+                }
+                else {
+                    Log.d(TAG, "fetchPlaceDetails: User is not logged in");
+                }
+                break;
+
+            case LocalConstants.YELP:
+                //initialize the loader to fetch details for this particular id from Yelp
                 SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
-                        id, imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
-            }
-            else {
-                Log.d(TAG, "onActivityCreated: User is not logged in");
-            }
-        }
-        else {
-            //initialize the loader to fetch details for this particular id from Yelp
-            SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
-                    id, imageSizePx, imageSizePx, LocalConstants.YELP);
+                        id, imageSizePx, imageSizePx, LocalConstants.YELP);
+                break;
+
+            case LocalConstants.GOOGLE:
+                Log.d(TAG, "fetchPlaceDetails: Google has not been implemented as a data source");
+                break;
+
+            default:
+                break;
         }
     }
 

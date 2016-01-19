@@ -6,9 +6,6 @@ import android.text.TextUtils;
  * Created by ninjakiki on 10/27/15.
  */
 public abstract class FbConstants {
-    //TODO: Remove hack
-    public static final boolean USE_FB = true;
-
     /**
      * Endpoints
      */
@@ -41,18 +38,9 @@ public abstract class FbConstants {
      * Parameter values
      */
     static class ParamValues {
-        //query
-        public static final String QUERY_RESTAURANT = "restaurant";
-
         //type
         public static final String TYPE_PLACE = "place";
         public static final String TYPE_UPLOADED = "uploaded";
-
-        //distance
-        public static final String DISTANCE_THREE_MILE_RADIUS = "4828"; //3 miles == 4848 meters
-
-        //limit
-        public static final String LIMIT_20 = "20";
 
         //fields
         private static final String ID = "id";
