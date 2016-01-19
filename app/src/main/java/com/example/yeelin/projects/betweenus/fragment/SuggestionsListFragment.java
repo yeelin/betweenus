@@ -435,6 +435,21 @@ public class SuggestionsListFragment
     }
 
     /**
+     * Scrolls the listview to the specified position
+     * @param position
+     * @param smoothScroll
+     */
+    public void scrollToPosition(int position, boolean smoothScroll) {
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) return;
+
+        if (smoothScroll)
+            viewHolder.suggestionsListView.smoothScrollToPosition(position);
+        else
+            viewHolder.suggestionsListView.setSelection(position); //direct scroll
+    }
+
+    /**
      * Return the view holder for the fragment's view if one exists.
      * @return
      */

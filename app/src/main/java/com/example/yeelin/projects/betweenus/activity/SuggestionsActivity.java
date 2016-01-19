@@ -488,6 +488,7 @@ public class SuggestionsActivity
             }
 
             //read the intent extras
+            final int lastPagerPosition = data.getIntExtra(SuggestionsPagerActivity.EXTRA_PAGER_POSITION, 0);
             final ArrayList<String> selectedIdsList = data.getStringArrayListExtra(SuggestionsPagerActivity.EXTRA_SELECTED_IDS);
             final ArrayList<Integer> selectedPositionsList = data.getIntegerArrayListExtra(SuggestionsPagerActivity.EXTRA_SELECTED_POSITIONS);
             final ArrayMap<String, Integer> newSelectedIdsMap = new ArrayMap<>(selectedIdsList.size());
@@ -514,6 +515,9 @@ public class SuggestionsActivity
                     onSuggestionToggle(id, newSelectedIdsMap.get(id), true);
                 }
             }
+
+            //scroll the listview to the last pager position
+            ((SuggestionsListFragment)fragments[LIST]).scrollToPosition(lastPagerPosition, false); //false = direct scroll
         }
         else {
             super.onActivityResult(requestCode, resultCode, data);

@@ -35,7 +35,7 @@ public class SuggestionsPagerActivity
     private static final String TAG = SuggestionsPagerActivity.class.getCanonicalName();
 
     //intent extras
-    private static final String EXTRA_PAGER_POSITION = SuggestionsPagerActivity.class.getSimpleName() + ".pagerPosition";
+    public static final String EXTRA_PAGER_POSITION = SuggestionsPagerActivity.class.getSimpleName() + ".pagerPosition";
     private static final String EXTRA_PAGER_LIST = SuggestionsPagerActivity.class.getSimpleName() + ".pagerList";
     public static final String EXTRA_SELECTED_IDS = SuggestionsPagerActivity.class.getSimpleName() + ".selectedIds";
     public static final String EXTRA_SELECTED_POSITIONS = SuggestionsPagerActivity.class.getSimpleName() + ".selectedPositions";
@@ -264,11 +264,13 @@ public class SuggestionsPagerActivity
     /**
      * Helper method that builds a result intent with the resulting state of the selection
      * so that it can be returned to the parent activity that started us.
+     * Include the last pager position so that the listview can be scrolled to that position.
      * @return
      */
     private Intent buildResultIntent() {
         //create result intent and put extras
         Intent resultIntent = new Intent();
+        resultIntent.putExtra(EXTRA_PAGER_POSITION, viewPagerPosition);
         resultIntent.putStringArrayListExtra(EXTRA_SELECTED_IDS, new ArrayList<>(selectedIdsMap.keySet()));
         resultIntent.putIntegerArrayListExtra(EXTRA_SELECTED_POSITIONS, new ArrayList<>(selectedIdsMap.values()));
         return resultIntent;
