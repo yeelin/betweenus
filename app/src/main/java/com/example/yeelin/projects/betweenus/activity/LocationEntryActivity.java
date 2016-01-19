@@ -28,6 +28,7 @@ import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.fragment.SettingsFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
+import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
@@ -517,7 +518,10 @@ public class LocationEntryActivity
 
         //set the user's name
         userName.setText(user.optString(NAME));
-        userName.setVisibility(View.VISIBLE);
+        if (userName.getVisibility() == View.INVISIBLE) {
+            Log.d(TAG, "updateUI: Fading in the username");
+            AnimationUtils.fadeInView(this, userName);
+        }
 
         //set the user's profile picture
         final Profile profile = Profile.getCurrentProfile();

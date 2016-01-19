@@ -185,6 +185,7 @@
         <item>Login</item>
         <item>Settings</item>
     </string-array>
+    <string name="drawer_user_name">User name</string>
 
     <!-- Preferences -->
     <!-- Use metric pref -->
@@ -210,13 +211,13 @@
 
     <!-- Search radius pref -->
     <string name="setting_search_radius">Search radius</string>
-    <string-array name="setting_search_radius_titles">
-        <item>1 mi</item>
-        <item>2 mi</item>
-        <item>3 mi</item>
-        <item>4 mi</item>
-        <item>5 mi</item>
-        <item>10 mi</item>
+    <string-array name="setting_search_radius_in_miles_titles">
+        <item>1 mile</item>
+        <item>2 miles</item>
+        <item>3 miles</item>
+        <item>4 miles</item>
+        <item>5 miles</item>
+        <item>10 miles</item>
     </string-array>
     <string-array name="setting_search_radius_values">
         <item>1</item>
@@ -225,6 +226,14 @@
         <item>4</item>
         <item>5</item>
         <item>10</item>
+    </string-array>
+    <string-array name="setting_search_radius_in_km_titles">
+        <item>1 km</item>
+        <item>2 km</item>
+        <item>3 km</item>
+        <item>4 km</item>
+        <item>5 km</item>
+        <item>10 km</item>
     </string-array>
     <string name="setting_default_search_radius">3</string>
     <plurals name="search_radius_in_km">

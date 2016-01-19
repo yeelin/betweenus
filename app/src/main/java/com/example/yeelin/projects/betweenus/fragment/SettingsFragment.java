@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceManager;
 
@@ -69,7 +70,9 @@ public class SettingsFragment
 
     /**
      * SharedPreferences.OnSharedPreferenceChangeListener Callback
-     * This method is called when a change happens to a preference
+     * This method is called when a change happens to a preference.  Based on the preference key that change,
+     * this method updates the summary field using the selected value.
+     * If the unit preference changes, then the list of search radius titles will be changed.
      * @param sharedPreferences
      * @param key
      */
@@ -77,14 +80,24 @@ public class SettingsFragment
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case PreferenceUtils.KEY_DATA_SOURCE:
+                //set the selected data source in the summary
                 setPreferredDataSourceInSummary();
                 break;
 
             case PreferenceUtils.KEY_SEARCH_TERM:
+                //set the selected search term in the summary
                 setPreferredSearchTermInSummary();
                 break;
 
+            case PreferenceUtils.KEY_USE_METRIC:
+                //change the units of the search radius titles to match
+                setPreferredSearchRadiusTitles();
+                //change the unit of the selected search radius in the summary
+                setPreferredSearchRadiusInSummary();
+                break;
+
             case PreferenceUtils.KEY_SEARCH_RADIUS:
+                //set the selected search radius in the summary
                 setPreferredSearchRadiusInSummary();
                 break;
         }
@@ -113,11 +126,17 @@ public class SettingsFragment
         int preferredSearchRadius = PreferenceUtils.getPreferredSearchRadius(getContext());
         boolean useMetric = PreferenceUtils.useMetric(getContext());
 
-        String searchRadiusString;
-        if (useMetric)
-            searchRadiusString = getResources().getQuantityString(R.plurals.search_radius_in_km, preferredSearchRadius, preferredSearchRadius);
-        else
-            searchRadiusString = getResources().getQuantityString(R.plurals.search_radius_in_miles, preferredSearchRadius, preferredSearchRadius);
+        String searchRadiusString = getResources().getQuantityString(useMetric ? R.plurals.search_radius_in_km : R.plurals.search_radius_in_miles,
+                preferredSearchRadius, preferredSearchRadius);
         findPreference(PreferenceUtils.KEY_SEARCH_RADIUS).setSummary(searchRadiusString);
+    }
+
+    /**
+     * Sets the human readable titles for the search radius setting using the unit preference
+     */
+    private void setPreferredSearchRadiusTitles() {
+        boolean useMetric = PreferenceUtils.useMetric(getContext());
+        ListPreference listPreference = (ListPreference) findPreference(PreferenceUtils.KEY_SEARCH_RADIUS);
+        listPreference.setEntries(useMetric ? R.array.setting_search_radius_in_km_titles : R.array.setting_search_radius_in_miles_titles);
     }
 }

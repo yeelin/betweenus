@@ -26,18 +26,6 @@
         android:negativeButtonText="@android:string/cancel"
         android:positiveButtonText="@android:string/ok"/>
 
-    <!--- Search radius -->
-    <android.support.v7.preference.ListPreference
-        android:key="search_radius"
-        android:title="@string/setting_search_radius"
-        android:defaultValue="@string/setting_default_search_radius"
-
-        android:entries="@array/setting_search_radius_titles"
-        android:entryValues="@array/setting_search_radius_values"
-
-        android:negativeButtonText="@android:string/cancel"
-        android:positiveButtonText="@android:string/ok"/>
-
     <!-- unit preference -->
     <android.support.v7.preference.SwitchPreferenceCompat
         android:key="use_metric"
@@ -49,5 +37,17 @@
 
         android:summaryOff="@string/setting_imperial_description"
         android:summaryOn="@string/setting_metric_description"/>
+
+    <!--- Search radius -->
+    <android.support.v7.preference.ListPreference
+        android:key="search_radius"
+        android:title="@string/setting_search_radius"
+        android:defaultValue="@string/setting_default_search_radius"
+
+        android:entries="@array/setting_search_radius_in_miles_titles"
+        android:entryValues="@array/setting_search_radius_values"
+
+        android:negativeButtonText="@android:string/cancel"
+        android:positiveButtonText="@android:string/ok"/>
 
 </android.support.v7.preference.PreferenceScreen>

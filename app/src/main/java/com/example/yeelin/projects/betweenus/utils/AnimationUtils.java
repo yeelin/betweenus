@@ -39,5 +39,24 @@ public final class AnimationUtils {
                     }
                 });
     }
+
+    /**
+     * Fades in a view
+     * @param context
+     * @param fadeInView
+     */
+    public static void fadeInView (final Context context, final View fadeInView) {
+        long shortDuration = context.getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+        //fadeInView should initially be transparent but visible
+        fadeInView.setAlpha(0f);
+        fadeInView.setVisibility(View.VISIBLE);
+
+        //animate fadeInView from 0f to 1f
+        ViewCompat.animate(fadeInView)
+                .alpha(1f)
+                .setDuration(shortDuration)
+                .withLayer();
+    }
 }
 

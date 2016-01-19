@@ -15,6 +15,7 @@ public class PreferenceUtils {
     private static final String TAG = PreferenceUtils.class.getCanonicalName();
 
     private static final float MILE_TO_METERS = 1609.34f;
+    private static final int KM_TO_METERS = 1000;
 
     //preference keys
     public static final String KEY_USE_METRIC = "use_metric";
@@ -93,8 +94,8 @@ public class PreferenceUtils {
 
         //check if user is already preferring metric
         if (useMetric(context)) {
-            //yes, the preference is to use metric so the search radius is already in meters
-            return searchRadiusInt;
+            //yes, the preference is to use metric, so convert search radius from km to meters
+            return searchRadiusInt * KM_TO_METERS;
         }
         //no, the preference is not metric, so convert search radius from miles to meters
         return Math.round(searchRadiusInt * MILE_TO_METERS);
