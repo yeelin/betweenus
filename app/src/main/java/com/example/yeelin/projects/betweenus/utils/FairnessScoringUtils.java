@@ -101,7 +101,7 @@ public class FairnessScoringUtils {
                                              double distanceFromMidPoint,
                                              boolean useMetric, boolean verbose) {
         //get reference to a decimal formatter
-        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(2);
+        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(1);
 
         //build the distance between place and midpoint
         if (!useMetric) //use imperial
