@@ -17,11 +17,8 @@
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/locationEntry_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            style="@style/Primary_ToolbarStyle"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
         <FrameLayout
             android:id="@+id/locationEntry_fragmentContainer"

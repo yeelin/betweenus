@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/bg_login">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,13 +32,12 @@
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
             android:textSize="16sp"
-            android:textColor="@color/colorAccent"
-            android:textStyle="bold"
-            android:text="We only share if you tell us to"/>
+            android:textColor="@color/colorPrimary"
+            android:text="We only share if you tell us to" />
 
         <View
             android:layout_width="match_parent"
-            style="@style/HorizontalRuleStyle" />
+            style="@style/White_HorizontalRuleStyle" />
 
         <android.support.v7.widget.GridLayout
             android:layout_width="match_parent"
@@ -131,7 +130,7 @@
 
         <View
             android:layout_width="match_parent"
-            style="@style/HorizontalRuleStyle" />
+            style="@style/White_HorizontalRuleStyle" />
 
         <com.facebook.login.widget.LoginButton
             android:id="@+id/fb_login_button"

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Primary color Toolbar style -->
+    <style name="Primary_ToolbarStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="android:theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
     <!-- Medium Text View Styles -->
     <style name="Medium_PrimaryTextViewStyle">
         <item name="android:layout_width">wrap_content</item>
@@ -34,13 +43,21 @@
         <item name="android:textSize">@dimen/small_textSize</item>
     </style>
 
+    <!-- Gray horizontal rule style -->
     <style name="HorizontalRuleStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:background">@color/textColorSecondary</item>
     </style>
 
-    <!-- Medium Button styles-->
+    <!-- White horizontal rule style -->
+    <style name="White_HorizontalRuleStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
+    <!-- Medium Button style -->
     <style name="Medium_AccentButtonStyle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">36dp</item>

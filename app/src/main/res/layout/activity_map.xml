@@ -10,11 +10,8 @@
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/map_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?colorPrimaryDark"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+        style="@style/Primary_ToolbarStyle"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
     <fragment
         xmlns:android="http://schemas.android.com/apk/res/android"

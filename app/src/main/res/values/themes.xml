@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="BaseAppTheme">
-    </style>
-
+    <!-- Base application theme with common elements for all OS versinos -->
     <style name="BaseAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -11,4 +9,9 @@
 <!--        <item name="android:windowBackground">@color/window_background</item>-->
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
+
+    <style name="AppTheme" parent="BaseAppTheme"/>
+
+    <style name="AppWithDrawerTheme" parent="BaseAppTheme"/>
+
 </resources>

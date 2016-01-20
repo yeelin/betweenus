@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="192dp"
-    android:background="?attr/colorPrimary"
+    android:background="@drawable/bg_nav_header"
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
@@ -19,7 +19,7 @@
         android:contentDescription="@null"
         android:minHeight="150dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/drawer_header_image"/>
+        android:src="@drawable/bg_nav_header"/>
 -->
     <com.facebook.login.widget.ProfilePictureView
         android:id="@+id/drawer_user_profile_pic"
