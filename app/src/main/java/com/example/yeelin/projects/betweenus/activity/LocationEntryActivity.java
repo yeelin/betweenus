@@ -52,7 +52,7 @@ public class LocationEntryActivity
     private static final String TAG = LocationEntryActivity.class.getCanonicalName();
 
     //save instance state
-    private static final String STATE_SELECTED_DRAWER_POSITION = LocationEntryActivity.class.getSimpleName() + ".drawerPosition";
+    private static final String STATE_SELECTED_ITEM_ID = LocationEntryActivity.class.getSimpleName() + ".selectedItemId";
 
     //request codes
     private static final int REQUEST_CODE_USER_LOCATION = 100;
@@ -75,6 +75,7 @@ public class LocationEntryActivity
 //    private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
     //private int selectedDrawerPosition = SEARCH;
+    private int selectedItemId = R.id.nav_search;
 
     //drawer header
     private ProfilePictureView userProfilePic;
@@ -137,12 +138,13 @@ public class LocationEntryActivity
                         .commit();
             }
         }
-//        else {
+        else {
             //read last drawer position from savedInstanceState
             //selectedDrawerPosition = savedInstanceState.getInt(STATE_SELECTED_DRAWER_POSITION);
-//        }
+            selectedItemId = savedInstanceState.getInt(STATE_SELECTED_ITEM_ID, selectedItemId);
+        }
 //        selectDrawerItem(selectedDrawerPosition);
-        navigationView.setCheckedItem(R.id.nav_search);
+        navigationView.setCheckedItem(selectedItemId);
     }
 
     /**
@@ -212,9 +214,17 @@ public class LocationEntryActivity
                 item.setChecked(true);
                 drawerLayout.closeDrawers();
 
-                switch (item.getItemId()) {
+                int id = item.getItemId();
+                if (id == selectedItemId) {
+                    Log.d(TAG, "onNavigationItemSelected: Same item selected, nothing to do");
+                    return true;
+                }
+
+                selectedItemId = id;
+
+                switch (id) {
                     case R.id.nav_search:
-                        Log.d(TAG, "selectDrawerItem: Opening location entry");
+                        Log.d(TAG, "onNavigationItemSelected: Opening location entry");
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
@@ -222,16 +232,18 @@ public class LocationEntryActivity
                         break;
 
                     case R.id.nav_login:
-                        Log.d(TAG, "selectDrawerItem: Starting login activity");
+                        Log.d(TAG, "onNavigationItemSelected: Starting login activity");
                         startActivity(LoginActivity.buildIntent(LocationEntryActivity.this));
                         break;
 
                     case R.id.nav_settings:
-                        Log.d(TAG, "selectDrawerItem: Opening settings");
+                        Log.d(TAG, "onNavigationItemSelected: Opening settings");
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.locationEntry_fragmentContainer, SettingsFragment.newInstance())
                                 .commit();
+                        //set the title to Settings
+                        getSupportActionBar().setTitle(item.getTitle());
                         break;
 
                     default:
@@ -339,7 +351,7 @@ public class LocationEntryActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        //outState.putInt(STATE_SELECTED_DRAWER_POSITION, selectedDrawerPosition);
+        outState.putInt(STATE_SELECTED_ITEM_ID, selectedItemId);
     }
 
     /**
