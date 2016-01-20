@@ -29,6 +29,7 @@
     <color name="colorPrimaryDark">@color/indigo_800</color>
     <color name="colorAccent">@color/turquoise_opacity_80</color>
     <color name="colorAccentLight">@color/turquoise_opacity_20</color>
+    <color name="window_background">#FFF5F5F5</color>
 
     <!-- Text palette -->
     <color name="gray_500">#9E9E9E</color>

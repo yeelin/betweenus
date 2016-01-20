@@ -15,7 +15,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:background="@color/colorPrimary"
+            android:background="@drawable/drawer_header_image"
             android:gravity="bottom"
             android:paddingLeft="16dp"
             android:paddingStart="16dp"

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
+import android.support.design.widget.NavigationView;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -44,8 +45,8 @@ import org.json.JSONObject;
 public class LocationEntryActivity
         extends BasePlayServicesActivity
         implements LocationEntryFragment.LocationEntryFragmentListener,
-        PlacesBroadcastReceiver.PlacesConnectionBroadcastListener,
-        AdapterView.OnItemClickListener {
+        PlacesBroadcastReceiver.PlacesConnectionBroadcastListener {
+//        AdapterView.OnItemClickListener {
 
     //logcat
     private static final String TAG = LocationEntryActivity.class.getCanonicalName();
@@ -58,9 +59,9 @@ public class LocationEntryActivity
     private static final int REQUEST_CODE_FRIEND_LOCATION = 110;
 
     //constants
-    private static final int SEARCH = 1;
-    private static final int LOGIN = 2;
-    private static final int PREFERENCES = 3;
+//    private static final int SEARCH = 1;
+//    private static final int LOGIN = 2;
+//    private static final int PREFERENCES = 3;
 
     //member variables
     private PlacesBroadcastReceiver placesBroadcastReceiver;
@@ -70,9 +71,10 @@ public class LocationEntryActivity
     //drawer-related
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
-    private ListView drawerList;
+    private NavigationView navigationView;
+//    private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
-    private int selectedDrawerPosition = SEARCH;
+    //private int selectedDrawerPosition = SEARCH;
 
     //drawer header
     private ProfilePictureView userProfilePic;
@@ -120,7 +122,8 @@ public class LocationEntryActivity
         //setup toolbar
         setupToolbar(R.id.locationEntry_toolbar, false);
         //setup navigation drawer
-        setupDrawer();
+//        setupDrawer();
+        setupDrawerAndNavigationView();
 
         //check if the fragment exists, otherwise, create it
         if (savedInstanceState == null) {
@@ -134,11 +137,12 @@ public class LocationEntryActivity
                         .commit();
             }
         }
-        else {
+//        else {
             //read last drawer position from savedInstanceState
-            selectedDrawerPosition = savedInstanceState.getInt(STATE_SELECTED_DRAWER_POSITION);
-        }
-        selectDrawerItem(selectedDrawerPosition);
+            //selectedDrawerPosition = savedInstanceState.getInt(STATE_SELECTED_DRAWER_POSITION);
+//        }
+//        selectDrawerItem(selectedDrawerPosition);
+        navigationView.setCheckedItem(R.id.nav_search);
     }
 
     /**
@@ -153,54 +157,140 @@ public class LocationEntryActivity
     }
 
     /**
-     * Helper method to set up the navigation drawer layout and listview
+     * Sets up the drawer layout and new navigation view
      */
-    private void setupDrawer() {
-        //set refs to toolbar and drawer layout
+    private void setupDrawerAndNavigationView() {
+        //set refs to toolbar, drawer layout and drawer view
         toolbar = (Toolbar) findViewById(R.id.locationEntry_toolbar);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         //enable action bar app icon to behave as toggle for nav drawer
         if (getSupportActionBar() != null) {
+            //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setHomeButtonEnabled(true);
         }
 
         //listen for drawer open and close events
-        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
-            public void onDrawerClosed(View view) {
-                Log.d(TAG, "onDrawerClosed");
-            }
-            public void onDrawerOpened(View view) {
-                Log.d(TAG, "onDrawerOpened");
-                fetchUserInfo();
-                updateUI();
-            }
-        };
+        //prefer using drawer toggle to setting a drawable as the home button because the latter has no animation
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close); //{
+//            public void onDrawerClosed(View view) {
+//                Log.d(TAG, "onDrawerClosed");
+//            }
+//            public void onDrawerOpened(View view) {
+//                Log.d(TAG, "onDrawerOpened");
+//                //fetch user login info from fb, on completion update userProfilePic and userName
+//                //fetchUserInfo();
+//            }
+        //};
         drawerLayout.setDrawerListener(drawerToggle);
 
-        //set up the list for the drawer
-        setupDrawerList();
+        //setup drawer content
+        if (navigationView != null) {
+            setupDrawerContent();
+        }
     }
 
     /**
-     * Helper method to set up the navigation drawer list view
+     * Sets up the drawer content using the new navigation view
      */
-    private void setupDrawerList() {
-        //set reference to drawer's listview
-        drawerList = (ListView) findViewById(R.id.drawer_listView);
+    private void setupDrawerContent() {
+        //setup profile pic and user name in header of navigation view
+        View headerView = navigationView.getHeaderView(0); //we have only 1 header
+        userProfilePic = (ProfilePictureView) headerView.findViewById(R.id.drawer_user_profile_pic);
+        userName = (TextView) headerView.findViewById(R.id.drawer_user_name);
 
-        //setup list header
-        View header = LayoutInflater.from(this).inflate(R.layout.drawer_list_header, drawerList, false);
-        userProfilePic = (ProfilePictureView) header.findViewById(R.id.drawer_user_profile_pic);
-        userName = (TextView) header.findViewById(R.id.drawer_user_name);
-        drawerList.addHeaderView(header, null, false);
+        //fetch user login info from fb, on completion update userProfilePic and userName
+        Log.d(TAG, "setupDrawerContent: Calling fetchUserInfo");
+        fetchUserInfo();
 
-        //set the adapter for the listview
-        drawerList.setAdapter(new DrawerAdapter(this));
-        //set the list view's click listener
-        drawerList.setOnItemClickListener(this);
+        //setup item selection listener on navigation view
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                item.setChecked(true);
+                drawerLayout.closeDrawers();
+
+                switch (item.getItemId()) {
+                    case R.id.nav_search:
+                        Log.d(TAG, "selectDrawerItem: Opening location entry");
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
+                                .commit();
+                        break;
+
+                    case R.id.nav_login:
+                        Log.d(TAG, "selectDrawerItem: Starting login activity");
+                        startActivity(LoginActivity.buildIntent(LocationEntryActivity.this));
+                        break;
+
+                    case R.id.nav_settings:
+                        Log.d(TAG, "selectDrawerItem: Opening settings");
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.locationEntry_fragmentContainer, SettingsFragment.newInstance())
+                                .commit();
+                        break;
+
+                    default:
+                        return true;
+                }
+                return true;
+            }
+        });
     }
+
+//    /**
+//     * Helper method to set up the navigation drawer layout and listview
+//     */
+//    private void setupDrawer() {
+//        //set refs to toolbar and drawer layout
+//        toolbar = (Toolbar) findViewById(R.id.locationEntry_toolbar);
+//        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+//
+//        //enable action bar app icon to behave as toggle for nav drawer
+//        if (getSupportActionBar() != null) {
+//            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//            getSupportActionBar().setHomeButtonEnabled(true);
+//        }
+//
+//        //listen for drawer open and close events
+//        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close) {
+//            public void onDrawerClosed(View view) {
+//                Log.d(TAG, "onDrawerClosed");
+//            }
+//            public void onDrawerOpened(View view) {
+//                Log.d(TAG, "onDrawerOpened");
+//                fetchUserInfo();
+//                updateUI();
+//            }
+//        };
+//        drawerLayout.setDrawerListener(drawerToggle);
+//
+//        //set up the list for the drawer
+//        setupDrawerList();
+//    }
+
+//    /**
+//     * Helper method to set up the navigation drawer list view
+//     */
+//    private void setupDrawerList() {
+//        //set reference to drawer's listview
+//        drawerList = (ListView) findViewById(R.id.drawer_listView);
+//
+//        //setup list header
+//        View header = LayoutInflater.from(this).inflate(R.layout.drawer_list_header, drawerList, false);
+//        userProfilePic = (ProfilePictureView) header.findViewById(R.id.drawer_user_profile_pic);
+//        userName = (TextView) header.findViewById(R.id.drawer_user_name);
+//        drawerList.addHeaderView(header, null, false);
+//
+//        //set the adapter for the listview
+//        drawerList.setAdapter(new DrawerAdapter(this));
+//        //set the list view's click listener
+//        drawerList.setOnItemClickListener(this);
+//    }
 
     /**
      * Start the PlacesService. More specifically, we want to call connect on the google api client
@@ -249,7 +339,7 @@ public class LocationEntryActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt(STATE_SELECTED_DRAWER_POSITION, selectedDrawerPosition);
+        //outState.putInt(STATE_SELECTED_DRAWER_POSITION, selectedDrawerPosition);
     }
 
     /**
@@ -263,7 +353,7 @@ public class LocationEntryActivity
     }
 
     /**
-     *
+     * Pass any config change to drawer toggle
      * @param newConfig
      */
     @Override
@@ -403,64 +493,65 @@ public class LocationEntryActivity
                 // The action bar home/up action should open or close the drawer.
                 // ActionBarDrawerToggle will take care of this.
                 return drawerToggle.onOptionsItemSelected(item);
+
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    /**
-     * AdapterView.OnItemClickListener implementation
-     * Handles clicks on items in the drawer list
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Log.d(TAG, "onItemClick: Position:" + position);
-        selectDrawerItem(position);
-    }
+//    /**
+//     * AdapterView.OnItemClickListener implementation
+//     * Handles clicks on items in the drawer list
+//     * @param parent
+//     * @param view
+//     * @param position
+//     * @param id
+//     */
+//    @Override
+//    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//        Log.d(TAG, "onItemClick: Position:" + position);
+//        selectDrawerItem(position);
+//    }
 
-    /**
-     * Helper method to handle the selection of a drawer item
-     * @param position
-     */
-    private void selectDrawerItem(int position) {
-        //update selected item and then close the drawer
-        drawerList.setItemChecked(position, true);
-        drawerLayout.closeDrawer(drawerList);
-
-        if (selectedDrawerPosition == position) {
-            Log.d(TAG, "selectDrawerItem: Same position selected, nothing to do");
-            return;
-        }
-
-        selectedDrawerPosition = position;
-
-        switch (position) {
-            case SEARCH:
-                Log.d(TAG, "selectDrawerItem: Opening location entry");
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
-                        .commit();
-                break;
-
-            case LOGIN:
-                Log.d(TAG, "selectDrawerItem: Starting login activity");
-                startActivity(LoginActivity.buildIntent(this));
-                break;
-
-            case PREFERENCES:
-                Log.d(TAG, "selectDrawerItem: Opening preferences");
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.locationEntry_fragmentContainer, SettingsFragment.newInstance())
-                        .commit();
-                break;
-        }
-    }
+//    /**
+//     * Helper method to handle the selection of a drawer item
+//     * @param position
+//     */
+//    private void selectDrawerItem(int position) {
+//        //update selected item and then close the drawer
+//        drawerList.setItemChecked(position, true);
+//        drawerLayout.closeDrawer(drawerList);
+//
+//        if (selectedDrawerPosition == position) {
+//            Log.d(TAG, "selectDrawerItem: Same position selected, nothing to do");
+//            return;
+//        }
+//
+//        selectedDrawerPosition = position;
+//
+//        switch (position) {
+//            case SEARCH:
+//                Log.d(TAG, "selectDrawerItem: Opening location entry");
+//                getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
+//                        .commit();
+//                break;
+//
+//            case LOGIN:
+//                Log.d(TAG, "selectDrawerItem: Starting login activity");
+//                startActivity(LoginActivity.buildIntent(this));
+//                break;
+//
+//            case PREFERENCES:
+//                Log.d(TAG, "selectDrawerItem: Opening preferences");
+//                getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.locationEntry_fragmentContainer, SettingsFragment.newInstance())
+//                        .commit();
+//                break;
+//        }
+//    }
 
     /**
      * Fetches the user info (profile pic and name) from Facebook
@@ -475,7 +566,7 @@ public class LocationEntryActivity
         }
 
         //yes, user is logged in
-        Log.d(TAG, "fetchUserInfo: User is logged in");
+//        Log.d(TAG, "fetchUserInfo: User is logged in");
 
         //create the graph request
         GraphRequest request = GraphRequest.newMeRequest(
@@ -484,7 +575,8 @@ public class LocationEntryActivity
                     @Override
                     public void onCompleted(JSONObject object, GraphResponse response) {
                         user = object;
-                        updateUI();
+                        Log.d(TAG, "onCompleted: Calling updateDrawerHeader");
+                        updateDrawerHeader();
                     }
                 });
 
@@ -498,28 +590,28 @@ public class LocationEntryActivity
     /**
      * Updates the UI with the profile pic and name.
      */
-    private void updateUI() {
+    private void updateDrawerHeader() {
         if (AccessToken.getCurrentAccessToken() == null || user == null) {
             //no, user is not logged in
-            Log.d(TAG, "updateUI: User is not logged in");
+            Log.d(TAG, "updateDrawerHeader: User is not logged in");
             userProfilePic.setProfileId(null);
             userName.setVisibility(View.INVISIBLE);
             return;
         }
 
         //yes, user is logged in
-        Log.d(TAG, "updateUI: User is logged in");
+//        Log.d(TAG, "updateDrawerHeader: User is logged in");
 
         //read the Graph API Json result
         String id = user.optString(ID);
         String name = user.optString(NAME);
         String picture = user.optString(PICTURE);
-        Log.d(TAG, String.format("updateUI: Id:%s, Name:%s, Pic:%s", id, name, picture));
+//        Log.d(TAG, String.format("updateDrawerHeader: Id:%s, Name:%s, Pic:%s", id, name, picture));
 
         //set the user's name
         userName.setText(user.optString(NAME));
         if (userName.getVisibility() == View.INVISIBLE) {
-            Log.d(TAG, "updateUI: Fading in the username");
+//            Log.d(TAG, "updateDrawerHeader: Fading in the username");
             AnimationUtils.fadeInView(this, userName);
         }
 
@@ -530,7 +622,7 @@ public class LocationEntryActivity
             return;
         }
 
-        Log.d(TAG, String.format("Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
+        Log.d(TAG, String.format("updateDrawerHeader: Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
                 profile.getId(), profile.getFirstName(), profile.getMiddleName(), profile.getLastName(), profile.getName(), profile.getLinkUri().toString()));
         userProfilePic.setProfileId(profile.getId());
     }

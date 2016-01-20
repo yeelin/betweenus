@@ -180,10 +180,13 @@
     <!-- Drawer strings -->
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="drawer_title_search">Search</string>
+    <string name="drawer_title_login">Login</string>
+    <string name="drawer_title_settings">Settings</string>
     <string-array name="drawer_items">
-        <item>Search</item>
-        <item>Login</item>
-        <item>Settings</item>
+        <item>@string/drawer_title_search</item>
+        <item>@string/drawer_title_login</item>
+        <item>@string/drawer_title_settings</item>
     </string-array>
     <string name="drawer_user_name">User name</string>
 
