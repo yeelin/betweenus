@@ -20,12 +20,14 @@
             style="@style/Primary_ToolbarStyle"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:layout_scrollFlags="scroll|enterAlways"/>
+
     </android.support.design.widget.AppBarLayout>
 
     <fragment
         android:id="@+id/login_fragment"
         android:name="com.example.yeelin.projects.betweenus.fragment.LoginFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
