@@ -16,15 +16,11 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
-import com.example.yeelin.projects.betweenus.adapter.DrawerAdapter;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
@@ -426,7 +422,7 @@ public class LocationEntryActivity
 
             View parent = findViewById(R.id.locationEntry_content); //parent == coordinator layout
             Snackbar.make(parent, R.string.snackbar_not_logged_in, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.snackbar_login, new View.OnClickListener() {
+                    .setAction(R.string.snackbar_action_login, new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             startActivity(LoginActivity.buildIntent(LocationEntryActivity.this));

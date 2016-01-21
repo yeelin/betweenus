@@ -1,6 +1,5 @@
 package com.example.yeelin.projects.betweenus.fragment;
 
-import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -361,7 +360,7 @@ public class LocationSearchFragment
 
         //create a snackbar to inform the user
         final Snackbar snackbar = Snackbar.make(viewHolder.rootLayout, statusMessage, Snackbar.LENGTH_LONG);
-        snackbar.setAction(getString(R.string.snackbar_retry), new View.OnClickListener() {
+        snackbar.setAction(R.string.snackbar_action_retry, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onAutocompleteFailure.onClick: Retrying autocomplete");

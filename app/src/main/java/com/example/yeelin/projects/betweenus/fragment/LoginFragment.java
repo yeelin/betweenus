@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +14,20 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.facebook.login.widget.ProfilePictureView;
+
+import org.json.JSONObject;
 
 /**
  * Created by ninjakiki on 10/13/15.
@@ -28,15 +36,27 @@ public class LoginFragment extends Fragment {
 
     //logcat
     private static final String TAG = LoginFragment.class.getCanonicalName();
+    //constants
+    private static final String NAME = "name";
+    private static final String ID = "id";
+    private static final String PICTURE = "picture";
+    private static final String FIELDS = "fields";
+    private static final String REQUEST_FIELDS = TextUtils.join(",", new String[]{ID, NAME, PICTURE});
+
     //member variables
-    private SkipLoginCallback skipLoginCallback;
+    private LoginFragmentListener listener;
+
+    //facebook-related
+    private AccessTokenTracker accessTokenTracker;
     private CallbackManager callbackManager;
+    private JSONObject user;
 
     /**
-     * Callback from this fragment for whoever who is interested when the user skips fb login
+     * Callback from this fragment for whoever who is interested in login callbacks
      */
-    public interface SkipLoginCallback {
-        void onSkipLoginClicked();
+    public interface LoginFragmentListener {
+        void onLoginError();
+        void onLoginCancel();
     }
 
     /**
@@ -49,18 +69,24 @@ public class LoginFragment extends Fragment {
 
         Object objectToCast = getParentFragment() != null ? getParentFragment() : getActivity();
         try {
-            skipLoginCallback = (SkipLoginCallback) objectToCast;
+            listener = (LoginFragmentListener) objectToCast;
         }
         catch (ClassCastException e) {
             throw new ClassCastException(objectToCast.getClass().getSimpleName() + " must implement SkipLoginCallback");
         }
-
     }
 
+    /**
+     * Configure the fragment views and callbacks
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_fb_login, container, false);
+        View view = inflater.inflate(R.layout.fragment_login_content, container, false);
 
         //create the callback manager
         callbackManager = CallbackManager.Factory.create();
@@ -85,35 +111,13 @@ public class LoginFragment extends Fragment {
             @Override
             public void onCancel() {
                 Log.d(TAG, "onCancel: Login canceled.");
-
-                //create a snackbar to inform the user
-                if (viewHolder != null) {
-                    final Snackbar snackbar = Snackbar.make(viewHolder.rootView, "Facebook login canceled.", Snackbar.LENGTH_LONG);
-                }
+                listener.onLoginCancel();
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.d(TAG, "onError: Login error. " + error.getLocalizedMessage());
-
-                //create a snackbar to inform the user
-                if (viewHolder != null) {
-                    final Snackbar snackbar = Snackbar.make(viewHolder.rootView, "Oops! Facebook login error.", Snackbar.LENGTH_LONG);
-                }
-            }
-        });
-
-        //setup the skip login button
-        viewHolder.skipLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (skipLoginCallback != null) {
-                    //log user skipping login
-                    AppEventsLogger logger = AppEventsLogger.newLogger(getContext());
-                    logger.logEvent(EventConstants.EVENT_NAME_LOGIN_SKIP);
-
-                    skipLoginCallback.onSkipLoginClicked();
-                }
+                listener.onLoginError();
             }
         });
 
@@ -121,16 +125,52 @@ public class LoginFragment extends Fragment {
     }
 
     /**
+     * Init the token tracker so that if the token ever changes, we will refetch the user info
+     * @param savedInstanceState
+     */
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+                Log.d(TAG, "onCurrentAccessTokenChanged");
+                fetchUserInfo();
+            }
+        };
+    }
+
+    /**
+     * Fetches the user info (profile pic and name) from Facebook
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        fetchUserInfo();
+    }
+
+    /**
      * Nullify the listener
      */
     @Override
     public void onDetach() {
-        skipLoginCallback = null;
+        listener = null;
         super.onDetach();
     }
 
     /**
-     * This is called when the FB login activity returns.  We are required to pass the result to callback manager.
+     * Stop token tracking
+     */
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        accessTokenTracker.stopTracking();
+    }
+
+    /**
+     * This is called when the FB login activity returns.  We are required to pass the result to callback manager
+     * which will result in either onSuccess, onCancel, or onError being called.
      * @param requestCode
      * @param resultCode
      * @param data
@@ -139,8 +179,76 @@ public class LoginFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(TAG, String.format("onActivityResult: Request code:%s, Result code:%d: ", requestCode, resultCode));
         super.onActivityResult(requestCode, resultCode, data);
-
         callbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * Fetches the user info (profile pic and name) from  Facebook
+     */
+    private void fetchUserInfo() {
+        //check if we have an access token
+        if (AccessToken.getCurrentAccessToken() == null) {
+            //no, user is not logged in
+            Log.d(TAG, "fetchUserInfo: User is not logged in");
+            return;
+        }
+
+        //yes, user is logged in
+        //Log.d(TAG, "fetchUserInfo: User is logged in");
+
+        //create the graph request
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        Log.d(TAG, "onCompleted: Calling updateUI");
+                        user = object;
+                        updateUI();
+                    }
+                });
+
+        //create the parameters for the request
+        Bundle parameters = new Bundle();
+        parameters.putString(FIELDS, REQUEST_FIELDS);
+        request.setParameters(parameters);
+        GraphRequest.executeBatchAsync(request);
+    }
+
+    /**
+     * Updates the UI with the profile pic and name.
+     */
+    private void updateUI() {
+        ViewHolder viewHolder = getViewHolder();
+        if (AccessToken.getCurrentAccessToken() == null || user == null) {
+            //no user is not logged in
+            viewHolder.userProfilePic.setProfileId(null);
+            viewHolder.userName.setText("User isn't logged in");
+            return;
+        }
+
+        //yes, user is logged in
+        //Log.d(TAG, "updateUI: User is logged in");
+
+        //read the Graph API Json result
+        String id = user.optString(ID);
+        String name = user.optString(NAME);
+        String picture = user.optString(PICTURE);
+        Log.d(TAG, String.format("updateUI: Id:%s, Name:%s, Pic:%s", id, name, picture));
+
+        //set the user's name
+        viewHolder.userName.setText(user.optString(NAME));
+
+        //set the user's profile picture
+        final Profile profile = Profile.getCurrentProfile();
+        if (profile == null) {
+            viewHolder.userProfilePic.setProfileId(null);
+            return;
+        }
+
+        Log.d(TAG, String.format("updateUI: Id:%s, First:%s, Middle:%s, Last:%s, Name:%s, Link:%s",
+                profile.getId(), profile.getFirstName(), profile.getMiddleName(), profile.getLastName(), profile.getName(), profile.getLinkUri().toString()));
+        viewHolder.userProfilePic.setProfileId(profile.getId());
     }
 
     /**
@@ -156,14 +264,14 @@ public class LoginFragment extends Fragment {
      * View holder class
      */
     private class ViewHolder {
-        final View rootView;
+        final ProfilePictureView userProfilePic;
+        final TextView userName;
         final LoginButton loginButton;
-        final TextView skipLoginButton;
 
         ViewHolder(View view) {
-            rootView = view.findViewById(R.id.root_layout);
+            userProfilePic = (ProfilePictureView) view.findViewById(R.id.fb_user_profile_pic);
+            userName = (TextView) view.findViewById(R.id.fb_user_name);
             loginButton = (LoginButton) view.findViewById(R.id.fb_login_button);
-            skipLoginButton = (TextView) view.findViewById(R.id.skip_fb_login_button);
         }
     }
 }

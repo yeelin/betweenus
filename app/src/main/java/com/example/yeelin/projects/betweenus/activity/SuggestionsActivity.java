@@ -15,8 +15,6 @@ import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
-import com.example.yeelin.projects.betweenus.data.LocalConstants;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
@@ -276,9 +274,9 @@ public class SuggestionsActivity
                     //create a snackbar to inform the user that a selection must be made before inviting friend
                     final View rootView = findViewById(R.id.root_layout);
                     if (rootView != null) {
-                        final Snackbar snackbar = Snackbar.make(rootView, getString(R.string.snackbar_no_selections), Snackbar.LENGTH_LONG);
+                        final Snackbar snackbar = Snackbar.make(rootView, R.string.snackbar_no_selections, Snackbar.LENGTH_LONG);
                         //provide an action link on the snackbar to go back to the location entry screen
-                        snackbar.setAction(getString(R.string.snackbar_ok), new View.OnClickListener() {
+                        snackbar.setAction(R.string.snackbar_action_ok, new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 snackbar.dismiss();
@@ -565,9 +563,9 @@ public class SuggestionsActivity
         //create a snackbar to inform the user
         final View rootView = findViewById(R.id.root_layout);
         if (rootView != null) {
-            final Snackbar snackbar = Snackbar.make(rootView, getString(R.string.get_place_by_id_error), Snackbar.LENGTH_LONG);
+            final Snackbar snackbar = Snackbar.make(rootView, R.string.get_place_by_id_error, Snackbar.LENGTH_LONG);
             //provide an action link on the snackbar to go back to the location entry screen
-            snackbar.setAction(getString(R.string.snackbar_go_back), new View.OnClickListener() {
+            snackbar.setAction(R.string.snackbar_action_go_back, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");

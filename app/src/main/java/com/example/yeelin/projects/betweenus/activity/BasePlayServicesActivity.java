@@ -63,7 +63,8 @@ public abstract class BasePlayServicesActivity
                     //create a snackbar and inform the user
                     final View rootView = findViewById(R.id.root_layout);
                     if (rootView != null) {
-                        Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG);
+                        Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 }
                 break;
@@ -96,7 +97,8 @@ public abstract class BasePlayServicesActivity
         //create a snackbar and inform the user
         final View rootView = findViewById(R.id.root_layout);
         if (rootView != null) {
-            Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG);
+            Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 }
