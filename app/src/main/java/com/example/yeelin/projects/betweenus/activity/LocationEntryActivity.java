@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -25,12 +26,14 @@ import android.widget.TextView;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.adapter.DrawerAdapter;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.fragment.SettingsFragment;
 import com.example.yeelin.projects.betweenus.receiver.PlacesBroadcastReceiver;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.LocationUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
@@ -415,6 +418,23 @@ public class LocationEntryActivity
     @Override
     public void onSearch(String searchTerm, String userPlaceId, String friendPlaceId) {
         Log.d(TAG, String.format("onSearch: SearchTerm:%s, User PlaceId:%s, Friend PlaceId:%s", searchTerm, userPlaceId, friendPlaceId));
+
+        //if the user wants to use FB as the data source (from settings) but hasn't logged in, prompt them to log in
+        if (PreferenceUtils.getPreferredDataSource(this) == LocalConstants.FACEBOOK &&
+                AccessToken.getCurrentAccessToken() == null) {
+            Log.d(TAG, "onSearch: Fb is preferred data source but user is not logged in");
+
+            View parent = findViewById(R.id.locationEntry_content); //parent == coordinator layout
+            Snackbar.make(parent, R.string.snackbar_not_logged_in, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.snackbar_login, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(LoginActivity.buildIntent(LocationEntryActivity.this));
+                        }
+                    })
+                    .show();
+            return;
+        }
 
         //log user launching search
         AppEventsLogger logger = AppEventsLogger.newLogger(this);

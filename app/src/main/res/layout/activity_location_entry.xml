@@ -10,21 +10,7 @@
     tools:context=".activity.LocationEntryActivity">
 
     <!-- The main content view -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/locationEntry_toolbar"
-            style="@style/Primary_ToolbarStyle"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
-        <FrameLayout
-            android:id="@+id/locationEntry_fragmentContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    </LinearLayout>
+    <include layout="@layout/include_location_entry_content"/>
 
     <!-- The navigation drawer -->
     <!--
