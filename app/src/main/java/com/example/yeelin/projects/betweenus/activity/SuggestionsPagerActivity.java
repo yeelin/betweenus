@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
@@ -169,9 +171,24 @@ public class SuggestionsPagerActivity
 
             case R.id.action_select:
                 Log.d(TAG, "onOptionsItemSelected: Invite button clicked");
-                if (selectedIdsMap.size() > 0) {
+                if (selectedIdsMap.size() == 0) {
+                    //create a snackbar to inform the user that a selection must be made before inviting friend
+                    final View rootView = findViewById(R.id.root_layout);
+                    if (rootView != null) {
+                        final Snackbar snackbar = Snackbar.make(rootView, R.string.snackbar_no_selections, Snackbar.LENGTH_LONG);
+                        snackbar.setAction(R.string.snackbar_action_ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                            }
+                        });
+                        snackbar.show();
+                    }
+                }
+                else {
                     //start invite activity
-                    startActivity(InvitationActivity.buildIntent(this, buildSelectedItemsList(), EventConstants.EVENT_PARAM_VIEW_PAGER));
+                    startActivity(InvitationActivity.buildIntent(this,
+                            buildSelectedItemsList(), EventConstants.EVENT_PARAM_VIEW_PAGER));
                 }
                 return true;
 
