@@ -73,6 +73,7 @@ public class LoginActivity
     @Override
     public void onLoginError() {
         View parent = findViewById(R.id.root_layout);
+        if (parent == null) return;
         Snackbar.make(parent, R.string.snackbar_fb_login_error, Snackbar.LENGTH_LONG)
                 .show();
     }
@@ -84,6 +85,7 @@ public class LoginActivity
     @Override
     public void onLoginCancel() {
         View parent = findViewById(R.id.root_layout);
+        if (parent == null) return;
         Snackbar.make(parent, R.string.snackbar_fb_login_canceled, Snackbar.LENGTH_LONG)
                 .show();
     }
