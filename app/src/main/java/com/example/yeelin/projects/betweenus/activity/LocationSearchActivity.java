@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.LocationSearchFragment;
@@ -26,6 +28,8 @@ public class LocationSearchActivity
     //result intent extras
     public static final String EXTRA_PLACE_ID = LocationSearchActivity.class.getSimpleName() + ".placeId";
     public static final String EXTRA_PLACE_DESC = LocationSearchActivity.class.getSimpleName() + ".placeDescription";
+
+    private LocationSearchFragment locationSearchFragment;
 
     /**
      * Builds the intent to start this activity
@@ -60,16 +64,16 @@ public class LocationSearchActivity
 
         //initialize the fragment if necessary
         if (savedInstanceState == null) {
-            LocationSearchFragment locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragmentContainer);
+            locationSearchFragment = (LocationSearchFragment) getSupportFragmentManager().findFragmentById(R.id.search_fragmentContainer);
+
             if (locationSearchFragment == null) {
+                locationSearchFragment = LocationSearchFragment.newInstance(userId);
+
                 Log.d(TAG, "onCreate: Creating a new location search fragment");
                 getSupportFragmentManager().beginTransaction()
-                        .add(R.id.search_fragmentContainer, LocationSearchFragment.newInstance(userId))
+                        .add(R.id.search_fragmentContainer, locationSearchFragment)
                         .commit();
             }
-        }
-        else {
-            Log.d(TAG, "onCreate: Saved instance state is not null");
         }
     }
 
@@ -107,6 +111,28 @@ public class LocationSearchActivity
 
         setResult(Activity.RESULT_OK, intent);
         finish();
+    }
+
+    /**
+     * This callback happens when we failed to get any autocomplete results.
+     * Show a snackbar to inform the user of the autocomplete issue.
+     * @param statusMessage
+     * @param lastQuery
+     */
+    @Override
+    public void onAutocompleteFailure(String statusMessage, final String lastQuery) {
+        View parent = findViewById(R.id.root_layout);
+        if (parent == null) return;
+
+        Snackbar.make(parent, statusMessage, Snackbar.LENGTH_LONG)
+                .setAction(R.string.snackbar_action_retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "onAutocompleteFailure.onClick: Retrying autocomplete");
+                        locationSearchFragment.onQueryTextChange(lastQuery);
+                    }
+                })
+                .show();
     }
 
     /**

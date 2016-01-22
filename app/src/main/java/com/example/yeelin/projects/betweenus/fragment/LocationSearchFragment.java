@@ -7,7 +7,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -19,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -65,7 +63,8 @@ public class LocationSearchFragment
      * Listener interface to be implemented by whoever is interested in events from this fragment.
      */
     public interface LocationSearchFragmentListener {
-        public void onLocationSelected(String placeId, String description);
+        void onLocationSelected(String placeId, String description);
+        void onAutocompleteFailure(String statusMessage, String lastQuery);
     }
 
     /**
@@ -358,15 +357,8 @@ public class LocationSearchFragment
         //set empty view text to "no locations found"
         viewHolder.searchStatus.setText(R.string.search_no_results);
 
-        //create a snackbar to inform the user
-        final Snackbar snackbar = Snackbar.make(viewHolder.rootLayout, statusMessage, Snackbar.LENGTH_LONG);
-        snackbar.setAction(R.string.snackbar_action_retry, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onAutocompleteFailure.onClick: Retrying autocomplete");
-                onQueryTextChange(lastQuery);
-            }
-        });
+        //inform the activity that autocomplete failed
+        locationSearchListener.onAutocompleteFailure(statusMessage, lastQuery);
     }
 
     /**
@@ -383,20 +375,13 @@ public class LocationSearchFragment
      * View holder class
      */
     private class ViewHolder {
-        final View rootLayout;
         final ListView searchListView;
         final TextView searchStatus;
 
-        final ImageView searchAttribution;
-
         ViewHolder(View view) {
-            rootLayout = view.findViewById(R.id.root_layout);
-
             searchListView = (ListView) view.findViewById(R.id.search_listview);
             searchStatus = (TextView) view.findViewById(R.id.search_empty);
             searchListView.setEmptyView(searchStatus);
-
-            searchAttribution = (ImageView) view.findViewById(R.id.search_attribution);
         }
     }
 }
