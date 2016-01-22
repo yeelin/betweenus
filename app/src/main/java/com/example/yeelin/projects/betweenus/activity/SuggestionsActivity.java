@@ -282,6 +282,7 @@ public class SuggestionsActivity
                                 snackbar.dismiss();
                             }
                         });
+                        snackbar.show();
                     }
                 }
                 else {
@@ -563,15 +564,15 @@ public class SuggestionsActivity
         //create a snackbar to inform the user
         final View rootView = findViewById(R.id.root_layout);
         if (rootView != null) {
-            final Snackbar snackbar = Snackbar.make(rootView, R.string.get_place_by_id_error, Snackbar.LENGTH_LONG);
-            //provide an action link on the snackbar to go back to the location entry screen
-            snackbar.setAction(R.string.snackbar_action_go_back, new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
-                    navigateUpToParentActivity(SuggestionsActivity.this);
-                }
-            });
+            Snackbar.make(rootView, R.string.get_place_by_id_error, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.snackbar_action_go_back, new View.OnClickListener() { //provide an action link on the snackbar to go back to the location entry screen
+                        @Override
+                        public void onClick(View v) {
+                            Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
+                            navigateUpToParentActivity(SuggestionsActivity.this);
+                        }
+                    })
+                    .show();
         }
     }
 }
