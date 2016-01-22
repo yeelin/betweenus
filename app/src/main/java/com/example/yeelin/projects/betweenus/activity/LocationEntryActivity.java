@@ -421,6 +421,7 @@ public class LocationEntryActivity
             Log.d(TAG, "onSearch: Fb is preferred data source but user is not logged in");
 
             View parent = findViewById(R.id.locationEntry_content); //parent == coordinator layout
+            if (parent == null) return;
             Snackbar.make(parent, R.string.snackbar_not_logged_in, Snackbar.LENGTH_INDEFINITE)
                     .setAction(R.string.snackbar_action_login, new View.OnClickListener() {
                         @Override
@@ -467,6 +468,30 @@ public class LocationEntryActivity
                     placeId,
                     description);
         }
+    }
+
+    /**
+     * BasePlayServicesActivity abstract method implementation
+     * Notify user that play services is unavailable
+     */
+    @Override
+    protected void notifyUserOnPlayServicesUnavailable() {
+        View parent = findViewById(R.id.locationEntry_content); //parent == coordinator layout
+        if (parent == null) return;
+        Snackbar.make(parent, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
+     * BasePlayServicesActivity abstract method implementation
+     * Notify user that play services error dialog was cancelled and the service is unavailable
+     */
+    @Override
+    protected void notifyUserOnPlayServicesErrorDialogCancelled() {
+        View parent = findViewById(R.id.locationEntry_content); //parent == coordinator layout
+        if (parent == null) return;
+        Snackbar.make(parent, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                .show();
     }
 
     /**

@@ -524,6 +524,30 @@ public class SuggestionsActivity
     }
 
     /**
+     * BasePlayServicesActivity abstract method implementation
+     * Notify user that play services is unavailable
+     */
+    @Override
+    protected void notifyUserOnPlayServicesUnavailable() {
+        final View rootView = findViewById(R.id.root_layout);
+        if (rootView == null) return;
+        Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
+     * BasePlayServicesActivity abstract method implementation
+     * Notify user that play services error dialog was cancelled and the service is unavailable
+     */
+    @Override
+    protected void notifyUserOnPlayServicesErrorDialogCancelled() {
+        final View rootView = findViewById(R.id.root_layout);
+        if (rootView == null) return;
+        Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    /**
      * PlacesBroadcastReceiver.PlacesBroadcastListener callback
      * We have successfully retrieved the latlng for the user and friend, so
      * call the loader to fetch data from Yelp.
@@ -563,16 +587,15 @@ public class SuggestionsActivity
 
         //create a snackbar to inform the user
         final View rootView = findViewById(R.id.root_layout);
-        if (rootView != null) {
-            Snackbar.make(rootView, R.string.get_place_by_id_error, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.snackbar_action_go_back, new View.OnClickListener() { //provide an action link on the snackbar to go back to the location entry screen
-                        @Override
-                        public void onClick(View v) {
-                            Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
-                            navigateUpToParentActivity(SuggestionsActivity.this);
-                        }
-                    })
-                    .show();
-        }
+        if (rootView == null) return;
+        Snackbar.make(rootView, R.string.get_place_by_id_error, Snackbar.LENGTH_LONG)
+                .setAction(R.string.snackbar_action_go_back, new View.OnClickListener() { //provide an action link on the snackbar to go back to the location entry screen
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "onPlacesFailure.onClick: Going back to Location Entry screen");
+                        navigateUpToParentActivity(SuggestionsActivity.this);
+                    }
+                })
+                .show();
     }
 }

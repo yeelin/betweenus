@@ -1,12 +1,9 @@
 package com.example.yeelin.projects.betweenus.activity;
 
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
-import android.view.View;
 
-import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.fragment.PlayServicesErrorDialogFragment;
 import com.example.yeelin.projects.betweenus.service.PlacesService;
 
@@ -25,6 +22,10 @@ public abstract class BasePlayServicesActivity
 
     //tag for error dialog fragment
     private static final String TAG_GOOGLE_PLAY_ERROR_DIALOG = BasePlayServicesActivity.class.getSimpleName() + ".googlePlayServicesErrorDialog";
+
+    //abstract methods
+    protected abstract void notifyUserOnPlayServicesUnavailable();
+    protected abstract void notifyUserOnPlayServicesErrorDialogCancelled();
 
     /**
      * Callback from Play Services dialogs.  Callback can originate from:
@@ -59,13 +60,7 @@ public abstract class BasePlayServicesActivity
                 else {
                     // Update failed. Do something reasonable.
                     Log.w(TAG, "onActivityResult: Google play services unavailable. Informing user via snackbar");
-
-                    //create a snackbar and inform the user
-                    final View rootView = findViewById(R.id.root_layout);
-                    if (rootView != null) {
-                        Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
-                                .show();
-                    }
+                    notifyUserOnPlayServicesUnavailable();
                 }
                 break;
 
@@ -73,6 +68,7 @@ public abstract class BasePlayServicesActivity
                 super.onActivityResult(requestCode, resultCode, data);
         }
     }
+
 
     /**
      * Helper method that shows the google play services error dialog.
@@ -93,12 +89,6 @@ public abstract class BasePlayServicesActivity
     @Override
     public void onPlayServicesErrorDialogCancelled() {
         Log.d(TAG, "onPlayServicesErrorDialogCancelled: Informing user via snackbar");
-
-        //create a snackbar and inform the user
-        final View rootView = findViewById(R.id.root_layout);
-        if (rootView != null) {
-            Snackbar.make(rootView, R.string.google_play_services_error, Snackbar.LENGTH_LONG)
-                    .show();
-        }
+        notifyUserOnPlayServicesErrorDialogCancelled();
     }
 }
