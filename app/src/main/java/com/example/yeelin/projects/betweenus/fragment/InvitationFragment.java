@@ -110,7 +110,19 @@ public class InvitationFragment
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_invitation, container, false);
+        //inflate the fragment's view
+        final View view = inflater.inflate(R.layout.fragment_invitation, container, false);
+
+        //setup the listview header
+        final ListView listView = (ListView) view.findViewById(R.id.selected_items_listView);
+        final View header = inflater.inflate(R.layout.fragment_invitation_header, listView, false);
+        listView.addHeaderView(header, null, false);
+
+        //setup view holder
+        ViewHolder viewHolder = new ViewHolder(view, header);
+        view.setTag(viewHolder);
+
+        return view;
     }
 
     /**
@@ -122,9 +134,9 @@ public class InvitationFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //set up the view holder
-        ViewHolder viewHolder = new ViewHolder(view);
-        view.setTag(viewHolder);
+        //get the view holder
+        final ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) return;
 
         //set up the listview
         Log.d(TAG, "onViewCreated: Adapter is null, so creating a new one");
@@ -164,9 +176,7 @@ public class InvitationFragment
             sendInvite();
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -264,13 +274,20 @@ public class InvitationFragment
         final ImageButton inviteSendButton;
         final Button inviteToggleButton;
 
-        ViewHolder(View view) {
-            selectedItemsListView = (ListView) view.findViewById(R.id.selected_items_listView);
-            selectedItemsListView.setEmptyView(view.findViewById(R.id.selected_items_empty));
+        /**
+         * Constructor
+         * @param fragmentView fragment view
+         * @param listViewHeader header of the listview
+         */
+        ViewHolder(View fragmentView, View listViewHeader) {
+            //set up references to the listview and empty view
+            selectedItemsListView = (ListView) fragmentView.findViewById(R.id.selected_items_listView);
+            selectedItemsListView.setEmptyView(fragmentView.findViewById(R.id.selected_items_empty));
 
-            friendContact = (EditText) view.findViewById(R.id.friend_contact);
-            inviteSendButton = (ImageButton) view.findViewById(R.id.invite_send_button);
-            inviteToggleButton = (Button) view.findViewById(R.id.invite_toggle_button);
+            //set up references to components in the listview header
+            friendContact = (EditText) listViewHeader.findViewById(R.id.friend_contact);
+            inviteSendButton = (ImageButton) listViewHeader.findViewById(R.id.invite_send_button);
+            inviteToggleButton = (Button) listViewHeader.findViewById(R.id.invite_toggle_button);
         }
     }
 }
