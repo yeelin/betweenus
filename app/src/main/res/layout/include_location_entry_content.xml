@@ -20,6 +20,8 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <!-- Frame layout here is for either location entry or settings fragment -->
+    <!-- Nested scrollview here doesn't work with settings for some reason -->
     <FrameLayout
         android:id="@+id/locationEntry_fragmentContainer"
         android:layout_width="match_parent"

@@ -139,7 +139,6 @@ public class InvitationFragment
         if (viewHolder == null) return;
 
         //set up the listview
-        Log.d(TAG, "onViewCreated: Adapter is null, so creating a new one");
         SimplifiedBusinessAdapter simplifiedBusinessAdapter = new SimplifiedBusinessAdapter(viewHolder.selectedItemsListView.getContext(), selectedItems);
         viewHolder.selectedItemsListView.setAdapter(simplifiedBusinessAdapter);
 
@@ -282,7 +281,8 @@ public class InvitationFragment
         ViewHolder(View fragmentView, View listViewHeader) {
             //set up references to the listview and empty view
             selectedItemsListView = (ListView) fragmentView.findViewById(R.id.selected_items_listView);
-            selectedItemsListView.setEmptyView(fragmentView.findViewById(R.id.selected_items_empty));
+            //empty view not needed as there are checks in place to get user to select first before inviting friend
+            //selectedItemsListView.setEmptyView(fragmentView.findViewById(R.id.selected_items_empty));
 
             //set up references to components in the listview header
             friendContact = (EditText) listViewHeader.findViewById(R.id.friend_contact);
