@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.Html;
 import android.text.Spanned;
@@ -135,70 +136,78 @@ public class InvitationActivity
 
     /**
      * Sends an intent out to invite via SMS. Log completion of invite process.
-     * @param friendPhone
+     * @param friendPhone if null, then user will fill out the phone number after being transferred to sms app
      */
     @Override
-    public void onInviteByTextMessage(String friendPhone) {
+    public void onInviteByTextMessage(@Nullable String friendPhone) {
         //create sms intent
         //ACTION_SENDTO and smsto: ensures that intent will be handled only by a text messaging app
-        String recipientUri = String.format("%s%s", URI_SMSTO, friendPhone);
-        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(recipientUri));
+//        String recipientUri = String.format("%s%s", URI_SMSTO, friendPhone);
+//        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(recipientUri));
+
+        final Intent intent = new Intent(Intent.ACTION_SENDTO);
+        //set uri
+        if (friendPhone == null)
+            intent.setData(Uri.parse(URI_SMSTO));
+        else
+            intent.setData(Uri.parse(String.format("%s%s", URI_SMSTO, friendPhone)));
 
         //put extras
         intent.putExtra(EXTRA_SMS_BODY, SmsUtils.buildBody(this, selectedItems));
 
         //check that there's an app to handle the intent, and start the Activity
-        if(intent.resolveActivity(getPackageManager()) != null) {
-            Log.d(TAG, "onInviteByTextMessage: Starting SMS activity");
-            startActivityForResult(intent, REQUEST_CODE_COMPOSE_TEXT);
-
-            //log user completed invite
-            AppEventsLogger logger = AppEventsLogger.newLogger(this);
-            Bundle parameters = new Bundle();
-            parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
-            parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_TXT);
-            parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
-
-            logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
-        }
-        else {
+        if(intent.resolveActivity(getPackageManager()) == null) {
             Log.d(TAG, "onInviteByTextMessage: There are no apps that can handle the SMS intent");
+            return;
         }
+
+        Log.d(TAG, "onInviteByTextMessage: Starting SMS activity");
+        startActivityForResult(intent, REQUEST_CODE_COMPOSE_TEXT);
+
+        //log user completed invite
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
+        parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_TXT);
+        parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
+        logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
+
     }
 
     /**
      * Sends an intent out to invite via email. Log completion of invite process.
-     * @param friendEmail
+     * @param friendEmail if null, then user will fill out the email address after being transferred to email app
      */
     @Override
-    public void onInviteByEmail(String friendEmail) {
+    public void onInviteByEmail(@Nullable String friendEmail) {
         //create email intent
         //ACTION_SENDTO and mailto: ensures that intent will be handled only by an email app
-        Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(URI_MAILTO));
+        final Intent intent = new Intent(Intent.ACTION_SENDTO, Uri.parse(URI_MAILTO));
 
         //put extras
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[] {friendEmail}); //recipient's email must be in an array
+        if (friendEmail != null)
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[] {friendEmail}); //recipient's email must be in an array
         intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.email_subject));
 
         Spanned spannedHtml = Html.fromHtml(EmailUtils.buildBody(this, selectedItems));
         intent.putExtra(Intent.EXTRA_TEXT, spannedHtml);
 
         //check that there's an app to handle the intent, and start the Activity
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            Log.d(TAG, "onInviteByEmail: Starting Email activity");
-            startActivityForResult(intent, REQUEST_CODE_COMPOSE_EMAIL);
-
-            //log user completed invite
-            AppEventsLogger logger = AppEventsLogger.newLogger(this);
-            Bundle parameters = new Bundle();
-            parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
-            parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_EMAIL);
-            parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
-            logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
-        }
-        else {
+        if (intent.resolveActivity(getPackageManager()) == null) {
             Log.d(TAG, "onInviteByEmail: There are no apps that can handle the email intent");
+            return;
         }
+
+        Log.d(TAG, "onInviteByEmail: Starting Email activity");
+        startActivityForResult(intent, REQUEST_CODE_COMPOSE_EMAIL);
+
+        //log user completed invite
+        AppEventsLogger logger = AppEventsLogger.newLogger(this);
+        Bundle parameters = new Bundle();
+        parameters.putString(EventConstants.EVENT_PARAM_INITIATED_VIEW, originatingView);
+        parameters.putString(EventConstants.EVENT_PARAM_DELIVERY_METHOD, EventConstants.EVENT_PARAM_DELIVER_BY_EMAIL);
+        parameters.putInt(EventConstants.EVENT_PARAM_NUM_PLACES_SELECTED, selectedItems.size());
+        logger.logEvent(EventConstants.EVENT_NAME_COMPLETED_INVITE, parameters);
     }
 
     /**

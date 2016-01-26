@@ -45,8 +45,8 @@ public class InvitationFragment
      * Listener interface for fragments or activities interested in events from this fragment
      */
     public interface InvitationFragmentListener {
-        void onInviteByTextMessage(String friendPhone);
-        void onInviteByEmail(String friendEmail);
+        void onInviteByTextMessage(@Nullable String friendPhone);
+        void onInviteByEmail(@Nullable String friendEmail);
     }
 
     /**
@@ -238,19 +238,18 @@ public class InvitationFragment
     private void sendInvite() {
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
-
-        if (viewHolder.friendContact.getText().length() <= 0) {
-            Log.d(TAG, "sendInvite: No contact provided, nothing to do");
-            return;
-        }
-
+        
         if (inviteByText) {
             Log.d(TAG, "sendInvite: Text invite: " + selectedItems);
-            listener.onInviteByTextMessage(viewHolder.friendContact.getText().toString());
+            listener.onInviteByTextMessage(viewHolder.friendContact.getText().length() <= 0 ?
+                    null :
+                    viewHolder.friendContact.getText().toString());
         }
         else {
             Log.d(TAG, "sendInvite: Email invite: " + selectedItems);
-            listener.onInviteByEmail(viewHolder.friendContact.getText().toString());
+            listener.onInviteByEmail(viewHolder.friendContact.getText().length() <= 0 ?
+                    null :
+                    viewHolder.friendContact.getText().toString());
         }
     }
 
