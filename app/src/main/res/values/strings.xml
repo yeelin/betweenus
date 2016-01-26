@@ -42,6 +42,7 @@
     <string name="select_button">Select</string>
     <string name="selected_button">Selected</string>
     <string name="invite_button">Send Invite</string>
+    <string name="send_button">Send</string>
 
     <!-- List fragment strings -->
     <string name="item_distance_from_midPoint_miles">%1$s mi off</string>
@@ -147,7 +148,7 @@
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>
-    <string name="friend_phone">"Enter friend's phone to invite"</string>
+    <string name="friend_phone">"Enter friend's phone number to invite"</string>
     <string name="friend_email">"Enter friend's email to invite"</string>
     <string name="invite_by_email">Invite by email instead</string>
     <string name="invite_by_text">Invite by text instead</string>

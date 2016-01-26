@@ -9,7 +9,7 @@
     <!-- text field and send button -->
     <android.support.v7.widget.GridLayout
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="60dp"
         android:layout_marginTop="36dp"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
@@ -24,22 +24,28 @@
         app:orientation="horizontal"
         android:visibility="visible">
 
-        <EditText
-            android:id="@+id/friend_contact"
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/textIntput_layout"
             app:layout_row="0"
             app:layout_column="0"
+            app:layout_gravity="center_vertical"
+            app:layout_columnWeight=".8"
 
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="bottom"
+            android:hint="@string/friend_phone" >
 
-            app:layout_gravity="bottom"
-            app:layout_columnWeight=".8"
-
-            style="@style/EditTextStyle"
+        <EditText
+            android:id="@+id/friend_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:imeOptions="actionSend"
             android:inputType="phone"
-            android:hint="@string/friend_phone" />
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/textColorSecondary"
+            android:textSize="@dimen/small_textSize"/>
+
+        </android.support.design.widget.TextInputLayout>
 
         <ImageButton
             android:id="@+id/invite_send_button"
@@ -49,6 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="36dp"
             android:gravity="center"
+            android:contentDescription="@string/send_button"
 
             app:layout_gravity="center_vertical"
             app:layout_columnWeight=".2"

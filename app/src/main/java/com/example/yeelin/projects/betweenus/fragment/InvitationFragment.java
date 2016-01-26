@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.util.Log;
@@ -36,10 +37,15 @@ public class InvitationFragment
     //bundle args
     private static final String ARG_SELECTED_ITEMS = InvitationFragment.class.getSimpleName() + ".selectedItems";
 
+    //save instance state
+    private static final String STATE_INVITE_TOGGLE = InvitationFragment.class.getSimpleName() + ".inviteToggle";
+    private static final String STATE_INPUT_STRING = InvitationFragment.class.getSimpleName() + ".inputString";
+
     //member variables
     private ArrayList<SimplifiedBusiness> selectedItems;
     private InvitationFragmentListener listener;
     private boolean inviteByText = true;
+    private String inputString = "";
 
     /**
      * Listener interface for fragments or activities interested in events from this fragment
@@ -98,6 +104,11 @@ public class InvitationFragment
         if (args != null) {
             selectedItems = args.getParcelableArrayList(ARG_SELECTED_ITEMS);
         }
+
+        if (savedInstanceState != null) {
+            inviteByText = savedInstanceState.getBoolean(STATE_INVITE_TOGGLE, inviteByText);
+            inputString = savedInstanceState.getString(STATE_INPUT_STRING, inputString);
+        }
     }
 
     /**
@@ -150,7 +161,32 @@ public class InvitationFragment
         viewHolder.inviteToggleButton.setOnClickListener(this);
 
         //do remaining setup based on current toggle state
-        toggleViews();
+        toggleViews(false);
+    }
+
+    /**
+     * Read the user's input string so that we can save it out later
+     */
+    @Override
+    public void onPause() {
+        final ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) return;
+
+        if (viewHolder.friendContact.getText().length() > 0)
+            inputString = viewHolder.friendContact.getText().toString();
+
+        super.onPause();
+    }
+
+    /**
+     * Save out the toggle state and user's input string in case of configuration change
+     * @param outState
+     */
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_INVITE_TOGGLE, inviteByText);
+        outState.putString(STATE_INPUT_STRING, inputString);
     }
 
     /**
@@ -191,7 +227,7 @@ public class InvitationFragment
 
             case R.id.invite_toggle_button:
                 inviteByText = !inviteByText;
-                toggleViews();
+                toggleViews(true);
                 break;
 
             default:
@@ -201,35 +237,36 @@ public class InvitationFragment
 
     /**
      * Updates the views based on whether we are inviting by text or email.
+     * @param resetInput
      */
-    private void toggleViews() {
+    private void toggleViews(boolean resetInput) {
         final ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
 
         if (inviteByText) {
-            Log.d(TAG, "toggleViews: Invite by Text");
-
             //update toggle button to show alternative option
             viewHolder.inviteToggleButton.setText(R.string.invite_by_email);
             //update send button
             viewHolder.inviteSendButton.setImageResource(R.drawable.ic_action_chat);
             //update contact field
-            viewHolder.friendContact.setHint(R.string.friend_phone);
+            //viewHolder.friendContact.setHint(R.string.friend_phone);
+            viewHolder.textInputLayout.setHint(getString(R.string.friend_phone));
             viewHolder.friendContact.setInputType(InputType.TYPE_CLASS_PHONE);
-            viewHolder.friendContact.setText("");
         }
         else {
-            Log.d(TAG, "toggleViews: Invite by Email");
-
             //update toggle button to show alternative option
             viewHolder.inviteToggleButton.setText(R.string.invite_by_text);
             //update send button
             viewHolder.inviteSendButton.setImageResource(R.drawable.ic_communication_email);
             //update contact field
-            viewHolder.friendContact.setHint(R.string.friend_email);
+            //viewHolder.friendContact.setHint(R.string.friend_email);
+            viewHolder.textInputLayout.setHint(getString(R.string.friend_email));
             viewHolder.friendContact.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
-            viewHolder.friendContact.setText("");
         }
+
+        if (resetInput)
+            inputString = "";
+        viewHolder.friendContact.setText(inputString);
     }
 
     /**
@@ -268,6 +305,7 @@ public class InvitationFragment
      */
     private class ViewHolder {
         final ListView selectedItemsListView;
+        final TextInputLayout textInputLayout;
         final EditText friendContact;
         final ImageButton inviteSendButton;
         final Button inviteToggleButton;
@@ -284,6 +322,7 @@ public class InvitationFragment
             //selectedItemsListView.setEmptyView(fragmentView.findViewById(R.id.selected_items_empty));
 
             //set up references to components in the listview header
+            textInputLayout = (TextInputLayout) listViewHeader.findViewById(R.id.textIntput_layout);
             friendContact = (EditText) listViewHeader.findViewById(R.id.friend_contact);
             inviteSendButton = (ImageButton) listViewHeader.findViewById(R.id.invite_send_button);
             inviteToggleButton = (Button) listViewHeader.findViewById(R.id.invite_toggle_button);
