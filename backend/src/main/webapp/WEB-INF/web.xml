@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+    <!-- Servlet for endpoints -->
    <servlet>
         <servlet-name>SystemServiceServlet</servlet-name>
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
@@ -8,11 +9,35 @@
             <param-value>com.example.betweenus.backend.MyEndpoint</param-value>
         </init-param>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>SystemServiceServlet</servlet-name>
         <url-pattern>/_ah/spi/*</url-pattern>
     </servlet-mapping>
 
+    <!-- FetchYelpDataServlet -->
+    <servlet>
+        <servlet-name>FetchYelpDataServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.FetchYelpDataServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FetchYelpDataServlet</servlet-name>
+        <url-pattern>/fetch/yelp</url-pattern>
+    </servlet-mapping>
+
+    <!-- Use https -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>all</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
+    <!-- Welcome file -->
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
     </welcome-file-list>
