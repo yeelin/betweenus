@@ -26,6 +26,6 @@ public class FetchYelpDataServlet extends HttpServlet {
         else {
             resp.getWriter().println("Hello " + name);
         }
-
+        resp.setStatus(HttpServletResponse.SC_OK);
     }
 }

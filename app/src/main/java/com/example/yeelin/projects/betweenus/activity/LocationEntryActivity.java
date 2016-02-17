@@ -7,6 +7,7 @@ import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.util.Pair;
 import android.support.v7.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
+import com.example.yeelin.projects.betweenus.asynctask.FetchYelpDataAsyncTask;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.fragment.LocationEntryFragment;
 import com.example.yeelin.projects.betweenus.fragment.SettingsFragment;
@@ -144,6 +146,9 @@ public class LocationEntryActivity
         }
 //        selectDrawerItem(selectedDrawerPosition);
         navigationView.setCheckedItem(selectedItemId);
+
+        //TODO: Remove test code
+        new FetchYelpDataAsyncTask().execute(new Pair<Context, String>(this, "Pusheen"));
     }
 
     /**
