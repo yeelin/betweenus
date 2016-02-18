@@ -15,14 +15,24 @@
         <url-pattern>/_ah/spi/*</url-pattern>
     </servlet-mapping>
 
-    <!-- FetchYelpDataServlet -->
+    <!-- Yelp Search Servlet -->
     <servlet>
-        <servlet-name>FetchYelpDataServlet</servlet-name>
-        <servlet-class>com.example.betweenus.backend.servlet.FetchYelpDataServlet</servlet-class>
+        <servlet-name>YelpSearchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.YelpSearchServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>FetchYelpDataServlet</servlet-name>
-        <url-pattern>/fetch/yelp</url-pattern>
+        <servlet-name>YelpSearchServlet</servlet-name>
+        <url-pattern>/yelp/search</url-pattern>
+    </servlet-mapping>
+
+    <!-- Yelp Fetch Servlet (fetch by id) -->
+    <servlet>
+        <servlet-name>YelpFetchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.YelpFetchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>YelpFetchServlet</servlet-name>
+        <url-pattern>/yelp/fetch</url-pattern>
     </servlet-mapping>
 
     <!-- Use https -->
