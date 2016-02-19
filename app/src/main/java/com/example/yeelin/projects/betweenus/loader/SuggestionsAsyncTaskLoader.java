@@ -118,7 +118,7 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
         switch (dataSource) {
             case LocalConstants.YELP:
                 Log.d(TAG, String.format("loadInBackground: Searching Yelp: Term:%s, Radius:%d, Limit:%d", searchTerm, searchRadius, searchLimit));
-                return YelpLoaderHelper.fetchFromNetwork(getContext(),
+                return YelpLoaderHelper.searchForPlaces(getContext(),
                         searchTerm, searchRadius, searchLimit,
                         userLatLng, friendLatLng, midLatLng);
 

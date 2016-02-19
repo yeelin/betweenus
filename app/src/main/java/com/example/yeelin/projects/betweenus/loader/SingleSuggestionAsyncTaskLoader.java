@@ -46,7 +46,7 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
     public LocalBusiness loadInBackground() {
         if (dataSource == LocalConstants.YELP) {
             Log.d(TAG, "loadInBackground: Loading from Yelp. Id:" + id);
-            return YelpLoaderHelper.fetchFromNetwork(getContext(), id);
+            return YelpLoaderHelper.fetchPlaceDetails(getContext(), id);
         }
         else if (dataSource == LocalConstants.FACEBOOK) {
             Log.d(TAG, "loadInBackground: Loading from Facebook. Id:" + id);

@@ -148,7 +148,7 @@ public class LocationEntryActivity
         navigationView.setCheckedItem(selectedItemId);
 
         //TODO: Remove test code
-        new FetchYelpDataAsyncTask().execute(new Pair<Context, String>(this, "Pusheen"));
+        //new FetchYelpDataAsyncTask().execute(new Pair<Context, String>(this, "Pusheen"));
     }
 
     /**

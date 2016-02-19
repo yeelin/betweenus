@@ -9,12 +9,26 @@ import java.lang.annotation.RetentionPolicy;
  * Created by ninjakiki on 11/6/15.
  */
 public interface LocalConstants {
+
+    /**
+     * Servlet Constants
+     */
+    String SCHEME = "https";
+    String AUTHORITY = "betweenus-3636.appspot.com";
+    String YELP_PATH = "yelp";
+    String SEARCH_PATH = "search";
+    String FETCH_PATH = "fetch";
+
+    String REQUEST_METHOD = "GET";
+    int CONNECT_TIMEOUT_MILLIS = 15000;
+    int READ_TIMEOUT_MILLIS = 15000;
+
     /**
      * Possible data sources
      */
     @IntDef({YELP, FACEBOOK, GOOGLE})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface DataSourceId {}
+    @interface DataSourceId {}
     int YELP = 0;
     int FACEBOOK = 1;
     int GOOGLE = 2;
