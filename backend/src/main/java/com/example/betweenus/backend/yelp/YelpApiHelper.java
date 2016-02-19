@@ -1,11 +1,12 @@
 package com.example.betweenus.backend.yelp;
 
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.Response;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
-import org.scribe.oauth.OAuthService;
+import com.github.scribejava.apis.LinkedInApi;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Response;
+import com.github.scribejava.core.model.Token;
+import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuthService;
 
 import java.io.InputStream;
 
@@ -33,10 +34,11 @@ public class YelpApiHelper {
      */
     private YelpApiHelper(String consumerKey, String consumerSecret, String token, String tokenSecret) {
         service = new ServiceBuilder()
-                .provider(TwoStepOAuth.class)
+                //.provider(TwoStepOAuth.class)
                 .apiKey(consumerKey)
                 .apiSecret(consumerSecret)
-                .build();
+                .build(LinkedInApi.instance());
+                //.build();
         accessToken = new Token(token, tokenSecret);
     }
 
@@ -127,7 +129,7 @@ public class YelpApiHelper {
      * @return OAuthRequest
      */
     private OAuthRequest createOAuthRequest(String path) {
-        OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + YelpConstants.API_HOST + path);
+        OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + YelpConstants.API_HOST + path, service);
         return request;
     }
 
