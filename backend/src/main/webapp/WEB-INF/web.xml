@@ -35,6 +35,46 @@
         <url-pattern>/yelp/fetch</url-pattern>
     </servlet-mapping>
 
+    <!-- Fb Search Servlet -->
+    <servlet>
+        <servlet-name>FbSearchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.FbSearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FbSearchServlet</servlet-name>
+        <url-pattern>/fb/search</url-pattern>
+    </servlet-mapping>
+
+    <!-- Fb Fetch Servlet (fetch by id) -->
+    <servlet>
+        <servlet-name>FbFetchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.FbFetchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FbFetchServlet</servlet-name>
+        <url-pattern>/fb/fetch</url-pattern>
+    </servlet-mapping>
+
+    <!-- GoogleMaps Directions Servlet -->
+    <servlet>
+        <servlet-name>GoogleMapsDirectionsServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GoogleMapsDirectionsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GoogleMapsDirectionsServlet</servlet-name>
+        <url-pattern>/google/directions</url-pattern>
+    </servlet-mapping>
+
+    <!-- GoogleMaps DistanceMatrix Servlet -->
+    <servlet>
+        <servlet-name>GoogleMapsDistanceMatrixServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GoogleMapsDistanceMatrixServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GoogleMapsDistanceMatrixServlet</servlet-name>
+        <url-pattern>/google/matrix</url-pattern>
+    </servlet-mapping>
+
     <!-- Use https -->
     <security-constraint>
         <web-resource-collection>
