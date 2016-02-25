@@ -15,11 +15,17 @@ public interface LocalConstants {
      */
     String SCHEME = "https";
     String AUTHORITY = "betweenus-3636.appspot.com";
+
+    //data provider path
     String YELP_PATH = "yelp";
+    String GOOGLE_PATH = "google";
+
+    //data type path
     String SEARCH_PATH = "search";
     String FETCH_PATH = "fetch";
+    String DIRECTIONS_PATH = "directions";
 
-    String REQUEST_METHOD = "GET";
+    String REQUEST_METHOD_GET = "GET";
     int CONNECT_TIMEOUT_MILLIS = 15000;
     int READ_TIMEOUT_MILLIS = 15000;
 

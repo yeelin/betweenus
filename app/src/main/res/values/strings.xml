@@ -129,6 +129,7 @@
     <string name="map_marker_friend_location">"Friend's location"</string>
     <string name="map_marker_you">You</string>
     <string name="map_marker_friend">Friend</string>
+    <string name="location_permission_rationale">Your location information is needed so that it can be shown on the map</string>
 
     <!-- Map cluster info window strings -->
     <string name="map_cluster_infoWindow_title">%1$d Results</string>

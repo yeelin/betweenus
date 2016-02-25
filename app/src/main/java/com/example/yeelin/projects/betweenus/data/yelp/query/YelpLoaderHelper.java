@@ -56,7 +56,7 @@ public class YelpLoaderHelper {
             Log.d(TAG, "searchForPlaces: Url:" + url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod(LocalConstants.REQUEST_METHOD);
+            urlConnection.setRequestMethod(LocalConstants.REQUEST_METHOD_GET);
             urlConnection.setConnectTimeout(LocalConstants.CONNECT_TIMEOUT_MILLIS);
             urlConnection.setReadTimeout(LocalConstants.READ_TIMEOUT_MILLIS);
             urlConnection.connect();
@@ -114,7 +114,7 @@ public class YelpLoaderHelper {
             Log.d(TAG, "fetchPlaceDetails: Url:" + url.toString());
 
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod(LocalConstants.REQUEST_METHOD);
+            urlConnection.setRequestMethod(LocalConstants.REQUEST_METHOD_GET);
             urlConnection.setConnectTimeout(LocalConstants.CONNECT_TIMEOUT_MILLIS);
             urlConnection.setReadTimeout(LocalConstants.READ_TIMEOUT_MILLIS);
             urlConnection.connect();

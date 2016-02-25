@@ -360,9 +360,12 @@ public class SuggestionsPagerActivity
     @Override
     public void onOpenMap(int position, boolean toggleState) {
         final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
-        startActivity(MapActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getName(), simplifiedBusiness.getLatLng(), toggleState,
+        startActivity(MapActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getName(),
+                simplifiedBusiness.getLatLng(),
+                toggleState,
                 simplifiedBusiness.getRating(), simplifiedBusiness.getRatingImageUrl(), simplifiedBusiness.getReviews(),
-                simplifiedBusiness.getLikes(), simplifiedBusiness.getNormalizedLikes(), simplifiedBusiness.getCheckins()));
+                simplifiedBusiness.getLikes(), simplifiedBusiness.getNormalizedLikes(), simplifiedBusiness.getCheckins(),
+                userLatLng));
 
         //log user switch to detail map view
         AppEventsLogger logger = AppEventsLogger.newLogger(this);

@@ -15,7 +15,8 @@ import com.google.maps.android.ui.IconGenerator;
 public class MapColorUtils {
     //constants
     public static final int NUM_RATING_BUCKETS = 11;
-    private static IconGenerator iconGenerator;
+    private static IconGenerator userIconGenerator;
+    private static IconGenerator travelIconGenerator;
 
     private static BitmapDescriptor selectedMarkerBitmap;
     private static BitmapDescriptor userMarkerBitmap;
@@ -29,8 +30,8 @@ public class MapColorUtils {
      */
     public static BitmapDescriptor getUserMarkerIcon(Context context) {
         if (userMarkerBitmap == null) {
-            if (iconGenerator == null) initIconGenerator(context);
-            userMarkerBitmap = BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(context.getString(R.string.map_marker_you)));
+            if (userIconGenerator == null) initUserIconGenerator(context);
+            userMarkerBitmap = BitmapDescriptorFactory.fromBitmap(userIconGenerator.makeIcon(context.getString(R.string.map_marker_you)));
         }
         return userMarkerBitmap;
     }
@@ -42,20 +43,35 @@ public class MapColorUtils {
      */
     public static BitmapDescriptor getFriendMarkerIcon(Context context) {
         if (friendMarkerBitmap == null) {
-            if (iconGenerator == null) initIconGenerator(context);
-            friendMarkerBitmap = BitmapDescriptorFactory.fromBitmap(iconGenerator.makeIcon(context.getString(R.string.map_marker_friend)));
+            if (userIconGenerator == null) initUserIconGenerator(context);
+            friendMarkerBitmap = BitmapDescriptorFactory.fromBitmap(userIconGenerator.makeIcon(context.getString(R.string.map_marker_friend)));
         }
         return friendMarkerBitmap;
+    }
+
+    public static BitmapDescriptor getTravelTimeMarkerIcon(Context context, String travelTime) {
+        if (travelIconGenerator == null) initTravelIconGenerator(context);
+        return BitmapDescriptorFactory.fromBitmap(travelIconGenerator.makeIcon(travelTime));
     }
 
     /**
      * Helper method that inits the icon generator for user and friend markers
      * @param context
      */
-    private static void initIconGenerator(Context context) {
-        iconGenerator = new IconGenerator(context);
-        iconGenerator.setStyle(IconGenerator.STYLE_GREEN);
-        iconGenerator.setColor(ContextCompat.getColor(context, R.color.colorAccent));
+    private static void initUserIconGenerator(Context context) {
+        userIconGenerator = new IconGenerator(context);
+        userIconGenerator.setStyle(IconGenerator.STYLE_BLUE);
+        userIconGenerator.setColor(ContextCompat.getColor(context, R.color.colorAccent));
+    }
+
+    /**
+     * Helper method that inits the icon generator for travel time
+     * @param context
+     */
+    private static void initTravelIconGenerator(Context context) {
+        travelIconGenerator = new IconGenerator(context);
+        travelIconGenerator.setStyle(IconGenerator.STYLE_DEFAULT);
+        travelIconGenerator.setColor(ContextCompat.getColor(context, R.color.gray_200));
     }
 
     /**
