@@ -86,8 +86,17 @@ public class GoogleMapsDirectionsServlet extends HttpServlet {
      * @throws MalformedURLException
      */
     private URL buildDirectionsUrl(String origin, String destination) throws MalformedURLException {
-        String urlString = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&key=%s",
-                origin, destination, GoogleConstants.API_KEY);
-        return new URL(urlString);
+        StringBuilder urlStringBuilder = new StringBuilder()
+                .append(GoogleConstants.MAPS_DIRECTIONS_URL)
+                .append(String.format("%s=%s", GoogleConstants.ORIGIN, origin))
+                .append("&")
+                .append(String.format("%s=%s", GoogleConstants.DESTINATION, destination))
+                .append("&")
+                .append(String.format("%s=%s", GoogleConstants.KEY, GoogleConstants.API_KEY));
+        return new URL(urlStringBuilder.toString());
+
+//        String urlString = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&key=%s",
+//                origin, destination, GoogleConstants.API_KEY);
+//        return new URL(urlString);
     }
 }

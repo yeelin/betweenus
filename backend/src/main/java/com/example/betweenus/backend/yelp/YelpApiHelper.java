@@ -129,7 +129,7 @@ public class YelpApiHelper {
      * @return OAuthRequest
      */
     private OAuthRequest createOAuthRequest(String path) {
-        OAuthRequest request = new OAuthRequest(Verb.GET, "http://" + YelpConstants.API_HOST + path, service);
+        OAuthRequest request = new OAuthRequest(Verb.GET, YelpConstants.HTTP + YelpConstants.API_HOST + path, service);
         return request;
     }
 
