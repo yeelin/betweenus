@@ -72,7 +72,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>GoogleMapsDistanceMatrixServlet</servlet-name>
-        <url-pattern>/google/matrix</url-pattern>
+        <url-pattern>/google/distancematrix</url-pattern>
     </servlet-mapping>
 
     <!-- Use https -->

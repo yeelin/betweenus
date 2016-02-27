@@ -3,7 +3,7 @@ package com.example.betweenus.backend.yelp;
 /**
  * Created by ninjakiki on 2/17/16.
  */
-public class YelpConstants {
+public abstract class YelpConstants {
     /**
      * Update OAuth credentials below from the Yelp Developers API site:
      * http://www.yelp.com/developers/getting_started/api_access
@@ -14,6 +14,7 @@ public class YelpConstants {
     public static final String TOKEN_SECRET = "DSEdDgz399mmvb3x_BjmCdOQekM";
 
     //url components
+    public static final String HTTP = "http://";
     public static final String API_HOST = "api.yelp.com";
     public static final String SEARCH_PATH = "/v2/search";
     public static final String BUSINESS_PATH = "/v2/business";

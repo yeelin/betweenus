@@ -20,16 +20,16 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by ninjakiki on 2/19/16.
  */
-public class GoogleMapsDirectionsServlet extends HttpServlet {
-    public static final Logger log = LoggerFactory.getLogger(GoogleMapsDirectionsServlet.class);
+public class GoogleMapsDistanceMatrixServlet extends HttpServlet {
+    public static final Logger log = LoggerFactory.getLogger(GoogleMapsDistanceMatrixServlet.class);
 
     /**
      * Test query:
-     * http://localhost:8080/google/directions?origin=47.7963002,-122.2889804&destination=47.7411496,-122.4036502
-     * https://betweenus-3636.appspot.com/google/directions?origin=47.7963002,-122.2889804&destination=47.7411496,-122.4036502
+     * http://localhost:8080/google/distancematrix?origins=47.637901,-122.360631|45.520705,-122.630396&destinations=37.768264,-122.414942|49.288362,-123.136961
+     * https://betweenus-3636.appspot.com/google/distancematrix?origins=47.637901,-122.360631|45.520705,-122.630396&destinations=37.768264,-122.414942|49.288362,-123.136961
      *
      * Documentation on how to handle response:
-     * https://developers.google.com/maps/documentation/directions/intro#Routes
+     * https://developers.google.com/maps/documentation/distance-matrix/intro
      *
      * @param req
      * @param resp
@@ -39,14 +39,14 @@ public class GoogleMapsDirectionsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //get parameters from request
-        final String origin = req.getParameter(GoogleConstants.DirectionsParamNames.ORIGIN);
-        final String destination = req.getParameter(GoogleConstants.DirectionsParamNames.DESTINATION);
+        final String origins = req.getParameter(GoogleConstants.DistanceMatrixParamNames.ORIGINS);
+        final String destinations = req.getParameter(GoogleConstants.DistanceMatrixParamNames.DESTINATIONS);
 
-        //contact directions api
+        //contact distance matrix api
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
         try {
-            final URL url = buildDirectionsUrl(origin, destination);
+            final URL url = buildDirectionsUrl(origins, destinations);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(GoogleConstants.REQUEST_METHOD);
             urlConnection.setConnectTimeout(GoogleConstants.CONNECT_TIMEOUT_MILLIS);
@@ -63,16 +63,16 @@ public class GoogleMapsDirectionsServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
             else {
-                log.warn("GoogleMapsDirectionsServlet:doGet: ResponseStatus:" + responseCode);
+                log.warn("GoogleMapsDistanceMatrixServlet:doGet: ResponseStatus:" + responseCode);
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         }
         catch (MalformedURLException e) {
-            log.error("GoogleMapsDirectionsServlet:doGet: Unexpected MalformedURLException", e);
+            log.error("GoogleMapsDistanceMatrixServlet:doGet: Unexpected MalformedURLException", e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
         catch (Exception e) {
-            log.error("GoogleMapsDirectionsServlet:doGet: Unexpected Exception", e);
+            log.error("GoogleMapsDistanceMatrixServlet:doGet: Unexpected Exception", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         finally {
@@ -82,25 +82,21 @@ public class GoogleMapsDirectionsServlet extends HttpServlet {
     }
 
     /**
-     * Builds the url to call the directions api
-     * https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&key=%s
-     * @param origin
-     * @param destination
+     * Builds the url to call the distance matrix api
+     * https://maps.googleapis.com/maps/api/distancematrix/json?origins=Vancouver+BC|Seattle&destinations=San+Francisco|Victoria+BC&key=YOUR_API_KEY
+     * @param origins
+     * @param destinations
      * @return
      * @throws MalformedURLException
      */
-    private URL buildDirectionsUrl(String origin, String destination) throws MalformedURLException {
+    private URL buildDirectionsUrl(String origins, String destinations) throws MalformedURLException {
         StringBuilder urlStringBuilder = new StringBuilder()
-                .append(GoogleConstants.MAPS_DIRECTIONS_URL)
-                .append(String.format("%s=%s", GoogleConstants.DirectionsParamNames.ORIGIN, origin))
+                .append(GoogleConstants.DISTANCE_MATRIX_URL)
+                .append(String.format("%s=%s", GoogleConstants.DistanceMatrixParamNames.ORIGINS, origins))
                 .append("&")
-                .append(String.format("%s=%s", GoogleConstants.DirectionsParamNames.DESTINATION, destination))
+                .append(String.format("%s=%s", GoogleConstants.DistanceMatrixParamNames.DESTINATIONS, destinations))
                 .append("&")
                 .append(String.format("%s=%s", GoogleConstants.ParamNames.KEY, GoogleConstants.API_KEY));
         return new URL(urlStringBuilder.toString());
-
-//        String urlString = String.format("https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&key=%s",
-//                origin, destination, GoogleConstants.API_KEY);
-//        return new URL(urlString);
     }
 }
