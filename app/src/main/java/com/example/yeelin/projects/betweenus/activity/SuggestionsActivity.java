@@ -15,6 +15,7 @@ import android.view.View;
 
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionsClusterMapFragment;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
@@ -348,6 +349,29 @@ public class SuggestionsActivity
 
         if (fragments[MAP] != null) {
             ((SuggestionsClusterMapFragment) fragments[MAP]).onMultiPageLoad(localResultArrayList, selectedIdsMap, hasMoreData);
+        }
+    }
+
+    /**
+     * SuggestionsDataListener callback
+     * This method is called when travel duration and distance are loaded by SuggestionsDataFragment.
+     * @param userTravelArrayList
+     * @param friendTravelArrayList
+     */
+    @Override
+    public void onTravelElementLoad(@Nullable ArrayList<LocalTravelElement> userTravelArrayList,
+                                    @Nullable ArrayList<LocalTravelElement> friendTravelArrayList) {
+        //check if both are null, and if so, there's nothing to do.
+        if (userTravelArrayList == null && friendTravelArrayList == null) {
+            return;
+        }
+
+        //update the respective fragments with user travel
+        if (fragments[LIST] != null) {
+            ((SuggestionsListFragment) fragments[LIST]).onTravelElementLoad(userTravelArrayList, friendTravelArrayList);
+        }
+        if (fragments[MAP] != null) {
+            ((SuggestionsClusterMapFragment) fragments[MAP]).onTravelElementLoad(userTravelArrayList, friendTravelArrayList);
         }
     }
 

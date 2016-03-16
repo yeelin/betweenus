@@ -23,6 +23,7 @@ import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChangedCallback;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
@@ -82,6 +83,8 @@ public class SuggestionsClusterMapFragment
     private boolean showingPeopleLocation = false;
 
     private ArrayList<LocalResult> localResultArrayList = new ArrayList<>();
+    private ArrayList<LocalTravelElement> userTravelElementArrayList = new ArrayList<>();
+    private ArrayList<LocalTravelElement> friendTravelElementArrayList = new ArrayList<>();
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -395,6 +398,28 @@ public class SuggestionsClusterMapFragment
     }
 
     /**
+     * OnSuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching travel elements for the user and friend.  Call by SuggestionsActivity to update the view.
+     * @param userTravelElementArrayList
+     * @param friendTravelElementArrayList
+     */
+    @Override
+    public void onTravelElementLoad(ArrayList<LocalTravelElement> userTravelElementArrayList,
+                                    ArrayList<LocalTravelElement> friendTravelElementArrayList) {
+        //we know that parameters cannot both be null, but one of them could still be null
+        Log.d(TAG, "onTravelElementLoad");
+
+        //check if views are null
+        if (map == null) {
+            Log.d(TAG, "onTravelElementLoad: Map is null, so nothing to do");
+            return;
+        }
+
+        //map is not null so update the map with travel times
+        updateTravelInfo();
+    }
+
+    /**
      * Updates the map with the result
      * This is similar to what the SuggestionsAdapter does in updateItems().
      */
@@ -450,6 +475,16 @@ public class SuggestionsClusterMapFragment
 
         //add to the cluster manager in bulk
         clusterManager.addItems(idToClusterItemMap.values());
+    }
+
+    /**
+     * Updates the map with the travel duration and distance
+     * This is similar to what the SuggestionsAdapter does in updateTravelInfo().
+     */
+    private void updateTravelInfo() {
+        Log.d(TAG, "updateTravelInfo");
+        //TODO:
+
     }
 
     /**

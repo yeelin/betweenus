@@ -23,6 +23,7 @@ import com.example.yeelin.projects.betweenus.adapter.SuggestionsAdapter;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSelectionChangedCallback;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionActionListener;
 import com.example.yeelin.projects.betweenus.fragment.callback.OnSuggestionsLoadedCallback;
@@ -385,6 +386,31 @@ public class SuggestionsListFragment
         if (viewHolder.suggestionsListContainer.getVisibility() != View.VISIBLE) {
             AnimationUtils.crossFadeViews(getActivity(), viewHolder.suggestionsListContainer, viewHolder.suggestionsProgressBar);
         }
+    }
+
+    /**
+     * OnSuggestionsLoadedCallback implementation
+     * The data fragment has finished fetching travel elements for the user and friend.  Call by SuggestionsActivity to update the view.
+     * @param userTravelElementArrayList
+     * @param friendTravelElementArrayList
+     */
+    @Override
+    public void onTravelElementLoad(ArrayList<LocalTravelElement> userTravelElementArrayList,
+                                    ArrayList<LocalTravelElement> friendTravelElementArrayList) {
+        //we know that parameters cannot both be null, but one of them could still be null
+        Log.d(TAG, "onTravelElementLoad");
+
+        //check if views are null
+        ViewHolder viewHolder = getViewHolder();
+        if (viewHolder == null) {
+            //nothing to do since views are not ready yet
+            Log.d(TAG, "onTravelElementLoad: View holder is null, so nothing to do");
+            return;
+        }
+
+        //update the adapter
+        final SuggestionsAdapter suggestionsAdapter = (SuggestionsAdapter) viewHolder.suggestionsListView.getAdapter();
+        suggestionsAdapter.updateTravelInfo(userTravelElementArrayList, friendTravelElementArrayList);
     }
 
     /**

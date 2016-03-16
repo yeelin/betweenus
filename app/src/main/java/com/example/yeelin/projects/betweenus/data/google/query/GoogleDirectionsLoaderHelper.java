@@ -22,7 +22,15 @@ public class GoogleDirectionsLoaderHelper {
     //logcat
     private static final String TAG = GoogleDirectionsLoaderHelper.class.getCanonicalName();
 
-    //http://betweenus-3636.appspot.com/google/directions?origin=47.7963002,-122.2889804&destination=47.7411496,-122.4036502
+    /**
+     * Creates the url for appspot, deserializes the response, and returns directionResult.
+     * Test query:
+     * http://betweenus-3636.appspot.com/google/directions/json?origin=47.7963002,-122.2889804&destination=47.7411496,-122.4036502
+     * @param context
+     * @param origin
+     * @param destination
+     * @return
+     */
     public static DirectionsResult getDirections(Context context, LatLng origin, LatLng destination) {
         Log.d(TAG, String.format("getDirections: Origin:%s, Destination:%s", origin, destination));
 
@@ -77,14 +85,14 @@ public class GoogleDirectionsLoaderHelper {
      * @throws MalformedURLException
      */
     private static URL buildDirectionsUrl(LatLng origin, LatLng destination) throws MalformedURLException {
-        Uri.Builder uriBuilder = new Uri.Builder()
+        Uri uri = new Uri.Builder()
                 .scheme(LocalConstants.SCHEME)
                 .authority(LocalConstants.AUTHORITY)
                 .appendPath(LocalConstants.GOOGLE_PATH)
                 .appendPath(LocalConstants.DIRECTIONS_PATH)
-                .appendQueryParameter(GoogleConstants.ParamNames.ORIGIN, String.format("%s,%s", origin.latitude, origin.longitude))
-                .appendQueryParameter(GoogleConstants.ParamNames.DESTINATION, String.format("%s,%s", destination.latitude, destination.longitude));
-        Uri uri = uriBuilder.build();
+                .appendQueryParameter(GoogleConstants.DirectionsParamNames.ORIGIN, String.format("%s,%s", origin.latitude, origin.longitude))
+                .appendQueryParameter(GoogleConstants.DirectionsParamNames.DESTINATION, String.format("%s,%s", destination.latitude, destination.longitude))
+                .build();
         return new URL(uri.toString());
     }
 }

@@ -139,6 +139,15 @@
             tools:text="2 miles away"/>
 
         <TextView
+            android:id="@+id/item_travel_info_from_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="2dp"
+            android:textSize="10sp"
+            android:textColor="@color/textColorSecondary"
+            tools:text="20 minutes"/>
+
+        <TextView
             android:id="@+id/item_fairness_score"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -20,9 +20,11 @@ import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
+import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
-import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.rebound.BaseSpringSystem;
 import com.facebook.rebound.SimpleSpringListener;
@@ -32,6 +34,7 @@ import com.facebook.rebound.SpringUtil;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Target;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +49,8 @@ public class SuggestionsAdapter
     private static final String TAG = SuggestionsAdapter.class.getCanonicalName();
     //member variables
     //private List<LocalBusiness> businessList;
+    private ArrayList<LocalTravelElement> userTravelElementArrayList = new ArrayList<>();
+    private ArrayList<LocalTravelElement> friendTravelElementArrayList = new ArrayList<>();
     private ArrayMap<String,Integer> selectedIdsMap;
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -121,7 +126,8 @@ public class SuggestionsAdapter
             view.setTag(new ViewHolder(view));
         }
 
-        LocalBusiness business = getItem(position);
+        final LocalBusiness business = getItem(position);
+        final LocalTravelElement travelElement = position < userTravelElementArrayList.size() ? userTravelElementArrayList.get(position) : null;
         ViewHolder viewHolder = (ViewHolder) view.getTag();
 
         //set the views
@@ -237,6 +243,34 @@ public class SuggestionsAdapter
         //set fairness score
         viewHolder.fairnessScore.setText(FairnessScoringUtils.formatFairnessScore(getContext(), fairness));
 
+        //set travel distance and duration
+        if (travelElement != null) {
+            Log.d(TAG, "getView: Travel element is not null");
+            String travelInfo;
+            final int distanceInMeters = travelElement.getTravelDistance();
+            final int durationInSecs = travelElement.getTravelDuration();
+            final double durationInMins = durationInSecs / FormattingUtils.ONE_MIN_IN_SECS;
+            final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(1);
+            if (useMetric) { //metric
+                if (distanceInMeters > FormattingUtils.ONE_KM_IN_METERS) { //check if more than 1000m then display in km
+                    travelInfo = getContext().getString(R.string.item_travel_info_metric_km,
+                            decimalFormatter.format(distanceInMeters / FormattingUtils.ONE_KM_IN_METERS),
+                            decimalFormatter.format(durationInMins));
+                }
+                else {
+                    travelInfo = getContext().getString(R.string.item_travel_info_metric_m,
+                            decimalFormatter.format(distanceInMeters),
+                            decimalFormatter.format(durationInMins));
+                }
+            }
+            else { //imperial
+                travelInfo = getContext().getString(R.string.item_travel_info_imperial,
+                        decimalFormatter.format(LocationUtils.convertMetersToMiles(distanceInMeters)),
+                        decimalFormatter.format(durationInMins));
+            }
+
+            viewHolder.travelInfoFromUser.setText(travelInfo);
+        }
         return view;
     }
 
@@ -302,6 +336,31 @@ public class SuggestionsAdapter
         }
 
         Log.d(TAG, "updateAllItems: After update size:" + getCount());
+    }
+
+    /**
+     * Adds the new array of travel info to the end of the adapter's collection
+     * Notifies the listeners that the data has changed which causes the current view to be refreshed.
+     *
+     * @param userTravelElementArrayList
+     * @param friendTravelElementArrayList
+     */
+    public void updateTravelInfo(@Nullable ArrayList<LocalTravelElement> userTravelElementArrayList,
+                                 @Nullable ArrayList<LocalTravelElement> friendTravelElementArrayList) {
+        Log.d(TAG, "updateTravelInfo");
+
+        //clear existing travel info if any
+        this.userTravelElementArrayList.clear();
+        this.friendTravelElementArrayList.clear();
+
+        //add all travel info
+        this.userTravelElementArrayList.addAll(userTravelElementArrayList);
+        this.friendTravelElementArrayList.addAll(friendTravelElementArrayList);
+
+        //Notify that listview should be refreshed since travel data has arrived
+        //TODO: a bit heavy handed. should try to fix this
+        Log.d(TAG, "updateTravelInfo: notifyDataSetChanged");
+        notifyDataSetChanged();
     }
 
     /**
@@ -389,23 +448,28 @@ public class SuggestionsAdapter
      * ViewHolder class
      */
     public class ViewHolder {
+        //first column
         final ImageView image;
 
+        //second column
         final TextView name;
         final TextView address;
         final TextView categories;
         final TextView ratingAndReviews;
         final TextView likes;
         final TextView checkins;
-        final TextView priceRange;
 
+        //third column
         public final CheckedTextView itemToggle;
         final TextView distanceFromMidPoint;
+        final TextView travelInfoFromUser;
         final TextView fairnessScore;
+        final TextView priceRange;
 
         ViewHolder(View view) {
             //first column
             image = (ImageView) view.findViewById(R.id.item_image);
+
             //second column
             name = (TextView) view.findViewById(R.id.item_name);
             address = (TextView) view.findViewById(R.id.item_address);
@@ -413,11 +477,13 @@ public class SuggestionsAdapter
             ratingAndReviews = (TextView) view.findViewById(R.id.item_rating_and_reviews);
             likes = (TextView) view.findViewById(R.id.item_likes);
             checkins = (TextView) view.findViewById(R.id.item_checkins);
-            priceRange = (TextView) view.findViewById(R.id.item_price_range);
+
             //third column
             itemToggle = (CheckedTextView) view.findViewById(R.id.item_toggle);
             distanceFromMidPoint = (TextView) view.findViewById(R.id.item_distance_from_midpoint);
+            travelInfoFromUser = (TextView) view.findViewById(R.id.item_travel_info_from_user);
             fairnessScore = (TextView) view.findViewById(R.id.item_fairness_score);
+            priceRange = (TextView) view.findViewById(R.id.item_price_range);
         }
     }
 

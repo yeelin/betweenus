@@ -2,20 +2,26 @@ package com.example.yeelin.projects.betweenus.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
+import com.example.yeelin.projects.betweenus.data.google.model.DistanceMatrixResult;
+import com.example.yeelin.projects.betweenus.data.google.model.Element;
+import com.example.yeelin.projects.betweenus.loader.DistanceMatrixLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.SuggestionsLoaderCallbacks;
+import com.example.yeelin.projects.betweenus.loader.callback.DistanceMatrixLoaderListener;
 import com.example.yeelin.projects.betweenus.loader.callback.SuggestionsLoaderListener;
 import com.facebook.AccessToken;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by ninjakiki on 12/15/15.
@@ -25,7 +31,8 @@ import java.util.ArrayList;
  */
 public class SuggestionsDataFragment
         extends Fragment
-        implements SuggestionsLoaderListener {
+        implements SuggestionsLoaderListener,
+        DistanceMatrixLoaderListener {
     //logcat
     public static final String TAG = SuggestionsDataFragment.class.getCanonicalName();
 
@@ -49,6 +56,8 @@ public class SuggestionsDataFragment
 
     //results cache
     private ArrayList<LocalResult> localResultArrayList = new ArrayList<>(); //this is the array that accumulates the fetched pages
+    private ArrayList<LocalTravelElement> userTravelElementArrayList = new ArrayList<>(); //this is the array that accumulates the fetched travel duration and distances for each place from the perspective of the user
+    private ArrayList<LocalTravelElement> friendTravelElementArrayList = new ArrayList<>(); //this is the array that accumulates the fetched travel duration and distances for each place from the perspective of the friend
 
     //listener
     private SuggestionsDataListener suggestionsDataListener;
@@ -72,6 +81,14 @@ public class SuggestionsDataFragment
          * @param localResultArrayList
          */
         void onMultiPageLoad(@Nullable ArrayList<LocalResult> localResultArrayList);
+
+        /**
+         * Called when travel elements are loaded.  This is called when the fragment is returning the travel
+         * durations and distances from user and friend.
+         * @param userTravelArrayList
+         * @param friendTravelArrayList
+         */
+        void onTravelElementLoad(@Nullable ArrayList<LocalTravelElement> userTravelArrayList, @Nullable ArrayList<LocalTravelElement> friendTravelArrayList);
     }
 
     /**
@@ -188,7 +205,12 @@ public class SuggestionsDataFragment
      * Clears out the cache and reloads the first page.
      */
     public void forceReload() {
+        //clear out all caches
         localResultArrayList.clear();
+        userTravelElementArrayList.clear();
+        friendTravelElementArrayList.clear();
+
+        //load the first page
         fetchSuggestions(0, null);
     }
 
@@ -235,6 +257,8 @@ public class SuggestionsDataFragment
                     //since the requested page number is less than the size of our current cache, we can return cached data right way
                     Log.d(TAG, String.format("fetchPlacePhotos: PageNumber:%d, Size:%d, Returning all results.", pageNumber, localResultArrayList.size()));
                     suggestionsDataListener.onMultiPageLoad(localResultArrayList);
+                    //return cached travel elements
+                    suggestionsDataListener.onTravelElementLoad(userTravelElementArrayList, friendTravelElementArrayList);
                 }
                 break;
 
@@ -274,12 +298,80 @@ public class SuggestionsDataFragment
             //append it to the end of the cache
             localResultArrayList.add(localResult);
             suggestionsDataListener.onSinglePageLoad(localResult, localResultArrayList.size()-1);
+
+            //start the loader for distance matrix (travel distance and duration)
+            DistanceMatrixLoaderCallbacks.initLoader(DistanceMatrixLoaderCallbacks.DISTANCE_MATRIX,
+                    getContext(),
+                    getLoaderManager(),
+                    this,
+                    new LatLng[] {userLatLng, friendLatLng},
+                    getLocalPlaceLatLngs(localResult));
         }
     }
 
     /**
-     * Returns the whole cache
+     * Distance Matrix Loader callback
+     * This is the callback from the loader with the distance matrix result
+     * If the result is null, we don't do anything
+     * If the result it not null, we cache the result by adding it to the end and return the result to the listener
+     * @param loaderId
+     * @param distanceMatrixResult
+     */
+    @Override
+    public void onLoadComplete(@DistanceMatrixLoaderCallbacks.DistanceMatrixLoaderId int loaderId, @Nullable DistanceMatrixResult distanceMatrixResult) {
+        if (distanceMatrixResult == null || distanceMatrixResult.getRows() == null) {
+            Log.d(TAG, "onLoadComplete: DistanceMatrixResult is null or getRows is null");
+            suggestionsDataListener.onTravelElementLoad(null, null);
+        }
+        else if (distanceMatrixResult.getRows().length != 2) {
+            Log.d(TAG, "onLoadComplete: DistanceMatrixResult.getRows is not of length 2");
+            suggestionsDataListener.onTravelElementLoad(null, null);
+        }
+        else {
+            //append user and friend travel elements to the end of the respective cache
+            DistanceMatrixResult.Row[] rows = distanceMatrixResult.getRows();
+            Element[] userElements = rows[0].getElements();
+            Element[] friendElements = rows[1].getElements();
+            userTravelElementArrayList.addAll(Arrays.asList(userElements));
+            friendTravelElementArrayList.addAll(Arrays.asList(friendElements));
+
+            //notify the listeners that we have travel data
+            suggestionsDataListener.onTravelElementLoad(userTravelElementArrayList, friendTravelElementArrayList);
+        }
+    }
+
+    /**
+     * Returns the whole LocalResult cache
      * @return
      */
     public ArrayList<LocalResult> getAllResults() { return localResultArrayList; }
+
+    /**
+     * Return the whole userTravel cache
+     * @return
+     */
+    public ArrayList<LocalTravelElement> getUserTravelElements() { return userTravelElementArrayList; }
+
+    /**
+     * Return the whole friendTravel cache
+     * @return
+     */
+    public ArrayList<LocalTravelElement> getFriendTravelElements() { return friendTravelElementArrayList; }
+
+    /**
+     *
+     * @param localResult
+     * @return
+     */
+    private LatLng[] getLocalPlaceLatLngs(@NonNull LocalResult localResult) {
+        if (localResult.getLocalBusinesses() == null) return null;
+
+        ArrayList<LocalBusiness> localBusinesses = localResult.getLocalBusinesses();
+        LatLng[] latLngs = new LatLng[localBusinesses.size()];
+
+        for (int i=0; i<localBusinesses.size(); i++) {
+            latLngs[i] = localBusinesses.get(i).getLocalBusinessLocation().getLatLng();
+        }
+        return latLngs;
+    }
 }

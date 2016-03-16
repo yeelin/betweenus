@@ -23,8 +23,11 @@ import com.example.yeelin.projects.betweenus.data.google.model.DirectionsResult;
 import com.example.yeelin.projects.betweenus.data.google.model.Route;
 import com.example.yeelin.projects.betweenus.loader.DirectionsLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.DirectionsLoaderListener;
+import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
+import com.example.yeelin.projects.betweenus.utils.PreferenceUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -39,6 +42,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.android.PolyUtil;
 import com.squareup.picasso.Target;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 
@@ -329,6 +333,12 @@ public class MapActivity
     @Override
     public boolean onMarkerClick(Marker marker) {
         Log.d(TAG, "onMarkerClick: Marker was clicked");
+
+        //clear out any travel time markers
+        removeAnyTravelTimeMarkers();
+        //un-highlight any polyline routes
+        removeAnyHighlightedPolylines();
+
         // We return false to indicate that we have not consumed the event and that we wish
         // for the default behavior to occur (which is for the camera to move such that the
         // marker is centered and for the marker's info window to open, if it has one).
@@ -377,9 +387,35 @@ public class MapActivity
 
             //get back the mutable polyline
             Polyline polyline = map.addPolyline(polylineOptions);
-            polyLineToTravelTimeMap.put(polyline,
-                    String.format("Route summary: %s\nDistance: %s\nTime: %s",
-                            routes[i].getSummary(), routes[i].getLegs()[0].getDistance().getText(), routes[i].getLegs()[0].getDuration().getText()));
+
+            //format the string in the info window for polyline
+            String travelInfo;
+            final String routeSummary = routes[i].getSummary();
+            final int distanceInMeters = routes[i].getLegs()[0].getDistance().getValue();
+            final int durationInSecs = routes[i].getLegs()[0].getDuration().getValue();
+            final double durationInMins = durationInSecs / FormattingUtils.ONE_MIN_IN_SECS;
+            DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(1);
+            if (PreferenceUtils.useMetric(this)) { //metric
+                if (distanceInMeters > FormattingUtils.ONE_KM_IN_METERS) { //check if more than 1000m so that we display in km
+                    travelInfo = getString(R.string.detail_map_travel_info_metric_km,
+                            routeSummary,
+                            decimalFormatter.format(distanceInMeters / FormattingUtils.ONE_KM_IN_METERS),
+                            decimalFormatter.format(durationInMins));
+                }
+                else {
+                    travelInfo = getString(R.string.detail_map_travel_info_metric_m,
+                            routeSummary,
+                            decimalFormatter.format(distanceInMeters),
+                            decimalFormatter.format(durationInMins));
+                }
+            }
+            else { //imperial
+                travelInfo = getString(R.string.detail_map_travel_info_imperial,
+                        routes[i].getSummary(),
+                        decimalFormatter.format(LocationUtils.convertMetersToMiles(distanceInMeters)),
+                        decimalFormatter.format(durationInMins));
+            }
+            polyLineToTravelTimeMap.put(polyline, travelInfo);
         }
 
         //listen to click events on polylines

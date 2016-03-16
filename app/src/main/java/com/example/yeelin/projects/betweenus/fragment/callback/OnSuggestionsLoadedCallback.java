@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
 
 import com.example.yeelin.projects.betweenus.data.LocalResult;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -45,4 +46,13 @@ public interface OnSuggestionsLoadedCallback {
     void onMultiPageLoad(ArrayList<LocalResult> localResultArrayList,
                          @NonNull ArrayMap<String, Integer> selectedIdsMap,
                          boolean hasMoreData);
+
+    /***
+     * Distance matrix data is ready.  Called by SuggestionsActivity.
+     * To be implemented by fragments interested in the result.
+     * @param userTravelElementArrayList
+     * @param friendTravelElementArrayList
+     */
+    void onTravelElementLoad(ArrayList<LocalTravelElement> userTravelElementArrayList,
+                             ArrayList<LocalTravelElement> friendTravelElementArrayList);
 }

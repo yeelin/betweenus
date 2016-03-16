@@ -5,8 +5,13 @@ package com.example.yeelin.projects.betweenus.data.google.query;
  */
 public abstract class GoogleConstants {
     //query parameters
-    static class ParamNames {
+    public static class DirectionsParamNames {
         public static final String ORIGIN = "origin";
         public static final String DESTINATION = "destination";
+    }
+
+    public static class DistanceMatrixParamNames {
+        public static final String ORIGINS = "origins";
+        public static final String DESTINATIONS = "destinations";
     }
 }

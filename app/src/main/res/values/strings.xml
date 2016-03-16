@@ -48,6 +48,9 @@
     <string name="item_distance_from_midPoint_miles">%1$s mi off</string>
     <string name="item_distance_from_midPoint_meters">%1$s m off</string>
     <string name="item_distance_from_midPoint_km">%1$s km off</string>
+    <string name="item_travel_info_imperial">%1$s mi, %2$s mins</string>
+    <string name="item_travel_info_metric_m">%1$s m, %2$s mins</string>
+    <string name="item_travel_info_metric_km">%1$s km, %2$s mins</string>
 
     <!-- Detail strings for layout only -->
     <string name="detail_name_fake">Espresso Vivace Roasteria</string>
@@ -124,7 +127,6 @@
 
     <!-- Map strings -->
     <string name="map_contentDescription">Map view of search results</string>
-    <string name="detail_map_contentDescription">Map view of %1$s</string>
     <string name="map_marker_user_location">Your location</string>
     <string name="map_marker_friend_location">"Friend's location"</string>
     <string name="map_marker_you">You</string>
@@ -146,6 +148,12 @@
         <item quantity="one">Most checkins: %1$d person</item>
         <item quantity="other">Most checkins: %1$d people</item>
     </plurals>
+
+    <!-- Detailed map strings -->
+    <string name="detail_map_contentDescription">Map view of %1$s</string>
+    <string name="detail_map_travel_info_metric_m">Route summary: %1$s\nDistance: %2$s m\nTime: %3$s mins</string>
+    <string name="detail_map_travel_info_metric_km">Route summary: %1$s\nDistance: %2$s km\nTime: %3$s mins</string>
+    <string name="detail_map_travel_info_imperial">Route summary: %1$s\nDistance: %2$s mi\nTime: %3$s mins</string>
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>

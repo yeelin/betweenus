@@ -51,22 +51,4 @@ public class DirectionsJsonDeserializerHelper {
             if (inputStreamReader != null) inputStreamReader.close();
         }
     }
-
-    /**
-     * DirectionsResultDeserializer
-     * Implements JsonDeserializer interface from GSON
-     */
-    private static class DirectionsResultDeserializer implements JsonDeserializer<DirectionsResult> {
-
-        @Override
-        public DirectionsResult deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-            final JsonObject jsonObject = json.getAsJsonObject();
-
-            final DirectionsResult.GeocodedWaypoint[] geocodedWaypoints = context.deserialize(jsonObject.get("geocoded_waypoints"), DirectionsResult.GeocodedWaypoint[].class);
-            final Route[] routes = context.deserialize(jsonObject.get("routes"), Route[].class);
-
-            final DirectionsResult result = new DirectionsResult(geocodedWaypoints, routes);
-            return result;
-        }
-    }
 }

@@ -8,6 +8,8 @@ import java.text.DecimalFormat;
  */
 public class FormattingUtils {
     private static DecimalFormat decimalFormatter;
+    public static final double ONE_KM_IN_METERS = 1000.0;
+    public static final double ONE_MIN_IN_SECS = 60.0;
 
     /**
      * Returns a decimal formatter that rounds up half and
