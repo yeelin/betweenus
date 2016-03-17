@@ -85,6 +85,8 @@ public class SuggestionsActivity
     private ArrayMap<String,Integer> selectedIdsMap = new ArrayMap<>();
     private PlacesBroadcastReceiver placesBroadcastReceiver;
 
+    ArrayList<LocalTravelElement> userTravelArrayList = new ArrayList<>();
+
     /**
      * Builds the appropriate intent to start this activity.
      * @param context
@@ -366,6 +368,9 @@ public class SuggestionsActivity
             return;
         }
 
+        //keep a reference to the travel info
+        this.userTravelArrayList = userTravelArrayList;
+
         //update the respective fragments with user travel
         if (fragments[LIST] != null) {
             ((SuggestionsListFragment) fragments[LIST]).onTravelElementLoad(userTravelArrayList, friendTravelArrayList);
@@ -402,6 +407,7 @@ public class SuggestionsActivity
                 SimplifiedBusiness.buildSimplifiedBusinessList(((SuggestionsDataFragment) fragments[DATA]).getAllResults()),
                 new ArrayList<>(selectedIdsMap.keySet()),
                 new ArrayList<>(selectedIdsMap.values()),
+                userTravelArrayList,
                 PreferenceUtils.getPreferredDataSource(this),
                 userLatLng, friendLatLng, midLatLng);
         startActivityForResult(pagerIntent, REQUEST_CODE_PAGER_VIEW);

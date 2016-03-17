@@ -58,7 +58,8 @@
     <string name="detail_checkins_fake">1002 checkins</string>
     <string name="detail_address_fake">532 Broadway E, Seattle</string>
     <string name="detail_categories_fake">Coffee and Tea</string>
-    <string name="detail_distance_fake">0.1 mi</string>
+    <string name="detail_distance_fake">0.1 mi away from center (Closer to you)</string>
+    <string name="detail_travel_info_fake">Estimated travel: 4.3 mi, 5 mins</string>
     <string name="detail_crossStreets_fake">"Cross streets: Mercer St and Republican St"</string>
     <string name="detail_phone_fake">"(206)8602722"</string>
     <string name="detail_webAddress_fake">"espressovivace.com"</string>
@@ -79,6 +80,9 @@
     <string name="detail_closer_to_user">Closer to you</string>
     <string name="detail_closer_to_friend">Closer to friend</string>
     <string name="detail_equidistant">Equidistant</string>
+    <string name="detail_travel_info_imperial">Estimated travel: %1$s mi, %2$s mins</string>
+    <string name="detail_travel_info_metric_m">Estimated travel: %1$s m, %2$s mins</string>
+    <string name="detail_travel_info_metric_km">Estimated travel: %1$s km, %2$s mins</string>
     <string name="detail_crossStreets">Cross streets: %1$s</string>
     <string name="detail_reviews">Reviews</string>
     <string name="review_count">%1$d reviews</string>

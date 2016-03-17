@@ -18,11 +18,14 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
 import com.example.yeelin.projects.betweenus.utils.AnimationUtils;
 import com.example.yeelin.projects.betweenus.utils.FairnessScoringUtils;
+import com.example.yeelin.projects.betweenus.utils.FormattingUtils;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
+import com.example.yeelin.projects.betweenus.utils.LocationUtils;
 import com.example.yeelin.projects.betweenus.utils.MapColorUtils;
 import com.facebook.AccessToken;
 import com.facebook.appevents.AppEventsLogger;
@@ -41,6 +44,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.picasso.Target;
+
+import java.text.DecimalFormat;
 
 /**
  * Created by ninjakiki on 7/15/15.
@@ -64,6 +69,7 @@ public class SuggestionDetailFragment
     private static final String ARG_RATING = SuggestionDetailFragment.class.getSimpleName() + ".rating";
     private static final String ARG_LIKES = SuggestionDetailFragment.class.getSimpleName() + ".likes";
     private static final String ARG_NORMALIZED_LIKES = SuggestionDetailFragment.class.getSimpleName() + ".normalizedLikes";
+    private static final String ARG_TRAVEL_INFO = SuggestionDetailFragment.class.getSimpleName() + ".travelInfo";
 
     private static final String ARG_USER_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".userLatLng";
     private static final String ARG_FRIEND_LATLNG = SuggestionDetailFragment.class.getSimpleName() + ".friendLatLng";
@@ -83,6 +89,7 @@ public class SuggestionDetailFragment
     private double rating;
     private int likes;
     private double normalizedLikes;
+    private LocalTravelElement travelElement;
 
     private LatLng userLatLng;
     private LatLng friendLatLng;
@@ -109,6 +116,7 @@ public class SuggestionDetailFragment
      * @param rating
      * @param likes
      * @param normalizedLikes
+     * @param travelElement
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng midpoint between userLatLng and friendLatLng
@@ -118,6 +126,7 @@ public class SuggestionDetailFragment
      */
     public static SuggestionDetailFragment newInstance(String id, String name, LatLng latLng,
                                                        int position, boolean toggleState, double rating, int likes, double normalizedLikes,
+                                                       LocalTravelElement travelElement,
                                                        LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                                        @LocalConstants.DataSourceId int dataSource, boolean useMetric) {
         Bundle args = new Bundle();
@@ -130,6 +139,7 @@ public class SuggestionDetailFragment
         args.putDouble(ARG_RATING, rating);
         args.putInt(ARG_LIKES, likes);
         args.putDouble(ARG_NORMALIZED_LIKES, normalizedLikes);
+        args.putParcelable(ARG_TRAVEL_INFO, travelElement);
 
         args.putParcelable(ARG_USER_LATLNG, userLatLng);
         args.putParcelable(ARG_FRIEND_LATLNG, friendLatLng);
@@ -197,6 +207,7 @@ public class SuggestionDetailFragment
             rating = args.getDouble(ARG_RATING, LocalConstants.NO_DATA_DOUBLE);
             likes = args.getInt(ARG_LIKES, LocalConstants.NO_DATA_INTEGER);
             normalizedLikes = args.getDouble(ARG_NORMALIZED_LIKES, LocalConstants.NO_DATA_DOUBLE);
+            travelElement = args.getParcelable(ARG_TRAVEL_INFO);
 
             //user and friend related info
             userLatLng = args.getParcelable(ARG_USER_LATLNG);
@@ -430,6 +441,32 @@ public class SuggestionDetailFragment
         final double distanceDelta = FairnessScoringUtils.computeDistanceDelta(latLng, midLatLng, useMetric);
         final String displayString = FairnessScoringUtils.formatDistanceDeltaAndFairness(getActivity(), distanceDelta, fairness, useMetric, true);
         viewHolder.distanceFromMidPoint.setText(displayString);
+
+        //travel info
+        String travelInfo;
+        final int distanceInMeters = travelElement.getTravelDistance();
+        final int durationInSecs = travelElement.getTravelDuration();
+        final double durationInMins = durationInSecs / FormattingUtils.ONE_MIN_IN_SECS;
+        final DecimalFormat decimalFormatter = FormattingUtils.getDecimalFormatter(1);
+        if (useMetric) { //metric
+            if (distanceInMeters > FormattingUtils.ONE_KM_IN_METERS) { //check if more than 1000m then display in km
+                travelInfo = getContext().getString(R.string.detail_travel_info_metric_km,
+                        decimalFormatter.format(distanceInMeters / FormattingUtils.ONE_KM_IN_METERS),
+                        decimalFormatter.format(durationInMins));
+            }
+            else {
+                travelInfo = getContext().getString(R.string.detail_travel_info_metric_m,
+                        decimalFormatter.format(distanceInMeters),
+                        decimalFormatter.format(durationInMins));
+            }
+        }
+        else { //imperial
+            travelInfo = getContext().getString(R.string.detail_travel_info_imperial,
+                    decimalFormatter.format(LocationUtils.convertMetersToMiles(distanceInMeters)),
+                    decimalFormatter.format(durationInMins));
+        }
+
+        viewHolder.travelInfoFromUser.setText(travelInfo);
 
         //address
         final String fullAddress = business.getLocalBusinessLocation() != null ? business.getLocalBusinessLocation().getLongDisplayAddress() : null;
@@ -727,6 +764,7 @@ public class SuggestionDetailFragment
         final TextView name;
         final TextView categories;;
         final TextView distanceFromMidPoint;
+        final TextView travelInfoFromUser;
         final TextView address;
         final TextView crossStreets;
         final TextView phone;
@@ -761,6 +799,7 @@ public class SuggestionDetailFragment
             name = (TextView) view.findViewById(R.id.detail_name);
             categories = (TextView) view.findViewById(R.id.detail_categories);
             distanceFromMidPoint = (TextView) view.findViewById(R.id.detail_distance_from_midpoint);
+            travelInfoFromUser = (TextView) view.findViewById(R.id.detail_travel_info_from_user);
             address = (TextView) view.findViewById(R.id.detail_address);
             crossStreets = (TextView) view.findViewById(R.id.detail_crossStreets);
             phone = (TextView) view.findViewById(R.id.detail_phone);

@@ -160,6 +160,10 @@
                 android:id="@+id/detail_distance_from_midpoint"
                 style="@style/Medium_SecondaryTextViewStyle"
                 tools:text="@string/detail_distance_fake"/>
+            <TextView
+                android:id="@+id/detail_travel_info_from_user"
+                style="@style/Medium_SecondaryTextViewStyle"
+                tools:text="@string/detail_travel_info_fake"/>
 
             <!-- START:Address and Phone group -->
             <TextView

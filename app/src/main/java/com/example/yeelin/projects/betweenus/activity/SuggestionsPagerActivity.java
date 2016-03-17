@@ -17,6 +17,7 @@ import android.view.View;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsStatePagerAdapter;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
@@ -41,6 +42,7 @@ public class SuggestionsPagerActivity
     private static final String EXTRA_PAGER_LIST = SuggestionsPagerActivity.class.getSimpleName() + ".pagerList";
     public static final String EXTRA_SELECTED_IDS = SuggestionsPagerActivity.class.getSimpleName() + ".selectedIds";
     public static final String EXTRA_SELECTED_POSITIONS = SuggestionsPagerActivity.class.getSimpleName() + ".selectedPositions";
+    private static final String EXTRA_TRAVEL_INFO = SuggestionsPagerActivity.class.getSimpleName() + ".travelInfo";
     private static final String EXTRA_USER_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".userLatLng";
     private static final String EXTRA_FRIEND_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".friendLatLng";
     private static final String EXTRA_MID_LATLNG = SuggestionsPagerActivity.class.getSimpleName() + ".midLatLng";
@@ -55,6 +57,7 @@ public class SuggestionsPagerActivity
     private int viewPagerPosition = 0;
     private ArrayList<SimplifiedBusiness> simplifiedBusinesses;
     private ArrayMap<String, Integer> selectedIdsMap;
+    private ArrayList<LocalTravelElement> userTravelArrayList;
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -67,6 +70,7 @@ public class SuggestionsPagerActivity
      * @param simplifiedBusinesses
      * @param selectedIdsList
      * @param selectedPositionsList
+     * @param userTravelArrayList
      * @param dataSource
      * @param userLatLng
      * @param friendLatLng
@@ -76,6 +80,7 @@ public class SuggestionsPagerActivity
     public static Intent buildIntent(Context context, int position,
                                      ArrayList<SimplifiedBusiness> simplifiedBusinesses,
                                      ArrayList<String> selectedIdsList, ArrayList<Integer> selectedPositionsList,
+                                     ArrayList<LocalTravelElement> userTravelArrayList,
                                      @LocalConstants.DataSourceId int dataSource,
                                      LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng) {
         Intent intent = new Intent(context, SuggestionsPagerActivity.class);
@@ -84,6 +89,7 @@ public class SuggestionsPagerActivity
         intent.putExtra(EXTRA_PAGER_LIST, simplifiedBusinesses);
         intent.putExtra(EXTRA_SELECTED_IDS, selectedIdsList);
         intent.putExtra(EXTRA_SELECTED_POSITIONS, selectedPositionsList);
+        intent.putExtra(EXTRA_TRAVEL_INFO, userTravelArrayList);
 
         intent.putExtra(EXTRA_DATA_SOURCE, dataSource);
         intent.putExtra(EXTRA_USER_LATLNG, userLatLng);
@@ -116,6 +122,8 @@ public class SuggestionsPagerActivity
             selectedIdsMap.put(selectedIdsList.get(i), selectedPositionsList.get(i));
         }
 
+        userTravelArrayList = intent.getParcelableArrayListExtra(EXTRA_TRAVEL_INFO);
+
         userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
         friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
         midLatLng = intent.getParcelableExtra(EXTRA_MID_LATLNG);
@@ -129,7 +137,7 @@ public class SuggestionsPagerActivity
         //set up view pager
         viewPager = (ViewPager) findViewById(R.id.suggestions_viewPager);
         SuggestionsStatePagerAdapter pagerAdapter = new SuggestionsStatePagerAdapter(getSupportFragmentManager(),
-                simplifiedBusinesses, selectedIdsMap,
+                simplifiedBusinesses, selectedIdsMap, userTravelArrayList,
                 userLatLng, friendLatLng, midLatLng,
                 preferredDataSource, PreferenceUtils.useMetric(this));
         viewPager.setAdapter(pagerAdapter);

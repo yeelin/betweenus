@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.ArrayMap;
 import android.util.Log;
 
+import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.fragment.SuggestionDetailFragment;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,6 +25,7 @@ public class SuggestionsStatePagerAdapter
     //member variables
     private ArrayList<SimplifiedBusiness> businesses;
     private ArrayMap<String, Integer> selectedIdsMap;
+    private ArrayList<LocalTravelElement> userTravelArrayList;
     private LatLng userLatLng;
     private LatLng friendLatLng;
     private LatLng midLatLng;
@@ -36,6 +38,7 @@ public class SuggestionsStatePagerAdapter
      * @param fm
      * @param businesses
      * @param selectedIdsMap
+     * @param userTravelArrayList
      * @param userLatLng
      * @param friendLatLng
      * @param midLatLng
@@ -44,11 +47,14 @@ public class SuggestionsStatePagerAdapter
      */
     public SuggestionsStatePagerAdapter(FragmentManager fm,
                                         ArrayList<SimplifiedBusiness> businesses, ArrayMap<String, Integer> selectedIdsMap,
+                                        ArrayList<LocalTravelElement> userTravelArrayList,
                                         LatLng userLatLng, LatLng friendLatLng, LatLng midLatLng,
                                         int dataSource, boolean useMetric) {
         super(fm);
         this.businesses = businesses;
         this.selectedIdsMap = selectedIdsMap;
+        this.userTravelArrayList = userTravelArrayList;
+
         this.userLatLng = userLatLng;
         this.friendLatLng = friendLatLng;
         this.midLatLng = midLatLng;
@@ -86,6 +92,7 @@ public class SuggestionsStatePagerAdapter
                 business.getRating(),
                 business.getLikes(),
                 business.getNormalizedLikes(),
+                userTravelArrayList.get(position),
                 userLatLng,
                 friendLatLng,
                 midLatLng,
