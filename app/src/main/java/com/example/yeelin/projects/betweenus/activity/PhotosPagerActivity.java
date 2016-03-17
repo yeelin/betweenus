@@ -34,6 +34,7 @@ public class PhotosPagerActivity
     //intent extras
     private static final String EXTRA_ID = PhotosPagerActivity.class.getSimpleName() + ".id";
     private static final String EXTRA_PROFILE_PIC_URL = PhotosPagerActivity.class.getSimpleName() + ".profilePictureUrl";
+    private static final String EXTRA_DATA_SOURCE = PhotosPagerActivity.class.getSimpleName() + ".dataSource";
 
     //saved instance state
     private static final String STATE_PAGER_POSITION = PhotosPagerActivity.class.getSimpleName() + ".pagerPosition";
@@ -49,6 +50,7 @@ public class PhotosPagerActivity
     private int viewPagerPosition = 0;
     private String id;
     private String profilePictureUrl;
+    private int preferredDataSource;
 
     private PhotoDataFragment photoDataFragment;
     private boolean hasMoreData;
@@ -62,10 +64,11 @@ public class PhotosPagerActivity
      * @param profilePictureUrl
      * @return
      */
-    public static Intent buildIntent(Context context, String id, String profilePictureUrl) {
+    public static Intent buildIntent(Context context, String id, String profilePictureUrl, int dataSource) {
         Intent intent = new Intent(context, PhotosPagerActivity.class);
         intent.putExtra(EXTRA_ID, id);
         intent.putExtra(EXTRA_PROFILE_PIC_URL, profilePictureUrl);
+        intent.putExtra(EXTRA_DATA_SOURCE, dataSource);
         return intent;
     }
 
@@ -88,6 +91,7 @@ public class PhotosPagerActivity
         Intent intent = getIntent();
         id = intent.getStringExtra(EXTRA_ID);
         profilePictureUrl = intent.getStringExtra(EXTRA_PROFILE_PIC_URL);
+        preferredDataSource = intent.getIntExtra(EXTRA_DATA_SOURCE, LocalConstants.YELP);  //better use Yelp as default since we do not load additional photos if it's Yelp
 
         //read savedInstanceState
         if (savedInstanceState != null) {
@@ -128,7 +132,7 @@ public class PhotosPagerActivity
         FragmentManager fm = getSupportFragmentManager();
         photoDataFragment = (PhotoDataFragment) fm.findFragmentByTag(FRAGMENT_TAG_PHOTO_DATA);
         if (photoDataFragment == null) {
-            photoDataFragment = PhotoDataFragment.newInstance(id, LocalConstants.FACEBOOK);
+            photoDataFragment = PhotoDataFragment.newInstance(id, preferredDataSource);
             fm.beginTransaction()
                     .add(photoDataFragment, FRAGMENT_TAG_PHOTO_DATA)
                     .disallowAddToBackStack()

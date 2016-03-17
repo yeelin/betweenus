@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalPhotosResult;
-import com.example.yeelin.projects.betweenus.data.fb.query.FbConstants;
 import com.example.yeelin.projects.betweenus.loader.PhotosLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.PhotosLoaderListener;
 import com.facebook.AccessToken;
@@ -32,7 +31,7 @@ public class PhotoDataFragment
 
     //member variables
     private String id;
-    private int dataSource;
+    private int preferredDataSource;
     private ArrayList<LocalPhotosResult> localResultArrayList = new ArrayList<>(); //this is the array that accumulates the fetched pages
 
     private PhotoDataListener photoDataListener;
@@ -107,7 +106,7 @@ public class PhotoDataFragment
         Bundle args = getArguments();
         if (args != null) {
             id = args.getString(ARG_ID);
-            dataSource = args.getInt(ARG_DATA_SOURCE, LocalConstants.FACEBOOK);
+            preferredDataSource = args.getInt(ARG_DATA_SOURCE, LocalConstants.YELP); //better use Yelp as default since we do not load additional photos if it's Yelp
         }
 
         //set retain instance to true so that this doesn't get destroyed during a configuration change
@@ -143,8 +142,9 @@ public class PhotoDataFragment
      * @param nextUrl url for the next page, if any
      */
     public void fetchPlacePhotos(int pageNumber, @Nullable String nextUrl) {
-        if (AccessToken.getCurrentAccessToken() == null) {
-            Log.d(TAG, "fetchPlacePhotos: User is not logged in");
+        //if preferred data source is fb but user is not logged in, return immediately
+        if (preferredDataSource == LocalConstants.FACEBOOK && AccessToken.getCurrentAccessToken() == null) {
+            Log.d(TAG, "fetchPlacePhotos: Preferred data source is FB but user is not logged in, so nothing to do");
             return;
         }
 
@@ -152,13 +152,13 @@ public class PhotoDataFragment
             //fetch data using initLoader
             Log.d(TAG, "fetchPlacePhotos: Calling initLoader.");
             PhotosLoaderCallbacks.initLoader(PhotosLoaderCallbacks.PHOTOS_INITIAL,
-                    getContext(), getLoaderManager(), this, id, dataSource);
+                    getContext(), getLoaderManager(), this, id, preferredDataSource);
         }
         else if (pageNumber >= localResultArrayList.size()) {
             //fetch data using restart loader
             Log.d(TAG, String.format("fetchPlacePhotos: PageNumber:%d, Size:%d, Calling restartLoader.", pageNumber, localResultArrayList.size()));
             PhotosLoaderCallbacks.restartLoader(PhotosLoaderCallbacks.PHOTOS_SUBSEQUENT,
-                    getContext(), getLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, dataSource);
+                    getContext(), getLoaderManager(), this, nextUrl, LocalConstants.NEXT_PAGE, preferredDataSource);
         }
         else {
             //pageNumber < localResultArrayList.size()

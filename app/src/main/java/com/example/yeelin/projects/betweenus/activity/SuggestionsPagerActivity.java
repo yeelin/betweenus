@@ -119,7 +119,7 @@ public class SuggestionsPagerActivity
         userLatLng = intent.getParcelableExtra(EXTRA_USER_LATLNG);
         friendLatLng = intent.getParcelableExtra(EXTRA_FRIEND_LATLNG);
         midLatLng = intent.getParcelableExtra(EXTRA_MID_LATLNG);
-        preferredDataSource = intent.getIntExtra(EXTRA_DATA_SOURCE, LocalConstants.FACEBOOK);
+        preferredDataSource = intent.getIntExtra(EXTRA_DATA_SOURCE, LocalConstants.YELP); //better use Yelp as default since we do not load additional photos if it's Yelp
 
         //read saved instance state
         if (savedInstanceState != null) {
@@ -348,7 +348,7 @@ public class SuggestionsPagerActivity
     public void onOpenPhotos(int position) {
         Log.d(TAG, "onOpenPhotos: Position:" + position);
         final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
-        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getProfilePictureUrl()));
+        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getProfilePictureUrl(), preferredDataSource));
     }
 
     /**
