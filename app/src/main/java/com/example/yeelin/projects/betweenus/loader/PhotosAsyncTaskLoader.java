@@ -69,27 +69,28 @@ public class PhotosAsyncTaskLoader extends AsyncTaskLoader<LocalPhotosResult> {
      */
     @Override
     public LocalPhotosResult loadInBackground() {
-        if (dataSource == LocalConstants.YELP) {
-            Log.d(TAG, "loadInBackground: Yelp data source has not been implemented yet");
-            return null;
-        }
-        else if (dataSource == LocalConstants.FACEBOOK) {
-            if (id != null) {
-                Log.d(TAG, "loadInBackground: getPlacePhotos with id:" + id);
-                return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id);
-            }
-            else {
-                Log.d(TAG, "loadInBackground: getMorePlacePhotos with url:" + url);
-                return FbApiHelper.getMorePlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
-            }
-        }
-        else if (dataSource == LocalConstants.GOOGLE) {
-            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
-            return null;
-        }
-        else {
-            Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
-            return null;
+        switch (dataSource) {
+            case LocalConstants.YELP:
+                Log.d(TAG, "loadInBackground: Yelp data source has not been implemented yet");
+                return null;
+
+            case LocalConstants.FACEBOOK:
+                if (id != null) {
+                    Log.d(TAG, "loadInBackground: getPlacePhotos with id:" + id);
+                    return FbApiHelper.getPlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), id);
+                }
+                else {
+                    Log.d(TAG, "loadInBackground: getMorePlacePhotos with url:" + url);
+                    return FbApiHelper.getMorePlacePhotos(getContext(), AccessToken.getCurrentAccessToken(), url, pagingDirection);
+                }
+
+            case LocalConstants.GOOGLE:
+                Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+                return null;
+
+            default:
+                Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
+                return null;
         }
     }
 

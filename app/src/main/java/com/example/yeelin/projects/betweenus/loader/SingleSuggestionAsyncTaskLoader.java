@@ -44,21 +44,22 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
      */
     @Override
     public LocalBusiness loadInBackground() {
-        if (dataSource == LocalConstants.YELP) {
-            Log.d(TAG, "loadInBackground: Loading from Yelp. Id:" + id);
-            return YelpLoaderHelper.fetchPlaceDetails(getContext(), id);
-        }
-        else if (dataSource == LocalConstants.FACEBOOK) {
-            Log.d(TAG, "loadInBackground: Loading from Facebook. Id:" + id);
-            return FbApiHelper.getPlaceDetails(getContext(), AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
-        }
-        else if (dataSource == LocalConstants.GOOGLE) {
-            Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
-            return null;
-        }
-        else {
-            Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
-            return null;
+        switch (dataSource) {
+            case LocalConstants.YELP:
+                Log.d(TAG, "loadInBackground: Loading from Yelp. Id:" + id);
+                return YelpLoaderHelper.fetchPlaceDetails(getContext(), id);
+
+            case LocalConstants.FACEBOOK:
+                Log.d(TAG, "loadInBackground: Loading from Facebook. Id:" + id);
+                return FbApiHelper.getPlaceDetails(getContext(), AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
+
+            case LocalConstants.GOOGLE:
+                Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
+                return null;
+
+            default:
+                Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
+                return null;
         }
     }
 

@@ -123,7 +123,7 @@ public class SingleSuggestionLoaderCallbacks
         String searchId = args.getString(ARG_SEARCH_ID, "");
         int imageHeightPx = args.getInt(ARG_IMAGE_HEIGHT);
         int imageWidthPx = args.getInt(ARG_IMAGE_WIDTH);
-        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP);
+        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP); //default to Yelp since it doesn't require login
 
         return new SingleSuggestionAsyncTaskLoader(applicationContext, searchId, imageHeightPx, imageWidthPx, dataSource);
     }

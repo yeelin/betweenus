@@ -318,7 +318,7 @@ public class SuggestionDetailFragment
             case LocalConstants.YELP:
                 //initialize the loader to fetch details for this particular id from Yelp
                 SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
-                        id, imageSizePx, imageSizePx, LocalConstants.YELP);
+                        id, imageSizePx, imageSizePx, preferredDataSource);
                 break;
 
             case LocalConstants.GOOGLE:
