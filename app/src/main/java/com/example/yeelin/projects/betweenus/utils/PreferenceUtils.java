@@ -55,7 +55,7 @@ public class PreferenceUtils {
             case "Yelp": return LocalConstants.YELP;
             case "Google": return LocalConstants.GOOGLE;
             default:
-                return LocalConstants.FACEBOOK;
+                return LocalConstants.YELP; //default preferred data source to Yelp since it doesn't require login
         }
     }
 

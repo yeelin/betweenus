@@ -308,7 +308,7 @@ public class SuggestionDetailFragment
                     Log.d(TAG, "fetchPlaceDetails: User is logged in");
                     //initialize the loader to fetch details for this particular id from fb
                     SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
-                            id, imageSizePx, imageSizePx, LocalConstants.FACEBOOK);
+                            id, imageSizePx, imageSizePx, preferredDataSource);
                 }
                 else {
                     Log.d(TAG, "fetchPlaceDetails: User is not logged in");

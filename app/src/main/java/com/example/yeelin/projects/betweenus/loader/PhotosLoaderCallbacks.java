@@ -127,7 +127,7 @@ public class PhotosLoaderCallbacks implements LoaderManager.LoaderCallbacks<Loca
         Log.d(TAG, "onCreateLoader:");
 
         //read bundle args
-        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.FACEBOOK); //default is fb
+        int dataSource = args.getInt(ARG_DATASOURCE, LocalConstants.YELP); //default is yelp since we would just do nothing
         String searchId = args.getString(ARG_SEARCH_ID, null);
 
         if (searchId != null) {
