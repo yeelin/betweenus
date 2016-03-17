@@ -75,6 +75,26 @@
         <url-pattern>/google/distancematrix</url-pattern>
     </servlet-mapping>
 
+    <!-- Google Nearby Search Servlet -->
+    <servlet>
+        <servlet-name>GoogleNearbySearchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GoogleNearbySearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GoogleNearbySearchServlet</servlet-name>
+        <url-pattern>/google/nearbysearch</url-pattern>
+    </servlet-mapping>
+
+    <!-- Google Place Details Servlet -->
+    <servlet>
+        <servlet-name>GooglePlaceDetailsServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GooglePlaceDetailsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GooglePlaceDetailsServlet</servlet-name>
+        <url-pattern>/google/placedetails</url-pattern>
+    </servlet-mapping>
+
     <!-- Use https -->
     <security-constraint>
         <web-resource-collection>
