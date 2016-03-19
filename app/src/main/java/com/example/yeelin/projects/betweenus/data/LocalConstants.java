@@ -25,6 +25,9 @@ public interface LocalConstants {
     String FETCH_PATH = "fetch";
     String DIRECTIONS_PATH = "directions";
     String DISTANCE_MATRIX_PATH = "distancematrix";
+    String TEXT_SEARCH_PATH = "textsearch";
+    String NEARBY_SEARCH_PATH = "nearbysearch";
+    String PLACE_DETAILS_PATH = "placedetails";
 
     String REQUEST_METHOD_GET = "GET";
     int CONNECT_TIMEOUT_MILLIS = 15000;

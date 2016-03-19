@@ -333,7 +333,9 @@ public class SuggestionDetailFragment
                 break;
 
             case LocalConstants.GOOGLE:
-                Log.d(TAG, "fetchPlaceDetails: Google has not been implemented as a data source");
+                Log.d(TAG, "fetchPlaceDetails: Calling initLoader with Google as data source");
+                SingleSuggestionLoaderCallbacks.initLoader(SingleSuggestionLoaderCallbacks.SINGLE_PLACE, getActivity(), getLoaderManager(), this,
+                        id, imageSizePx, imageSizePx, preferredDataSource);
                 break;
 
             default:

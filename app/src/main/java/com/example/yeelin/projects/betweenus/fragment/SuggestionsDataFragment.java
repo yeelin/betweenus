@@ -272,7 +272,13 @@ public class SuggestionsDataFragment
                 break;
 
             case LocalConstants.GOOGLE:
-                Log.d(TAG, "fetchSuggestions from Google has not been implemented");
+                //initialize the loader to fetch suggestions from Google
+                Log.d(TAG, "fetchSuggestions: Initializing loader to fetch suggestions from Google");
+                SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL,
+                        getContext(), getLoaderManager(), this,
+                        searchTerm, searchRadius, searchLimit,
+                        userLatLng, friendLatLng, midLatLng,
+                        imageSizePx, imageSizePx, dataSource);
                 break;
 
             default:

@@ -222,15 +222,18 @@
     <string name="setting_data_source">Data source</string>
     <string name="data_source_fb">Facebook</string>
     <string name="data_source_yelp">Yelp</string>
+    <string name="data_source_google">Google</string>
     <string-array name="setting_data_source_titles">
         <item>@string/data_source_fb</item>
         <item>@string/data_source_yelp</item>
+        <item>@string/data_source_google</item>
     </string-array>
     <string-array name="setting_data_source_values">
         <item>@string/data_source_fb</item>
         <item>@string/data_source_yelp</item>
+        <item>@string/data_source_google</item>
     </string-array>
-    <string name="setting_default_data_source">@string/data_source_fb</string>
+    <string name="setting_default_data_source">@string/data_source_google</string>
 
     <!-- Search radius pref -->
     <string name="setting_search_radius">Search radius</string>

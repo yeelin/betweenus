@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.LocalResult;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
+import com.example.yeelin.projects.betweenus.data.google.query.GoogleTextSearchLoaderHelper;
 import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
 import com.facebook.AccessToken;
 import com.google.android.gms.maps.model.LatLng;
@@ -137,8 +138,8 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
                 }
 
             case LocalConstants.GOOGLE:
-                Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
-                return null;
+                Log.d(TAG, String.format("loadInBackground: Searching Google: Term:%s, Type:%s, Radius:%d, LatLng:%s", searchTerm, searchTerm, searchRadius, midLatLng));
+                return GoogleTextSearchLoaderHelper.searchForPlaces(getContext(), searchTerm, midLatLng, searchRadius, searchTerm);
 
             default:
                 Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);

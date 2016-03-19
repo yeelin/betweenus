@@ -319,7 +319,7 @@ public class SuggestionsListFragment
             return;
         }
 
-        if (localResult.getLocalBusinesses().size() == 0) {
+        if (localResult.getLocalBusinesses() == null || localResult.getLocalBusinesses().size() == 0) {
             if (pageNumber == 0) {
                 Log.d(TAG, "onSinglePageLoad: Local result is empty and page number is 0");
                 //animate in the list container, and animate out the progress bar,

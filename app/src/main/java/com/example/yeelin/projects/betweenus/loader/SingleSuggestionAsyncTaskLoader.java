@@ -7,6 +7,7 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.fb.query.FbApiHelper;
+import com.example.yeelin.projects.betweenus.data.google.query.GooglePlaceDetailsLoaderHelper;
 import com.example.yeelin.projects.betweenus.data.yelp.query.YelpLoaderHelper;
 import com.facebook.AccessToken;
 
@@ -54,8 +55,8 @@ public class SingleSuggestionAsyncTaskLoader extends AsyncTaskLoader<LocalBusine
                 return FbApiHelper.getPlaceDetails(getContext(), AccessToken.getCurrentAccessToken(), id, imageHeightPx, imageWidthPx);
 
             case LocalConstants.GOOGLE:
-                Log.d(TAG, "loadInBackground: Google data source has not been implemented yet");
-                return null;
+                Log.d(TAG, "loadInBackground: Loading from Google: Id:" + id);
+                return GooglePlaceDetailsLoaderHelper.fetchPlaceDetails(getContext(), id);
 
             default:
                 Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);

@@ -55,10 +55,16 @@ public class PreferenceUtils {
             case "Yelp": return LocalConstants.YELP;
             case "Google": return LocalConstants.GOOGLE;
             default:
-                return LocalConstants.YELP; //default preferred data source to Yelp since it doesn't require login
+                return LocalConstants.GOOGLE; //TODO: default preferred data source to Google since it doesn't require login
         }
     }
 
+    /**
+     * Helper method that returns the user's preference for data source.
+     * Read by Settings fragment.
+     * @param context
+     * @return
+     */
     public static String getPreferredDataSourceString(Context context) {
         String dataSource = PreferenceManager
                 .getDefaultSharedPreferences(context)
