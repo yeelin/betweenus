@@ -18,16 +18,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Created by ninjakiki on 3/17/16.
- * Responds to request for nearby place searches.
+ * Created by ninjakiki on 3/18/16.
+ * Responds to request for text searches.
  */
-public class GoogleNearbySearchServlet extends HttpServlet {
-    public static final Logger log = LoggerFactory.getLogger(GoogleNearbySearchServlet.class);
+public class GoogleTextSearchServlet extends HttpServlet {
+    public static final Logger log = LoggerFactory.getLogger(GoogleTextSearchServlet.class);
 
     /**
      * Test query:
-     * http://localhost:8080/google/nearbysearch?location=-33.8670522,151.1957362&radius=500&type=restaurant
-     * https://betweenus-3636.appspot.com/google/nearbysearch?location=-33.8670522,151.1957362&radius=500&type=restaurant
+     * http://localhost:8080/google/textsearch?query=Restaurant&location=47.645932320504436,-122.20470420793882&radius=4828&type=Restaurant
+     * https://betweenus-3636.appspot.com/google/textsearch?query=Restaurant&location=47.645932320504436,-122.20470420793882&radius=4828&type=Restaurant
      *
      * Documentation on how to handle response:
      * https://developers.google.com/places/web-service/search#PlaceSearchResponses
@@ -40,16 +40,17 @@ public class GoogleNearbySearchServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //get parameters from request
-        final String location = req.getParameter(GoogleConstants.NearbySearchParamNames.LOCATION);
-        final String radius = req.getParameter(GoogleConstants.NearbySearchParamNames.RADIUS);
-        final String type = req.getParameter(GoogleConstants.NearbySearchParamNames.TYPE);
+        final String query = req.getParameter(GoogleConstants.TextSearchParamNames.QUERY);
+        final String location = req.getParameter(GoogleConstants.TextSearchParamNames.LOCATION);
+        final String radius = req.getParameter(GoogleConstants.TextSearchParamNames.RADIUS);
+        final String type = req.getParameter(GoogleConstants.TextSearchParamNames.TYPE);
 
-        //contact nearby search api
+        //contact text search api
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
 
         try {
-            final URL url = buildNearbySearchUrl(location, radius, type);
+            final URL url = buildTextSearchUrl(query, location, radius, type);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(GoogleConstants.REQUEST_METHOD);
             urlConnection.setConnectTimeout(GoogleConstants.CONNECT_TIMEOUT_MILLIS);
@@ -66,16 +67,16 @@ public class GoogleNearbySearchServlet extends HttpServlet {
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
             else {
-                log.warn("GoogleNearbySearchServlet:doGet: ResponseStatus:" + responseCode);
+                log.warn("GoogleTextSearchServlet:doGet: ResponseStatus:" + responseCode);
                 resp.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
             }
         }
         catch (MalformedURLException e) {
-            log.error("GoogleNearbySearchServlet:doGet: Unexpected MalformedURLException", e);
+            log.error("GoogleTextSearchServlet:doGet: Unexpected MalformedURLException", e);
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
         catch (Exception e) {
-            log.error("GoogleNearbySearchServlet:doGet: Unexpected Exception", e);
+            log.error("GoogleTextSearchServlet:doGet: Unexpected Exception", e);
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         finally {
@@ -86,20 +87,22 @@ public class GoogleNearbySearchServlet extends HttpServlet {
     }
 
     /**
-     * Builds the url to call the place search (aka nearby search) api
-     * https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&key=%s
+     * Builds the url to call the place search with query (aka text search) api
+     * https://maps.googleapis.com/maps/api/place/textsearch/json?query=Restaurant&location=47.645932320504436,-122.20470420793882&radius=4828&type=Restaurant&key=%s
      *
      * @return
      * @throws MalformedURLException
      */
-    private URL buildNearbySearchUrl(String location, String radius, String type) throws MalformedURLException {
+    private URL buildTextSearchUrl(String query, String location, String radius, String type) throws MalformedURLException {
         StringBuilder urlStringBuilder = new StringBuilder()
-                .append(GoogleConstants.NEARBY_SEARCH_URL)
-                .append(String.format("%s=%s", GoogleConstants.NearbySearchParamNames.LOCATION, location))
+                .append(GoogleConstants.TEXT_SEARCH_URL)
+                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.QUERY, query))
                 .append("&")
-                .append(String.format("%s=%s", GoogleConstants.NearbySearchParamNames.RADIUS, radius))
+                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.LOCATION, location))
                 .append("&")
-                .append(String.format("%s=%s", GoogleConstants.NearbySearchParamNames.TYPE, type))
+                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.RADIUS, radius))
+                .append("&")
+                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.TYPE, type))
                 .append("&")
                 .append(String.format("%s=%s", GoogleConstants.ParamNames.KEY, GoogleConstants.API_KEY));
         return new URL(urlStringBuilder.toString());

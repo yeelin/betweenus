@@ -85,6 +85,16 @@
         <url-pattern>/google/nearbysearch</url-pattern>
     </servlet-mapping>
 
+    <!-- Google Text Search Servlet -->
+    <servlet>
+        <servlet-name>GoogleTextSearchServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GoogleTextSearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GoogleTextSearchServlet</servlet-name>
+        <url-pattern>/google/textsearch</url-pattern>
+    </servlet-mapping>
+
     <!-- Google Place Details Servlet -->
     <servlet>
         <servlet-name>GooglePlaceDetailsServlet</servlet-name>
