@@ -105,6 +105,16 @@
         <url-pattern>/google/placedetails</url-pattern>
     </servlet-mapping>
 
+    <!-- Google Place Photos Servlet -->
+    <servlet>
+        <servlet-name>GooglePlacePhotosServlet</servlet-name>
+        <servlet-class>com.example.betweenus.backend.servlet.GooglePlacePhotosServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GooglePlacePhotosServlet</servlet-name>
+        <url-pattern>/google/placephotos</url-pattern>
+    </servlet-mapping>
+
     <!-- Use https -->
     <security-constraint>
         <web-resource-collection>
