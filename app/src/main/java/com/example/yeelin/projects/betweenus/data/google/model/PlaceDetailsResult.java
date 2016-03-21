@@ -7,10 +7,16 @@ import java.util.Arrays;
 
 /**
  * Created by ninjakiki on 3/17/16.
+ * https://developers.google.com/places/web-service/details#PlaceDetailsRequests
+ * A Place Details request returns more comprehensive information about the indicated place
+ * such as its complete address, phone number, user rating and reviews.
  */
 public class PlaceDetailsResult implements LocalBusiness {
+    //possible values: OK, UNKNOWN_ERROR, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, INVALID_REQUEST, NOT_FOUND
     private final String status;
+    //contains a set of attributions about this listing which must be displayed to the user.
     private final String[] html_attributions;
+    //contains the detailed information about the place requested
     private final Place result;
 
     public PlaceDetailsResult(String status, String[] html_attributions, Place result) {

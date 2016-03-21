@@ -11,28 +11,46 @@ import java.util.Arrays;
  * Created by ninjakiki on 3/17/16.
  */
 public class Place implements LocalBusiness {
-    //available from nearby search api
+    //available from nearby search or text search api
+
+    //contains the URL of a recommended icon which may be displayed to the user when indicating this result
     private final String icon;
+    //contains geometry information about the result, generally including the location (geocode) of the place and (optionally) the viewport identifying its general area of coverage.
     private final PlaceGeometry geometry;
+    //contains the human-readable name for the returned result. For establishment results, this is usually the business name.
     private final String name;
+    //see PlaceHours class for info
     private final PlaceHours opening_hours;
+    //an array of photo objects, each containing a reference to an image. A Place Search will return at most one photo object. Performing a Place Details request on the place may return up to ten photos.
     private final PlacePhoto[] photos;
+    //a textual identifier that uniquely identifies a place.
     private final String place_id;
+    //The price level of the place, on a scale of 0 to 4. The exact amount indicated by a specific value will vary from region to region.
     private final int price_level;
+    //contains the place's rating, from 1.0 to 5.0, based on aggregated user reviews.
     private final double rating;
+    //contains a feature name of a nearby location. Often this feature refers to a street or neighborhood within the given results. The vicinity property is only returned for a Nearby Search.
     private final String vicinity;
+    //contains an array of feature types describing the given result.
     private final String[] types;
 
     //available from placedetails api
+    //an array of separate address components used to compose a given address.
+    private final AddressComponent[] address_components;
+    //string containing the human-readable address of this place. Often this address is equivalent to the "postal address". The formatted_address property is only returned for a Text Search.
     private final String formatted_address;
+    // contains the place's phone number in its local format.
     private final String formatted_phone_number;
+    //an array of up to five reviews
     private final PlaceReview[] reviews;
     private final int user_ratings_total;
+    //contains the URL of the official Google page for this place. This will be the Google-owned page that contains the best available information about the place. Applications must link to or embed this page on any screen that shows detailed results about the place to the user.
     private final String url;
+    //the authoritative website for this place, such as a business' homepage.
     private final String website;
 
     public Place(String icon, PlaceGeometry geometry, String name, PlaceHours opening_hours, PlacePhoto[] photos, String place_id, int price_level, double rating, String vicinity, String[] types,
-                 String formatted_address, String formatted_phone_number, PlaceReview[] reviews, int user_ratings_total, String url, String website) {
+                 AddressComponent[] address_components, String formatted_address, String formatted_phone_number, PlaceReview[] reviews, int user_ratings_total, String url, String website) {
         this.icon = icon;
         this.geometry = geometry;
         this.name = name;
@@ -43,6 +61,7 @@ public class Place implements LocalBusiness {
         this.rating = rating;
         this.vicinity = vicinity;
         this.types = types;
+        this.address_components = address_components;
 
         this.formatted_address = formatted_address;
         this.formatted_phone_number = formatted_phone_number;
@@ -162,7 +181,7 @@ public class Place implements LocalBusiness {
     @Override
     public String getPriceRangeString() {
         switch (price_level) {
-            case 0: return "free";
+            case 0: return "Free";
             case 1: return "$";
             case 2: return "$$";
             case 3: return "$$$";
@@ -274,268 +293,43 @@ public class Place implements LocalBusiness {
         return user_ratings_total;
     }
 
+    public String[] getTypes() {
+        return types;
+    }
+
     @Override
     public String toString() {
         return String.format("Name:%s, Geometry:%s, OpeningHours:%s, Price:%s, Rating:%f, Vicinity:%s, Address:%s, Phone:%s, Reviews:%s, Url:%s, Website:%s",
                 name, geometry, opening_hours, price_level, rating, vicinity, formatted_address, formatted_phone_number, Arrays.toString(reviews), url, website);
     }
 
-    public String[] getTypes() {
-        return types;
-    }
-
     /**
-     * Place Geometry
+     * Address Component class
      */
-    public static class PlaceGeometry implements LocalBusinessLocation {
-        private final PlaceLocation location;
+    public static class AddressComponent {
+        //full text description or name of the address component.
+        private final String long_name;
+        //abbreviated textual name for the address component, if available.
+        private final String short_name;
+        //array indicating the type of the address component.
+        private final String[] types;
 
-        public PlaceGeometry(PlaceLocation location) {
-            this.location = location;
+        public AddressComponent(String long_name, String short_name, String[] types) {
+            this.long_name = long_name;
+            this.short_name = short_name;
+            this.types = types;
         }
 
-        public PlaceLocation getLocation() {
-            return location;
+        public String getLong_name() {
+            return long_name;
         }
 
-        @Override
-        public String toString() {
-            return String.format("LatLng:%s", location);
+        public String getShort_name() {
+            return short_name;
         }
 
-        @Override
-        public String getShortDisplayAddress() {
-            return null;
-        }
-
-        @Override
-        public String getLongDisplayAddress() {
-            return null;
-        }
-
-        @Override
-        public String getCrossStreets() {
-            return null;
-        }
-
-        @Override
-        public LatLng getLatLng() {
-            return new LatLng(location.getLat(), location.getLng());
-        }
-
-    }
-
-    /**
-     * Place location
-     */
-    public static class PlaceLocation {
-        private final double lat;
-        private final double lng;
-
-        public PlaceLocation(double lat, double lng) {
-            this.lat = lat;
-            this.lng = lng;
-        }
-
-        public double getLat() {
-            return lat;
-        }
-
-        public double getLng() {
-            return lng;
-        }
-    }
-
-    /**
-     * Place Hours
-     * Consists of open_now boolean, periods of open/close, and weekday text which is periods
-     * in the form of string.
-     */
-    public static class PlaceHours {
-        private final String open_now;
-        private final String[] weekday_text;
-        private final Period[] periods;
-
-        public PlaceHours(String open_now, String[] weekday_text, Period[] periods) {
-            this.open_now = open_now;
-            this.weekday_text = weekday_text;
-            this.periods = periods;
-        }
-
-        public String getOpen_now() {
-            return open_now;
-        }
-
-        public boolean isOpenNow() { return open_now.equalsIgnoreCase("true"); }
-
-        public String[] getWeekday_text() {
-            return weekday_text;
-        }
-
-        public Period[] getPeriods() {
-            return periods;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("OpenNow:%s, WeekdayText:%s, Periods:%s",
-                    open_now, Arrays.toString(weekday_text), Arrays.toString(periods));
-        }
-    }
-
-    /**
-     * Period class
-     * Each Period consists of 2 subperiods, one for open and one for close.
-     * A day can have more than 1 period if there are breaks in between when it's open and closed.
-     */
-    public static class Period {
-        private final SubPeriod close;
-        private final SubPeriod open;
-
-        public Period(SubPeriod close, SubPeriod open) {
-            this.close = close;
-            this.open = open;
-        }
-
-        public SubPeriod getClose() {
-            return close;
-        }
-
-        public SubPeriod getOpen() {
-            return open;
-        }
-    }
-
-    /**
-     * SubPeriod class
-     * Each subperiod consists of a day and time.  2 subperiods make 1 period
-     */
-    public static class SubPeriod {
-        private final int day;
-        private final int time;
-
-        public SubPeriod(int day, int time)
-        {
-            this.day = day;
-            this.time = time;
-        }
-
-        public int getDay() {
-            return day;
-        }
-
-        public int getTime() {
-            return time;
-        }
-    }
-
-        /**
-     * Place Photo
-     */
-    public static class PlacePhoto {
-        private final int height;
-        private final int width;
-        private final String[] html_attributions;
-        private final String photo_reference;
-
-        public PlacePhoto(int height, int width, String[] html_attributions, String photo_reference) {
-            this.height = height;
-            this.width = width;
-            this.html_attributions = html_attributions;
-            this.photo_reference = photo_reference;
-        }
-
-        public int getHeight() {
-            return height;
-        }
-
-        public int getWidth() {
-            return width;
-        }
-
-        public String[] getHtml_attributions() {
-            return html_attributions;
-        }
-
-        public String getPhoto_reference() {
-            return photo_reference;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Height:%d, Width:%d, Attributions:%s, Reference:%s",
-                    height, width, Arrays.toString(html_attributions), photo_reference);
-        }
-    }
-
-    /**
-     * Place review
-     */
-    public static class PlaceReview {
-        private final AspectRating[] aspects;
-        private final String author_name;
-        private final int rating;
-        private final String text;
-        private final long time;
-
-        public PlaceReview(AspectRating[] aspects, String author_name, int rating, String text, long time) {
-            this.aspects = aspects;
-            this.author_name = author_name;
-            this.rating = rating;
-            this.text = text;
-            this.time = time;
-        }
-
-        public AspectRating[] getAspects() {
-            return aspects;
-        }
-
-        public String getAuthor_name() {
-            return author_name;
-        }
-
-        public int getRating() {
-            return rating;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public long getTime() {
-            return time;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Aspects:%s, Author:%s, Rating:%d, Time:%d, Text:%s",
-                    Arrays.toString(aspects), author_name, rating, time, text);
-        }
-    }
-
-    /**
-     * Aspect rating
-     */
-    public static class AspectRating {
-        private final int rating;
-        private final String type;
-
-        public AspectRating(int rating, String type) {
-            this.rating = rating;
-            this.type = type;
-        }
-
-        public int getRating() {
-            return rating;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Rating:%d, Type:%s", rating, type);
+        public String[] getTypes() {
+            return types;
         }
     }
 }

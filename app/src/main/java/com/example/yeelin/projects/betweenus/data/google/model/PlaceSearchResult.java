@@ -11,10 +11,20 @@ import java.util.List;
 
 /**
  * Created by ninjakiki on 3/17/16.
+ * https://developers.google.com/places/web-service/search#PlaceSearchResponses
  */
 public class PlaceSearchResult implements LocalResult {
+    //possible values: OK, ZERO_RESULTS, OVER_QUERY_LIMIT, REQUEST_DENIED, INVALID_REQUEST
     private final String status;
+    //result may also contain attribution information which must be displayed to the user.
     private final String[] html_attributions;
+
+    //By default, each Nearby Search or Text Search returns up to 20 establishment results per query;
+    // however, each search can return as many as 60 results, split across three pages.
+    // If your search will return more than 20, then the search response will include an additional value
+    // — next_page_token. Pass the value of the next_page_token to the pagetoken parameter of a new search
+    // to see the next set of results.
+    // If the next_page_token is null, or is not returned, then there are no further results.
     private final String next_page_token;
     private final Place[] results;
 
