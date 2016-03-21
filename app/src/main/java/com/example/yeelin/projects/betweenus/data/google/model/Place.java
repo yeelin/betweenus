@@ -21,16 +21,18 @@ public class Place implements LocalBusiness {
     private final int price_level;
     private final double rating;
     private final String vicinity;
+    private final String[] types;
 
     //available from placedetails api
     private final String formatted_address;
     private final String formatted_phone_number;
     private final PlaceReview[] reviews;
+    private final int user_ratings_total;
     private final String url;
     private final String website;
 
-    public Place(String icon, PlaceGeometry geometry, String name, PlaceHours opening_hours, PlacePhoto[] photos, String place_id, int price_level, double rating, String vicinity,
-                 String formatted_address, String formatted_phone_number, PlaceReview[] reviews, String url, String website) {
+    public Place(String icon, PlaceGeometry geometry, String name, PlaceHours opening_hours, PlacePhoto[] photos, String place_id, int price_level, double rating, String vicinity, String[] types,
+                 String formatted_address, String formatted_phone_number, PlaceReview[] reviews, int user_ratings_total, String url, String website) {
         this.icon = icon;
         this.geometry = geometry;
         this.name = name;
@@ -40,10 +42,12 @@ public class Place implements LocalBusiness {
         this.price_level = price_level;
         this.rating = rating;
         this.vicinity = vicinity;
+        this.types = types;
 
         this.formatted_address = formatted_address;
         this.formatted_phone_number = formatted_phone_number;
         this.reviews = reviews;
+        this.user_ratings_total = user_ratings_total;
         this.url = url;
         this.website = website;
     }
@@ -73,12 +77,12 @@ public class Place implements LocalBusiness {
 
     @Override
     public String getCategory() {
-        return null;
+        return Arrays.toString(types);
     }
 
     @Override
     public String[] getCategoryList() {
-        return new String[0];
+        return types;
     }
 
     @Override
@@ -103,7 +107,7 @@ public class Place implements LocalBusiness {
 
     @Override
     public String[] getHours() {
-        return opening_hours.getPeriods();
+        return opening_hours.getWeekday_text();
     }
 
     @Override
@@ -147,12 +151,19 @@ public class Place implements LocalBusiness {
 
     @Override
     public String getPriceRangeString() {
-        return null;
+        switch (price_level) {
+            case 0: return "free";
+            case 1: return "$";
+            case 2: return "$$";
+            case 3: return "$$$";
+            case 4: return  "$$$$";
+            default: return "Not available";
+        }
     }
 
     @Override
     public int getPriceRange() {
-        return 0;
+        return price_level;
     }
 
     @Override
@@ -202,7 +213,7 @@ public class Place implements LocalBusiness {
 
     @Override
     public int getReviewCount() {
-        return 0;
+        return user_ratings_total;
     }
 
     @Override
@@ -249,10 +260,18 @@ public class Place implements LocalBusiness {
         return website;
     }
 
+    public int getUser_ratings_total() {
+        return user_ratings_total;
+    }
+
     @Override
     public String toString() {
         return String.format("Name:%s, Geometry:%s, OpeningHours:%s, Price:%s, Rating:%f, Vicinity:%s, Address:%s, Phone:%s, Reviews:%s, Url:%s, Website:%s",
                 name, geometry, opening_hours, price_level, rating, vicinity, formatted_address, formatted_phone_number, Arrays.toString(reviews), url, website);
+    }
+
+    public String[] getTypes() {
+        return types;
     }
 
     /**
@@ -315,18 +334,19 @@ public class Place implements LocalBusiness {
         public double getLng() {
             return lng;
         }
-
     }
 
     /**
      * Place Hours
+     * Consists of open_now boolean, periods of open/close, and weekday text which is periods
+     * in the form of string.
      */
     public static class PlaceHours {
         private final String open_now;
         private final String[] weekday_text;
-        private final String[] periods;
+        private final Period[] periods;
 
-        public PlaceHours(String open_now, String[] weekday_text, String[] periods) {
+        public PlaceHours(String open_now, String[] weekday_text, Period[] periods) {
             this.open_now = open_now;
             this.weekday_text = weekday_text;
             this.periods = periods;
@@ -336,11 +356,13 @@ public class Place implements LocalBusiness {
             return open_now;
         }
 
+        public boolean isOpenNow() { return open_now.equalsIgnoreCase("true"); }
+
         public String[] getWeekday_text() {
             return weekday_text;
         }
 
-        public String[] getPeriods() {
+        public Period[] getPeriods() {
             return periods;
         }
 
@@ -352,6 +374,52 @@ public class Place implements LocalBusiness {
     }
 
     /**
+     * Period class
+     * Each Period consists of 2 subperiods, one for open and one for close.
+     * A day can have more than 1 period if there are breaks in between when it's open and closed.
+     */
+    public static class Period {
+        private final SubPeriod close;
+        private final SubPeriod open;
+
+        public Period(SubPeriod close, SubPeriod open) {
+            this.close = close;
+            this.open = open;
+        }
+
+        public SubPeriod getClose() {
+            return close;
+        }
+
+        public SubPeriod getOpen() {
+            return open;
+        }
+    }
+
+    /**
+     * SubPeriod class
+     * Each subperiod consists of a day and time.  2 subperiods make 1 period
+     */
+    public static class SubPeriod {
+        private final int day;
+        private final int time;
+
+        public SubPeriod(int day, int time)
+        {
+            this.day = day;
+            this.time = time;
+        }
+
+        public int getDay() {
+            return day;
+        }
+
+        public int getTime() {
+            return time;
+        }
+    }
+
+        /**
      * Place Photo
      */
     public static class PlacePhoto {
