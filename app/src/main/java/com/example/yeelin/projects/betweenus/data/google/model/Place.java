@@ -97,7 +97,7 @@ public class Place implements LocalBusiness {
 
     @Override
     public String[] getCuisine() {
-        return new String[0];
+        return null;
     }
 
     @Override
@@ -125,18 +125,28 @@ public class Place implements LocalBusiness {
         return geometry;
     }
 
+    @Override
+    public String getShortDisplayAddress() {
+        return vicinity != null ? vicinity : formatted_address;
+    }
+
+    @Override
+    public String getLongDisplayAddress() {
+        return formatted_address;
+    }
+
     public String getName() {
         return name;
     }
 
     @Override
     public String[] getParking() {
-        return new String[0];
+        return null;
     }
 
     @Override
     public String[] getPaymentOptions() {
-        return new String[0];
+        return null;
     }
 
     @Override
@@ -173,12 +183,12 @@ public class Place implements LocalBusiness {
 
     @Override
     public String[] getRestaurantServices() {
-        return new String[0];
+        return null;
     }
 
     @Override
     public String[] getRestaurantSpecialities() {
-        return new String[0];
+        return null;
     }
 
     @Override

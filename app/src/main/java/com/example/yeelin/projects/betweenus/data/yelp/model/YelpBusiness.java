@@ -219,6 +219,16 @@ public class YelpBusiness implements LocalBusiness {
         return location;
     }
 
+    @Override
+    public String getShortDisplayAddress() {
+        return location.getShortDisplayAddress();
+    }
+
+    @Override
+    public String getLongDisplayAddress() {
+        return location.getLongDisplayAddress();
+    }
+
     public boolean is_closed() {
         return is_closed;
     }

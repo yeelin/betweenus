@@ -20,6 +20,8 @@ public interface LocalBusiness {
     String getFbLink();
 
     LocalBusinessLocation getLocalBusinessLocation();
+    String getShortDisplayAddress();
+    String getLongDisplayAddress();
     String getName();
     String[] getParking();
     String[] getPaymentOptions();

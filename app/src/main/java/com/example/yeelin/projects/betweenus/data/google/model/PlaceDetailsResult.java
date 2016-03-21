@@ -103,6 +103,16 @@ public class PlaceDetailsResult implements LocalBusiness {
     }
 
     @Override
+    public String getShortDisplayAddress() {
+        return result.getShortDisplayAddress();
+    }
+
+    @Override
+    public String getLongDisplayAddress() {
+        return result.getLongDisplayAddress();
+    }
+
+    @Override
     public String getName() {
         return result.getName();
     }
@@ -149,7 +159,7 @@ public class PlaceDetailsResult implements LocalBusiness {
 
     @Override
     public String[] getRestaurantSpecialities() {
-        return new String[0];
+        return result.getRestaurantSpecialities();
     }
 
     @Override

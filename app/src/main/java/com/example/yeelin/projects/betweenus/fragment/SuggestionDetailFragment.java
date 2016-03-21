@@ -471,7 +471,7 @@ public class SuggestionDetailFragment
         viewHolder.travelInfoFromUser.setText(travelInfo);
 
         //address
-        final String fullAddress = business.getLocalBusinessLocation() != null ? business.getLocalBusinessLocation().getLongDisplayAddress() : null;
+        final String fullAddress = business.getLongDisplayAddress() != null ? business.getLongDisplayAddress() : null;
         viewHolder.address.setText(fullAddress != null ? fullAddress : getString(R.string.not_available));
 
         //cross streets

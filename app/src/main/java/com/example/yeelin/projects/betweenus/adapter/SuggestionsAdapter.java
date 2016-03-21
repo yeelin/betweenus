@@ -145,7 +145,7 @@ public class SuggestionsAdapter
             viewHolder.address.setVisibility(View.GONE);
         }
         else {
-            final String shortAddress = business.getLocalBusinessLocation().getShortDisplayAddress();
+            final String shortAddress = business.getShortDisplayAddress();
             if (shortAddress == null) {
                 viewHolder.address.setVisibility(View.GONE);
             }

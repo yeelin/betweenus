@@ -366,4 +366,14 @@ public class FbPage implements LocalBusiness {
     public LocalBusinessLocation getLocalBusinessLocation() {
         return location;
     }
+
+    @Override
+    public String getShortDisplayAddress() {
+        return location.getShortDisplayAddress();
+    }
+
+    @Override
+    public String getLongDisplayAddress() {
+        return location.getLongDisplayAddress();
+    }
 }
