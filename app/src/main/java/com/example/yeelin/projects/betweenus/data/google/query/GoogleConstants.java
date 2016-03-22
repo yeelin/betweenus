@@ -35,4 +35,11 @@ public abstract class GoogleConstants {
     public static class PlaceDetailsParamNames {
         public static final String PLACE_ID = "placeid";
     }
+
+    //query parameters for place photos
+    public static class PlacePhotosParamNames {
+        public static final String PHOTO_REFERENCE = "photoreference";
+        public static final String MAX_HEIGHT = "maxheight";
+        public static final String MAX_WIDTH = "maxwidth";
+    }
 }

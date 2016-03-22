@@ -1,10 +1,14 @@
 package com.example.yeelin.projects.betweenus.data.google.model;
 
+import android.util.Log;
+
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.google.query.GooglePlacePhotosHelper;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.net.MalformedURLException;
 import java.util.Arrays;
 
 /**
@@ -175,7 +179,19 @@ public class Place implements LocalBusiness {
 
     @Override
     public String getProfilePictureUrl() {
-        return null;
+        if (photos == null) return null;
+        String profilePictureUrl = null;
+        try {
+            profilePictureUrl = GooglePlacePhotosHelper.buildPlacePhotosUrl(
+                    photos[0].getPhoto_reference(),
+                    photos[0].getHeight(),
+                    photos[0].getWidth())
+                    .toString();
+        }
+        catch (MalformedURLException e) {
+            Log.d(Place.class.getCanonicalName(), "getProfilePictureUrl: Unexpected MalformedURLException: + " + e.getLocalizedMessage());
+        }
+        return profilePictureUrl;
     }
 
     @Override

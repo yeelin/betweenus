@@ -28,6 +28,7 @@ public interface LocalConstants {
     String TEXT_SEARCH_PATH = "textsearch";
     String NEARBY_SEARCH_PATH = "nearbysearch";
     String PLACE_DETAILS_PATH = "placedetails";
+    String PLACE_PHOTOS_PATH = "placephotos";
 
     String REQUEST_METHOD_GET = "GET";
     int CONNECT_TIMEOUT_MILLIS = 15000;
