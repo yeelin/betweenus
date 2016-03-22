@@ -17,6 +17,7 @@ import android.view.View;
 import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.adapter.SuggestionsStatePagerAdapter;
@@ -351,12 +352,14 @@ public class SuggestionsPagerActivity
      * SuggestionDetailFragment.SuggestionDetailFragmentListener implementation
      * Starts the photo pager
      * @param position
+     * @param localPhotos
      */
     @Override
-    public void onOpenPhotos(int position) {
+    public void onOpenPhotos(int position, LocalPhoto[] localPhotos) {
         Log.d(TAG, "onOpenPhotos: Position:" + position);
         final SimplifiedBusiness simplifiedBusiness = simplifiedBusinesses.get(position);
-        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getProfilePictureUrl(), preferredDataSource));
+        startActivity(PhotosPagerActivity.buildIntent(this, simplifiedBusiness.getId(), simplifiedBusiness.getProfilePictureUrl(),
+                localPhotos, preferredDataSource));
     }
 
     /**

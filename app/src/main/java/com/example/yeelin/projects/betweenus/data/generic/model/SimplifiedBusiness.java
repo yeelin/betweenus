@@ -121,6 +121,7 @@ public class SimplifiedBusiness implements Parcelable {
         latLng = in.readParcelable(LatLng.class.getClassLoader());
         address = in.readString();
         categoryList = in.createStringArray();
+        //in.readStringArray(categoryList);
         reviews = in.readInt();
         rating = in.readDouble();
         likes = in.readInt();

@@ -5,8 +5,8 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.google.query.GooglePlacePhotosHelper;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -235,7 +235,7 @@ public class Place implements LocalBusiness {
         return opening_hours;
     }
 
-    public PlacePhoto[] getPhotos() {
+    public LocalPhoto[] getPhotos() {
         return photos;
     }
 

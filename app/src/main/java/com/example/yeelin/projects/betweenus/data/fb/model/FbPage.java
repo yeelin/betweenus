@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,6 +167,11 @@ public class FbPage implements LocalBusiness {
             return null;
         }
         return picture.getData().getUrl();
+    }
+
+    @Override
+    public LocalPhoto[] getPhotos() {
+        return null;
     }
 
     @Override

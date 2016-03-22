@@ -2,6 +2,7 @@ package com.example.yeelin.projects.betweenus.data.google.model;
 
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 
 import java.util.Arrays;
 
@@ -141,6 +142,11 @@ public class PlaceDetailsResult implements LocalBusiness {
     @Override
     public String getProfilePictureUrl() {
         return result.getProfilePictureUrl();
+    }
+
+    @Override
+    public LocalPhoto[] getPhotos() {
+        return result.getPhotos();
     }
 
     @Override

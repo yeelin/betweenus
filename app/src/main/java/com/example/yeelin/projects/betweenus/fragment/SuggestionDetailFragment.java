@@ -18,6 +18,7 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 import com.example.yeelin.projects.betweenus.data.LocalTravelElement;
 import com.example.yeelin.projects.betweenus.loader.SingleSuggestionLoaderCallbacks;
 import com.example.yeelin.projects.betweenus.loader.callback.SingleSuggestionLoaderListener;
@@ -156,7 +157,7 @@ public class SuggestionDetailFragment
      * Interface for activities or parent fragments interested in events from this fragment
      */
     public interface SuggestionDetailFragmentListener {
-        void onOpenPhotos(int position);
+        void onOpenPhotos(int position, LocalPhoto[] localPhotos);
         void onOpenMap(int position, boolean toggleState);
         void onOpenWebsite(String url);
         void onDialPhone(String phone);
@@ -388,7 +389,6 @@ public class SuggestionDetailFragment
                 viewHolder.detailContainer.setVisibility(View.GONE); //make sure container doesn't show
                 AnimationUtils.crossFadeViews(getActivity(), viewHolder.detailEmpty, viewHolder.detailProgressBar);
             }
-            return;
         }
         else {
             Log.d(TAG, "onLoadComplete: Local business is not null. Updating views");
@@ -601,8 +601,8 @@ public class SuggestionDetailFragment
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.detail_image:
-                Log.d(TAG, "onClick: Detail image clicked");
-                listener.onOpenPhotos(position);
+                Log.d(TAG, "onClick: Detail image clicked. Opening photo pager.");
+                listener.onOpenPhotos(position, business.getPhotos());
                 break;
             case R.id.detail_website_button:
                 listener.onOpenWebsite(business.getMobileUrl());

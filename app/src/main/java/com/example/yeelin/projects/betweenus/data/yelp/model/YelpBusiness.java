@@ -3,6 +3,7 @@ package com.example.yeelin.projects.betweenus.data.yelp.model;
 import com.example.yeelin.projects.betweenus.data.LocalBusiness;
 import com.example.yeelin.projects.betweenus.data.LocalBusinessLocation;
 import com.example.yeelin.projects.betweenus.data.LocalConstants;
+import com.example.yeelin.projects.betweenus.data.LocalPhoto;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -91,6 +92,11 @@ public class YelpBusiness implements LocalBusiness {
     @Override
     public String getProfilePictureUrl() {
         return image_url;
+    }
+
+    @Override
+    public LocalPhoto[] getPhotos() {
+        return null;
     }
 
     @Override
