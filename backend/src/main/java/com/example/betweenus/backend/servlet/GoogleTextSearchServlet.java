@@ -44,13 +44,14 @@ public class GoogleTextSearchServlet extends HttpServlet {
         final String location = req.getParameter(GoogleConstants.TextSearchParamNames.LOCATION);
         final String radius = req.getParameter(GoogleConstants.TextSearchParamNames.RADIUS);
         final String type = req.getParameter(GoogleConstants.TextSearchParamNames.TYPE);
+        final String pageToken = req.getParameter(GoogleConstants.TextSearchParamNames.PAGE_TOKEN);
 
         //contact text search api
         HttpURLConnection urlConnection = null;
         InputStream inputStream = null;
 
         try {
-            final URL url = buildTextSearchUrl(query, location, radius, type);
+            final URL url = buildTextSearchUrl(query, location, radius, type, pageToken);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(GoogleConstants.REQUEST_METHOD);
             urlConnection.setConnectTimeout(GoogleConstants.CONNECT_TIMEOUT_MILLIS);
@@ -90,21 +91,38 @@ public class GoogleTextSearchServlet extends HttpServlet {
      * Builds the url to call the place search with query (aka text search) api
      * https://maps.googleapis.com/maps/api/place/textsearch/json?query=Restaurant&location=47.645932320504436,-122.20470420793882&radius=4828&type=Restaurant&key=%s
      *
+     * @param query
+     * @param location
+     * @param radius
+     * @param type
+     * @param pageToken
+     *
      * @return
      * @throws MalformedURLException
      */
-    private URL buildTextSearchUrl(String query, String location, String radius, String type) throws MalformedURLException {
+    private URL buildTextSearchUrl(String query, String location, String radius, String type, String pageToken)
+            throws MalformedURLException {
         StringBuilder urlStringBuilder = new StringBuilder()
                 .append(GoogleConstants.TEXT_SEARCH_URL)
-                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.QUERY, query))
-                .append("&")
-                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.LOCATION, location))
-                .append("&")
-                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.RADIUS, radius))
-                .append("&")
-                .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.TYPE, type))
-                .append("&")
-                .append(String.format("%s=%s", GoogleConstants.ParamNames.KEY, GoogleConstants.API_KEY));
+                .append(String.format("%s=%s", GoogleConstants.ParamNames.KEY, GoogleConstants.API_KEY))
+                .append("&");
+
+        if (pageToken == null) {
+            //pagetoken is null, so this is the first call
+            urlStringBuilder
+                    .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.QUERY, query))
+                    .append("&")
+                    .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.LOCATION, location))
+                    .append("&")
+                    .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.RADIUS, radius))
+                    .append("&")
+                    .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.TYPE, type));
+        }
+        else {
+            //pagetoken isn't null, so this is a second call to get more data
+            urlStringBuilder
+                    .append(String.format("%s=%s", GoogleConstants.TextSearchParamNames.PAGE_TOKEN, pageToken));
+        }
         return new URL(urlStringBuilder.toString());
     }
 }
