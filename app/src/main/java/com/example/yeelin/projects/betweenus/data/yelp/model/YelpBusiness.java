@@ -227,12 +227,12 @@ public class YelpBusiness implements LocalBusiness {
 
     @Override
     public String getShortDisplayAddress() {
-        return location.getShortDisplayAddress();
+        return location != null ? location.getShortDisplayAddress() : null;
     }
 
     @Override
     public String getLongDisplayAddress() {
-        return location.getLongDisplayAddress();
+        return location != null ? location.getLongDisplayAddress() : null;
     }
 
     public boolean is_closed() {

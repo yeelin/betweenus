@@ -99,9 +99,11 @@ public class PhotosPagerActivity
         preferredDataSource = intent.getIntExtra(EXTRA_DATA_SOURCE, LocalConstants.YELP);  //better use Yelp as default since we do not load additional photos if it's Yelp
         final Parcelable[] parcelables = intent.getParcelableArrayExtra(EXTRA_LOCAL_PHOTOS);
         //copy over the local photos and recast them as LocalPhotos
-        localPhotos = new LocalPhoto[parcelables.length];
-        for (int i=0; i<parcelables.length; i++) {
-            localPhotos[i] = (LocalPhoto) parcelables[i];
+        if (parcelables != null) {
+            localPhotos = new LocalPhoto[parcelables.length];
+            for (int i = 0; i < parcelables.length; i++) {
+                localPhotos[i] = (LocalPhoto) parcelables[i];
+            }
         }
 
         //read savedInstanceState
@@ -130,7 +132,7 @@ public class PhotosPagerActivity
             final LocalPhoto localPhoto = new LocalPhoto() {
                 @Override
                 public int describeContents() {
-                    return 0;
+                    return hashCode();
                 }
 
                 @Override
@@ -155,12 +157,12 @@ public class PhotosPagerActivity
 
                 @Override
                 public int getWidth() {
-                    return 0;
+                    return LocalConstants.NO_DATA_INTEGER;
                 }
 
                 @Override
                 public int getHeight() {
-                    return 0;
+                    return LocalConstants.NO_DATA_INTEGER;
                 }
             };
 

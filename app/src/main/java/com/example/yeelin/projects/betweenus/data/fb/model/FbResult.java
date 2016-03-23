@@ -70,12 +70,12 @@ public class FbResult implements LocalResult {
 
     @Override
     public double getResultLatitudeDelta() {
-        return 0;
+        return LocalConstants.NO_DATA_DOUBLE;
     }
 
     @Override
     public double getResultLongitudeDelta() {
-        return 0;
+        return LocalConstants.NO_DATA_DOUBLE;
     }
 
     @Override

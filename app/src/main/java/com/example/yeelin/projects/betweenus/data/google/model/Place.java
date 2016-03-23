@@ -130,7 +130,7 @@ public class Place implements LocalBusiness {
 
     @Override
     public String[] getHours() {
-        return opening_hours.getWeekday_text();
+        return opening_hours != null ? opening_hours.getWeekday_text() : null;
     }
 
     @Override
@@ -263,17 +263,17 @@ public class Place implements LocalBusiness {
 
     @Override
     public int getCheckins() {
-        return 0;
+        return LocalConstants.NO_DATA_INTEGER;
     }
 
     @Override
     public int getLikes() {
-        return 0;
+        return LocalConstants.NO_DATA_INTEGER;
     }
 
     @Override
     public double getNormalizedLikes() {
-        return 0;
+        return LocalConstants.NO_DATA_DOUBLE;
     }
 
     @Override
