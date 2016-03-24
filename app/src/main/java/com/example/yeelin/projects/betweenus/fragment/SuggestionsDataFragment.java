@@ -272,13 +272,29 @@ public class SuggestionsDataFragment
                 break;
 
             case LocalConstants.GOOGLE:
-                //initialize the loader to fetch suggestions from Google
-                Log.d(TAG, "fetchSuggestions: Initializing loader to fetch suggestions from Google");
-                SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL,
-                        getContext(), getLoaderManager(), this,
-                        searchTerm, searchRadius, searchLimit,
-                        userLatLng, friendLatLng, midLatLng,
-                        imageSizePx, imageSizePx, dataSource);
+                if (pageNumber == 0 && localResultArrayList.size() == 0) {
+                    //initialize the loader to fetch suggestions from Google
+                    Log.d(TAG, "fetchSuggestions: Initializing loader to fetch suggestions from Google");
+                    SuggestionsLoaderCallbacks.initLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_INITIAL,
+                            getContext(), getLoaderManager(), this,
+                            searchTerm, searchRadius, searchLimit,
+                            userLatLng, friendLatLng, midLatLng,
+                            imageSizePx, imageSizePx, dataSource);
+                }
+                else if (pageNumber >= localResultArrayList.size()) {
+                    //request next page of results using restart loader
+                    SuggestionsLoaderCallbacks.restartLoader(SuggestionsLoaderCallbacks.MULTI_PLACES_SUBSEQUENT,
+                            getContext(), getLoaderManager(), this,
+                            nextUrl, LocalConstants.NEXT_PAGE, dataSource);
+                }
+                else {
+                    //pageNumber < localResultArrayList.size()
+                    //since the requested page number is less than the size of our current cache, we can return cached data right way
+                    Log.d(TAG, String.format("fetchPlacePhotos: PageNumber:%d, Size:%d, Returning all results.", pageNumber, localResultArrayList.size()));
+                    suggestionsDataListener.onMultiPageLoad(localResultArrayList);
+                    //return cached travel elements
+                    suggestionsDataListener.onTravelElementLoad(userTravelElementArrayList, friendTravelElementArrayList);
+                }
                 break;
 
             default:

@@ -138,9 +138,16 @@ public class SuggestionsAsyncTaskLoader extends AsyncTaskLoader<LocalResult> {
                 }
 
             case LocalConstants.GOOGLE:
-                Log.d(TAG, String.format("loadInBackground: Searching Google: Term:%s, Type:%s, Radius:%d, LatLng:%s", searchTerm, searchTerm, searchRadius, midLatLng));
-                return GoogleTextSearchLoaderHelper.searchForPlaces(getContext(), searchTerm, midLatLng, searchRadius, searchTerm);
-
+                if (url == null) {
+                    //this is the initial search request
+                    Log.d(TAG, String.format("loadInBackground: Searching Google: Term:%s, Type:%s, Radius:%d, LatLng:%s", searchTerm, searchTerm, searchRadius, midLatLng));
+                    return GoogleTextSearchLoaderHelper.searchForPlaces(getContext(), searchTerm, midLatLng, searchRadius, searchTerm);
+                }
+                else {
+                    //request the next page of results
+                    Log.d(TAG, "loadInBackground: searchForMorePlaces with url:" + url);
+                    return GoogleTextSearchLoaderHelper.searchForMorePlaces(getContext(), url);
+                }
             default:
                 Log.d(TAG, "loadInBackground: Unknown data source: " + dataSource);
                 return null;
