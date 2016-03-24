@@ -8,8 +8,6 @@ import com.github.scribejava.core.model.Token;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuthService;
 
-import java.io.InputStream;
-
 /**
  * Created by ninjakiki on 2/17/16.
  */
@@ -53,7 +51,7 @@ public class YelpApiHelper {
      * @param longitude
      * @return JSON Response
      */
-    public InputStream searchForBusinessesByLocation(String searchTerm, String searchLimit,
+    public Response searchForBusinessesByLocation(String searchTerm, String searchLimit,
                                                      String location, String latitude, String longitude) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
@@ -76,7 +74,7 @@ public class YelpApiHelper {
      * @param longitudeNE
      * @return
      */
-    public InputStream searchForBusinessesByBoundingBox(String searchTerm, String searchLimit,
+    public Response searchForBusinessesByBoundingBox(String searchTerm, String searchLimit,
                                                         String latitudeSW, String longitudeSW, String latitudeNE, String longitudeNE) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
@@ -97,7 +95,7 @@ public class YelpApiHelper {
      * @param longitude
      * @return
      */
-    public InputStream searchForBusinessesByGeoCoords(String searchTerm, String searchRadius, String searchLimit,
+    public Response searchForBusinessesByGeoCoords(String searchTerm, String searchRadius, String searchLimit,
                                                       String latitude, String longitude) {
         OAuthRequest request = createOAuthRequest(YelpConstants.SEARCH_PATH);
 
@@ -116,7 +114,7 @@ public class YelpApiHelper {
      * @param businessID business ID of the requested business
      * @return JSON Response
      */
-    public InputStream searchByBusinessId(String businessID) {
+    public Response searchByBusinessId(String businessID) {
         OAuthRequest request = createOAuthRequest(YelpConstants.BUSINESS_PATH + "/" + businessID);
 
         return sendRequestAndGetResponse(request);
@@ -139,10 +137,10 @@ public class YelpApiHelper {
      * @param request OAuthRequest corresponding to the API request
      * @return Stream of API response
      */
-    private InputStream sendRequestAndGetResponse(OAuthRequest request) {
+    private Response sendRequestAndGetResponse(OAuthRequest request) {
         this.service.signRequest(this.accessToken, request);
 
         Response response = request.send();
-        return response.getStream();
+        return response;
     }
 }
