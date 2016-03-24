@@ -57,7 +57,7 @@ public class GoogleDirectionsLoaderHelper {
             if (httpStatus == HttpURLConnection.HTTP_OK) {
                 //deserialize json response
                 result = DirectionsJsonDeserializerHelper.deserializeDirectionsResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
             }
             else {
                 Log.w(TAG, String.format("getDirections: Http Status:%d, Error:%s", httpStatus, urlConnection.getErrorStream()));

@@ -65,7 +65,7 @@ public class YelpLoaderHelper {
             if (httpStatus == HttpURLConnection.HTTP_OK) {
                 //deserialize the json response
                 result = YelpJsonDeserializerHelper.deserializeYelpResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
                 //Log.d(TAG, "searchYelp: YelpResult: " + result);
             }
             else {
@@ -123,7 +123,7 @@ public class YelpLoaderHelper {
             if (httpStatus == HttpURLConnection.HTTP_OK) {
                 //deserialize the json response
                 business = YelpJsonDeserializerHelper.deserializeYelpSingleResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
                 //Log.d(TAG, "fetchFromYelp: YelpBusiness: " + business);
             }
             else {

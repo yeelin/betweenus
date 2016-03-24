@@ -1,7 +1,5 @@
 package com.example.yeelin.projects.betweenus.data.google.json;
 
-import android.util.Log;
-
 import com.example.yeelin.projects.betweenus.data.google.model.PlaceDetailsResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,8 +12,6 @@ import java.io.InputStreamReader;
  * Created by ninjakiki on 3/17/16.
  */
 public class PlaceDetailsJsonDeserializerHelper {
-    public static final String TAG = PlaceDetailsJsonDeserializerHelper.class.getCanonicalName();
-
     public static PlaceDetailsResult deserializePlaceDetailsResponse(InputStream responseJSON)
             throws IOException {
         //create a gson object
@@ -29,8 +25,6 @@ public class PlaceDetailsJsonDeserializerHelper {
             //deserialize json into java
             PlaceDetailsResult result = gson.fromJson(inputStreamReader, PlaceDetailsResult.class);
 
-            //log for debugging purposes
-            Log.d(TAG, "deserializePlaceDetailsResponse: PlaceDetailsResult: " + result);
             return result;
         }
         finally {

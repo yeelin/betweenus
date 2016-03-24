@@ -19,6 +19,7 @@ import java.net.URL;
  */
 public class GooglePlaceDetailsLoaderHelper {
     private static final String TAG = GooglePlaceDetailsLoaderHelper.class.getCanonicalName();
+    private static int detailsCount = 0;
 
     /**
      * Called from a bg thread. This method does the following:
@@ -28,6 +29,7 @@ public class GooglePlaceDetailsLoaderHelper {
      * 4. returns a PlaceDetailsResult object
      */
     public static PlaceDetailsResult fetchPlaceDetails(Context context, String placeId) {
+        detailsCount++;
         Log.d(TAG, "fetchPlaceDetails: PlaceId: " + placeId);
 
         //make sure we have network connection and latest SSL
@@ -52,7 +54,7 @@ public class GooglePlaceDetailsLoaderHelper {
             if (httpStatus == HttpURLConnection.HTTP_OK) {
                 //deserialize the json response
                 result = PlaceDetailsJsonDeserializerHelper.deserializePlaceDetailsResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
             }
             else {
                 Log.w(TAG, String.format("fetchPlaceDetails: Http Status:%d, Error:%s", httpStatus, urlConnection.getErrorStream()));

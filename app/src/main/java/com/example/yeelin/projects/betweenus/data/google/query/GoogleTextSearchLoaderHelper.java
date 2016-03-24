@@ -20,6 +20,8 @@ import java.net.URL;
  */
 public class GoogleTextSearchLoaderHelper {
     private static final String TAG = GoogleTextSearchLoaderHelper.class.getCanonicalName();
+    private static int searchCount = 0;
+    private static int searchWithTokenCount = 0;
 
     /**
      * Called from a bg thread. This method does the following:
@@ -29,6 +31,7 @@ public class GoogleTextSearchLoaderHelper {
      * 4. returns a PlaceSearchResult object
      */
     public static PlaceSearchResult searchForPlaces(Context context, String query, LatLng location, int radius, String type) {
+        searchCount++;
         Log.d(TAG, "searchForPlaces: Search coords: " + location);
 
         //make sure we have network connection and latest SSL
@@ -51,11 +54,11 @@ public class GoogleTextSearchLoaderHelper {
 
             int httpStatus = urlConnection.getResponseCode();
             if (httpStatus == HttpURLConnection.HTTP_OK) {
-                Log.d(TAG, "searchForPlaces: TextSearch Response:" + urlConnection.getInputStream());
+                //Log.d(TAG, "searchForPlaces: TextSearch Response:" + urlConnection.getInputStream());
 
                 //deserialize the json response
                 result = TextSearchJsonDeserializerHelper.deserializeTextSearchResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
             }
             else {
                 Log.w(TAG, String.format("searchForPlaces: Http Status:%d, Error:%s", httpStatus, urlConnection.getErrorStream()));
@@ -66,6 +69,60 @@ public class GoogleTextSearchLoaderHelper {
         }
         catch (Exception e) {
             Log.e(TAG, "searchForPlaces: Unexpected Exception", e);
+        }
+        finally {
+            if (urlConnection != null)
+                urlConnection.disconnect();
+        }
+
+        return result;
+    }
+
+    /**
+     * Searches for more places using the pagetoken returned from a previous response.
+     * @param context
+     * @param pageToken
+     * @return
+     */
+    public static PlaceSearchResult searchForMorePlaces(Context context, String pageToken) {
+        searchWithTokenCount++;
+        Log.d(TAG, "searchForMorePlaces: PageToken: " + pageToken);
+
+        //make sure we have network connection and latest SSL
+        if (!FetchDataUtils.isPreNetworkCheckSuccessful(context)) return null;
+        //initialize the cache. if already exists, then the existing one is used
+        CacheUtils.initializeCache(context);
+
+        HttpURLConnection urlConnection = null;
+        PlaceSearchResult result = null;
+        try {
+            //search google for places
+            final URL url = buildTextSearchUrl(pageToken);
+            Log.d(TAG, "searchForMorePlaces: Url:" + url.toString());
+
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod(LocalConstants.REQUEST_METHOD_GET);
+            urlConnection.setConnectTimeout(LocalConstants.CONNECT_TIMEOUT_MILLIS);
+            urlConnection.setReadTimeout(LocalConstants.READ_TIMEOUT_MILLIS);
+            urlConnection.connect();
+
+            int httpStatus = urlConnection.getResponseCode();
+            if (httpStatus == HttpURLConnection.HTTP_OK) {
+                //Log.d(TAG, "searchForMorePlaces: TextSearch Response:" + urlConnection.getInputStream());
+
+                //deserialize the json response
+                result = TextSearchJsonDeserializerHelper.deserializeTextSearchResponse(urlConnection.getInputStream());
+                //CacheUtils.logCache();
+            }
+            else {
+                Log.w(TAG, String.format("searchForMorePlaces: Http Status:%d, Error:%s", httpStatus, urlConnection.getErrorStream()));
+            }
+        }
+        catch (MalformedURLException e) {
+            Log.e(TAG, "searchForMorePlaces: Unexpected MalformedURLException", e);
+        }
+        catch (Exception e) {
+            Log.e(TAG, "searchForMorePlaces: Unexpected Exception", e);
         }
         finally {
             if (urlConnection != null)
@@ -95,6 +152,24 @@ public class GoogleTextSearchLoaderHelper {
                 .appendQueryParameter(GoogleConstants.TextSearchParamNames.LOCATION, String.format("%s,%s", location.latitude, location.longitude))
                 .appendQueryParameter(GoogleConstants.TextSearchParamNames.RADIUS, String.valueOf(radius))
                 .appendQueryParameter(GoogleConstants.TextSearchParamNames.TYPE, type)
+                .build();
+        return new URL(uri.toString());
+    }
+
+    /**
+     * Builds the URL for getting google text search results (via appengine)
+     * @param pageToken
+     * @return
+     * @throws MalformedURLException
+     */
+    private static URL buildTextSearchUrl(String pageToken)
+            throws MalformedURLException {
+        Uri uri = new Uri.Builder()
+                .scheme(LocalConstants.SCHEME)
+                .authority(LocalConstants.AUTHORITY)
+                .appendPath(LocalConstants.GOOGLE_PATH)
+                .appendPath(LocalConstants.TEXT_SEARCH_PATH)
+                .appendQueryParameter(GoogleConstants.TextSearchParamNames.PAGE_TOKEN, pageToken)
                 .build();
         return new URL(uri.toString());
     }

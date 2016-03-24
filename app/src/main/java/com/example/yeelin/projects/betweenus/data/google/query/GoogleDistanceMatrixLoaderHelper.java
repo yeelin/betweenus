@@ -22,6 +22,7 @@ import java.util.Arrays;
  */
 public class GoogleDistanceMatrixLoaderHelper {
     private static final String TAG = GoogleDistanceMatrixLoaderHelper.class.getCanonicalName();
+    private static int distanceMatrixCount = 0;
 
     /**
      * Creates the url for appspot, deserializes the response, and returns DistanceMatrixResult.
@@ -33,6 +34,7 @@ public class GoogleDistanceMatrixLoaderHelper {
      * @param destinations
      */
     public static DistanceMatrixResult getDistanceMatrix(Context context, @NonNull LatLng[] origins, @NonNull LatLng[] destinations) {
+        distanceMatrixCount++;
         Log.d(TAG, String.format("getTravelTimes: Origins:%s, Destinations:%s", Arrays.toString(origins), Arrays.toString(destinations)));
 
         if (!FetchDataUtils.isPreNetworkCheckSuccessful(context)) return null;
@@ -54,7 +56,7 @@ public class GoogleDistanceMatrixLoaderHelper {
             int httpStatus = urlConnection.getResponseCode();
             if (httpStatus == HttpURLConnection.HTTP_OK) {
                 result = DistanceMatrixJsonDeserializerHelper.deserializeDistanceMatrixResponse(urlConnection.getInputStream());
-                CacheUtils.logCache();
+                //CacheUtils.logCache();
             }
             else {
                 Log.w(TAG, String.format("getDistanceMatrix: Http Status:%d, Error:%s", httpStatus, urlConnection.getErrorStream()));

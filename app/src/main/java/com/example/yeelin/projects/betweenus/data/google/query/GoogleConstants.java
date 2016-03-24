@@ -21,6 +21,7 @@ public abstract class GoogleConstants {
         public static final String LOCATION = "location";
         public static final String RADIUS = "radius";
         public static final String TYPE = "type";
+        public static final String PAGE_TOKEN = "pagetoken";
     }
 
     //query parameters for text search
@@ -29,6 +30,7 @@ public abstract class GoogleConstants {
         public static final String LOCATION = "location";
         public static final String RADIUS = "radius";
         public static final String TYPE = "type";
+        public static final String PAGE_TOKEN = "pagetoken";
     }
 
     //query parameters for place details
