@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,7 +43,7 @@ public class GoogleMapsDistanceMatrixServlet extends HttpServlet {
 
         //contact distance matrix api
         HttpURLConnection urlConnection = null;
-        InputStream inputStream = null;
+
         try {
             final URL url = buildDirectionsUrl(origins, destinations);
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -56,10 +55,10 @@ public class GoogleMapsDistanceMatrixServlet extends HttpServlet {
 
             int responseCode = urlConnection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                inputStream = urlConnection.getInputStream();
                 //copy response onto output stream
-                ServletUtils.copyBytes(inputStream, resp.getOutputStream());
-                resp.setContentType("application/json");
+                ServletUtils.copyBytes(urlConnection.getInputStream(), resp.getOutputStream());
+                ServletUtils.copyHeaders(urlConnection.getHeaderFields(), resp);
+                //resp.setContentType("application/json");
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
             else {

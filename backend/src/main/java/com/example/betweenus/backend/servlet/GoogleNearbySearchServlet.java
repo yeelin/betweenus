@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,7 +46,6 @@ public class GoogleNearbySearchServlet extends HttpServlet {
 
         //contact nearby search api
         HttpURLConnection urlConnection = null;
-        InputStream inputStream = null;
 
         try {
             final URL url = buildNearbySearchUrl(location, radius, type, pageToken);
@@ -60,10 +58,10 @@ public class GoogleNearbySearchServlet extends HttpServlet {
 
             int responseCode = urlConnection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
-                inputStream = urlConnection.getInputStream();
                 //copy response onto output stream
-                ServletUtils.copyBytes(inputStream, resp.getOutputStream());
-                resp.setContentType("application/json");
+                ServletUtils.copyBytes(urlConnection.getInputStream(), resp.getOutputStream());
+                ServletUtils.copyHeaders(urlConnection.getHeaderFields(), resp);
+                //resp.setContentType("application/json");
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
             else {
