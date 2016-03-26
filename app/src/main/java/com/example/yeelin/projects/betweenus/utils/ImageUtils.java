@@ -10,7 +10,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.model.Marker;
+import com.squareup.picasso.Cache;
+import com.squareup.picasso.Downloader;
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.StatsSnapshot;
 import com.squareup.picasso.Target;
 
 /**
@@ -19,6 +24,7 @@ import com.squareup.picasso.Target;
 public class ImageUtils {
     //logcat
     public static final String TAG = ImageUtils.class.getCanonicalName();
+    public static boolean customPicassoBuilt = false;
 
     /**
      * Creates a new target so that the downloaded bitmap can be loaded into the custom view.
@@ -119,7 +125,11 @@ public class ImageUtils {
      * @param imageView
      */
     public static void loadImage(final Context context, final String imageUrl, final ImageView imageView) {
-        //Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        //if (!customPicassoBuilt) buildCustomPicassoInstance(context);
+        Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        Picasso.with(context).setIndicatorsEnabled(true);
+        Picasso.with(context).setLoggingEnabled(true);
+
         Picasso.with(context)
                 .load(imageUrl)
                 .into(imageView);
@@ -135,11 +145,43 @@ public class ImageUtils {
      */
     public static void loadImage(final Context context, final String imageUrl, final ImageView imageView,
                                  final int downloadPlaceHolder, final int errorPlaceHolder) {
-        //Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        //if (!customPicassoBuilt) buildCustomPicassoInstance(context);
+        Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        Picasso.with(context).setIndicatorsEnabled(true);
+        Picasso.with(context).setLoggingEnabled(true);
+
         Picasso.with(context)
                 .load(imageUrl)
                 .placeholder(downloadPlaceHolder)
                 .error(errorPlaceHolder)
+                .into(imageView);
+    }
+
+    /**
+     * Loads an image into the given image view. Placeholders are provided for download and error cases
+     * @param context
+     * @param imageUrl
+     * @param imageView
+     * @param width
+     * @param height
+     * @param downloadPlaceHolder
+     * @param errorPlaceHolder
+     */
+    public static void loadImage(final Context context, final String imageUrl, final ImageView imageView,
+                                 int width, int height,
+                                 final int downloadPlaceHolder, final int errorPlaceHolder) {
+        //if (!customPicassoBuilt) buildCustomPicassoInstance(context);
+        Log.d(TAG, "loadImage with imageView: Url:" + imageUrl);
+        Picasso.with(context).setIndicatorsEnabled(true);
+        Picasso.with(context).setLoggingEnabled(true);
+
+        Picasso.with(context)
+                .load(imageUrl)
+                .placeholder(downloadPlaceHolder)
+                .error(errorPlaceHolder)
+                .resize(width, height)
+                .onlyScaleDown()
+                .centerCrop()
                 .into(imageView);
     }
 
@@ -154,9 +196,47 @@ public class ImageUtils {
      * @param target
      */
     public static void loadImage(final Context context, final String imageUrl, final Target target) {
-        //Log.d(TAG, "loadImage with target: Url: " + imageUrl);
+        //if (!customPicassoBuilt) buildCustomPicassoInstance(context);
+        Log.d(TAG, "loadImage with target: Url: " + imageUrl);
+        Picasso.with(context).setIndicatorsEnabled(true);
+        Picasso.with(context).setLoggingEnabled(true);
+
         Picasso.with(context)
                 .load(imageUrl)
                 .into(target);
     }
+
+    /**
+     *
+     * @param context
+     */
+    public static void buildCustomPicassoInstance(Context context) {
+        Log.d(TAG, "buildCustomPicassoInstance");
+        customPicassoBuilt = true;
+
+        //long PICASSO_DISK_CACHE_SIZE = 50 * 1024 * 1024;
+        //Downloader downloader = new OkHttpDownloader(context.getApplicationContext(), PICASSO_DISK_CACHE_SIZE);
+
+        int PICASSO_MEMORY_CACHE_SIZE = 50 * 1024 * 1024;
+        Cache memoryCache = new LruCache(PICASSO_MEMORY_CACHE_SIZE);
+
+        Picasso picasso = new Picasso.Builder(context.getApplicationContext())
+                //.downloader(downloader)
+                .memoryCache(memoryCache)
+                .build();
+        Picasso.setSingletonInstance(picasso);
+
+        Picasso.with(context).setLoggingEnabled(true);
+        Picasso.with(context).setIndicatorsEnabled(true);
+    }
+
+    /**
+     *
+     * @param context
+     */
+    public static void printStats(Context context) {
+        StatsSnapshot statsSnapshot = Picasso.with(context).getSnapshot();
+        Log.d(TAG, "Picasso Stats:" + statsSnapshot);
+    }
+
 }
