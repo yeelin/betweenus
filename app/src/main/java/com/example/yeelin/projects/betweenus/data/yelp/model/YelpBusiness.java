@@ -95,6 +95,11 @@ public class YelpBusiness implements LocalBusiness {
     }
 
     @Override
+    public String getProfilePictureUrl(int height, int width) {
+        return image_url;
+    }
+
+    @Override
     public LocalPhoto[] getPhotos() {
         return null;
     }

@@ -416,9 +416,9 @@ public class SuggestionDetailFragment
         if (viewHolder == null) return;
 
         //image
-        if (business.getProfilePictureUrl() != null) {
-            ImageUtils.loadImage(getActivity(), business.getProfilePictureUrl(), viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
-        }
+        ImageUtils.loadImage(getActivity(),
+                business.getProfilePictureUrl(viewHolder.image.getHeight(), viewHolder.image.getWidth()),
+                viewHolder.image, R.drawable.ic_business_image_placeholder, R.drawable.ic_business_image_placeholder);
 
         //name
         viewHolder.name.setText(name);

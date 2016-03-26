@@ -145,6 +145,11 @@ public class PlaceDetailsResult implements LocalBusiness {
     }
 
     @Override
+    public String getProfilePictureUrl(int height, int width) {
+        return result.getProfilePictureUrl(height, width);
+    }
+
+    @Override
     public LocalPhoto[] getPhotos() {
         return result.getPhotos();
     }

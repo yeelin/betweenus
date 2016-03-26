@@ -27,6 +27,8 @@ public class Place implements LocalBusiness {
     private final PlaceHours opening_hours;
     //an array of photo objects, each containing a reference to an image. A Place Search will return at most one photo object. Performing a Place Details request on the place may return up to ten photos.
     private final PlacePhoto[] photos;
+    //derived value for profile pic url
+    private String profilePictureUrl;
     //a textual identifier that uniquely identifies a place.
     private final String place_id;
     //The price level of the place, on a scale of 0 to 4. The exact amount indicated by a specific value will vary from region to region.
@@ -179,13 +181,18 @@ public class Place implements LocalBusiness {
 
     @Override
     public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    @Override
+    public String getProfilePictureUrl(int height, int width) {
         if (photos == null) return null;
-        String profilePictureUrl = null;
+
         try {
             profilePictureUrl = GooglePlacePhotosHelper.buildPlacePhotosUrl(
                     photos[0].getPhoto_reference(),
-                    photos[0].getHeight(),
-                    photos[0].getWidth())
+                    height,
+                    width)
                     .toString();
         }
         catch (MalformedURLException e) {

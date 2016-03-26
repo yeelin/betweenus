@@ -30,7 +30,8 @@
                 android:layout_alignBottom="@id/detail_mapContainer"
                 android:contentDescription="@string/image_placeholder_content_description"
                 android:background="@drawable/image_placeholder_border"
-                android:src="@drawable/ic_business_image_placeholder"/>
+                android:src="@drawable/ic_business_image_placeholder"
+                android:scaleType="centerCrop"/>
 
             <com.facebook.shimmer.ShimmerFrameLayout
                 android:id="@+id/shimmerContainer"

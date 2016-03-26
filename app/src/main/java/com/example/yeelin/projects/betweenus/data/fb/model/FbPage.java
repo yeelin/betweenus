@@ -170,6 +170,11 @@ public class FbPage implements LocalBusiness {
     }
 
     @Override
+    public String getProfilePictureUrl(int height, int width) {
+        return getProfilePictureUrl();
+    }
+
+    @Override
     public LocalPhoto[] getPhotos() {
         return null;
     }

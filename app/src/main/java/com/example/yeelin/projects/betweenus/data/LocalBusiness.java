@@ -28,6 +28,7 @@ public interface LocalBusiness {
     String getPhoneNumber();
 
     String getProfilePictureUrl();
+    String getProfilePictureUrl(int height, int width);
     LocalPhoto[] getPhotos();
 
     String getPriceRangeString();
