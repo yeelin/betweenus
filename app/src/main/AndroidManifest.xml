@@ -138,6 +138,19 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
+
+        <!-- Content providers -->
+        <provider
+            android:authorities="com.example.yeelin.projects.betweenus.provider.ItineraryContentProvider"
+            android:name=".provider.ItineraryContentProvider"
+            android:enabled="true"
+            android:exported="false"/>
+
+        <provider
+            android:authorities="com.example.yeelin.projects.betweenus.provider.StopContentProvider"
+            android:name=".provider.StopContentProvider"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>
