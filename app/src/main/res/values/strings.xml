@@ -3,6 +3,7 @@
 
     <!-- activity titles -->
     <string name="title_launcher">Between</string>
+    <string name="title_itineraries">History</string>
     <string name="title_login">Login with Facebook</string>
     <string name="title_map">Cluster Map Test</string>
     <string name="title_suggested_places">Suggestions</string>
@@ -124,6 +125,7 @@
     <!-- Empty listview strings -->
     <string name="no_suggestions">No suggestions</string>
     <string name="no_selection">You have not made any selections.</string>
+    <string name="no_itineraries">No history</string>
     <!-- Detail buttons-->
     <string name="detail_website_button">Website</string>
     <string name="detail_phone_button">Call</string>
@@ -201,10 +203,12 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_title_search">Search</string>
+    <string name="drawer_title_history">History</string>
     <string name="drawer_title_login">Login</string>
     <string name="drawer_title_settings">Settings</string>
     <string-array name="drawer_items">
         <item>@string/drawer_title_search</item>
+        <item>@string/drawer_title_history</item>
         <item>@string/drawer_title_login</item>
         <item>@string/drawer_title_settings</item>
     </string-array>

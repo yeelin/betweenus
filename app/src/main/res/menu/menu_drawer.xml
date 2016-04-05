@@ -7,6 +7,11 @@
             android:title="@string/drawer_title_search"/>
 
         <item
+            android:id="@+id/nav_history"
+            android:icon="@drawable/ic_maps_local_restaurant"
+            android:title="@string/drawer_title_history"/>
+
+        <item
             android:id="@+id/nav_login"
             android:icon="@drawable/ic_action_account_circle"
             android:title="@string/drawer_title_login"/>

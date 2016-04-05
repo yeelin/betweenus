@@ -69,4 +69,15 @@
         <item name="android:textSize">@dimen/small_textSize</item>
     </style>
 
+    <!-- Card Button style -->
+    <style name="Card_ButtonStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/small_textSize</item>
+    </style>
+
 </resources>

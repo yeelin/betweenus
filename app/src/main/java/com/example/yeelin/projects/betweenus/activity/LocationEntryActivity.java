@@ -149,6 +149,8 @@ public class LocationEntryActivity
 
         //TODO: Remove test code
         //new FetchYelpDataAsyncTask().execute(new Pair<Context, String>(this, "Pusheen"));
+
+        //TODO: set up a Volley queue
     }
 
     /**
@@ -233,6 +235,11 @@ public class LocationEntryActivity
                                 .beginTransaction()
                                 .replace(R.id.locationEntry_fragmentContainer, LocationEntryFragment.newInstance())
                                 .commit();
+                        break;
+
+                    case R.id.nav_history:
+                        Log.d(TAG, "onNavigationItemSelected: Starting itinerary history activity");
+                        startActivity(ItineraryActivity.buildIntent(LocationEntryActivity.this));
                         break;
 
                     case R.id.nav_login:

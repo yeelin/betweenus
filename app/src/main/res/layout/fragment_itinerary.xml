@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.ItineraryFragment">
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/itinerary_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/itinerary_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:gravity="top|center_horizontal"
+        android:paddingTop="48dp"
+        android:text="@string/no_itineraries"
+        android:visibility="gone"/>
+
+</FrameLayout>
