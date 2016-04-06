@@ -95,7 +95,7 @@ public class SimplifiedBusiness implements Parcelable {
         id = business.getId();
         name = business.getName();
         latLng = new LatLng(business.getLocalBusinessLocation().getLatLng().latitude, business.getLocalBusinessLocation().getLatLng().longitude);
-        address = business.getLocalBusinessLocation().getShortDisplayAddress();
+        address = business.getShortDisplayAddress();
         categoryList = business.getCategoryList();
         reviews = business.getReviewCount();
         rating = business.getRating();

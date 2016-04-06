@@ -77,6 +77,13 @@ public class EmailUtils {
                 break;
 
             case LocalConstants.GOOGLE:
+                //name with link
+                builder.append(String.format("<p><a href=\"%s\" style=\"text-decoration:none\"><b>%s</b></a>",
+                        selectedItem.getWebUrl(),
+                        selectedItem.getName()));
+                //rating
+                builder.append(String.format("<br>%s stars",
+                        FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating())));
                 break;
 
             default:

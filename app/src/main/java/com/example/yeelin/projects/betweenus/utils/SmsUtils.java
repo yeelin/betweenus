@@ -71,10 +71,13 @@ public class SmsUtils {
                         selectedItem.getWebUrl());
 
             case LocalConstants.GOOGLE:
-                return "Not implemented yet";
+                return String.format("%s (%s stars, %s)",
+                        selectedItem.getName(),
+                        FormattingUtils.getDecimalFormatterNoRounding(1).format(selectedItem.getRating()),
+                        selectedItem.getAddress());
 
             default:
-                return "No data";
+                return "No data due to unkown data source";
         }
     }
 }
