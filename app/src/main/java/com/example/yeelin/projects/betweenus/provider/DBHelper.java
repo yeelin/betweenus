@@ -5,11 +5,13 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+import android.util.Log;
 
 /**
  * Created by ninjakiki on 3/28/16.
  */
 public class DBHelper extends SQLiteOpenHelper {
+    private static final String TAG = DBHelper.class.getCanonicalName();
     private static final int DB_VERSION = 1;
     static final String DB_NAME = "itinerary.db";
 
@@ -22,6 +24,7 @@ public class DBHelper extends SQLiteOpenHelper {
      * @return
      */
     public static synchronized DBHelper getInstance(Context context) {
+        Log.d(TAG, "getInstance:");
         if (dbHelper == null)
             dbHelper = new DBHelper(context);
         return dbHelper;
@@ -43,6 +46,7 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate: Creating a new db");
         db.execSQL(ItineraryContract.CREATE_TABLE);
         db.execSQL(ItineraryContract.CREATE_INDEX);
 

@@ -57,6 +57,7 @@ public class ItineraryContentProvider extends ContentProvider {
      */
     @Override
     public boolean onCreate() {
+        Log.d(TAG, "onCreate");
         dbHelper = DBHelper.getInstance(getContext());
         return true;
     }

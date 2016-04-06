@@ -61,7 +61,7 @@ public final class ItineraryContract {
      */
     //uri definition: content://authority/table
     static final String AUTHORITY = ItineraryContentProvider.class.getCanonicalName();
-    static final Uri URI = new Uri.Builder()
+    public static final Uri URI = new Uri.Builder()
             .scheme(ContentResolver.SCHEME_CONTENT)
             .authority(AUTHORITY)
             .appendPath(TABLE)

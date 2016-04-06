@@ -45,7 +45,7 @@ public final class StopContract {
      */
     //uri definition: scheme://authority
     static final String AUTHORITY = StopContentProvider.class.getCanonicalName();
-    static final Uri URI = new Uri.Builder()
+    public static final Uri URI = new Uri.Builder()
             .scheme(ContentResolver.SCHEME_CONTENT)
             .authority(AUTHORITY)
             .appendPath(TABLE)

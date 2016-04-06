@@ -123,10 +123,15 @@
                 android:value=".activity.SuggestionsActivity" />
         </activity>
 
-        <!-- Intent service to fetch google places and autocomplete data -->
+        <!-- Service to fetch google places and autocomplete data -->
         <service
             android:name=".service.PlacesService"
             android:exported="false" />
+
+        <!-- Intent service to save write itinerary/history data to the db -->
+        <service
+            android:name=".service.ItineraryIntentService"
+            android:exported="false"/>
 
         <!-- Google Play Services -->
         <meta-data

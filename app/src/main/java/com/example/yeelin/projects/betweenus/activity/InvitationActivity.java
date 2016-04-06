@@ -15,6 +15,7 @@ import com.example.yeelin.projects.betweenus.R;
 import com.example.yeelin.projects.betweenus.analytics.EventConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.fragment.InvitationFragment;
+import com.example.yeelin.projects.betweenus.service.ItineraryIntentService;
 import com.example.yeelin.projects.betweenus.utils.EmailUtils;
 import com.example.yeelin.projects.betweenus.utils.SmsUtils;
 import com.facebook.appevents.AppEventsLogger;
@@ -164,6 +165,10 @@ public class InvitationActivity
         Log.d(TAG, "onInviteByTextMessage: Starting SMS activity");
         startActivityForResult(intent, REQUEST_CODE_COMPOSE_TEXT);
 
+        //save to db
+        Intent saveIntent = ItineraryIntentService.buildIntent(this, selectedItems, friendPhone, null, friendPhone);
+        startService(saveIntent);
+
         //log user completed invite
         AppEventsLogger logger = AppEventsLogger.newLogger(this);
         Bundle parameters = new Bundle();
@@ -200,6 +205,10 @@ public class InvitationActivity
 
         Log.d(TAG, "onInviteByEmail: Starting Email activity");
         startActivityForResult(intent, REQUEST_CODE_COMPOSE_EMAIL);
+
+        //save to db
+        Intent saveIntent = ItineraryIntentService.buildIntent(this, selectedItems, friendEmail, friendEmail, null);
+        startService(saveIntent);
 
         //log user completed invite
         AppEventsLogger logger = AppEventsLogger.newLogger(this);
