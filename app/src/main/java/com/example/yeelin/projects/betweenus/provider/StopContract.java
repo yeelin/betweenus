@@ -26,7 +26,7 @@ public final class StopContract {
                     " ( " +
                     BaseColumns._ID + " INTEGER PRIMARY KEY, " +
                     ItineraryContract.Columns.ITINERARY_ID + " INTEGER NOT NULL, " +
-                    Columns.PLACE_ID + " INTEGER NOT NULL, " +
+                    Columns.PLACE_ID + " TEXT NOT NULL, " +
                     Columns.DATA_SOURCE + " INTEGER NOT NULL" +
                     " )";
     //index name
