@@ -187,13 +187,13 @@ public class DBHelperTest extends AndroidTestCase {
                     StopContract.TABLE,
                     null,
                     values,
-                    SQLiteDatabase.CONFLICT_REPLACE);
+                    SQLiteDatabase.CONFLICT_FAIL);
             assertTrue("Error: RowId should not be -1", rowId != -1);
 
             Cursor insertCursor = db.query(
                     StopContract.TABLE,
                     null, // all columns
-                    StopContract.Columns.PLACE_ID+"=?", // Columns for the "where" clause
+                    StopContract.Columns.PLACE_ID + "=?", // Columns for the "where" clause
                     new String[] {(String) values.get(StopContract.Columns.PLACE_ID)}, // Values for the "where" clause
                     null, // columns to group by
                     null, // columns to filter by row groups

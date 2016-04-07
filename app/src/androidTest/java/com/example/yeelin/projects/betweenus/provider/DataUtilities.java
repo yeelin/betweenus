@@ -9,6 +9,7 @@ import java.util.ArrayList;
  */
 public class DataUtilities {
     static class Itinerary {
+        //values (1 row) to be inserted into the Itinerary table
         static ContentValues insertValues() {
             ContentValues values = new ContentValues();
 
@@ -31,9 +32,11 @@ public class DataUtilities {
     }
 
     static class Stop {
+        //values (2 rows) to be inserted into the Stop table
         static ArrayList<ContentValues> bulkInsertValues() {
             ArrayList<ContentValues> valuesArrayList = new ArrayList<>();
 
+            //first row of values
             ContentValues values1 = new ContentValues();
             //itinerary id
             values1.put(ItineraryContract.Columns.ITINERARY_ID, 123);
@@ -42,6 +45,7 @@ public class DataUtilities {
             //datasource
             values1.put(StopContract.Columns.DATA_SOURCE, 2);
 
+            //second row of values
             ContentValues values2 = new ContentValues();
             //itinerary id
             values2.put(ItineraryContract.Columns.ITINERARY_ID, 123);
@@ -52,7 +56,6 @@ public class DataUtilities {
 
             valuesArrayList.add(values1);
             valuesArrayList.add(values2);
-
             return valuesArrayList;
         }
     }
