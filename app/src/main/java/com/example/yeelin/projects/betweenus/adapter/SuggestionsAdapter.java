@@ -167,6 +167,7 @@ public class SuggestionsAdapter
             StringBuilder builder = new StringBuilder(categoryList.length);
             for (int i=0; i<categoryList.length; i++) {
                 builder.append(categoryList[i]);
+                if (i == 2) break; //3 categories is plenty
                 if (i < categoryList.length-1) builder.append(", ");
             }
             viewHolder.categories.setText(builder.toString());
@@ -176,6 +177,14 @@ public class SuggestionsAdapter
         if (business.getReviewCount() < 0 || business.getRating() < 0) {
             //we have fb data, so hide ratings and reviews
             viewHolder.ratingAndReviews.setVisibility(View.GONE);
+        }
+        else if (business.getDataSource() == LocalConstants.GOOGLE) {
+            //we have google data
+            viewHolder.ratingAndReviews.setVisibility(View.VISIBLE);
+            viewHolder.ratingAndReviews.setText(getContext().getResources().getQuantityString(
+                    R.plurals.detail_ratings,
+                    (int) Math.round(business.getRating()),
+                    String.valueOf(business.getRating())));
         }
         else {
             //we have yelp data

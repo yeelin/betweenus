@@ -138,8 +138,8 @@ public class ItineraryIntentService
         ContentValues itinerary = new ContentValues();
         itinerary.put(ItineraryContract.Columns.ITINERARY_ID, currentTimeMillis); //for now, current time would serve as itinerary id
         itinerary.put(ItineraryContract.Columns.CLOSEST_CITY, name);
-        itinerary.put(ItineraryContract.Columns.CLOSEST_CITY_LATITUDE, 0.0);
-        itinerary.put(ItineraryContract.Columns.CLOSEST_CITY_LONGITUDE, 0.0);
+        itinerary.put(ItineraryContract.Columns.CLOSEST_CITY_LATITUDE, 111.11);
+        itinerary.put(ItineraryContract.Columns.CLOSEST_CITY_LONGITUDE, -88.88);
         if (name != null) itinerary.put(ItineraryContract.Columns.NAME, name);
         if (email != null) itinerary.put(ItineraryContract.Columns.EMAIL, email);
         if (phone != null) itinerary.put(ItineraryContract.Columns.PHONE, phone);

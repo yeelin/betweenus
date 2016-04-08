@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by ninjakiki on 4/6/16.
  */
-public class DataUtilities {
+public abstract class DataUtilities {
     static class Itinerary {
         //values (1 row) to be inserted into the Itinerary table
         static ContentValues insertValues() {

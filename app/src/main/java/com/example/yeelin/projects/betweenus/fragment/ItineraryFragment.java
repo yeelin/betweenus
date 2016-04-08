@@ -31,6 +31,8 @@ public class ItineraryFragment
     private static final String[] ITINERARY_COLUMNS = {
             ItineraryContract.Columns.ITINERARY_ID,
             ItineraryContract.Columns.CLOSEST_CITY,
+            ItineraryContract.Columns.CLOSEST_CITY_LATITUDE,
+            ItineraryContract.Columns.CLOSEST_CITY_LONGITUDE,
             ItineraryContract.Columns.NAME,
             ItineraryContract.Columns.EMAIL,
             ItineraryContract.Columns.PHONE,

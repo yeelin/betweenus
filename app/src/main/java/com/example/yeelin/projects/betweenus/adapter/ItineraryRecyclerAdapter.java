@@ -17,6 +17,9 @@ import com.example.yeelin.projects.betweenus.provider.ItineraryContract;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by ninjakiki on 3/31/16.
@@ -93,14 +96,41 @@ public class ItineraryRecyclerAdapter
     public void onBindViewHolder(ItineraryViewHolder holder, int position) {
         cursor.moveToPosition(position);
 
+        //itinerary id
         int itineraryColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.ITINERARY_ID);
         int itineraryId = cursor.getInt(itineraryColumnIndex);
         //TODO: do something with itinerary id
 
-        int nameColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.NAME);
+        //closest city lat and long
         int closestCityColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.CLOSEST_CITY);
-        holder.title.setText(cursor.getString(nameColumnIndex));
-        holder.title.setText(cursor.getString(closestCityColumnIndex));
+        int closestCityLatitudeColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.CLOSEST_CITY_LATITUDE);
+        int closestCityLongitudeColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.CLOSEST_CITY_LONGITUDE);
+        String closestCity = cursor.getString(closestCityColumnIndex);
+        double closestCityLatitude = cursor.getDouble(closestCityLatitudeColumnIndex);
+        double closestCityLongitude = cursor.getDouble(closestCityLongitudeColumnIndex);
+
+        //name, email, phone
+        int nameColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.NAME);
+        int emailColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.EMAIL);
+        int phoneColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.PHONE);
+        String name = cursor.getString(nameColumnIndex);
+        String email = cursor.getString(emailColumnIndex);
+        String phone = cursor.getString(phoneColumnIndex);
+
+        //data source
+        int dataSourceColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.DATA_SOURCE);
+        int dataSource = cursor.getInt(dataSourceColumnIndex);
+
+        //created datetime
+        int createdDtColumnIndex = cursor.getColumnIndex(ItineraryContract.Columns.CREATED_DATETIME);
+        long createdDtMillis = cursor.getLong(createdDtColumnIndex);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEEE yyyy-MM-dd HH:mm Z", Locale.US); //EEEE is Day of week in long form, e.g. Monday, Tuesday, etc.
+        String createdDtFormatted = simpleDateFormat.format(new Date(createdDtMillis));
+        Log.d(TAG, String.format("onBindViewHolder: Position:%d, ItineraryId:%s, ClosestCity:%s, LatLng:(%.2f,%.2f), Name:%s, Email:%s, Phone:%s, DataSource:%d, Created:%s",
+                position, itineraryId, closestCity, closestCityLatitude, closestCityLongitude, name, email, phone, dataSource, createdDtFormatted));
+
+        holder.title.setText(name);
+        holder.subtitle.setText(closestCity);
     }
 
 //    @Override

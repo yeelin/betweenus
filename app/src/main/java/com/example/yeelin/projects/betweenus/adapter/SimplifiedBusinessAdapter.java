@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.yeelin.projects.betweenus.R;
+import com.example.yeelin.projects.betweenus.data.LocalConstants;
 import com.example.yeelin.projects.betweenus.data.generic.model.SimplifiedBusiness;
 import com.example.yeelin.projects.betweenus.utils.ImageUtils;
 import com.squareup.picasso.Target;
@@ -77,6 +78,7 @@ public class SimplifiedBusinessAdapter
             StringBuilder builder = new StringBuilder(categoryList.length);
             for (int i=0; i<categoryList.length; i++) {
                 builder.append(categoryList[i]);
+                if (i == 2) break; //3 categories is plenty
                 if (i < categoryList.length-1) builder.append(", ");
             }
             viewHolder.categories.setText(builder.toString());
@@ -86,6 +88,14 @@ public class SimplifiedBusinessAdapter
         if (simplifiedBusiness.getReviews() < 0 || simplifiedBusiness.getRating() < 0) {
             //we have fb data, so hide ratings and reviews
             viewHolder.ratingAndReviews.setVisibility(View.GONE);
+        }
+        else if (simplifiedBusiness.getDataSource() == LocalConstants.GOOGLE) {
+            //we have google data
+            viewHolder.ratingAndReviews.setVisibility(View.VISIBLE);
+            viewHolder.ratingAndReviews.setText(getContext().getResources().getQuantityString(
+                    R.plurals.detail_ratings,
+                    (int) Math.round(simplifiedBusiness.getRating()),
+                    String.valueOf(simplifiedBusiness.getRating())));
         }
         else {
             //we have yelp data

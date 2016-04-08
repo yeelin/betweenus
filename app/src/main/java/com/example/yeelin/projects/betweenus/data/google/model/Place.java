@@ -39,6 +39,7 @@ public class Place implements LocalBusiness {
     private final String vicinity;
     //contains an array of feature types describing the given result.
     private final String[] types;
+    private static String[] formattedTypes;
 
     //available from placedetails api
     //an array of separate address components used to compose a given address.
@@ -102,12 +103,12 @@ public class Place implements LocalBusiness {
 
     @Override
     public String getCategory() {
-        return Arrays.toString(types);
+        return Arrays.toString(getTypes());
     }
 
     @Override
     public String[] getCategoryList() {
-        return types;
+        return getTypes();
     }
 
     @Override
@@ -317,7 +318,13 @@ public class Place implements LocalBusiness {
     }
 
     public String[] getTypes() {
-        return types;
+        if (formattedTypes == null) {
+            formattedTypes = new String[types.length];
+            for (int i=0; i<types.length; i++) {
+                formattedTypes[i] = PlaceTypes.getFormattedType(types[i]);
+            }
+        }
+        return formattedTypes;
     }
 
     @Override
