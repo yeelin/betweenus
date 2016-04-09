@@ -1,6 +1,7 @@
 package com.example.yeelin.projects.betweenus.utils;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.yeelin.projects.betweenus.R;
@@ -19,14 +20,18 @@ public class EmailUtils {
     /**
      * Returns the body of the email
      * @param context
+     * @param name
      * @param selectedItems
      * @return
      */
-    public static String buildBody(Context context, final ArrayList<SimplifiedBusiness> selectedItems) {
+    public static String buildBody(Context context, @Nullable String name, final ArrayList<SimplifiedBusiness> selectedItems) {
+        String salutation = name == null ? context.getString(R.string.email_hello_no_name) : context.getString(R.string.sms_hello_with_name, name);
         String bodyMiddle = buildSelectedItemsString(selectedItems);
         Log.d(TAG, "buildBody: " + bodyMiddle);
-        return context.getResources().getQuantityString(R.plurals.email_body, selectedItems.size()) +
-                "<p>" +
+        return salutation
+                + "<p>" +
+                context.getResources().getQuantityString(R.plurals.email_body, selectedItems.size())
+                + "<p>" +
                 bodyMiddle;
     }
 

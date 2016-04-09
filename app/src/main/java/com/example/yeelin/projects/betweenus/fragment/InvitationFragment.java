@@ -51,8 +51,8 @@ public class InvitationFragment
      * Listener interface for fragments or activities interested in events from this fragment
      */
     public interface InvitationFragmentListener {
-        void onInviteByTextMessage(@Nullable String friendPhone);
-        void onInviteByEmail(@Nullable String friendEmail);
+        void onInviteByTextMessage(@Nullable String friendName, @Nullable String friendPhone);
+        void onInviteByEmail(@Nullable String friendName, @Nullable String friendEmail);
     }
 
     /**
@@ -250,7 +250,7 @@ public class InvitationFragment
             viewHolder.inviteSendButton.setImageResource(R.drawable.ic_action_chat);
             //update contact field
             //viewHolder.friendContact.setHint(R.string.friend_phone);
-            viewHolder.textInputLayout.setHint(getString(R.string.friend_phone));
+            viewHolder.contactTextInputLayout.setHint(getString(R.string.friend_phone));
             viewHolder.friendContact.setInputType(InputType.TYPE_CLASS_PHONE);
         }
         else {
@@ -260,7 +260,7 @@ public class InvitationFragment
             viewHolder.inviteSendButton.setImageResource(R.drawable.ic_communication_email);
             //update contact field
             //viewHolder.friendContact.setHint(R.string.friend_email);
-            viewHolder.textInputLayout.setHint(getString(R.string.friend_email));
+            viewHolder.contactTextInputLayout.setHint(getString(R.string.friend_email));
             viewHolder.friendContact.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
         }
 
@@ -275,18 +275,17 @@ public class InvitationFragment
     private void sendInvite() {
         ViewHolder viewHolder = getViewHolder();
         if (viewHolder == null) return;
+
+        String friendName = viewHolder.friendName.getText().length() <= 0 ? null : viewHolder.friendName.getText().toString();
+        String friendContact = viewHolder.friendContact.getText().length() <= 0 ? null : viewHolder.friendContact.getText().toString();
         
         if (inviteByText) {
             Log.d(TAG, "sendInvite: Text invite: " + selectedItems);
-            listener.onInviteByTextMessage(viewHolder.friendContact.getText().length() <= 0 ?
-                    null :
-                    viewHolder.friendContact.getText().toString());
+            listener.onInviteByTextMessage(friendName, friendContact);
         }
         else {
             Log.d(TAG, "sendInvite: Email invite: " + selectedItems);
-            listener.onInviteByEmail(viewHolder.friendContact.getText().length() <= 0 ?
-                    null :
-                    viewHolder.friendContact.getText().toString());
+            listener.onInviteByEmail(friendName, friendContact);
         }
     }
 
@@ -305,7 +304,9 @@ public class InvitationFragment
      */
     private class ViewHolder {
         final ListView selectedItemsListView;
-        final TextInputLayout textInputLayout;
+        final TextInputLayout nameTextInputLayout;
+        final EditText friendName;
+        final TextInputLayout contactTextInputLayout;
         final EditText friendContact;
         final ImageButton inviteSendButton;
         final Button inviteToggleButton;
@@ -322,8 +323,11 @@ public class InvitationFragment
             //selectedItemsListView.setEmptyView(fragmentView.findViewById(R.id.selected_items_empty));
 
             //set up references to components in the listview header
-            textInputLayout = (TextInputLayout) listViewHeader.findViewById(R.id.textIntput_layout);
+            nameTextInputLayout = (TextInputLayout) listViewHeader.findViewById(R.id.name_textInput_layout);
+            friendName = (EditText) listViewHeader.findViewById(R.id.friend_name);
+            contactTextInputLayout = (TextInputLayout) listViewHeader.findViewById(R.id.contact_textInput_layout);
             friendContact = (EditText) listViewHeader.findViewById(R.id.friend_contact);
+
             inviteSendButton = (ImageButton) listViewHeader.findViewById(R.id.invite_send_button);
             inviteToggleButton = (Button) listViewHeader.findViewById(R.id.invite_toggle_button);
         }

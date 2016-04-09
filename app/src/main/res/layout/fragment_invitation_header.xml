@@ -6,11 +6,33 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/name_textInput_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="@string/friend_name" >
+
+        <EditText
+            android:id="@+id/friend_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:textColor="@color/textColorPrimary"
+            android:textColorHint="@color/textColorSecondary"
+            android:textSize="@dimen/small_textSize"/>
+
+    </android.support.design.widget.TextInputLayout>
+
     <!-- text field and send button -->
     <android.support.v7.widget.GridLayout
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginRight="16dp"
@@ -25,7 +47,7 @@
         android:visibility="visible">
 
         <android.support.design.widget.TextInputLayout
-            android:id="@+id/textIntput_layout"
+            android:id="@+id/contact_textInput_layout"
             app:layout_row="0"
             app:layout_column="0"
             app:layout_gravity="center_vertical"

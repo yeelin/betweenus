@@ -167,18 +167,23 @@
 
     <!-- Send activity strings -->
     <string name="invite_image_overlay_text">Invite your friend</string>
+    <string name="friend_name">"Enter friend's name"</string>
     <string name="friend_phone">"Enter friend's phone number to invite"</string>
     <string name="friend_email">"Enter friend's email to invite"</string>
     <string name="invite_by_email">Invite by email instead</string>
     <string name="invite_by_text">Invite by text instead</string>
 
     <!-- Text message strings -->
+    <string name="sms_hello_no_name">Hey,</string>
+    <string name="sms_hello_with_name">Hey %1$s,</string>
     <plurals name="sms_body">
         <item quantity="one">What do you think of this option?</item>
         <item quantity="other">What do you think of these options?</item>
     </plurals>
 
     <!-- Email strings -->
+    <string name="email_hello_no_name">Hey,</string>
+    <string name="email_hello_with_name">Hey %1$s,</string>
     <string name="email_subject">Invitation from Between</string>
     <plurals name="email_body">
         <item quantity="one">What do you think of this option?</item>
